@@ -4,6 +4,9 @@
 - [x] Etapa 0 — Infraestrutura (Git, GitHub, SSH, Node, Remotion rodando em casa e no trabalho)
 - [x] Etapa 1 — Organizar a casa
 - [ ] **Etapa 2 — Cortes, gancho e limpeza de voz** ← ATUAL
+  - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
+  - [ ] 2b — Redução de ruído e equalização da voz
+  - [ ] Gancho (reordenar trechos) — implementado, ainda não testado
 - [ ] Etapa 3 — Montagem sobre vídeo real
 - [ ] Etapa 4 — Legendas automáticas
 - [ ] Etapa 5 — Identidade visual
@@ -25,6 +28,17 @@ Se validar bem, pode virar produto no futuro. Isso é outro projeto (ver seção
 - Pasta no trabalho: `C:\Users\edica\editor-jr`
 - Node v24, npm 11, Remotion (template Blank, sem Tailwind)
 - Sincronização: `git pull` ao começar, commit + push ao terminar
+- **FFmpeg:** o Remotion traz o dele em `node_modules/@remotion/compositor-win32-x64-msvc/`.
+  Serve para cortar e juntar (é o que o script de cortes usa), mas é uma build enxuta:
+  vem com `silencedetect` e `loudnorm`, e **não** vem com os filtros de redução de
+  ruído e equalização. Para a Etapa 2b é preciso o FFmpeg completo:
+  `winget install Gyan.FFmpeg` (já instalado na máquina do trabalho, falta em casa).
+
+### Cuidado ao conferir vídeo (custou horas na Etapa 2)
+**Não use a pré-visualização do VS Code para testar áudio.** Ela roda sobre Chromium,
+que não embarca o decodificador de AAC: o vídeo toca e o áudio some, sem nenhum aviso.
+Conferir sempre pelo Explorador de Arquivos, ou no VLC. MP3 toca no VS Code porque é
+formato livre — o que torna o sintoma ainda mais enganoso.
 
 ## 3. Decisões tomadas
 - **Camadas:** todo elemento (gráfico, texto, imagem, som, legenda) é uma camada separada e editável. Nada queimado no vídeo antes da exportação final.
@@ -54,6 +68,7 @@ Se validar bem, pode virar produto no futuro. Isso é outro projeto (ver seção
 editor-jr/
 ├── CLAUDE.md
 ├── ARQUITETURA.md
+├── scripts/            ← ferramentas de linha de comando (corte de silêncio)
 ├── src/
 │   ├── components/     ← catálogo de motion graphics
 │   ├── Composition.tsx
@@ -90,11 +105,46 @@ editor-jr/
 - **Pré-requisitos:** nenhum.
 
 ### Etapa 2 — Cortes, gancho e limpeza de voz
-- Detectar e cortar silêncios (limiar configurável, ex.: pausas acima de 1 s)
-- Reordenar trechos: gancho para o início (ex.: 3:10–3:25 vai para o começo), conforme o prompt
-- Redução de ruído e equalização da voz
-- Ferramenta: FFmpeg (verificar se usa o que vem com o Remotion ou instalação separada)
-- **Pré-requisitos:** um vídeo bruto curto de teste com o JR falando.
+
+**2a — Corte de silêncios: PRONTO.** Script `scripts/cortar-silencio.mjs`, sem
+dependência nova (usa o FFmpeg do Remotion).
+
+```
+node scripts/cortar-silencio.mjs videos/VIDEO.mp4                    # só analisa
+node scripts/cortar-silencio.mjs videos/VIDEO.mp4 --gerar            # gera o mp4
+node scripts/cortar-silencio.mjs videos/VIDEO.mp4 --gerar --margem 0.25
+```
+
+Opções: `--limiar` (dB, padrão -30) · `--pausa` (s, padrão 0.8) · `--margem`
+(s, padrão 0.15) · `--minimo` (s, padrão 0.3) · `--gancho 1:10-1:25`.
+
+Sem `--gerar` ele só analisa e mostra o relatório — use sempre isso primeiro para
+calibrar, porque gerar o vídeo é lento. A saída é versionada (`-cortado-v1`, `-v2`…),
+nunca sobrescreve.
+
+**A lista de trechos vira dado, não fica queimada no vídeo:** o script grava
+`videos/VIDEO.cortes.json` com os silêncios, os trechos mantidos e os parâmetros
+usados. É esse arquivo que as Etapas 3 e 6 devem consumir para montar a timeline.
+O mp4 cortado serve para conferir o resultado a olho.
+
+Resultado no vídeo de teste (`teste-jr.mp4`, 2:42): 21 pausas, 14,7% cortado, saída 2:18.
+
+Notas de implementação, para não repetir os erros:
+- O FFmpeg do Remotion não tem o encoder `wrapped_avframe`, então o `-f null -` normal
+  falha. A análise precisa de `-vn` e `-c:a pcm_s16le`.
+- Os pedaços intermediários usam áudio PCM e o AAC é gerado uma única vez, na junção.
+  Assim o áudio não é comprimido duas vezes.
+- Cortar é sempre mais caro do que parece: 21 trechos de 1080p levam alguns minutos.
+
+**2b — Limpeza de voz: PENDENTE.** Redução de ruído (`afftdn` / `anlmdn`),
+equalização (`equalizer`, `highpass`) e compressão (`acompressor`). Nenhum desses
+filtros existe no FFmpeg do Remotion — exige o FFmpeg completo (ver seção 2).
+
+**Gancho: implementado, não testado.** `--gancho 1:10-1:25` recorta o trecho e o
+move para o início. Falta validar com áudio.
+
+- **Pré-requisitos:** um vídeo bruto curto de teste com o JR falando (atendido);
+  FFmpeg completo instalado, só para a 2b.
 
 ### Etapa 3 — Montagem sobre vídeo real
 - Vídeo base + camadas por cima (componentes com fundo transparente)
