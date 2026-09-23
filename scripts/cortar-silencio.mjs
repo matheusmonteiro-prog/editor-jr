@@ -12,6 +12,7 @@
  *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --limiar -35 --pausa 1.0
  *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar
  *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar --gancho 1:10-1:25
+ *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar --gancho 1:10-1:25 --copiar
  */
 
 import {spawnSync} from 'node:child_process';
@@ -90,6 +91,7 @@ const MARGEM = Number(opcao('margem', 0.15)); // s: folga antes/depois de cada f
 const MINIMO = Number(opcao('minimo', 0.3)); // s: descarta lascas de fala menores que isso
 const GERAR = argv.includes('--gerar');
 const GANCHO = opcao('gancho', null); // ex.: "1:10-1:25"
+const COPIAR = argv.includes('--copiar'); // gancho repete no lugar original em vez de sair de lá
 
 // ---------------------------------------------------------------- 1. duração
 
@@ -197,8 +199,22 @@ if (GANCHO) {
       fim: Math.min(t.fim, b),
       gancho: true,
     }));
-    const resto = finais.filter((t) => !(t.fim > a && t.inicio < b));
-    ordem = [...gancho, ...resto];
+    if (COPIAR) {
+      ordem = [...gancho, ...finais];
+    } else {
+      // Uma fala que atravessa a borda do gancho perde só a parte de dentro;
+      // o que está fora continua no lugar original.
+      const resto = [];
+      for (const t of finais) {
+        if (t.fim <= a || t.inicio >= b) {
+          resto.push(t);
+          continue;
+        }
+        if (t.inicio < a) resto.push({inicio: t.inicio, fim: a});
+        if (t.fim > b) resto.push({inicio: b, fim: t.fim});
+      }
+      ordem = [...gancho, ...resto];
+    }
   }
 }
 
@@ -218,10 +234,10 @@ for (const s of silencios) {
   );
 }
 
-console.log(`\nTrechos com fala: ${finais.length}`);
-for (const [i, t] of finais.entries()) {
+console.log(`\nTrechos na ordem final: ${ordem.length}`);
+for (const [i, t] of ordem.entries()) {
   console.log(
-    `  ${String(i + 1).padStart(3)}. ${segParaTempo(t.inicio)} → ${segParaTempo(t.fim)}   (${(t.fim - t.inicio).toFixed(2)}s)`,
+    `  ${String(i + 1).padStart(3)}. ${segParaTempo(t.inicio)} → ${segParaTempo(t.fim)}   (${(t.fim - t.inicio).toFixed(2)}s)${t.gancho ? '   ← gancho' : ''}`,
   );
 }
 
@@ -230,6 +246,10 @@ console.log(`Original:  ${segParaTempo(DURACAO)}`);
 console.log(`Sobra:     ${segParaTempo(mantido)}`);
 console.log(`Cortado:   ${segParaTempo(removido)}  (${((removido / DURACAO) * 100).toFixed(1)}%)`);
 console.log(`Cortes:    ${silencios.length}`);
+if (ordem !== finais) {
+  console.log(`Gancho:    ${GANCHO} (${COPIAR ? 'copiado' : 'movido'} para o início)`);
+  console.log(`Final:     ${segParaTempo(somar(ordem))}`);
+}
 
 // ---------------------------------------------------------------- JSON
 
@@ -247,6 +267,7 @@ writeFileSync(
         margem: MARGEM,
         minimo: MINIMO,
         gancho: GANCHO,
+        modoGancho: GANCHO ? (COPIAR ? 'copiar' : 'mover') : null,
       },
       silencios,
       trechos: ordem,

@@ -6,7 +6,7 @@
 - [ ] **Etapa 2 — Cortes, gancho e limpeza de voz** ← ATUAL
   - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
   - [ ] 2b — Redução de ruído e equalização da voz
-  - [ ] Gancho (reordenar trechos) — implementado, ainda não testado
+  - [ ] Gancho (reordenar trechos) — bug corrigido e `--copiar` adicionado; falta testar com o vídeo real
 - [ ] Etapa 3 — Montagem sobre vídeo real
 - [ ] Etapa 4 — Legendas automáticas
 - [ ] Etapa 5 — Identidade visual
@@ -116,7 +116,7 @@ node scripts/cortar-silencio.mjs videos/VIDEO.mp4 --gerar --margem 0.25
 ```
 
 Opções: `--limiar` (dB, padrão -30) · `--pausa` (s, padrão 0.8) · `--margem`
-(s, padrão 0.15) · `--minimo` (s, padrão 0.3) · `--gancho 1:10-1:25`.
+(s, padrão 0.15) · `--minimo` (s, padrão 0.3) · `--gancho 1:10-1:25` · `--copiar`.
 
 Sem `--gerar` ele só analisa e mostra o relatório — use sempre isso primeiro para
 calibrar, porque gerar o vídeo é lento. A saída é versionada (`-cortado-v1`, `-v2`…),
@@ -140,8 +140,11 @@ Notas de implementação, para não repetir os erros:
 equalização (`equalizer`, `highpass`) e compressão (`acompressor`). Nenhum desses
 filtros existe no FFmpeg do Remotion — exige o FFmpeg completo (ver seção 2).
 
-**Gancho: implementado, não testado.** `--gancho 1:10-1:25` recorta o trecho e o
-move para o início. Falta validar com áudio.
+**Gancho: implementado, falta validar com o vídeo real.** `--gancho 1:10-1:25` recorta
+o trecho e o **move** para o início (padrão). Com `--copiar`, o trecho aparece no início
+e também continua no lugar original (formato "prévia"). Uma fala que atravessa a borda
+do gancho é dividida: a parte de fora fica no lugar dela, nada se perde. Lógica já
+conferida com áudio sintético (bipes com pausas); falta ouvir no `teste-jr.mp4`.
 
 - **Pré-requisitos:** um vídeo bruto curto de teste com o JR falando (atendido);
   FFmpeg completo instalado, só para a 2b.
