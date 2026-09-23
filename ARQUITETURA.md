@@ -3,9 +3,9 @@
 ## Status
 - [x] Etapa 0 — Infraestrutura (Git, GitHub, SSH, Node, Remotion rodando em casa e no trabalho)
 - [x] Etapa 1 — Organizar a casa
-- [ ] **Etapa 2 — Cortes, gancho e limpeza de voz** ← ATUAL
+- [x] Etapa 2 — Cortes, gancho e limpeza de voz (completa em 23/09/2026)
   - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
-  - [ ] 2b — Redução de ruído e equalização da voz
+  - [x] 2b — Redução de ruído e equalização da voz (aprovado em 23/09/2026, amostra A/B)
   - [x] Gancho (reordenar trechos), incluindo teaser com múltiplos trechos — testado e aprovado (23/09/2026)
 - [ ] Etapa 3 — Montagem sobre vídeo real
 - [ ] Etapa 4 — Legendas automáticas
@@ -165,9 +165,26 @@ Notas de implementação, para não repetir os erros:
   Assim o áudio não é comprimido duas vezes.
 - Cortar é sempre mais caro do que parece: 21 trechos de 1080p levam alguns minutos.
 
-**2b — Limpeza de voz: PENDENTE.** Redução de ruído (`afftdn` / `anlmdn`),
-equalização (`equalizer`, `highpass`) e compressão (`acompressor`). Nenhum desses
-filtros existe no FFmpeg do Remotion — exige o FFmpeg completo (ver seção 2).
+**2b — Limpeza de voz: PRONTO, testado e aprovado (23/09/2026).** Opção `--limpar`:
+
+```
+node scripts/cortar-silencio.mjs videos/VIDEO.mp4 --gerar --limpar
+```
+
+Cadeia de filtros (valores de partida, ajustáveis — ver constantes
+`FILTRO_REDUCAO_RUIDO` e `FILTRO_NORMALIZACAO` no topo do script):
+- `highpass=f=80` — corta ruído grave abaixo da voz (zumbido, vento, ar-condicionado)
+- `afftdn=nf=-25` — redução de ruído de fundo constante, por FFT
+- `acompressor` — nivela a dinâmica (sussurro sobe, fala forte desce um pouco)
+- `loudnorm=I=-16:TP=-1.5:LRA=11` — normaliza o volume final (padrão de streaming),
+  aplicado uma vez só sobre a trilha inteira já montada, não em cada pedaço
+
+Nenhum desses filtros existe no FFmpeg enxuto do Remotion — exige o FFmpeg completo
+(ver seção 2). O script detecta sozinho onde ele está (PATH, ou o local padrão do
+winget) e recusa com mensagem clara se não achar.
+
+Aprovado por amostra A/B (20s, com e sem `--limpar`, mesmo trecho) — ainda não
+rodado no vídeo inteiro nem testado com o gancho junto, mas o mecanismo é o mesmo.
 
 **Gancho: PRONTO, testado e aprovado no `teste-jr.mp4` (23/09/2026).**
 `--gancho 0:46-0:56` recorta o trecho e o **move** para o início (padrão). Com
@@ -226,6 +243,9 @@ arquivos da sessão.
 - Adicionar imagem depois, em qualquer momento do vídeo
 - Ajustar camadas arrastando e redimensionando
 - Organizar imagens, músicas e efeitos pela interface
+- Controle visual (tipo slider) para ajustar a limpeza de voz da Etapa 2b sem
+  mexer em código — hoje os parâmetros (`afftdn`, `acompressor`, `loudnorm`)
+  só são ajustáveis editando as constantes no `scripts/cortar-silencio.mjs`
 - **Pré-requisitos:** nenhum novo.
 
 ### Etapa 8 — Exportação e entrega

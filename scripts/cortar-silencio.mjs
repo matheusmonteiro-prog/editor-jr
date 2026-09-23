@@ -17,6 +17,11 @@
  *   Teaser com vários trechos (separados por vírgula, na ordem que você digitar,
  *   não na ordem cronológica do vídeo):
  *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar --gancho 0:46-0:56,0:14-0:22,1:20-1:25
+ *
+ *   Limpeza de voz (redução de ruído + equalização + nivelamento). Exige o
+ *   FFmpeg completo instalado (winget install Gyan.FFmpeg) — o do Remotion
+ *   não tem os filtros necessários:
+ *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar --limpar
  */
 
 import {spawnSync} from 'node:child_process';
@@ -47,6 +52,46 @@ const acharBinario = (nome) => {
 
 const FFMPEG = acharBinario('ffmpeg');
 const FFPROBE = acharBinario('ffprobe');
+
+// O ffmpeg do Remotion é uma build enxuta: não tem afftdn, acompressor nem
+// highpass. Para --limpar precisamos do FFmpeg completo (winget install
+// Gyan.FFmpeg). Procura primeiro no PATH do sistema, depois no local padrão
+// que o winget usa nessa instalação.
+const acharFfmpegCompleto = () => {
+  const noPath = spawnSync('ffmpeg', ['-version'], {encoding: 'utf8'});
+  if (!noPath.error && noPath.status === 0) return 'ffmpeg';
+
+  if (process.platform === 'win32') {
+    const base = join(
+      process.env.LOCALAPPDATA ?? '',
+      'Microsoft',
+      'WinGet',
+      'Packages',
+    );
+    if (existsSync(base)) {
+      const pacoteFFmpeg = readdirSync(base).find((n) => n.startsWith('Gyan.FFmpeg'));
+      if (pacoteFFmpeg) {
+        const dirPacote = join(base, pacoteFFmpeg);
+        const buildDir = readdirSync(dirPacote).find((n) => /^ffmpeg-.*-full_build$/.test(n));
+        if (buildDir) {
+          const caminho = join(dirPacote, buildDir, 'bin', 'ffmpeg.exe');
+          if (existsSync(caminho)) return caminho;
+        }
+      }
+    }
+  }
+  return null;
+};
+
+// Cadeia de filtros de limpeza de voz, usada por --limpar.
+// - highpass: corta ruído grave (zumbido, vento, ar-condicionado) abaixo da voz
+// - afftdn: redução de ruído de fundo constante, por FFT
+// - acompressor: nivela a dinâmica (sussurro sobe, fala forte desce um pouco)
+// Valores moderados de partida — ajustar ouvindo o resultado.
+const FILTRO_REDUCAO_RUIDO = 'highpass=f=80,afftdn=nf=-25,acompressor=threshold=-18dB:ratio=3:attack=20:release=250';
+// Normalização de volume final (padrão próximo do que YouTube/Instagram usam).
+// Aplicada uma vez só, sobre a trilha inteira já montada — não em cada pedaço.
+const FILTRO_NORMALIZACAO = 'loudnorm=I=-16:TP=-1.5:LRA=11';
 
 const rodar = (bin, args) => {
   const r = spawnSync(bin, args, {encoding: 'utf8', maxBuffer: 64 * 1024 * 1024});
@@ -94,6 +139,22 @@ const PAUSA = Number(opcao('pausa', 0.8)); // s: só pausas maiores que isso con
 const MARGEM = Number(opcao('margem', 0.15)); // s: folga antes/depois de cada fala
 const MINIMO = Number(opcao('minimo', 0.3)); // s: descarta lascas de fala menores que isso
 const GERAR = argv.includes('--gerar');
+const LIMPAR = argv.includes('--limpar');
+
+// Falha cedo, antes de gastar tempo com a detecção de silêncio, se --limpar
+// foi pedido mas não há um ffmpeg completo disponível.
+const FFMPEG_COMPLETO = LIMPAR ? acharFfmpegCompleto() : null;
+if (LIMPAR && !FFMPEG_COMPLETO) {
+  console.error(
+    'Não achei o FFmpeg completo (precisa dele para --limpar).\n' +
+      'Instale com: winget install Gyan.FFmpeg\n' +
+      '(o FFmpeg que vem com o Remotion não tem os filtros de redução de ruído)',
+  );
+  process.exit(1);
+}
+// Para gerar com --limpar, usa o ffmpeg completo em tudo (ele faz tudo que
+// o do Remotion faz, e mais). Sem --limpar, continua no do Remotion.
+const FFMPEG_GERACAO = LIMPAR ? FFMPEG_COMPLETO : FFMPEG;
 // Um trecho ("1:10-1:25") ou vários, separados por vírgula, formando um teaser
 // no início na ordem em que forem digitados (não na ordem do vídeo original):
 // "0:46-0:56,0:14-0:22,1:20-1:25"
@@ -348,7 +409,7 @@ console.log(`\nRecortando ${ordem.length} trechos...`);
 const pedacos = [];
 for (const [i, t] of ordem.entries()) {
   const saida = join(tmp, `p${String(i).padStart(4, '0')}.mov`);
-  const r = rodar(FFMPEG, [
+  const args = [
     '-hide_banner',
     '-loglevel',
     'error',
@@ -370,11 +431,10 @@ for (const [i, t] of ordem.entries()) {
     '44100',
     '-ac',
     '2',
-    '-avoid_negative_ts',
-    'make_zero',
-    '-y',
-    saida,
-  ]);
+  ];
+  if (LIMPAR) args.push('-af', FILTRO_REDUCAO_RUIDO);
+  args.push('-avoid_negative_ts', 'make_zero', '-y', saida);
+  const r = rodar(FFMPEG_GERACAO, args);
   if (r.status !== 0) {
     console.error(`Falhou no trecho ${i + 1}:\n${r.stderr}`);
     process.exit(1);
@@ -404,7 +464,7 @@ const final = `${base}${versao}.mp4`;
 // novo). O áudio é comprimido aqui, uma vez só, virando um fluxo contínuo.
 // +faststart põe o índice no começo do arquivo, o que ajuda os players.
 console.log('Juntando...');
-const junta = rodar(FFMPEG, [
+const argsJunta = [
   '-hide_banner',
   '-loglevel',
   'error',
@@ -424,11 +484,10 @@ const junta = rodar(FFMPEG, [
   '44100',
   '-ac',
   '2',
-  '-movflags',
-  '+faststart',
-  '-y',
-  final,
-]);
+];
+if (LIMPAR) argsJunta.push('-af', FILTRO_NORMALIZACAO);
+argsJunta.push('-movflags', '+faststart', '-y', final);
+const junta = rodar(FFMPEG_GERACAO, argsJunta);
 if (junta.status !== 0) {
   console.error(`Falhou ao juntar:\n${junta.stderr}`);
   process.exit(1);
