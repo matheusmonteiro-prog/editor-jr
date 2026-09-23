@@ -6,7 +6,7 @@
 - [ ] **Etapa 2 — Cortes, gancho e limpeza de voz** ← ATUAL
   - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
   - [ ] 2b — Redução de ruído e equalização da voz
-  - [ ] Gancho (reordenar trechos) — bug corrigido e `--copiar` adicionado; falta testar com o vídeo real
+  - [x] Gancho (reordenar trechos), incluindo teaser com múltiplos trechos — testado e aprovado (23/09/2026)
 - [ ] Etapa 3 — Montagem sobre vídeo real
 - [ ] Etapa 4 — Legendas automáticas
 - [ ] Etapa 5 — Identidade visual
@@ -169,11 +169,25 @@ Notas de implementação, para não repetir os erros:
 equalização (`equalizer`, `highpass`) e compressão (`acompressor`). Nenhum desses
 filtros existe no FFmpeg do Remotion — exige o FFmpeg completo (ver seção 2).
 
-**Gancho: implementado, falta validar com o vídeo real.** `--gancho 1:10-1:25` recorta
-o trecho e o **move** para o início (padrão). Com `--copiar`, o trecho aparece no início
-e também continua no lugar original (formato "prévia"). Uma fala que atravessa a borda
-do gancho é dividida: a parte de fora fica no lugar dela, nada se perde. Lógica já
-conferida com áudio sintético (bipes com pausas); falta ouvir no `teste-jr.mp4`.
+**Gancho: PRONTO, testado e aprovado no `teste-jr.mp4` (23/09/2026).**
+`--gancho 0:46-0:56` recorta o trecho e o **move** para o início (padrão). Com
+`--copiar`, o trecho aparece no início e também continua no lugar original
+(formato "prévia"). Uma fala que atravessa a borda do gancho é dividida: a
+parte de fora fica no lugar dela, nada se perde.
+
+**Teaser com vários trechos:** o `--gancho` aceita uma lista separada por
+vírgula, montando os trechos em sequência no início **na ordem digitada**
+(não na ordem cronológica do vídeo):
+
+```
+node scripts/cortar-silencio.mjs videos/VIDEO.mp4 --gerar --gancho 0:46-0:56,0:14-0:22,1:20-1:25
+```
+
+Cada trecho do teaser passa pelo corte de silêncio normalmente (uma pausa no
+meio da fala escolhida é removida, igual ao resto do vídeo). Dois ganchos que
+se sobrepõem dão erro, em vez de duplicar áudio sem avisar. Validado por
+correlação de áudio (comparação de forma de onda entre o gerado e o original),
+não só por audição.
 
 **Modo multi-camada (Formato A): PENDENTE, não implementado.** Ver seção 3a —
 detectar pausas só no `audio_<data>.wav` e aplicar os mesmos cortes nos 3

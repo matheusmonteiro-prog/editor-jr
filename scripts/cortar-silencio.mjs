@@ -13,6 +13,10 @@
  *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar
  *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar --gancho 1:10-1:25
  *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar --gancho 1:10-1:25 --copiar
+ *
+ *   Teaser com vários trechos (separados por vírgula, na ordem que você digitar,
+ *   não na ordem cronológica do vídeo):
+ *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar --gancho 0:46-0:56,0:14-0:22,1:20-1:25
  */
 
 import {spawnSync} from 'node:child_process';
@@ -90,8 +94,34 @@ const PAUSA = Number(opcao('pausa', 0.8)); // s: só pausas maiores que isso con
 const MARGEM = Number(opcao('margem', 0.15)); // s: folga antes/depois de cada fala
 const MINIMO = Number(opcao('minimo', 0.3)); // s: descarta lascas de fala menores que isso
 const GERAR = argv.includes('--gerar');
-const GANCHO = opcao('gancho', null); // ex.: "1:10-1:25"
+// Um trecho ("1:10-1:25") ou vários, separados por vírgula, formando um teaser
+// no início na ordem em que forem digitados (não na ordem do vídeo original):
+// "0:46-0:56,0:14-0:22,1:20-1:25"
+const GANCHO_TXT = opcao('gancho', null);
 const COPIAR = argv.includes('--copiar'); // gancho repete no lugar original em vez de sair de lá
+
+const GANCHOS = GANCHO_TXT
+  ? GANCHO_TXT.split(',').map((trecho) => {
+      const partes = trecho.split('-');
+      if (partes.length !== 2) {
+        throw new Error(`Gancho inválido: "${trecho}". Use o formato 1:10-1:25.`);
+      }
+      const [a, b] = partes.map(tempoParaSeg);
+      if (!(b > a)) throw new Error(`Gancho inválido: "${trecho}" (o fim precisa vir depois do início).`);
+      return {inicio: a, fim: b, texto: trecho};
+    })
+  : [];
+
+// Dois ganchos não podem se sobrepor, senão o mesmo trecho de fala entraria
+// duas vezes no teaser sem querer.
+for (let i = 0; i < GANCHOS.length; i++) {
+  for (let j = i + 1; j < GANCHOS.length; j++) {
+    const x = GANCHOS[i], y = GANCHOS[j];
+    if (x.inicio < y.fim && y.inicio < x.fim) {
+      throw new Error(`Os ganchos "${x.texto}" e "${y.texto}" se sobrepõem.`);
+    }
+  }
+}
 
 // ---------------------------------------------------------------- 1. duração
 
@@ -183,38 +213,58 @@ const finais = trechos.filter((t) => t.fim - t.inicio >= MINIMO);
 
 // ---------------------------------------------------------------- 4. gancho
 
-let ordem = finais;
-if (GANCHO) {
-  const [a, b] = GANCHO.split('-').map(tempoParaSeg);
-  if (!(b > a)) throw new Error(`Gancho inválido: ${GANCHO}`);
-  const dentro = finais.filter((t) => t.fim > a && t.inicio < b);
-  if (dentro.length === 0) {
-    console.warn(
-      `Atenção: não há fala entre ${segParaTempo(a)} e ${segParaTempo(b)}. Gancho ignorado.\n`,
-    );
-  } else {
-    // Recorta o gancho nas bordas pedidas e joga pro começo.
-    const gancho = dentro.map((t) => ({
-      inicio: Math.max(t.inicio, a),
-      fim: Math.min(t.fim, b),
-      gancho: true,
-    }));
-    if (COPIAR) {
-      ordem = [...gancho, ...finais];
-    } else {
-      // Uma fala que atravessa a borda do gancho perde só a parte de dentro;
-      // o que está fora continua no lugar original.
-      const resto = [];
-      for (const t of finais) {
-        if (t.fim <= a || t.inicio >= b) {
-          resto.push(t);
-          continue;
-        }
-        if (t.inicio < a) resto.push({inicio: t.inicio, fim: a});
-        if (t.fim > b) resto.push({inicio: b, fim: t.fim});
+// Tira de um trecho as partes cobertas por uma lista de intervalos (os
+// ganchos). Sobra zero ou mais pedaços — o que restou do trecho original
+// depois de retirar tudo que virou gancho.
+const subtrairIntervalos = (trecho, intervalos) => {
+  let partes = [{inicio: trecho.inicio, fim: trecho.fim}];
+  for (const r of intervalos) {
+    const novas = [];
+    for (const p of partes) {
+      if (r.fim <= p.inicio || r.inicio >= p.fim) {
+        novas.push(p); // não se tocam
+        continue;
       }
-      ordem = [...gancho, ...resto];
+      if (r.inicio > p.inicio) novas.push({inicio: p.inicio, fim: r.inicio});
+      if (r.fim < p.fim) novas.push({inicio: r.fim, fim: p.fim});
     }
+    partes = novas;
+  }
+  return partes;
+};
+
+let ordem = finais;
+if (GANCHOS.length > 0) {
+  const pedacosGancho = [];
+  GANCHOS.forEach((g, idx) => {
+    const dentro = finais.filter((t) => t.fim > g.inicio && t.inicio < g.fim);
+    if (dentro.length === 0) {
+      console.warn(
+        `Atenção: não há fala entre ${segParaTempo(g.inicio)} e ${segParaTempo(g.fim)} (gancho "${g.texto}"). Ignorado.\n`,
+      );
+      return;
+    }
+    for (const t of dentro) {
+      pedacosGancho.push({
+        inicio: Math.max(t.inicio, g.inicio),
+        fim: Math.min(t.fim, g.fim),
+        gancho: idx + 1, // qual gancho, na ordem digitada — útil no relatório
+      });
+    }
+  });
+
+  if (pedacosGancho.length === 0) {
+    // Nenhum gancho tinha fala dentro; segue sem reordenar nada.
+  } else if (COPIAR) {
+    ordem = [...pedacosGancho, ...finais];
+  } else {
+    // Cada trecho original perde as partes que caíram em algum gancho; o
+    // que sobra (fora de todos os ganchos) continua no lugar dele.
+    const resto = [];
+    for (const t of finais) {
+      resto.push(...subtrairIntervalos(t, GANCHOS));
+    }
+    ordem = [...pedacosGancho, ...resto];
   }
 }
 
@@ -237,7 +287,7 @@ for (const s of silencios) {
 console.log(`\nTrechos na ordem final: ${ordem.length}`);
 for (const [i, t] of ordem.entries()) {
   console.log(
-    `  ${String(i + 1).padStart(3)}. ${segParaTempo(t.inicio)} → ${segParaTempo(t.fim)}   (${(t.fim - t.inicio).toFixed(2)}s)${t.gancho ? '   ← gancho' : ''}`,
+    `  ${String(i + 1).padStart(3)}. ${segParaTempo(t.inicio)} → ${segParaTempo(t.fim)}   (${(t.fim - t.inicio).toFixed(2)}s)${t.gancho ? `   ← gancho ${t.gancho}` : ''}`,
   );
 }
 
@@ -247,7 +297,8 @@ console.log(`Sobra:     ${segParaTempo(mantido)}`);
 console.log(`Cortado:   ${segParaTempo(removido)}  (${((removido / DURACAO) * 100).toFixed(1)}%)`);
 console.log(`Cortes:    ${silencios.length}`);
 if (ordem !== finais) {
-  console.log(`Gancho:    ${GANCHO} (${COPIAR ? 'copiado' : 'movido'} para o início)`);
+  const listaGanchos = GANCHOS.map((g) => g.texto).join(', ');
+  console.log(`Gancho:    ${listaGanchos} (${COPIAR ? 'copiados' : 'movidos'} para o início)`);
   console.log(`Final:     ${segParaTempo(somar(ordem))}`);
 }
 
@@ -266,8 +317,8 @@ writeFileSync(
         pausa: PAUSA,
         margem: MARGEM,
         minimo: MINIMO,
-        gancho: GANCHO,
-        modoGancho: GANCHO ? (COPIAR ? 'copiar' : 'mover') : null,
+        gancho: GANCHOS.map((g) => g.texto),
+        modoGancho: GANCHOS.length > 0 ? (COPIAR ? 'copiar' : 'mover') : null,
       },
       silencios,
       trechos: ordem,
