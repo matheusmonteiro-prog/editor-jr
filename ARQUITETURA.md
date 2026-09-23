@@ -55,6 +55,34 @@ formato livre — o que torna o sintoma ainda mais enganoso.
 - **Vertical/horizontal:** detectado automaticamente pelas dimensões do vídeo enviado.
 - **Posicionamento automático por visão (IA olhando o frame):** fora da v1.
 
+## 3a. Formatos de entrada de vídeo (sessões de gravação)
+Cada sessão de gravação chega em um de dois formatos. O plano de edição (JSON,
+ver Etapa 2) precisa registrar qual dos dois é, num campo de tipo de sessão:
+`single_file` ou `multi_layer`.
+
+**FORMATO A — multi-camada (3 arquivos).** Vive numa subpasta própria, ex.:
+`videos/sessao-2026-09-24/`. Os três arquivos têm a mesma duração e o mesmo
+início (sincronizados por timestamp):
+- `tela_<data>.mkv` — vídeo da tela, sem áudio
+- `camera_<data>.mkv` — vídeo da câmera do JR, sem áudio
+- `audio_<data>.wav` — narração, é a trilha mestre
+
+Tela e câmera viram duas camadas no Remotion: tela sempre visível por baixo,
+câmera por cima só nos trechos que o prompt definir (ex.: "0:00-3:00 tela,
+3:00-3:45 câmera"). Troca de foco é controlar a visibilidade/duração da camada
+da câmera — **não é corte de clipe**. Isso nunca é automático, sempre vem do
+prompt. Ajuste fino é manual, arrastando a borda da camada no Remotion Studio.
+
+**FORMATO B — arquivo único** (vídeo + áudio juntos). Tratado como já funciona
+hoje, sem lógica de camada. É o formato do `teste-jr.mp4` usado até aqui.
+
+**Pendência conhecida no corte de silêncio (`scripts/cortar-silencio.mjs`):**
+hoje o script só sabe lidar com o Formato B. Para o Formato A ele vai precisar
+de um modo novo — detectar as pausas **só** no `audio_<data>.wav` e aplicar os
+**mesmos** cortes nos três arquivos juntos. Cortar cada arquivo separado, cada
+um por sua conta, quebraria a sincronia entre tela, câmera e voz. Ainda não
+implementado — registrado aqui para não esquecer o detalhe.
+
 ## 4. Regras de organização
 - Vídeo **nunca** vai para o GitHub (limite de 100 MB por arquivo; vídeos passam disso). Só código.
 - Nomes de arquivo sem espaço.
@@ -80,6 +108,7 @@ editor-jr/
 │   ├── sfx/            ← efeitos sonoros
 │   └── brand/          ← logo e identidade visual
 └── videos/             ← brutos e exportados (ignorada pelo Git)
+    └── sessao-<data>/  ← Formato A (multi-camada): tela_<data>.mkv, camera_<data>.mkv, audio_<data>.wav
 ```
 
 ## 6. Catálogo de componentes
@@ -146,10 +175,16 @@ e também continua no lugar original (formato "prévia"). Uma fala que atravessa
 do gancho é dividida: a parte de fora fica no lugar dela, nada se perde. Lógica já
 conferida com áudio sintético (bipes com pausas); falta ouvir no `teste-jr.mp4`.
 
+**Modo multi-camada (Formato A): PENDENTE, não implementado.** Ver seção 3a —
+detectar pausas só no `audio_<data>.wav` e aplicar os mesmos cortes nos 3
+arquivos da sessão.
+
 - **Pré-requisitos:** um vídeo bruto curto de teste com o JR falando (atendido);
   FFmpeg completo instalado, só para a 2b.
 
 ### Etapa 3 — Montagem sobre vídeo real
+- Formato A (multi-camada): tela sempre visível por baixo, câmera por cima só
+  nos trechos que o prompt definir — ver seção 3a
 - Vídeo base + camadas por cima (componentes com fundo transparente)
 - Detecção automática de vertical/horizontal
 - `ArrobaInstagram` e `AvisoCVM` fixos
