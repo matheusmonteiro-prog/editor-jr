@@ -5,3 +5,10 @@ dist
 
 # Ignore the output video from Git but not videos you import into src/.
 out
+
+# Vídeos nunca vão para o Git (brutos ou exportados)
+videos/
+*.mp4
+*.mov
+*.mkv
+*.webm
