@@ -123,7 +123,11 @@ implementado — registrado aqui para não esquecer o detalhe.
 - Exportações versionadas: `video-selic-v1.mp4`, `video-selic-v2.mp4`. Nunca sobrescrever.
 - Backup dos vídeos brutos (Drive ou HD externo).
 - Música e efeitos apenas de bancos livres de direitos: YouTube Audio Library, Pixabay Music, Uppbeat, Pixabay Sound Effects, Freesound (conferir licença de cada som).
-- Todo vídeo leva o aviso: **"Não é recomendação de investimento."**
+- Todo vídeo leva o aviso: **"Não é recomendação de investimento."** O aviso
+  **completo** vai só na **descrição do vídeo** (padrão observado em outros
+  canais da área) — não precisa aparecer dentro do vídeo em si. **Ressalva:
+  isso é observação de mercado, não foi confirmado juridicamente.** Ver
+  `AvisoCVM` na seção 6.
 
 ## 5. Estrutura de pastas (alvo)
 ```
@@ -156,12 +160,17 @@ editor-jr/
 **A construir:**
 - `CirculoDestaque` (com pulso) · `Seta` · `TextoDestaque` · `Checkmark` · `Spotlight` · `Contador`
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
-- `AvisoCVM` — fixo e obrigatório em todo vídeo (ver seção 4), mas com **variantes**
-  de posição/formato: ex. rodapé discreto durante o vídeo, versão completa no fim.
-  A variante e a posição mudam para não colidir com outros elementos (ex.: o
-  gancho, no início). Formato visual ainda a definir.
+- `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
+  (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).
+  Substitui o plano anterior de "versão completa no fim". Ainda **em aberto**:
+  se sobra algum indicador discreto dentro do vídeo (ex. rodapé), e se sim, com
+  que formato e posição — pra não colidir com outros elementos, como o gancho.
 - `LegendaAnimada` — legenda automática com estilo padrão e destaque para
   frases-chave (Etapa 4)
+- `CallToAction` — elemento fixo reutilizável (ex.: "inscreva-se", sino, like),
+  chamado via prompt quando necessário. Segue o padrão de imagem + som
+  sincronizado decidido para a Etapa 3 ("Música de fundo e efeito sonoro
+  sincronizado a um elemento visual").
 
 ## 7. Etapas
 
