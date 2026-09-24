@@ -47,12 +47,17 @@ formato livre — o que torna o sintoma ainda mais enganoso.
   `[2:30] circulo-destaque`
   `[2:30] som: dinheiro-tim`
   `[gancho] 3:10-3:25 → início`
+- **Tempos no prompt sempre se referem à gravação original** (o tempo da transcrição), nunca ao vídeo já cortado. É assim que o `--gancho` já funciona hoje (seção 7, Etapa 2) — vale como regra geral para qualquer tempo citado no prompt, inclusive na Etapa 6.
+- **Layout padrão:** o JR fica centralizado por padrão, e nenhum elemento sobreposto (gráfico, imagem, legenda etc.) pode cobrir o rosto dele.
 - **API da Anthropic:** usada só para criar componentes novos que não existem no catálogo. Custo pago por chamada, separado da assinatura do Claude.
 - **Catálogo:** todo componente aprovado é salvo e reaproveitado, trocando só os dados.
 - **Componentes editáveis:** propriedades expostas para edição sem prompt.
 - **Áudio:** voz original do JR, com limpeza de ruído. Sem voz gerada por IA.
 - **Retoque de pele:** fora do projeto. Resolver na gravação (iluminação).
-- **Vertical/horizontal:** detectado automaticamente pelas dimensões do vídeo enviado.
+- **Vertical/horizontal:** o OBS grava em 16:9; não existe mais detecção automática 1:1 pelas
+  dimensões do arquivo. O formato de cada saída (horizontal, vertical, ou as duas da mesma
+  gravação) é **declarado no prompt** — gerar vertical a partir de gravação horizontal exige
+  um layout próprio, não é só redimensionar (ver Etapa 3 e Etapa 6, item de várias saídas).
 - **Posicionamento automático por visão (IA olhando o frame):** fora da v1.
 
 ## 3a. Formatos de entrada de vídeo (sessões de gravação)
@@ -60,21 +65,50 @@ Cada sessão de gravação chega em um de dois formatos. O plano de edição (JS
 ver Etapa 2) precisa registrar qual dos dois é, num campo de tipo de sessão:
 `single_file` ou `multi_layer`.
 
-**FORMATO A — multi-camada (3 arquivos).** Vive numa subpasta própria, ex.:
-`videos/sessao-2026-09-24/`. Os três arquivos têm a mesma duração e o mesmo
-início (sincronizados por timestamp):
+**FORMATO A — multi-camada (3 arquivos).** Gravado no OBS (câmera + tela +
+áudio), possivelmente via um plugin de terceiro (Source Record) para separar
+as saídas em arquivos distintos — não instalar/configurar sem aprovação do
+Matheus. Vive numa subpasta própria, ex.: `videos/sessao-2026-09-24/`:
 - `tela_<data>.mkv` — vídeo da tela, sem áudio
 - `camera_<data>.mkv` — vídeo da câmera do JR, sem áudio
 - `audio_<data>.wav` — narração, é a trilha mestre
+
+**Premissa NÃO testada:** que os três arquivos começam juntos e têm a mesma
+duração. **Pré-requisito da Etapa 3:** gravar um teste curto (1-2 min) no OBS
+e conferir a sincronia antes de construir a lógica de camadas em cima disso.
+
+**Variação de entrada (1b):** algumas sessões podem vir com só **2 arquivos**
+(ex.: câmera e tela), com o áudio já embutido em um deles, em vez do `.wav`
+separado. O sistema precisa reconhecer esse caso e usar o áudio que estiver
+disponível, em vez de exigir sempre os 3. Ainda não testado — confirmar
+quando o Matheus gravar o primeiro teste no OBS.
 
 Tela e câmera viram duas camadas no Remotion: tela sempre visível por baixo,
 câmera por cima só nos trechos que o prompt definir (ex.: "0:00-3:00 tela,
 3:00-3:45 câmera"). Troca de foco é controlar a visibilidade/duração da camada
 da câmera — **não é corte de clipe**. Isso nunca é automático, sempre vem do
 prompt. Ajuste fino é manual, arrastando a borda da camada no Remotion Studio.
+Regra de layout vale aqui também: o JR centralizado, nada cobre o rosto dele
+(ver seção 3, Decisões tomadas).
+
+**Composições possíveis (câmera + tela), tudo via prompt — não é um tipo de
+cena novo, é uso da composição em camadas:**
+- Câmera em tela cheia
+- Tela em foco, câmera pequena num canto (picture-in-picture)
+- Câmera encolhendo pro centro-inferior enquanto abre atrás um fundo (ex.:
+  textura de papel) onde imagens da pasta entram uma a uma, estilo `ColagemCenas`
+- O inverso: câmera em cima, imagens/colagem embaixo
+
+Tamanho, posição e transição nascem com um padrão e continuam ajustáveis (mesma
+regra da seção 3: prompt diz o quê e quando, o onde nasce padrão e se ajusta
+depois).
 
 **FORMATO B — arquivo único** (vídeo + áudio juntos). Tratado como já funciona
 hoje, sem lógica de camada. É o formato do `teste-jr.mp4` usado até aqui.
+
+**Referência adicional para a Etapa 3:** o Matheus vai trazer alguns vídeos já
+gravados em formato vertical (Shorts/Reels), além do teste de sincronia do OBS,
+como material de exemplo.
 
 **Pendência conhecida no corte de silêncio (`scripts/cortar-silencio.mjs`):**
 hoje o script só sabe lidar com o Formato B. Para o Formato A ele vai precisar
@@ -121,7 +155,13 @@ editor-jr/
 
 **A construir:**
 - `CirculoDestaque` (com pulso) · `Seta` · `TextoDestaque` · `Checkmark` · `Spotlight` · `Contador`
-- `ArrobaInstagram` (fixo no canto) · `AvisoCVM` (fixo) · `LogoAnimada` (intro/outro)
+- `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
+- `AvisoCVM` — fixo e obrigatório em todo vídeo (ver seção 4), mas com **variantes**
+  de posição/formato: ex. rodapé discreto durante o vídeo, versão completa no fim.
+  A variante e a posição mudam para não colidir com outros elementos (ex.: o
+  gancho, no início). Formato visual ainda a definir.
+- `LegendaAnimada` — legenda automática com estilo padrão e destaque para
+  frases-chave (Etapa 4)
 
 ## 7. Etapas
 
@@ -221,7 +261,9 @@ arquivos da sessão.
 - `ArrobaInstagram` e `AvisoCVM` fixos
 - Música de fundo e efeito sonoro sincronizado a um elemento visual
 - **Teste de tempo de renderização** com vídeo longo (10–20 min) no computador do Matheus
-- **Pré-requisitos:** @ do Instagram, uma música e um efeito sonoro de teste baixados.
+- **Pré-requisitos:** @ do Instagram, uma música e um efeito sonoro de teste baixados;
+  gravar um teste curto (1-2 min) no OBS e conferir a sincronia dos 3 arquivos (Formato A,
+  ver seção 3a); alguns vídeos já gravados em vertical (Shorts/Reels) como referência.
 
 ### Etapa 4 — Legendas automáticas
 - Transcrição local e gratuita (verificar a ferramenta oficial do Remotion para legendas / Whisper)
@@ -236,6 +278,14 @@ arquivos da sessão.
 ### Etapa 6 — Leitor de prompt
 - 6a: ler o formato de comando e gerar a timeline (sem IA)
 - 6b: gerar componente novo via API quando não existir no catálogo; aprovado → entra no catálogo
+- O prompt pode pedir **várias saídas da mesma gravação** (ex.: vídeo principal +
+  2 cortes curtos de 30-90s). É o Matheus quem indica os trechos e as transições
+  de cada saída — não é a IA escolhendo sozinha. O formato do prompt (a definir
+  nesta etapa) precisa prever isso, incluindo o formato de tela de cada saída
+  (horizontal/vertical, ver seção 3 e Etapa 3). Transições mais chamativas em
+  vídeo curto, mais discretas no longo.
+- O formato oficial do roteiro/prompt (schema) só é definido aqui — não criar
+  schema antes desta etapa.
 - **Pré-requisitos:** chave da API da Anthropic (só na 6b).
 
 ### Etapa 7 — Interface própria
