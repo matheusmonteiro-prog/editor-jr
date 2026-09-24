@@ -11,7 +11,7 @@ Matheus é iniciante em programação, Git e Remotion. Explique em português do
 
 ## Regras de trabalho
 1. Trabalhe **somente na etapa atual** (ver "Status" no ARQUITETURA.md). Não avance para a próxima sem aprovação.
-2. Antes de uma mudança grande, explique o que vai fazer e espere o "ok".
+2. Antes de uma mudança grande, explique o que vai fazer e espere o "ok". Para **documentação** (ARQUITETURA.md, README, etc.): pode editar direto, sem pedir aprovação por trecho — só mostra o resumo final antes do commit. Para **código** (.tsx, .mjs, scripts): continua pedindo aprovação antes de cada mudança.
 3. Antes de iniciar uma etapa, confira os **pré-requisitos** dela e avise o que está faltando.
 4. Ao terminar uma etapa: resuma o que foi feito, diga como testar, atualize o "Status" no ARQUITETURA.md e **ofereça fazer commit + push** (pedindo confirmação).
 5. Se não tiver certeza de como uma API ou biblioteca funciona, verifique a documentação oficial ou diga que não sabe. Não invente.
