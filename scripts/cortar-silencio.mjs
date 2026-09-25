@@ -22,6 +22,12 @@
  *   FFmpeg completo instalado (winget install Gyan.FFmpeg) — o do Remotion
  *   não tem os filtros necessários:
  *   node scripts/cortar-silencio.mjs videos/teste-jr.mp4 --gerar --limpar
+ *
+ *   Modo multi-camada (Formato A: OBS gravando tela, câmera e câmera+mic em
+ *   arquivos separados, cada um em sua pasta). O áudio do câmera+mic decide
+ *   os cortes, e os MESMOS cortes são aplicados nos 3 arquivos — senão perde
+ *   a sincronia. As saídas e o .cortes.json vão para a pasta do --camera-mic:
+ *   node scripts/cortar-silencio.mjs --gerar --tela "D:\OBS\tela\tela.mkv" --camera "D:\OBS\CAMERA_GRAV\camera.mkv" --camera-mic "D:\OBS\camera-mic.mkv"
  */
 
 import {spawnSync} from 'node:child_process';
@@ -118,21 +124,82 @@ const tempoParaSeg = (txt) => {
 // ---------------------------------------------------------------- argumentos
 
 const argv = process.argv.slice(2);
-const entrada = argv.find((a) => !a.startsWith('--'));
+
+// Acha o argumento posicional (o caminho do vídeo), pulando os flags que
+// têm valor — senão o valor de "--tela caminho/com espaço" seria confundido
+// com um posicional, por não começar com "--" (bug real, achado testando o
+// modo multi-camada: sem isso, o modo multi nunca tem posicional nenhum, e
+// o primeiro valor de flag virava "entrada" por engano).
+const FLAGS_COM_VALOR = new Set([
+  'limiar',
+  'pausa',
+  'margem',
+  'minimo',
+  'gancho',
+  'tela',
+  'camera',
+  'camera-mic',
+]);
+let entrada = null;
+for (let i = 0; i < argv.length; i++) {
+  const a = argv[i];
+  if (a.startsWith('--')) {
+    if (FLAGS_COM_VALOR.has(a.slice(2))) i++; // pula o valor desse flag
+    continue;
+  }
+  entrada = a;
+  break;
+}
 
 const opcao = (nome, padrao) => {
   const i = argv.indexOf(`--${nome}`);
   return i === -1 ? padrao : argv[i + 1];
 };
 
-if (!entrada) {
-  console.error('Faltou o vídeo. Ex.: node scripts/cortar-silencio.mjs videos/teste-jr.mp4');
-  process.exit(1);
+// Modo multi-camada (Formato A): tela, câmera e câmera+mic em arquivos
+// separados, cada um podendo estar numa pasta diferente. O câmera+mic é o
+// único com áudio — é ele que decide onde cortar; tela e câmera recebem os
+// mesmos cortes, só que aplicados nos seus próprios frames de vídeo.
+const TELA = opcao('tela', null);
+const CAMERA = opcao('camera', null);
+const CAMERA_MIC = opcao('camera-mic', null);
+const MULTI = Boolean(TELA || CAMERA || CAMERA_MIC);
+
+if (MULTI) {
+  const faltando = [];
+  if (!TELA) faltando.push('--tela');
+  if (!CAMERA) faltando.push('--camera');
+  if (!CAMERA_MIC) faltando.push('--camera-mic');
+  if (faltando.length > 0) {
+    console.error(`Modo multi-camada precisa dos 3 arquivos. Faltou: ${faltando.join(', ')}`);
+    process.exit(1);
+  }
+  if (entrada) {
+    console.error(
+      `Não misture o modo de arquivo único ("${entrada}") com --tela/--camera/--camera-mic. Use um ou outro.`,
+    );
+    process.exit(1);
+  }
+  for (const [nome, caminho] of [['--tela', TELA], ['--camera', CAMERA], ['--camera-mic', CAMERA_MIC]]) {
+    if (!existsSync(caminho)) {
+      console.error(`Não achei o arquivo de ${nome}: ${caminho}`);
+      process.exit(1);
+    }
+  }
+} else {
+  if (!entrada) {
+    console.error('Faltou o vídeo. Ex.: node scripts/cortar-silencio.mjs videos/teste-jr.mp4');
+    process.exit(1);
+  }
+  if (!existsSync(entrada)) {
+    console.error(`Não achei o arquivo: ${entrada}`);
+    process.exit(1);
+  }
 }
-if (!existsSync(entrada)) {
-  console.error(`Não achei o arquivo: ${entrada}`);
-  process.exit(1);
-}
+
+// A partir daqui, ARQUIVO_BASE é quem manda no cálculo dos cortes: o vídeo
+// único, ou o câmera+mic no modo multi-camada (o único com áudio).
+const ARQUIVO_BASE = MULTI ? CAMERA_MIC : entrada;
 
 const LIMIAR = Number(opcao('limiar', -30)); // dB: abaixo disso é considerado silêncio
 const PAUSA = Number(opcao('pausa', 0.8)); // s: só pausas maiores que isso contam
@@ -186,24 +253,45 @@ for (let i = 0; i < GANCHOS.length; i++) {
 
 // ---------------------------------------------------------------- 1. duração
 
-const probe = rodar(FFPROBE, [
-  '-v',
-  'error',
-  '-show_entries',
-  'format=duration',
-  '-of',
-  'default=noprint_wrappers=1:nokey=1',
-  entrada,
-]);
-const DURACAO = Number(probe.stdout.trim());
+const duracaoDe = (arquivo) => {
+  const r = rodar(FFPROBE, [
+    '-v',
+    'error',
+    '-show_entries',
+    'format=duration',
+    '-of',
+    'default=noprint_wrappers=1:nokey=1',
+    arquivo,
+  ]);
+  return Number(r.stdout.trim());
+};
+
+const DURACAO = duracaoDe(ARQUIVO_BASE);
 if (!DURACAO) {
   console.error('Não consegui ler a duração do vídeo.');
   process.exit(1);
 }
 
+// Premissa do Formato A ainda não confirmada na prática: que os 3 arquivos
+// começam juntos e duram o mesmo tempo. Não bloqueia (o Matheus pode querer
+// ver o resultado mesmo assim), mas avisa alto se a duração não bater.
+if (MULTI) {
+  for (const [nome, arquivo] of [['tela', TELA], ['câmera', CAMERA]]) {
+    const dur = duracaoDe(arquivo);
+    const diferenca = Math.abs(dur - DURACAO);
+    if (diferenca > 1) {
+      console.warn(
+        `\n⚠ ATENÇÃO: duração de ${nome} (${segParaTempo(dur)}) difere da do câmera+mic ` +
+          `(${segParaTempo(DURACAO)}) em ${diferenca.toFixed(2)}s. Os cortes podem sair ` +
+          `dessincronizados. Confira se os 3 arquivos são da mesma gravação.\n`,
+      );
+    }
+  }
+}
+
 // ---------------------------------------------------------------- 2. detectar
 
-console.log(`\nAnalisando ${entrada} (${segParaTempo(DURACAO)})...`);
+console.log(`\nAnalisando ${ARQUIVO_BASE} (${segParaTempo(DURACAO)})...`);
 console.log(`Limiar: ${LIMIAR}dB · pausa mínima: ${PAUSA}s · margem: ${MARGEM}s\n`);
 
 // O ffmpeg do Remotion não traz o encoder "wrapped_avframe", então mandar o
@@ -212,7 +300,7 @@ console.log(`Limiar: ${LIMIAR}dB · pausa mínima: ${PAUSA}s · margem: ${MARGEM
 const deteccao = rodar(FFMPEG, [
   '-hide_banner',
   '-i',
-  entrada,
+  ARQUIVO_BASE,
   '-vn',
   '-af',
   `silencedetect=noise=${LIMIAR}dB:d=${PAUSA}`,
@@ -365,12 +453,13 @@ if (ordem !== finais) {
 
 // ---------------------------------------------------------------- JSON
 
-const jsonPath = entrada.replace(/\.[^.]+$/, '') + '.cortes.json';
+const jsonPath = ARQUIVO_BASE.replace(/\.[^.]+$/, '') + '.cortes.json';
 writeFileSync(
   jsonPath,
   JSON.stringify(
     {
-      arquivo: entrada,
+      tipoSessao: MULTI ? 'multi_layer' : 'single_file',
+      ...(MULTI ? {arquivos: {tela: TELA, camera: CAMERA, cameraMic: CAMERA_MIC}} : {arquivo: entrada}),
       duracaoOriginal: DURACAO,
       duracaoFinal: somar(ordem),
       parametros: {
@@ -397,101 +486,132 @@ if (!GERAR) {
 
 // ---------------------------------------------------------------- 5. gerar mp4
 
-const tmp = join(dirname(entrada), '.tmp-cortes');
-rmSync(tmp, {recursive: true, force: true});
-mkdirSync(tmp, {recursive: true});
-
+// Recorta e junta UM arquivo de vídeo seguindo a lista `ordem`, opcionalmente
+// limpando o áudio (só faz sentido em quem tem áudio). Chamada 1x no modo
+// arquivo único, 3x no modo multi-camada (tela, câmera, câmera+mic) — sempre
+// com a mesma `ordem`, calculada uma vez só a partir do áudio do câmera+mic.
+//
 // Os pedaços saem com áudio PCM (sem compressão) dentro de .mov. AAC tem
-// amostras de aquecimento no início de cada fluxo; grudar 21 fluxos AAC gera
-// um áudio remendado que o parser de mp4 do Windows não lê. Com PCM não há
-// aquecimento, e o AAC é gerado uma única vez, na junção final.
-console.log(`\nRecortando ${ordem.length} trechos...`);
-const pedacos = [];
-for (const [i, t] of ordem.entries()) {
-  const saida = join(tmp, `p${String(i).padStart(4, '0')}.mov`);
-  const args = [
-    '-hide_banner',
-    '-loglevel',
-    'error',
-    '-ss',
-    String(t.inicio),
-    '-i',
-    entrada,
-    '-t',
-    String(t.fim - t.inicio),
-    '-c:v',
-    'libx264',
-    '-preset',
-    'veryfast',
-    '-crf',
-    '18',
-    '-c:a',
-    'pcm_s16le',
-    '-ar',
-    '44100',
-    '-ac',
-    '2',
-  ];
-  if (LIMPAR) args.push('-af', FILTRO_REDUCAO_RUIDO);
-  args.push('-avoid_negative_ts', 'make_zero', '-y', saida);
-  const r = rodar(FFMPEG_GERACAO, args);
-  if (r.status !== 0) {
-    console.error(`Falhou no trecho ${i + 1}:\n${r.stderr}`);
+// amostras de aquecimento no início de cada fluxo; grudar vários fluxos AAC
+// gera um áudio remendado que o parser de mp4 do Windows não lê. Com PCM não
+// há aquecimento, e o AAC é gerado uma única vez, na junção final.
+const gerarSaidaCortada = ({arquivoEntrada, comAudio, caminhoSaida, rotulo}) => {
+  const tmp = join(dirname(caminhoSaida), '.tmp-cortes');
+  rmSync(tmp, {recursive: true, force: true});
+  mkdirSync(tmp, {recursive: true});
+
+  console.log(`\nRecortando ${ordem.length} trechos (${rotulo})...`);
+  const pedacos = [];
+  for (const [i, t] of ordem.entries()) {
+    const saida = join(tmp, `p${String(i).padStart(4, '0')}.mov`);
+    const args = [
+      '-hide_banner',
+      '-loglevel',
+      'error',
+      '-ss',
+      String(t.inicio),
+      '-i',
+      arquivoEntrada,
+      '-t',
+      String(t.fim - t.inicio),
+      '-c:v',
+      'libx264',
+      '-preset',
+      'veryfast',
+      '-crf',
+      '18',
+    ];
+    if (comAudio) {
+      args.push('-c:a', 'pcm_s16le', '-ar', '44100', '-ac', '2');
+      if (LIMPAR) args.push('-af', FILTRO_REDUCAO_RUIDO);
+    } else {
+      args.push('-an'); // sem áudio nesse arquivo (tela/câmera), nem tenta codificar
+    }
+    args.push('-avoid_negative_ts', 'make_zero', '-y', saida);
+    const r = rodar(FFMPEG_GERACAO, args);
+    if (r.status !== 0) {
+      console.error(`Falhou no trecho ${i + 1} (${rotulo}):\n${r.stderr}`);
+      process.exit(1);
+    }
+    pedacos.push(saida);
+    process.stdout.write(`\r  ${i + 1}/${ordem.length}`);
+  }
+  console.log('');
+
+  const lista = join(tmp, 'lista.txt');
+  writeFileSync(
+    lista,
+    pedacos.map((p) => `file '${resolve(p).replace(/\\/g, '/')}'`).join('\n'),
+  );
+
+  // O vídeo é copiado (já foi codificado nos pedaços, não perde qualidade de
+  // novo). O áudio (quando existe) é comprimido aqui, uma vez só, virando um
+  // fluxo contínuo. +faststart põe o índice no começo do arquivo.
+  console.log(`Juntando (${rotulo})...`);
+  const argsJunta = ['-hide_banner', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', lista, '-c:v', 'copy'];
+  if (comAudio) {
+    argsJunta.push('-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-ac', '2');
+    if (LIMPAR) argsJunta.push('-af', FILTRO_NORMALIZACAO);
+  } else {
+    argsJunta.push('-an');
+  }
+  argsJunta.push('-movflags', '+faststart', '-y', caminhoSaida);
+  const junta = rodar(FFMPEG_GERACAO, argsJunta);
+  if (junta.status !== 0) {
+    console.error(`Falhou ao juntar (${rotulo}):\n${junta.stderr}`);
     process.exit(1);
   }
-  pedacos.push(saida);
-  process.stdout.write(`\r  ${i + 1}/${ordem.length}`);
-}
-console.log('');
 
-const lista = join(tmp, 'lista.txt');
-writeFileSync(
-  lista,
-  pedacos.map((p) => `file '${resolve(p).replace(/\\/g, '/')}'`).join('\n'),
-);
+  rmSync(tmp, {recursive: true, force: true});
+  console.log(`Pronto: ${caminhoSaida}`);
+};
 
 // Versiona a saída: nunca sobrescreve um vídeo já exportado.
-const base = entrada.replace(/\.[^.]+$/, '') + '-cortado-v';
-const pasta = dirname(entrada);
-const usados = readdirSync(pasta)
-  .map((f) => f.match(/-cortado-v(\d+)\.mp4$/))
-  .filter(Boolean)
-  .map((m) => Number(m[1]));
-const versao = (usados.length ? Math.max(...usados) : 0) + 1;
-const final = `${base}${versao}.mp4`;
+const baseSemExtensao = ARQUIVO_BASE.replace(/\.[^.]+$/, '');
+const pasta = dirname(ARQUIVO_BASE);
+const contarMaxVersao = (regex) => {
+  const usados = readdirSync(pasta)
+    .map((f) => f.match(regex))
+    .filter(Boolean)
+    .map((m) => Number(m[1]));
+  return usados.length ? Math.max(...usados) : 0;
+};
 
-// O vídeo é copiado (já foi codificado nos pedaços, não perde qualidade de
-// novo). O áudio é comprimido aqui, uma vez só, virando um fluxo contínuo.
-// +faststart põe o índice no começo do arquivo, o que ajuda os players.
-console.log('Juntando...');
-const argsJunta = [
-  '-hide_banner',
-  '-loglevel',
-  'error',
-  '-f',
-  'concat',
-  '-safe',
-  '0',
-  '-i',
-  lista,
-  '-c:v',
-  'copy',
-  '-c:a',
-  'aac',
-  '-b:a',
-  '192k',
-  '-ar',
-  '44100',
-  '-ac',
-  '2',
-];
-if (LIMPAR) argsJunta.push('-af', FILTRO_NORMALIZACAO);
-argsJunta.push('-movflags', '+faststart', '-y', final);
-const junta = rodar(FFMPEG_GERACAO, argsJunta);
-if (junta.status !== 0) {
-  console.error(`Falhou ao juntar:\n${junta.stderr}`);
-  process.exit(1);
+if (MULTI) {
+  // Os 3 arquivos da mesma rodada compartilham o número de versão, pra ficar
+  // claro que pertencem juntos.
+  const versao =
+    Math.max(
+      contarMaxVersao(/-tela-cortado-v(\d+)\.mp4$/),
+      contarMaxVersao(/-camera-cortado-v(\d+)\.mp4$/),
+      contarMaxVersao(/-camera-mic-cortado-v(\d+)\.mp4$/),
+    ) + 1;
+
+  const saidaTela = `${baseSemExtensao}-tela-cortado-v${versao}.mp4`;
+  const saidaCamera = `${baseSemExtensao}-camera-cortado-v${versao}.mp4`;
+  const saidaCameraMic = `${baseSemExtensao}-camera-mic-cortado-v${versao}.mp4`;
+
+  gerarSaidaCortada({arquivoEntrada: TELA, comAudio: false, caminhoSaida: saidaTela, rotulo: 'tela'});
+  gerarSaidaCortada({arquivoEntrada: CAMERA, comAudio: false, caminhoSaida: saidaCamera, rotulo: 'câmera'});
+  gerarSaidaCortada({
+    arquivoEntrada: CAMERA_MIC,
+    comAudio: true,
+    caminhoSaida: saidaCameraMic,
+    rotulo: 'câmera+mic',
+  });
+
+  console.log(`\nPronto, 3 arquivos sincronizados:\n  ${saidaTela}\n  ${saidaCamera}\n  ${saidaCameraMic}\n`);
+} else {
+  // O regex simples "-cortado-v(N).mp4" também bateria com as saídas do modo
+  // multi-camada (ex.: "-camera-mic-cortado-v3.mp4" termina do mesmo jeito),
+  // se algum dia dividirem a mesma pasta. Exclui essas antes de contar.
+  const usados = readdirSync(pasta)
+    .filter((f) => !/-(tela|camera|camera-mic)-cortado-v\d+\.mp4$/.test(f))
+    .map((f) => f.match(/-cortado-v(\d+)\.mp4$/))
+    .filter(Boolean)
+    .map((m) => Number(m[1]));
+  const versao = (usados.length ? Math.max(...usados) : 0) + 1;
+  const final = `${baseSemExtensao}-cortado-v${versao}.mp4`;
+  gerarSaidaCortada({arquivoEntrada: entrada, comAudio: true, caminhoSaida: final, rotulo: 'vídeo'});
+  console.log('');
 }
-
-rmSync(tmp, {recursive: true, force: true});
-console.log(`\nPronto: ${final}\n`);

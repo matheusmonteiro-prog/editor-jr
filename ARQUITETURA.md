@@ -66,22 +66,32 @@ ver Etapa 2) precisa registrar qual dos dois é, num campo de tipo de sessão:
 `single_file` ou `multi_layer`.
 
 **FORMATO A — multi-camada (3 arquivos).** Gravado no OBS (câmera + tela +
-áudio), possivelmente via um plugin de terceiro (Source Record) para separar
+mic), possivelmente via um plugin de terceiro (Source Record) para separar
 as saídas em arquivos distintos — não instalar/configurar sem aprovação do
-Matheus. Vive numa subpasta própria, ex.: `videos/sessao-2026-09-24/`:
-- `tela_<data>.mkv` — vídeo da tela, sem áudio
-- `camera_<data>.mkv` — vídeo da câmera do JR, sem áudio
-- `audio_<data>.wav` — narração, é a trilha mestre
+Matheus. **Cada arquivo vem de uma pasta fixa diferente** (não uma subpasta
+única por sessão como antes se imaginava):
+- **Tela** — vídeo da tela, sem áudio
+- **Câmera** — vídeo da câmera do JR, sem áudio
+- **Câmera+Mic** — vídeo da câmera **com o áudio do microfone embutido**;
+  é o único dos 3 com trilha de áudio, e é ele quem manda no corte de silêncio
 
-**Premissa NÃO testada:** que os três arquivos começam juntos e têm a mesma
-duração. **Pré-requisito da Etapa 3:** gravar um teste curto (1-2 min) no OBS
-e conferir a sincronia antes de construir a lógica de camadas em cima disso.
+(Correção: a ideia antiga de um `audio_<data>.wav` **separado** como trilha
+mestre estava errada — não existe arquivo de áudio puro. O áudio mora dentro
+do arquivo de câmera+mic.)
 
-**Variação de entrada (1b):** algumas sessões podem vir com só **2 arquivos**
-(ex.: câmera e tela), com o áudio já embutido em um deles, em vez do `.wav`
-separado. O sistema precisa reconhecer esse caso e usar o áudio que estiver
-disponível, em vez de exigir sempre os 3. Ainda não testado — confirmar
-quando o Matheus gravar o primeiro teste no OBS.
+**Premissa parcialmente testada:** que os três arquivos começam juntos e têm
+a mesma duração. O `cortar-silencio.mjs` já **verifica isso sozinho** (avisa
+se a duração de tela/câmera destoar da do câmera+mic em mais de 1s) e foi
+testado de ponta a ponta com arquivos sintéticos — mas **ainda não com uma
+gravação real do OBS**. Isso continua sendo pré-requisito da Etapa 3 (a parte
+de composição/Remotion): gravar um teste curto (1-2 min) no OBS antes de
+construir a lógica de camadas visuais em cima disso.
+
+**Variação de entrada (1b), ainda PENDENTE:** algumas sessões podem vir com só
+**2 arquivos** em vez de 3 (ex.: só câmera+mic e tela, sem o arquivo de câmera
+separado). O sistema precisaria reconhecer esse caso e usar o que estiver
+disponível. Diferente do caso de 3 arquivos (esse já implementado, ver abaixo),
+esta variação ainda não foi pedida nem testada — confirmar se/quando acontecer.
 
 Tela e câmera viram duas camadas no Remotion: tela sempre visível por baixo,
 câmera por cima só nos trechos que o prompt definir (ex.: "0:00-3:00 tela,
@@ -110,12 +120,8 @@ hoje, sem lógica de camada. É o formato do `teste-jr.mp4` usado até aqui.
 gravados em formato vertical (Shorts/Reels), além do teste de sincronia do OBS,
 como material de exemplo.
 
-**Pendência conhecida no corte de silêncio (`scripts/cortar-silencio.mjs`):**
-hoje o script só sabe lidar com o Formato B. Para o Formato A ele vai precisar
-de um modo novo — detectar as pausas **só** no `audio_<data>.wav` e aplicar os
-**mesmos** cortes nos três arquivos juntos. Cortar cada arquivo separado, cada
-um por sua conta, quebraria a sincronia entre tela, câmera e voz. Ainda não
-implementado — registrado aqui para não esquecer o detalhe.
+**Corte de silêncio no Formato A: PRONTO** (ver Etapa 2, seção 7, "Modo
+multi-camada").
 
 ## 4. Regras de organização
 - Vídeo **nunca** vai para o GitHub (limite de 100 MB por arquivo; vídeos passam disso). Só código.
@@ -146,8 +152,12 @@ editor-jr/
 │   ├── sfx/            ← efeitos sonoros
 │   └── brand/          ← logo e identidade visual
 └── videos/             ← brutos e exportados (ignorada pelo Git)
-    └── sessao-<data>/  ← Formato A (multi-camada): tela_<data>.mkv, camera_<data>.mkv, audio_<data>.wav
 ```
+
+**Formato A (multi-camada) não segue essa árvore.** Os 3 arquivos (tela,
+câmera, câmera+mic) vêm de **pastas fixas e diferentes** do OBS, geralmente
+fora do projeto — não uma subpasta única por sessão. Os cortes desse formato
+saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
 
 ## 6. Catálogo de componentes
 **Componentes prontos, em `src/components/`, com propriedades editáveis (schema zod) no Studio:**
@@ -255,9 +265,35 @@ se sobrepõem dão erro, em vez de duplicar áudio sem avisar. Validado por
 correlação de áudio (comparação de forma de onda entre o gerado e o original),
 não só por audição.
 
-**Modo multi-camada (Formato A): PENDENTE, não implementado.** Ver seção 3a —
-detectar pausas só no `audio_<data>.wav` e aplicar os mesmos cortes nos 3
-arquivos da sessão.
+**Modo multi-camada (Formato A): PRONTO** (25/09/2026). Três flags em vez do
+vídeo posicional — sem elas o script continua funcionando exatamente como
+antes (modo arquivo único):
+
+```
+node scripts/cortar-silencio.mjs --gerar --tela "caminho\tela.mkv" --camera "caminho\camera.mkv" --camera-mic "caminho\camera-mic.mkv"
+```
+
+O áudio do câmera+mic decide os cortes (tela e câmera não têm áudio). Os
+mesmos intervalos de tempo são aplicados aos 3 — inclusive `--gancho` e
+`--limpar` funcionam normalmente (`--limpar` só afeta o áudio do câmera+mic;
+tela e câmera são só vídeo, sem filtro de áudio). Gera 3 saídas, com o mesmo
+número de versão, na pasta do `--camera-mic`:
+```
+<nome-do-camera-mic>-tela-cortado-v1.mp4
+<nome-do-camera-mic>-camera-cortado-v1.mp4
+<nome-do-camera-mic>-camera-mic-cortado-v1.mp4
+```
+
+O `.cortes.json` ganha `tipoSessao` (`"single_file"` ou `"multi_layer"`) e,
+no modo multi, `arquivos: {tela, camera, cameraMic}` com os 3 caminhos.
+
+Se tela ou câmera tiverem duração diferente da do câmera+mic (mais de 1s de
+diferença), o script avisa — mas não impede de continuar, o Matheus decide.
+
+Testado de ponta a ponta com arquivos sintéticos (3 arquivos em pastas
+diferentes, com espaço no nome, verificado quadro a quadro e o áudio
+decodificado pra confirmar que não estava mudo). **Ainda não testado com uma
+gravação real do OBS** — ver seção 3a.
 
 - **Pré-requisitos:** um vídeo bruto curto de teste com o JR falando (atendido);
   FFmpeg completo instalado, só para a 2b.
