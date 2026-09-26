@@ -165,11 +165,27 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
 - `GraficoLinha` — linha com curva suave, gradiente, brilho, área preenchida, número contando, entrada/saída com spring
 - `ColagemCenas` — imagens PNG entrando escalonadas com rotação e spring (estilo colagem de papel)
 - `ComparacaoBarras` — barras crescendo com número contando e destaque
+- `TextoDestaque` — overlay de texto (ex.: "SOJA", "12% ao ano") para destacar uma palavra/frase
+  curta que o JR está falando. Posição topo/centro/rodapé, cor do texto, fundo semi-transparente
+  opcional (ou sombra, se o fundo estiver desligado), duração em frames, entrada/saída com spring.
+  Pronto e testado no Studio (25/09/2026).
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
-- `CirculoDestaque` (com pulso) · `Seta` · `TextoDestaque` · `Checkmark` · `Spotlight` · `Contador`
+- `CirculoDestaque` (com pulso) · `Seta` · `Checkmark` · `Spotlight` · `Contador`
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
+
+**Padrão de organização no Studio (desde 25/09/2026):**
+- Cada composição do catálogo fica dentro de `<Folder name="Catalogo">`, em `Composition.tsx`.
+  Composições de rascunho/teste (ex.: `naruto`) vão em `<Folder name="Testes">`, em `Root.tsx`.
+- Cada componente envolve o próprio conteúdo num `<Sequence name="NomeDoComponente">`, para
+  aparecer como camada nomeada na timeline — importante quando vários componentes forem
+  empilhados juntos na Etapa 3.
+- **`defaultProps` tem que ser objeto literal direto dentro do `<Composition>`**, não uma
+  variável importada. É a única forma do Studio conseguir salvar de volta no código quando
+  você edita um campo pelo painel — com uma variável importada, o Studio mostra "não é possível
+  salvar os adereços padrão" e a edição se perde. Por isso os componentes não exportam mais o
+  próprio `defaultProps`; ele mora só no `Composition.tsx`.
 - `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
   (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).
   Substitui o plano anterior de "versão completa no fim". Ainda **em aberto**:
@@ -341,6 +357,9 @@ gravação real do OBS** — ver seção 3a.
 - Controle visual (tipo slider) para ajustar a limpeza de voz da Etapa 2b sem
   mexer em código — hoje os parâmetros (`afftdn`, `acompressor`, `loudnorm`)
   só são ajustáveis editando as constantes no `scripts/cortar-silencio.mjs`
+- **Ideia (25/09/2026):** chat por camada — botão direito numa camada, "editar com IA",
+  abre um chat que muda só aquela camada (texto, cor, posição etc.) por instrução em
+  linguagem natural, sem precisar editar campo por campo. Ainda não detalhado.
 - **Pré-requisitos:** nenhum novo.
 
 ### Etapa 8 — Exportação e entrega

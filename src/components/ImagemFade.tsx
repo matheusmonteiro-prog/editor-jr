@@ -1,5 +1,11 @@
 import React from "react";
-import { Img, interpolate, staticFile, useCurrentFrame } from "remotion";
+import {
+  Img,
+  interpolate,
+  Sequence,
+  staticFile,
+  useCurrentFrame,
+} from "remotion";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
 
@@ -24,26 +30,21 @@ export const ImagemFade: React.FC<Props> = ({
   });
 
   return (
-    <div
-      style={{
-        flex: 1,
-        backgroundColor: corFundo,
-        justifyContent: "center",
-        alignItems: "center",
-        display: "flex",
-      }}
-    >
-      <Img
-        src={staticFile(src)}
-        style={{ opacity, width: `${larguraPorcentagem}%` }}
-      />
-    </div>
+    <Sequence name="ImagemFade">
+      <div
+        style={{
+          flex: 1,
+          backgroundColor: corFundo,
+          justifyContent: "center",
+          alignItems: "center",
+          display: "flex",
+        }}
+      >
+        <Img
+          src={staticFile(src)}
+          style={{ opacity, width: `${larguraPorcentagem}%` }}
+        />
+      </div>
+    </Sequence>
   );
-};
-
-export const imagemFadeDefaultProps: Props = {
-  src: "images/selic.png",
-  corFundo: "#ffffff",
-  larguraPorcentagem: 80,
-  frameEntrada: 30,
 };

@@ -1,5 +1,11 @@
 import React from "react";
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import {
+  interpolate,
+  Sequence,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
 
@@ -59,11 +65,11 @@ const Barra: React.FC<BarraProps> = ({
   const alturaAtual = interpolate(
     progressoClamp,
     [0, 1],
-    [0, (valorFinal / valorMaximoEscala) * alturaMaximaBarra]
+    [0, (valorFinal / valorMaximoEscala) * alturaMaximaBarra],
   );
 
   const valorContando = Math.round(
-    interpolate(progressoClamp, [0, 1], [0, valorFinal])
+    interpolate(progressoClamp, [0, 1], [0, valorFinal]),
   );
 
   const opacityLabel = interpolate(localFrame, [0, 15], [0, 1], {
@@ -93,7 +99,12 @@ const Barra: React.FC<BarraProps> = ({
         {valorContando}%
       </text>
 
-      <g style={{ transform: `scale(${respiro})`, transformOrigin: `${larguraBarra / 2}px ${baseY}px` }}>
+      <g
+        style={{
+          transform: `scale(${respiro})`,
+          transformOrigin: `${larguraBarra / 2}px ${baseY}px`,
+        }}
+      >
         <rect
           x={0}
           y={topoY}
@@ -164,43 +175,46 @@ export const ComparacaoBarras: React.FC<Props> = ({
   const alturaSvg = baseY + 120;
 
   return (
-    <div
-      style={{
-        flex: 1,
-        backgroundColor: corFundo,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div style={{ opacity: opacityGeral }}>
-        <svg width={larguraSvg} height={alturaSvg} viewBox={`0 0 ${larguraSvg} ${alturaSvg}`}>
-          <line x1={0} y1={baseY} x2={larguraSvg} y2={baseY} stroke="#ffffff" strokeOpacity={0.15} strokeWidth={2} />
-
-          {barras.map((barra, i) => (
-            <Barra
-              key={barra.label}
-              {...barra}
-              x={espacamento * i + larguraBarra * 0.3}
-              valorMaximoEscala={valorMaximoEscala}
-              larguraBarra={larguraBarra}
-              alturaMaximaBarra={alturaMaximaBarra}
-              baseY={baseY}
+    <Sequence name="ComparacaoBarras">
+      <div
+        style={{
+          flex: 1,
+          backgroundColor: corFundo,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ opacity: opacityGeral }}>
+          <svg
+            width={larguraSvg}
+            height={alturaSvg}
+            viewBox={`0 0 ${larguraSvg} ${alturaSvg}`}
+          >
+            <line
+              x1={0}
+              y1={baseY}
+              x2={larguraSvg}
+              y2={baseY}
+              stroke="#ffffff"
+              strokeOpacity={0.15}
+              strokeWidth={2}
             />
-          ))}
-        </svg>
-      </div>
-    </div>
-  );
-};
 
-export const comparacaoBarrasDefaultProps: Props = {
-  corFundo: "#0d0f14",
-  valorMaximoEscala: 30,
-  larguraBarra: 220,
-  alturaMaximaBarra: 380,
-  barras: [
-    { label: "Renda Fixa", valorFinal: 12, cor: "#3d5a80", corTopo: "#6ea8d8", frameEntrada: 0, destaque: false },
-    { label: "Ações (JR)", valorFinal: 27, cor: "#0f9e6e", corTopo: "#00ff9d", frameEntrada: 20, destaque: true },
-  ],
+            {barras.map((barra, i) => (
+              <Barra
+                key={barra.label}
+                {...barra}
+                x={espacamento * i + larguraBarra * 0.3}
+                valorMaximoEscala={valorMaximoEscala}
+                larguraBarra={larguraBarra}
+                alturaMaximaBarra={alturaMaximaBarra}
+                baseY={baseY}
+              />
+            ))}
+          </svg>
+        </div>
+      </div>
+    </Sequence>
+  );
 };
