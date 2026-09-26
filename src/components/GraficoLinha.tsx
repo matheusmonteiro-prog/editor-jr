@@ -18,18 +18,37 @@ export const graficoLinhaSchema = z.object({
   largura: z.number().min(100),
   altura: z.number().min(100),
   frameFimSaida: z.number().min(1),
+  // Opcionais (26/09/2026, TesteRoteiro01): todos preservam o comportamento
+  // atual quando omitidos, pra não quebrar as composições existentes.
+  mostrarNumero: z.boolean().optional(),
+  rotuloEixoX: z.string().optional(),
+  oscilar: z.boolean().optional(),
+  textoFinal: z.string().optional(),
 });
 
 type Props = z.infer<typeof graficoLinhaSchema>;
 
 // Pontos fixos que formam o desenho da linha (proporcionais à largura/altura do gráfico)
-const pontosBase = [
+const pontosBaseSuave = [
   { x: 0.09, y: 0.67 },
   { x: 0.25, y: 0.57 },
   { x: 0.41, y: 0.62 },
   { x: 0.57, y: 0.43 },
   { x: 0.73, y: 0.33 },
   { x: 0.89, y: 0.21 },
+];
+
+// Variante "realista", com pequenos recuos no meio do caminho em vez de uma
+// reta perfeita — ainda fixa (não aleatória), só um desenho diferente.
+const pontosBaseOscilante = [
+  { x: 0.08, y: 0.72 },
+  { x: 0.2, y: 0.6 },
+  { x: 0.32, y: 0.66 },
+  { x: 0.46, y: 0.48 },
+  { x: 0.58, y: 0.55 },
+  { x: 0.71, y: 0.38 },
+  { x: 0.81, y: 0.44 },
+  { x: 0.9, y: 0.2 },
 ];
 
 export const GraficoLinha: React.FC<Props> = ({
@@ -41,6 +60,10 @@ export const GraficoLinha: React.FC<Props> = ({
   largura,
   altura,
   frameFimSaida,
+  mostrarNumero = true,
+  rotuloEixoX,
+  oscilar = false,
+  textoFinal,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -60,6 +83,7 @@ export const GraficoLinha: React.FC<Props> = ({
   const scaleGeral = interpolate(entrada, [0, 1], [0.9, 1]);
   const translateY = interpolate(entrada, [0, 1], [30, 0]);
 
+  const pontosBase = oscilar ? pontosBaseOscilante : pontosBaseSuave;
   const pontos = pontosBase.map((p) => ({ x: p.x * largura, y: p.y * altura }));
 
   const progressoLinha = spring({
@@ -96,6 +120,10 @@ export const GraficoLinha: React.FC<Props> = ({
     interpolate(progressoClamp, [0, 1], [0, valorFinal]),
   );
   const pulso = 6 + Math.sin(frame / 4) * 2;
+  const popTextoFinal = interpolate(progressoClamp, [0.9, 1], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <Sequence name="GraficoLinha">
@@ -174,17 +202,19 @@ export const GraficoLinha: React.FC<Props> = ({
                 />
               </>
             )}
-            <text
-              x={largura * 0.89}
-              y={altura * 0.1}
-              fill="white"
-              fontSize={largura * 0.06}
-              fontWeight={700}
-              fontFamily="Arial, sans-serif"
-              textAnchor="end"
-            >
-              +{numero}%
-            </text>
+            {mostrarNumero && (
+              <text
+                x={largura * 0.89}
+                y={altura * 0.1}
+                fill="white"
+                fontSize={largura * 0.06}
+                fontWeight={700}
+                fontFamily="Arial, sans-serif"
+                textAnchor="end"
+              >
+                +{numero}%
+              </text>
+            )}
             <text
               x={largura * 0.89}
               y={altura * 0.05}
@@ -196,6 +226,33 @@ export const GraficoLinha: React.FC<Props> = ({
             >
               {titulo.toUpperCase()}
             </text>
+            {rotuloEixoX && (
+              <text
+                x={largura / 2}
+                y={altura * 0.985}
+                fill="#8a8f9c"
+                fontSize={largura * 0.02}
+                fontFamily="Arial, sans-serif"
+                textAnchor="middle"
+                letterSpacing={2}
+              >
+                {rotuloEixoX.toUpperCase()}
+              </text>
+            )}
+            {textoFinal && ultimoPonto && (
+              <text
+                x={ultimoPonto.x}
+                y={ultimoPonto.y - pulso - 16}
+                fill={corLinhaFim}
+                fontSize={largura * 0.045}
+                fontWeight={800}
+                fontFamily="Arial, sans-serif"
+                textAnchor="middle"
+                opacity={popTextoFinal}
+              >
+                {textoFinal.toUpperCase()}
+              </text>
+            )}
           </svg>
         </div>
       </div>

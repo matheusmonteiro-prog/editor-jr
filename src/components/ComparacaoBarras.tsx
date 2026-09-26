@@ -24,6 +24,10 @@ export const comparacaoBarrasSchema = z.object({
   larguraBarra: z.number().min(10),
   alturaMaximaBarra: z.number().min(10),
   barras: z.array(barraSchema),
+  // Opcionais (26/09/2026, TesteRoteiro01): preservam o comportamento atual
+  // quando omitidos.
+  mostrarValores: z.boolean().optional(),
+  legenda: z.string().optional(),
 });
 
 type Props = z.infer<typeof comparacaoBarrasSchema>;
@@ -35,6 +39,7 @@ type BarraProps = BarraSchemaProps & {
   larguraBarra: number;
   alturaMaximaBarra: number;
   baseY: number;
+  mostrarValores: boolean;
 };
 
 const Barra: React.FC<BarraProps> = ({
@@ -49,6 +54,7 @@ const Barra: React.FC<BarraProps> = ({
   larguraBarra,
   alturaMaximaBarra,
   baseY,
+  mostrarValores,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -86,18 +92,20 @@ const Barra: React.FC<BarraProps> = ({
 
   return (
     <g transform={`translate(${x}, 0)`}>
-      <text
-        x={larguraBarra / 2}
-        y={topoY - 24}
-        fill="white"
-        fontSize={38}
-        fontWeight={700}
-        fontFamily="Arial, sans-serif"
-        textAnchor="middle"
-        opacity={opacityLabel}
-      >
-        {valorContando}%
-      </text>
+      {mostrarValores && (
+        <text
+          x={larguraBarra / 2}
+          y={topoY - 24}
+          fill="white"
+          fontSize={38}
+          fontWeight={700}
+          fontFamily="Arial, sans-serif"
+          textAnchor="middle"
+          opacity={opacityLabel}
+        >
+          {valorContando}%
+        </text>
+      )}
 
       <g
         style={{
@@ -157,6 +165,8 @@ export const ComparacaoBarras: React.FC<Props> = ({
   larguraBarra,
   alturaMaximaBarra,
   barras,
+  mostrarValores = true,
+  legenda,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -210,8 +220,21 @@ export const ComparacaoBarras: React.FC<Props> = ({
                 larguraBarra={larguraBarra}
                 alturaMaximaBarra={alturaMaximaBarra}
                 baseY={baseY}
+                mostrarValores={mostrarValores}
               />
             ))}
+            {legenda && (
+              <text
+                x={12}
+                y={20}
+                fill="#8a8f9c"
+                fontSize={18}
+                fontFamily="Arial, sans-serif"
+                letterSpacing={1}
+              >
+                {legenda.toUpperCase()}
+              </text>
+            )}
           </svg>
         </div>
       </div>

@@ -9,6 +9,21 @@ import {
 import { TextoDestaque, textoDestaqueSchema } from "./components/TextoDestaque";
 import { Seta, setaSchema } from "./components/Seta";
 import { Checkmark, checkmarkSchema } from "./components/Checkmark";
+import { ListaCheck, listaCheckSchema } from "./components/v2/ListaCheck";
+import { ColagemFotos, colagemFotosSchema } from "./components/v2/ColagemFotos";
+import {
+  TextoContraste,
+  textoContrasteSchema,
+} from "./components/v2/TextoContraste";
+import {
+  LegendaDiscreta,
+  legendaDiscretaSchema,
+} from "./components/v2/LegendaDiscreta";
+import { BarrasDuelo, barrasDueloSchema } from "./components/v2/BarrasDuelo";
+import {
+  GraficoCrescimento,
+  graficoCrescimentoSchema,
+} from "./components/v2/GraficoCrescimento";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -174,6 +189,140 @@ export const MyComposition = () => {
           corFundo: "#0f9e6e",
           mostrarFundo: true,
           duracaoFrames: 60,
+        }}
+      />
+      <Composition
+        id="ListaCheck"
+        component={ListaCheck}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={listaCheckSchema}
+        defaultProps={{
+          corFundo: "#0d0f14",
+          itens: [
+            { texto: "EMPRESAS BOAS", destaque: "BOAS" },
+            { texto: "PREÇO CERTO", destaque: "CERTO" },
+            { texto: "LONGO PRAZO", destaque: "LONGO" },
+          ],
+          intervaloFrames: 26,
+          corTexto: "#ffffff",
+          corDestaque: "#22C55E",
+          corCheck: "#22C55E",
+          tamanhoFonte: 0.034,
+          duracaoFrames: 150,
+        }}
+      />
+      <Composition
+        id="ColagemFotos"
+        component={ColagemFotos}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={colagemFotosSchema}
+        defaultProps={{
+          corFundo: "#0d0f14",
+          fotos: [
+            { src: "images/cena1.png", rotacao: -6, frameEntrada: 8 },
+            { src: "images/cena2.png", rotacao: 5, frameEntrada: 40 },
+            { src: "images/cena3.png", rotacao: -3, frameEntrada: 72 },
+          ],
+          etiqueta: "Ativos Reais",
+          mostrarEtiqueta: true,
+          corEtiqueta: "#22C55E",
+          larguraFoto: 0.42,
+        }}
+      />
+      <Composition
+        id="TextoContraste"
+        component={TextoContraste}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={textoContrasteSchema}
+        defaultProps={{
+          corFundo: "#0d0f14",
+          textoPositivo: "INVESTIR",
+          textoNegativo: "ESPECULAR",
+          corPositivo: "#ffffff",
+          corNegativo: "#6b7280",
+          frameRisco: 55,
+          duracaoFramesRisco: 18,
+          tamanhoFontePositivo: 0.06,
+          tamanhoFonteNegativo: 0.042,
+        }}
+      />
+      <Composition
+        id="LegendaDiscreta"
+        component={LegendaDiscreta}
+        durationInFrames={120}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={legendaDiscretaSchema}
+        defaultProps={{
+          texto: "Guardar um pouco todo mês",
+          corTexto: "#e5e7eb",
+          tamanhoFonte: 0.024,
+          posicao: "rodape",
+          duracaoFrames: 120,
+        }}
+      />
+      <Composition
+        id="BarrasDuelo"
+        component={BarrasDuelo}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={barrasDueloSchema}
+        defaultProps={{
+          corFundo: "#0d0f14",
+          barras: [
+            {
+              label: "Poupança",
+              alturaRelativa: 0.2,
+              cor: "#6b7280",
+              destaque: false,
+              frameEntrada: 0,
+            },
+            {
+              label: "Empresa boa",
+              alturaRelativa: 0.9,
+              cor: "#22C55E",
+              destaque: true,
+              frameEntrada: 40,
+            },
+          ],
+          legenda: "ilustrativo",
+          mostrarLegenda: true,
+          larguraBarra: 0.16,
+          alturaMaxima: 0.45,
+        }}
+      />
+      <Composition
+        id="GraficoCrescimento"
+        component={GraficoCrescimento}
+        durationInFrames={200}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={graficoCrescimentoSchema}
+        defaultProps={{
+          corFundo: "#0d0f14",
+          corLinha: "#22C55E",
+          rotuloEixoX: "ANOS",
+          mostrarRotuloEixoX: true,
+          textoIlustrativo: "ilustrativo",
+          mostrarTextoIlustrativo: true,
+          textoFinal: "VALORIZOU",
+          mostrarTextoFinal: true,
+          largura: 0.85,
+          altura: 0.4,
+          duracaoFramesDesenho: 130,
         }}
       />
     </Folder>
