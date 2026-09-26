@@ -195,10 +195,12 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   aparece nos últimos 25% do traço, sempre proporcional a `duracaoFrames` (testado com 10, 40 e
   100 frames). **Pronta no código (26/09/2026), ainda não validada visualmente pelo Matheus no
   Studio** — só testada mentalmente/por leitura do código até aqui.
+- `Checkmark` — check animado (pop de escala com spring), círculo de fundo opcional, cor do
+  traço, posição x/y, tamanho, duração em frames. Pronto e validado no Studio (26/09/2026).
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
-- `CirculoDestaque` (com pulso) · `Checkmark` · `Spotlight` · `Contador`
+- `CirculoDestaque` (com pulso) · `Spotlight` · `Contador`
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
 - `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
   (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).

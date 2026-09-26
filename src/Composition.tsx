@@ -8,6 +8,7 @@ import {
 } from "./components/ComparacaoBarras";
 import { TextoDestaque, textoDestaqueSchema } from "./components/TextoDestaque";
 import { Seta, setaSchema } from "./components/Seta";
+import { Checkmark, checkmarkSchema } from "./components/Checkmark";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -155,6 +156,24 @@ export const MyComposition = () => {
           espessura: 8,
           curvatura: "curva",
           duracaoFrames: 40,
+        }}
+      />
+      <Composition
+        id="Checkmark"
+        component={Checkmark}
+        durationInFrames={60}
+        fps={30}
+        width={1280}
+        height={720}
+        schema={checkmarkSchema}
+        defaultProps={{
+          x: 640,
+          y: 360,
+          tamanho: 160,
+          cor: "#ffffff",
+          corFundo: "#0f9e6e",
+          mostrarFundo: true,
+          duracaoFrames: 60,
         }}
       />
     </Folder>
