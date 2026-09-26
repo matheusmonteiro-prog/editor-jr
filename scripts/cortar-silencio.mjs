@@ -289,6 +289,49 @@ if (MULTI) {
   }
 }
 
+// ---------------------------------------------------------------- resolução
+
+// Só um aviso informativo no relatório — não influencia o corte em nada
+// (corte de silêncio olha só pra o áudio). Ajuda a confirmar de relance se o
+// arquivo é a gravação vertical/horizontal esperada.
+const resolucaoDe = (arquivo) => {
+  const r = rodar(FFPROBE, [
+    '-v',
+    'error',
+    '-select_streams',
+    'v:0',
+    '-show_entries',
+    'stream=width,height',
+    '-of',
+    'csv=p=0',
+    arquivo,
+  ]);
+  const [width, height] = r.stdout.trim().split(',').map(Number);
+  return {width, height};
+};
+
+const formatoDe = ({width, height}) => {
+  if (!width || !height) return 'desconhecido';
+  if (width > height) return 'horizontal';
+  if (height > width) return 'vertical';
+  return 'quadrado';
+};
+
+console.log('\nResolução:');
+if (MULTI) {
+  for (const [nome, arquivo] of [
+    ['tela', TELA],
+    ['câmera', CAMERA],
+    ['câmera+mic', CAMERA_MIC],
+  ]) {
+    const res = resolucaoDe(arquivo);
+    console.log(`  ${nome}: ${res.width}x${res.height} (${formatoDe(res)})`);
+  }
+} else {
+  const res = resolucaoDe(entrada);
+  console.log(`  ${res.width}x${res.height} (${formatoDe(res)})`);
+}
+
 // ---------------------------------------------------------------- 2. detectar
 
 console.log(`\nAnalisando ${ARQUIVO_BASE} (${segParaTempo(DURACAO)})...`);
