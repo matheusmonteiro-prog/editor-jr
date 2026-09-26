@@ -7,6 +7,7 @@ import {
   comparacaoBarrasSchema,
 } from "./components/ComparacaoBarras";
 import { TextoDestaque, textoDestaqueSchema } from "./components/TextoDestaque";
+import { Seta, setaSchema } from "./components/Seta";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -135,6 +136,25 @@ export const MyComposition = () => {
           corFundo: "rgba(0,0,0,0.55)",
           mostrarFundo: true,
           tamanhoFonte: 80,
+        }}
+      />
+      <Composition
+        id="Seta"
+        component={Seta}
+        durationInFrames={120}
+        fps={30}
+        width={1280}
+        height={720}
+        schema={setaSchema}
+        defaultProps={{
+          xInicial: 300,
+          yInicial: 520,
+          xFinal: 720,
+          yFinal: 240,
+          cor: "#ff3b30",
+          espessura: 8,
+          curvatura: "curva",
+          duracaoFrames: 40,
         }}
       />
     </Folder>

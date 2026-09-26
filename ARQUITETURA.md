@@ -169,11 +169,27 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   curta que o JR está falando. Posição topo/centro/rodapé, cor do texto, fundo semi-transparente
   opcional (ou sombra, se o fundo estiver desligado), duração em frames, entrada/saída com spring.
   Pronto e testado no Studio (25/09/2026).
+- `Seta` — seta que "desenha" na tela (traço crescendo até a ponta), reta ou curva, pra apontar
+  algo no vídeo. Posição inicial/final, cor, espessura, curvatura, duração em frames. A ponta só
+  aparece nos últimos 25% do traço, sempre proporcional a `duracaoFrames` (testado com 10, 40 e
+  100 frames). **Pronta no código (26/09/2026), ainda não validada visualmente pelo Matheus no
+  Studio** — só testada mentalmente/por leitura do código até aqui.
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
-- `CirculoDestaque` (com pulso) · `Seta` · `Checkmark` · `Spotlight` · `Contador`
+- `CirculoDestaque` (com pulso) · `Checkmark` · `Spotlight` · `Contador`
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
+- `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
+  (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).
+  Substitui o plano anterior de "versão completa no fim". Ainda **em aberto**:
+  se sobra algum indicador discreto dentro do vídeo (ex. rodapé), e se sim, com
+  que formato e posição — pra não colidir com outros elementos, como o gancho.
+- `LegendaAnimada` — legenda automática com estilo padrão e destaque para
+  frases-chave (Etapa 4)
+- `CallToAction` — elemento fixo reutilizável (ex.: "inscreva-se", sino, like),
+  chamado via prompt quando necessário. Segue o padrão de imagem + som
+  sincronizado decidido para a Etapa 3 ("Música de fundo e efeito sonoro
+  sincronizado a um elemento visual").
 
 **Padrão de organização no Studio (desde 25/09/2026):**
 - Cada composição do catálogo fica dentro de `<Folder name="Catalogo">`, em `Composition.tsx`.
@@ -186,17 +202,15 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   você edita um campo pelo painel — com uma variável importada, o Studio mostra "não é possível
   salvar os adereços padrão" e a edição se perde. Por isso os componentes não exportam mais o
   próprio `defaultProps`; ele mora só no `Composition.tsx`.
-- `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
-  (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).
-  Substitui o plano anterior de "versão completa no fim". Ainda **em aberto**:
-  se sobra algum indicador discreto dentro do vídeo (ex. rodapé), e se sim, com
-  que formato e posição — pra não colidir com outros elementos, como o gancho.
-- `LegendaAnimada` — legenda automática com estilo padrão e destaque para
-  frases-chave (Etapa 4)
-- `CallToAction` — elemento fixo reutilizável (ex.: "inscreva-se", sino, like),
-  chamado via prompt quando necessário. Segue o padrão de imagem + som
-  sincronizado decidido para a Etapa 3 ("Música de fundo e efeito sonoro
-  sincronizado a um elemento visual").
+- **Cuidado ao testar/arrastar elementos no canvas do Studio:** já aconteceu mais de uma vez do
+  editor visual escrever de volta no código coisas inesperadas — `from`/`durationInFrames`/`style`
+  soltos num `<Sequence>` (cortando a composição sem querer) e até o conteúdo inteiro de um
+  componente sumindo (`return null`). Depois de mexer bastante no Studio, vale rodar
+  `npx tsc --noEmit` pra conferir se o código continua íntegro.
+- **Skill `remotion-markup`** (oficial, `remotion-dev/skills`, ver `skills-lock.json`) documenta
+  esses padrões oficialmente — inclusive foi ela que confirmou a exigência do `defaultProps`
+  como objeto literal. `.claude/skills/` fica fora do Git (é só um link simbólico local pro
+  conteúdo real em `.agents/skills/`, que esse sim é versionado).
 
 ## 7. Etapas
 
