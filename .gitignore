@@ -12,3 +12,9 @@ videos/
 *.mov
 *.mkv
 *.webm
+
+# .claude/skills/* são links simbólicos para .agents/skills/ (o conteúdo real,
+# que fica versionado). Com core.symlinks=false o Git não salva link nenhum,
+# duplica os arquivos. O link é recriado sozinho pela ferramenta quando a
+# skill é usada — não precisa ir pro Git.
+.claude/skills/
