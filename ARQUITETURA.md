@@ -79,13 +79,34 @@ Matheus. **Cada arquivo vem de uma pasta fixa diferente** (não uma subpasta
 mestre estava errada — não existe arquivo de áudio puro. O áudio mora dentro
 do arquivo de câmera+mic.)
 
-**Premissa parcialmente testada:** que os três arquivos começam juntos e têm
-a mesma duração. O `cortar-silencio.mjs` já **verifica isso sozinho** (avisa
-se a duração de tela/câmera destoar da do câmera+mic em mais de 1s) e foi
-testado de ponta a ponta com arquivos sintéticos — mas **ainda não com uma
-gravação real do OBS**. Isso continua sendo pré-requisito da Etapa 3 (a parte
-de composição/Remotion): gravar um teste curto (1-2 min) no OBS antes de
-construir a lógica de camadas visuais em cima disso.
+**Premissa testada com gravação real — CONFIRMADA COMO FALSA (26/09/2026).**
+Os três arquivos **não** começam nem terminam no mesmo instante. Medido com
+uma gravação real do OBS (timestamps de criação/modificação dos arquivos):
+o câmera+mic começa gravando ~0,3 a 0,7s **antes** de tela/câmera, e termina
+**depois**. Isso desloca o conteúdo de tela/câmera em relação ao áudio quando
+o `cortar-silencio.mjs` aplica os mesmos cortes nos três — visível nas
+próprias saídas geradas, que ficaram com durações diferentes entre si (deviam
+ser idênticas). O aviso automático do script (duração destoando em mais de 1s)
+funcionou corretamente nesse teste, mas ele só avisa, não compensa.
+
+Pesquisado na documentação oficial do OBS/Source Record (página do plugin,
+GitHub do `exeldro/obs-source-record`, fóruns OBS): **não existe configuração
+documentada** pra sincronizar o início das gravações. É um problema estrutural
+conhecido da comunidade (latência de inicialização variável por fonte/hardware),
+não um erro de configuração do Matheus.
+
+**Decisão pendente entre 3 alternativas:**
+1. Ensinar o script a detectar e compensar o deslocamento automaticamente.
+2. Aceitar a limitação por enquanto e ajustar a sincronia manualmente no
+   Remotion Studio, na Etapa 3 (arrastando a camada — a arquitetura já prevê
+   esse ajuste fino manual).
+3. Gravar um novo teste no OBS com um **evento de sincronismo** (ex.: bater
+   palma visível e audível) pra medir o offset exato por correlação, em vez de
+   inferir por timestamp de arquivo (que é só um proxy, não prova frame-exato).
+
+**Escolhido como próximo passo: a alternativa 3.** Continua sendo pré-requisito
+da Etapa 3 (a parte de composição/Remotion) antes de construir a lógica de
+camadas visuais em cima da sincronia entre os arquivos.
 
 **Variação de entrada (1b), ainda PENDENTE:** algumas sessões podem vir com só
 **2 arquivos** em vez de 3 (ex.: só câmera+mic e tela, sem o arquivo de câmera
@@ -322,8 +343,10 @@ diferença), o script avisa — mas não impede de continuar, o Matheus decide.
 
 Testado de ponta a ponta com arquivos sintéticos (3 arquivos em pastas
 diferentes, com espaço no nome, verificado quadro a quadro e o áudio
-decodificado pra confirmar que não estava mudo). **Ainda não testado com uma
-gravação real do OBS** — ver seção 3a.
+decodificado pra confirmar que não estava mudo) **e com uma gravação real do
+OBS** — o mecanismo do script funciona certo nos dois casos, mas a gravação
+real revelou que os 3 arquivos não estão sincronizados na origem. Ver seção 3a
+para os detalhes e a decisão pendente.
 
 - **Pré-requisitos:** um vídeo bruto curto de teste com o JR falando (atendido);
   FFmpeg completo instalado, só para a 2b.
