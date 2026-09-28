@@ -393,10 +393,16 @@ criado):**
   sequência (ex.: três critérios seguidos), são vários elementos separados,
   cada um entrando no momento em que é dito. Nunca juntar frases num único
   card com barra ou vírgula.
-- **Gráfico/comparação sem dado real leva `"ilustrativo": true`, sempre.**
+- **`"slot"`:** posição vertical dentro da zona (topo/base — ver seção 3a); 1 é
+  a mais alta, seguindo ordem de leitura de cima para baixo.
+- **Gráfico/comparação sem dado real leva `"ilustrativo": true`, sempre — e a
+  composição também mostra a palavra "ilustrativo" na tela**, não é só um
+  campo interno do JSON.
 - **Texto na tela nunca é mais forte que a fala do JR:** usar as palavras dele
-  ou algo mais fraco. Não transformar exemplo em afirmação geral — evitar
-  "garante", "sempre", "rende mais", "valoriza". Quando ele fala de um
+  ou algo mais fraco, fiel ao que foi dito. Não transformar exemplo em
+  afirmação geral — evitar "garante", "sempre", "rende mais", "valoriza", e
+  evitar símbolos que afirmam mais do que a fala (≠, ×, =). Uma posição
+  pessoal do JR ("eu vou...") não vira regra geral. Quando ele fala de um
   exemplo, o texto mantém o tom de exemplo. **Cautela editorial, não validada
   juridicamente.**
 - **PROVISÓRIA, até existir `docs/catalogo-componentes.md`:** sem componente
