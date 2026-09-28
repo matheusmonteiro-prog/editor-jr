@@ -228,11 +228,35 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   você edita um campo pelo painel — com uma variável importada, o Studio mostra "não é possível
   salvar os adereços padrão" e a edição se perde. Por isso os componentes não exportam mais o
   próprio `defaultProps`; ele mora só no `Composition.tsx`.
-- **Cuidado ao testar/arrastar elementos no canvas do Studio:** já aconteceu mais de uma vez do
-  editor visual escrever de volta no código coisas inesperadas — `from`/`durationInFrames`/`style`
-  soltos num `<Sequence>` (cortando a composição sem querer) e até o conteúdo inteiro de um
-  componente sumindo (`return null`). Depois de mexer bastante no Studio, vale rodar
-  `npx tsc --noEmit` pra conferir se o código continua íntegro.
+- **O Studio grava edições visuais no código imediatamente** (confirmado na doc oficial
+  `docs/studio/interactivity`, recurso desde a v4.0.475): arrastar o contorno de uma camada
+  no canvas grava `style.translate` (e `style.scale`/`style.rotate` quando editáveis).
+  Arrastar/cortar bordas na **timeline** altera `durationInFrames`/`trimBefore` — essa parte
+  não está na mesma página de doc citada acima, a fonte é o release oficial da v4.0.475 no
+  GitHub `remotion-dev/remotion`. O botão de salvar do editor de props reescreve `defaultProps`
+  (`docs/studio/save-default-props`). Instalar um Element grava um arquivo `.element.tsx` novo
+  e pode oferecer criar uma composição nova pra receber o elemento (`docs/elements/contributing`)
+  — **não encontrei confirmação** de que isso reescreve um componente já existente (ex.: um
+  `Seta.tsx`), então esse ponto específico fica como não confirmado.
+- **Risco para Sequences criadas via `.map()`:** pela doc oficial, o Studio rastreia cada
+  camada editável pela posição no código-fonte ("stack") + índice; quando duas `<Sequence>`
+  vêm do mesmo `.map()` (mesmo "stack"), o sistema pode reaproveitar o mesmo id de edição entre
+  elas — ou seja, editar uma instância pelo Studio pode acabar mudando todas as instâncias
+  geradas pelo mesmo `.map()`. Isso é risco direto pra composição futura que vai ler o plano em
+  JSON (Etapa 6, "elementos"): se ela gerar as camadas com `.map()`, um ajuste manual no Studio
+  numa camada pode vazar pras outras. **A definir quando essa composição for desenhada:** o
+  ajuste manual provavelmente deve voltar pro JSON, não ficar só no código gerado — mecanismo
+  exato ainda em aberto.
+- **Opt-out documentado:** o "Outline Toggle" (v4.0.475/476) esconde os contornos editáveis no
+  canvas, evitando arrasto sem querer. Por camada, `showInTimeline={false}` no `<Sequence>` tira
+  a camada da timeline do Studio — e o ícone de "olho" na timeline também grava esse prop no
+  código quando clicado (`docs/sequence`).
+- **A causa exata do bug em que o `ImagemFade` virou `return null` continua NÃO CONFIRMADA** —
+  nenhuma fonte oficial encontrada explica esse caso específico.
+- **Depois de qualquer sessão no Studio, rodar `git diff --stat` antes de commitar — além do
+  `npx tsc --noEmit`.** O `tsc` sozinho não pega esse tipo de alteração (ex.: um `style.translate`
+  novo continua sendo código TypeScript válido, só muda o comportamento visual); só o diff
+  mostra de fato o que o Studio alterou.
 - **Skill `remotion-markup`** (oficial, `remotion-dev/skills`, ver `skills-lock.json`) documenta
   esses padrões oficialmente — inclusive foi ela que confirmou a exigência do `defaultProps`
   como objeto literal. `.claude/skills/` fica fora do Git (é só um link simbólico local pro
