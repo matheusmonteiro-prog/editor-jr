@@ -386,6 +386,24 @@ para os detalhes e a decisão pendente.
   vídeo curto, mais discretas no longo.
 - O formato oficial do roteiro/prompt (schema) só é definido aqui — não criar
   schema antes desta etapa.
+
+**Regras de conteúdo (registradas antes do schema, para valer quando ele for
+criado):**
+- **Uma camada por ideia falada:** se a fala cita vários critérios em
+  sequência (ex.: três critérios seguidos), são vários elementos separados,
+  cada um entrando no momento em que é dito. Nunca juntar frases num único
+  card com barra ou vírgula.
+- **Gráfico/comparação sem dado real leva `"ilustrativo": true`, sempre.**
+- **Texto na tela nunca é mais forte que a fala do JR:** usar as palavras dele
+  ou algo mais fraco. Não transformar exemplo em afirmação geral — evitar
+  "garante", "sempre", "rende mais", "valoriza". Quando ele fala de um
+  exemplo, o texto mantém o tom de exemplo. **Cautela editorial, não validada
+  juridicamente.**
+- **PROVISÓRIA, até existir `docs/catalogo-componentes.md`:** sem componente
+  no catálogo que bata, `"componente"` fica `"a confirmar"` e o tipo de
+  elemento vai no campo `"descricao"`. O texto que aparece na tela vai no
+  campo `"texto"` do próprio elemento.
+
 - **Pré-requisitos:** chave da API da Anthropic (só na 6b).
 
 ### Etapa 7 — Interface própria
