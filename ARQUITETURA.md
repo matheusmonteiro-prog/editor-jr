@@ -50,6 +50,9 @@ formato livre — o que torna o sintoma ainda mais enganoso.
 - **Tempos no prompt sempre se referem à gravação original** (o tempo da transcrição), nunca ao vídeo já cortado. É assim que o `--gancho` já funciona hoje (seção 7, Etapa 2) — vale como regra geral para qualquer tempo citado no prompt, inclusive na Etapa 6.
 - **Layout padrão:** o JR fica centralizado por padrão, e nenhum elemento sobreposto (gráfico, imagem, legenda etc.) pode cobrir o rosto dele.
 - **API da Anthropic:** usada só para criar componentes novos que não existem no catálogo. Custo pago por chamada, separado da assinatura do Claude.
+  **Ideia futura, ainda não decidida:** quando o plano de edição pedir um gráfico/componente
+  que não existe no catálogo, gerar o componente novo via API do Claude — só depois do
+  catálogo manual estar fechado (ver Etapa 6b). Prompt-template ainda a definir.
 - **Catálogo:** todo componente aprovado é salvo e reaproveitado, trocando só os dados.
 - **Componentes editáveis:** propriedades expostas para edição sem prompt.
 - **Áudio:** voz original do JR, com limpeza de ruído. Sem voz gerada por IA.
@@ -386,6 +389,40 @@ para os detalhes e a decisão pendente.
   vídeo curto, mais discretas no longo.
 - O formato oficial do roteiro/prompt (schema) só é definido aqui — não criar
   schema antes desta etapa.
+
+**Formato do plano de edição (JSON) — DECIDIDO, NÃO IMPLEMENTADO:**
+```json
+{
+  "video": "...",
+  "orientacao": "vertical|horizontal",
+  "elementos": [
+    {
+      "id": "...",
+      "componente": "...",
+      "descricao": "...",
+      "texto": "...",
+      "inicio": "m:ss",
+      "duracao": 0,
+      "posicao": "topo|base",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": false,
+      "props": {}
+    }
+  ]
+}
+```
+- **`"inicio"` sempre se refere ao vídeo original** (a gravação, antes de
+  cortar), igual à regra já usada pelo `--gancho` — a conversão pro tempo do
+  vídeo já cortado é feita a partir do `.cortes.json` (ver Etapa 2).
+- **`"componente"` e `"props"` ficam `"a confirmar"`/vazios até existir
+  `docs/catalogo-componentes.md`** — provisório (ver regra abaixo).
+- **Cada elemento do array é uma camada** — mesma regra da seção 3
+  (Decisões tomadas).
+- **Onde o plano é gerado:** no chat de um Projeto do Claude, a partir da
+  transcrição da gravação — não dentro do editor-jr.
+- **A composição Remotion que lê esse JSON ainda NÃO EXISTE.** Este formato é
+  só a decisão do formato; a implementação (6a) é trabalho futuro desta etapa.
 
 **Regras de conteúdo (registradas antes do schema, para valer quando ele for
 criado):**
