@@ -1,0 +1,311 @@
+# Catálogo de Componentes
+
+Gerado lido direto do código em `src/components/` e `src/components/v2/` (e dos
+`defaultProps` em `src/Composition.tsx`) em 28/09/2026. Onde o código não diz
+algo explicitamente, este documento diz **"não confirmado"** em vez de supor.
+
+## ⚠️ Dois padrões de personagem, ainda não unificados
+
+O projeto tem **dois jeitos diferentes** de mostrar a imagem de um "personagem"
+(PNG de `public/images/personagens/`), coexistindo sem que a unificação tenha
+sido decidida:
+
+1. **`imagemPersonagem` (prop embutida)** — usada dentro de `BarrasDuelo`,
+   `ColagemFotos`, `GraficoCrescimento` e `TextoContraste`. Cada um desses 4
+   arquivos tem sua própria cópia da lógica de `<Img>` + animação de entrada,
+   duplicada independentemente em cada componente.
+2. **`PersonagemImagem` (componente próprio)** — um componente à parte, com
+   sua própria `<Sequence>` independente na timeline. Usado ao lado do
+   `ListaCheck` (que não tem mais nenhuma prop de imagem própria).
+
+**Não decidido:** se o padrão 2 deveria substituir o padrão 1 nos outros 4
+componentes, ou se os dois vão continuar existindo por motivos diferentes.
+
+---
+
+## Componentes originais — `src/components/`
+
+### ImagemFade
+**Arquivo:** `src/components/ImagemFade.tsx`
+**O que faz:** mostra uma imagem com fade de entrada (opacidade 0 → 1).
+**Status:** não confirmado (sem nota de validação no ARQUITETURA.md).
+
+| Prop | Tipo (zod) | Opcional | Valor padrão (Composition.tsx) |
+|---|---|---|---|
+| `src` | `string` | não | `"images/selic.png"` |
+| `corFundo` | `zColor()` | não | `"#ffffff"` |
+| `larguraPorcentagem` | `number` (min 1, max 100) | não | `80` |
+| `frameEntrada` | `number` (min 0) | não | `30` |
+
+---
+
+### GraficoLinha
+**Arquivo:** `src/components/GraficoLinha.tsx`
+**O que faz:** linha que se desenha com curva suave, gradiente, brilho e área
+preenchida embaixo; número contando e ponto pulsante na ponta.
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `titulo` | `string` | não | `"Valorização"` |
+| `valorFinal` | `number` | não | `32` |
+| `corFundo` | `zColor()` | não | `"#111318"` |
+| `corLinhaInicio` | `zColor()` | não | `"#00d9ff"` |
+| `corLinhaFim` | `zColor()` | não | `"#00ff9d"` |
+| `largura` | `number` (min 100) | não | `880` |
+| `altura` | `number` (min 100) | não | `420` |
+| `frameFimSaida` | `number` (min 1) | não | `140` |
+| `mostrarNumero` | `boolean` | **sim** | não definido no Composition.tsx; padrão do componente = `true` |
+| `rotuloEixoX` | `string` | **sim** | não definido; sem padrão no componente (fica sem rótulo se omitido) |
+| `oscilar` | `boolean` | **sim** | não definido no Composition.tsx; padrão do componente = `false` |
+| `textoFinal` | `string` | **sim** | não definido; sem padrão no componente (não aparece se omitido) |
+
+---
+
+### ColagemCenas
+**Arquivo:** `src/components/ColagemCenas.tsx`
+**O que faz:** várias imagens entrando escalonadas no tempo, com rotação e
+spring (estilo "colagem de papel"); moldura branca opcional (`estiloPolaroid`).
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `corFundo` | `zColor()` | não | `"#f0ebe0"` |
+| `cenas` | `array` de objeto (ver abaixo) | não | 3 itens (ver código) |
+| `estiloPolaroid` | `boolean` | **sim** | não definido no Composition.tsx; padrão do componente = `false` |
+
+Cada item de `cenas`: `{ src: string, x: number, y: number, largura: number (min 10), rotacaoFinal: number, frameEntrada: number (min 0) }` — todos obrigatórios.
+
+---
+
+### ComparacaoBarras
+**Arquivo:** `src/components/ComparacaoBarras.tsx`
+**O que faz:** barras verticais crescendo com spring, número contando em cima
+(opcional) e destaque visual numa das barras.
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `valorMaximoEscala` | `number` (min 1) | não | `30` |
+| `larguraBarra` | `number` (min 10) | não | `220` |
+| `alturaMaximaBarra` | `number` (min 10) | não | `380` |
+| `barras` | `array` de objeto (ver abaixo) | não | 2 itens (ver código) |
+| `mostrarValores` | `boolean` | **sim** | não definido no Composition.tsx; padrão do componente = `true` |
+| `legenda` | `string` | **sim** | não definido; sem padrão (não aparece se omitido) |
+
+Cada item de `barras`: `{ label: string, valorFinal: number, cor: zColor(), corTopo: zColor(), frameEntrada: number (min 0), destaque: boolean }` — todos obrigatórios.
+
+---
+
+### TextoDestaque
+**Arquivo:** `src/components/TextoDestaque.tsx`
+**O que faz:** overlay de texto (palavra/frase em destaque), posição
+topo/centro/rodapé, fundo semi-transparente opcional ou sombra.
+**Status:** **Pronto e testado no Studio (25/09/2026)** — nota do ARQUITETURA.md.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `texto` | `string` | não | `"RENDA FIXA"` |
+| `posicao` | `enum("topo","centro","rodape")` | não | `"centro"` |
+| `duracaoFrames` | `number` (min 10) | não | `90` |
+| `corTexto` | `zColor()` | não | `"#ffffff"` |
+| `corFundo` | `zColor()` | não | `"rgba(0,0,0,0.55)"` |
+| `mostrarFundo` | `boolean` | não | `true` |
+| `tamanhoFonte` | `number` (min 10) | não | `80` |
+
+---
+
+### Seta
+**Arquivo:** `src/components/Seta.tsx`
+**O que faz:** traço (reto ou curvo) que se desenha do início até uma ponta
+que aparece nos últimos 25% da animação, proporcional a `duracaoFrames`.
+**Status:** **pronta no código (26/09/2026), ainda não validada visualmente
+pelo Matheus no Studio** — só testada mentalmente/por leitura do código,
+segundo o ARQUITETURA.md.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `xInicial` | `number` | não | `300` |
+| `yInicial` | `number` | não | `520` |
+| `xFinal` | `number` | não | `720` |
+| `yFinal` | `number` | não | `240` |
+| `cor` | `zColor()` | não | `"#ff3b30"` |
+| `espessura` | `number` (min 1) | não | `8` |
+| `curvatura` | `enum("reta","curva")` | não | `"curva"` |
+| `duracaoFrames` | `number` (min 1) | não | `40` |
+
+---
+
+### Checkmark
+**Arquivo:** `src/components/Checkmark.tsx`
+**O que faz:** check com pop de escala (spring), círculo de fundo opcional.
+**Status:** **Pronto e validado no Studio (26/09/2026)** — nota do ARQUITETURA.md.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `x` | `number` | não | `640` |
+| `y` | `number` | não | `360` |
+| `tamanho` | `number` (min 10) | não | `160` |
+| `cor` | `zColor()` | não | `"#ffffff"` |
+| `corFundo` | `zColor()` | não | `"#0f9e6e"` |
+| `mostrarFundo` | `boolean` | não | `true` |
+| `duracaoFrames` | `number` (min 10) | não | `60` |
+
+---
+
+## Componentes novos — `src/components/v2/`
+
+Nenhum destes é mencionado no ARQUITETURA.md até agora — status "não
+confirmado" em todos, mesmo que tenham sido usados/observados em conversas
+anteriores (o `ListaCheck`, em especial, foi refatorado por completo depois
+de qualquer teste anterior).
+
+### ListaCheck (v2)
+**Arquivo:** `src/components/v2/ListaCheck.tsx`
+**O que faz:** **um item só** — uma frase com uma palavra em destaque, mais um
+check que se desenha ao lado. Não tem mais array/lista interna: cada frase é
+uma chamada separada do componente, cada uma dentro da sua própria
+`<Sequence>` na composição. Sem prop de imagem (ver nota do topo).
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `texto` | `string` | não | `"EMPRESAS BOAS"` |
+| `destaque` | `string` | não | `"BOAS"` |
+| `top` | `number` (min 0, max 1) | não | `0.15` |
+| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `corTexto` | `zColor()` | não | `"#ffffff"` |
+| `corDestaque` | `zColor()` | não | `"#22C55E"` |
+| `corCheck` | `zColor()` | não | `"#22C55E"` |
+| `tamanhoFonte` | `number` (min 0.005, max 0.5) | não | `0.034` |
+| `frameEntradaCheck` | `number` (min 0) | não | `18` |
+| `duracaoFrames` | `number` (min 10) | não | `150` |
+| `framesSaida` | `number` (min 1) | não | `25` |
+
+---
+
+### ColagemFotos (v2)
+**Arquivo:** `src/components/v2/ColagemFotos.tsx`
+**O que faz:** fotos "impressas jogadas na mesa" (borda branca, sombra,
+rotação leve), entrando uma por vez; etiqueta de texto opcional em cima.
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `fotos` | `array` de objeto (ver abaixo) | não | 3 itens (ver código) |
+| `etiqueta` | `string` | não | `"Ativos Reais"` |
+| `mostrarEtiqueta` | `boolean` | não | `true` |
+| `corEtiqueta` | `zColor()` | não | `"#22C55E"` |
+| `larguraFoto` | `number` (min 0.05, max 0.9) | não | `0.42` |
+| `imagemPersonagem` | `string` | **sim** | não definido no Composition.tsx; sem padrão (sem imagem se omitido) |
+| `tamanhoImagemPersonagem` | `number` (min 0.05, max 0.6) | **sim** | não definido no Composition.tsx; padrão do componente = `0.3` |
+| `frameEntradaPersonagem` | `number` (min 0) | **sim** | não definido no Composition.tsx; sem padrão fixo — o componente calcula `frameEntrada` da última foto `+ 20` se omitido |
+
+Cada item de `fotos`: `{ src: string, rotacao: number, frameEntrada: number (min 0) }` — todos obrigatórios.
+
+---
+
+### TextoContraste (v2)
+**Arquivo:** `src/components/v2/TextoContraste.tsx`
+**O que faz:** duas palavras em contraste — uma positiva (com check
+desenhado e glow) e uma negativa (com risco horizontal que se desenha num
+frame configurável).
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `textoPositivo` | `string` | não | `"INVESTIR"` |
+| `textoNegativo` | `string` | não | `"ESPECULAR"` |
+| `corPositivo` | `zColor()` | não | `"#ffffff"` |
+| `corNegativo` | `zColor()` | não | `"#6b7280"` |
+| `frameRisco` | `number` (min 0) | não | `55` |
+| `duracaoFramesRisco` | `number` (min 1) | não | `18` |
+| `tamanhoFontePositivo` | `number` (min 0.005, max 0.5) | não | `0.06` |
+| `tamanhoFonteNegativo` | `number` (min 0.005, max 0.5) | não | `0.042` |
+| `imagemPersonagem` | `string` | **sim** | não definido no Composition.tsx; sem padrão (sem imagem se omitido) |
+| `tamanhoImagemPersonagem` | `number` (min 0.05, max 0.6) | **sim** | não definido no Composition.tsx; padrão do componente = `0.22` |
+
+---
+
+### LegendaDiscreta (v2)
+**Arquivo:** `src/components/v2/LegendaDiscreta.tsx`
+**O que faz:** texto pequeno, sem card/fundo, fade simples de entrada e
+saída. Sem prop de imagem.
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `texto` | `string` | não | `"Guardar um pouco todo mês"` |
+| `corTexto` | `zColor()` | não | `"#e5e7eb"` |
+| `tamanhoFonte` | `number` (min 0.005, max 0.5) | não | `0.024` |
+| `posicao` | `enum("topo","centro","rodape")` | não | `"rodape"` |
+| `duracaoFrames` | `number` (min 10) | não | `120` |
+
+---
+
+### BarrasDuelo (v2)
+**Arquivo:** `src/components/v2/BarrasDuelo.tsx`
+**O que faz:** duas (ou mais) barras verticais crescendo, sem nenhum número
+exibido em lugar nenhum — `alturaRelativa` é só proporção visual (0 a 1),
+nunca um dado mostrado na tela.
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `barras` | `array` de objeto (ver abaixo) | não | 2 itens (ver código) |
+| `legenda` | `string` | não | `"ilustrativo"` |
+| `mostrarLegenda` | `boolean` | não | `true` |
+| `larguraBarra` | `number` (min 0.02, max 0.5) | não | `0.16` |
+| `alturaMaxima` | `number` (min 0.05, max 0.9) | não | `0.45` |
+| `imagemPersonagem` | `string` | **sim** | não definido no Composition.tsx; sem padrão (sem imagem se omitido) |
+| `tamanhoImagemPersonagem` | `number` (min 0.05, max 0.6) | **sim** | não definido no Composition.tsx; padrão do componente = `0.24` |
+
+Cada item de `barras`: `{ label: string, alturaRelativa: number (min 0, max 1), cor: zColor(), destaque: boolean, frameEntrada: number (min 0) }` — todos obrigatórios.
+
+---
+
+### GraficoCrescimento (v2)
+**Arquivo:** `src/components/v2/GraficoCrescimento.tsx`
+**O que faz:** linha "realista" (com pequenos recuos, não uma reta perfeita)
+que se desenha da esquerda pra direita, área preenchida translúcida, ponto
+brilhante acompanhando a ponta. Sem nenhum número exibido em lugar nenhum
+(nem como opção).
+**Status:** não confirmado.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `corLinha` | `zColor()` | não | `"#22C55E"` |
+| `rotuloEixoX` | `string` | não | `"ANOS"` |
+| `mostrarRotuloEixoX` | `boolean` | não | `true` |
+| `textoIlustrativo` | `string` | não | `"ilustrativo"` |
+| `mostrarTextoIlustrativo` | `boolean` | não | `true` |
+| `textoFinal` | `string` | não | `"VALORIZOU"` |
+| `mostrarTextoFinal` | `boolean` | não | `true` |
+| `largura` | `number` (min 0.1, max 0.95) | não | `0.85` |
+| `altura` | `number` (min 0.1, max 0.95) | não | `0.4` |
+| `duracaoFramesDesenho` | `number` (min 10) | não | `130` |
+| `imagemPersonagem` | `string` | **sim** | não definido no Composition.tsx; sem padrão (sem imagem se omitido) |
+| `tamanhoImagemPersonagem` | `number` (min 0.05, max 0.6) | **sim** | não definido no Composition.tsx; padrão do componente = `0.26` |
+
+---
+
+### PersonagemImagem (v2)
+**Arquivo:** `src/components/v2/PersonagemImagem.tsx`
+**O que faz:** mostra **um** personagem (PNG de `public/images/personagens/`)
+com zoom de entrada e fade de saída — camada própria e independente, criada
+pra não esconder a imagem dentro de outro componente (ver nota do topo).
+**Status:** não confirmado (componente novo).
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `imagem` | `string` | não | `"investidor.png"` |
+| `top` | `number` (min 0, max 1) | não | `0.3` |
+| `left` | `number` (min 0, max 1) | não | `0.36` |
+| `tamanho` | `number` (min 0.05, max 0.8) | não | `0.28` |
+| `duracaoFrames` | `number` (min 10) | não | `100` |
+| `framesSaida` | `number` (min 1) | não | `20` |
