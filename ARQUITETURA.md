@@ -50,6 +50,9 @@ formato livre — o que torna o sintoma ainda mais enganoso.
 - **Tempos no prompt sempre se referem à gravação original** (o tempo da transcrição), nunca ao vídeo já cortado. É assim que o `--gancho` já funciona hoje (seção 7, Etapa 2) — vale como regra geral para qualquer tempo citado no prompt, inclusive na Etapa 6.
 - **Layout padrão:** o JR fica centralizado por padrão, e nenhum elemento sobreposto (gráfico, imagem, legenda etc.) pode cobrir o rosto dele.
 - **API da Anthropic:** usada só para criar componentes novos que não existem no catálogo. Custo pago por chamada, separado da assinatura do Claude.
+  **Ideia futura, ainda não decidida:** quando o plano de edição pedir um gráfico/componente
+  que não existe no catálogo, gerar o componente novo via API do Claude — só depois do
+  catálogo manual estar fechado (ver Etapa 6b). Prompt-template ainda a definir.
 - **Catálogo:** todo componente aprovado é salvo e reaproveitado, trocando só os dados.
 - **Componentes editáveis:** propriedades expostas para edição sem prompt.
 - **Áudio:** voz original do JR, com limpeza de ruído. Sem voz gerada por IA.
@@ -225,11 +228,35 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   você edita um campo pelo painel — com uma variável importada, o Studio mostra "não é possível
   salvar os adereços padrão" e a edição se perde. Por isso os componentes não exportam mais o
   próprio `defaultProps`; ele mora só no `Composition.tsx`.
-- **Cuidado ao testar/arrastar elementos no canvas do Studio:** já aconteceu mais de uma vez do
-  editor visual escrever de volta no código coisas inesperadas — `from`/`durationInFrames`/`style`
-  soltos num `<Sequence>` (cortando a composição sem querer) e até o conteúdo inteiro de um
-  componente sumindo (`return null`). Depois de mexer bastante no Studio, vale rodar
-  `npx tsc --noEmit` pra conferir se o código continua íntegro.
+- **O Studio grava edições visuais no código imediatamente** (confirmado na doc oficial
+  `docs/studio/interactivity`, recurso desde a v4.0.475): arrastar o contorno de uma camada
+  no canvas grava `style.translate` (e `style.scale`/`style.rotate` quando editáveis).
+  Arrastar/cortar bordas na **timeline** altera `durationInFrames`/`trimBefore` — essa parte
+  não está na mesma página de doc citada acima, a fonte é o release oficial da v4.0.475 no
+  GitHub `remotion-dev/remotion`. O botão de salvar do editor de props reescreve `defaultProps`
+  (`docs/studio/save-default-props`). Instalar um Element grava um arquivo `.element.tsx` novo
+  e pode oferecer criar uma composição nova pra receber o elemento (`docs/elements/contributing`)
+  — **não encontrei confirmação** de que isso reescreve um componente já existente (ex.: um
+  `Seta.tsx`), então esse ponto específico fica como não confirmado.
+- **Risco para Sequences criadas via `.map()`:** pela doc oficial, o Studio rastreia cada
+  camada editável pela posição no código-fonte ("stack") + índice; quando duas `<Sequence>`
+  vêm do mesmo `.map()` (mesmo "stack"), o sistema pode reaproveitar o mesmo id de edição entre
+  elas — ou seja, editar uma instância pelo Studio pode acabar mudando todas as instâncias
+  geradas pelo mesmo `.map()`. Isso é risco direto pra composição futura que vai ler o plano em
+  JSON (Etapa 6, "elementos"): se ela gerar as camadas com `.map()`, um ajuste manual no Studio
+  numa camada pode vazar pras outras. **A definir quando essa composição for desenhada:** o
+  ajuste manual provavelmente deve voltar pro JSON, não ficar só no código gerado — mecanismo
+  exato ainda em aberto.
+- **Opt-out documentado:** o "Outline Toggle" (v4.0.475/476) esconde os contornos editáveis no
+  canvas, evitando arrasto sem querer. Por camada, `showInTimeline={false}` no `<Sequence>` tira
+  a camada da timeline do Studio — e o ícone de "olho" na timeline também grava esse prop no
+  código quando clicado (`docs/sequence`).
+- **A causa exata do bug em que o `ImagemFade` virou `return null` continua NÃO CONFIRMADA** —
+  nenhuma fonte oficial encontrada explica esse caso específico.
+- **Depois de qualquer sessão no Studio, rodar `git diff --stat` antes de commitar — além do
+  `npx tsc --noEmit`.** O `tsc` sozinho não pega esse tipo de alteração (ex.: um `style.translate`
+  novo continua sendo código TypeScript válido, só muda o comportamento visual); só o diff
+  mostra de fato o que o Studio alterou.
 - **Skill `remotion-markup`** (oficial, `remotion-dev/skills`, ver `skills-lock.json`) documenta
   esses padrões oficialmente — inclusive foi ela que confirmou a exigência do `defaultProps`
   como objeto literal. `.claude/skills/` fica fora do Git (é só um link simbólico local pro
@@ -386,6 +413,64 @@ para os detalhes e a decisão pendente.
   vídeo curto, mais discretas no longo.
 - O formato oficial do roteiro/prompt (schema) só é definido aqui — não criar
   schema antes desta etapa.
+
+**Formato do plano de edição (JSON) — DECIDIDO, NÃO IMPLEMENTADO:**
+```json
+{
+  "video": "...",
+  "orientacao": "vertical|horizontal",
+  "elementos": [
+    {
+      "id": "...",
+      "componente": "...",
+      "descricao": "...",
+      "texto": "...",
+      "inicio": "m:ss",
+      "duracao": 0,
+      "posicao": "topo|base",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": false,
+      "props": {}
+    }
+  ]
+}
+```
+- **`"inicio"` sempre se refere ao vídeo original** (a gravação, antes de
+  cortar), igual à regra já usada pelo `--gancho` — a conversão pro tempo do
+  vídeo já cortado é feita a partir do `.cortes.json` (ver Etapa 2).
+- **`"componente"` e `"props"` ficam `"a confirmar"`/vazios até existir
+  `docs/catalogo-componentes.md`** — provisório (ver regra abaixo).
+- **Cada elemento do array é uma camada** — mesma regra da seção 3
+  (Decisões tomadas).
+- **Onde o plano é gerado:** no chat de um Projeto do Claude, a partir da
+  transcrição da gravação — não dentro do editor-jr.
+- **A composição Remotion que lê esse JSON ainda NÃO EXISTE.** Este formato é
+  só a decisão do formato; a implementação (6a) é trabalho futuro desta etapa.
+
+**Regras de conteúdo (registradas antes do schema, para valer quando ele for
+criado):**
+- **Uma camada por ideia falada:** se a fala cita vários critérios em
+  sequência (ex.: três critérios seguidos), são vários elementos separados,
+  cada um entrando no momento em que é dito. Nunca juntar frases num único
+  card com barra ou vírgula.
+- **`"slot"`:** posição vertical dentro da zona (topo/base — ver seção 3a); 1 é
+  a mais alta, seguindo ordem de leitura de cima para baixo.
+- **Gráfico/comparação sem dado real leva `"ilustrativo": true`, sempre — e a
+  composição também mostra a palavra "ilustrativo" na tela**, não é só um
+  campo interno do JSON.
+- **Texto na tela nunca é mais forte que a fala do JR:** usar as palavras dele
+  ou algo mais fraco, fiel ao que foi dito. Não transformar exemplo em
+  afirmação geral — evitar "garante", "sempre", "rende mais", "valoriza", e
+  evitar símbolos que afirmam mais do que a fala (≠, ×, =). Uma posição
+  pessoal do JR ("eu vou...") não vira regra geral. Quando ele fala de um
+  exemplo, o texto mantém o tom de exemplo. **Cautela editorial, não validada
+  juridicamente.**
+- **PROVISÓRIA, até existir `docs/catalogo-componentes.md`:** sem componente
+  no catálogo que bata, `"componente"` fica `"a confirmar"` e o tipo de
+  elemento vai no campo `"descricao"`. O texto que aparece na tela vai no
+  campo `"texto"` do próprio elemento.
+
 - **Pré-requisitos:** chave da API da Anthropic (só na 6b).
 
 ### Etapa 7 — Interface própria
