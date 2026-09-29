@@ -24,6 +24,10 @@ import {
   GraficoCrescimento,
   graficoCrescimentoSchema,
 } from "./components/v2/GraficoCrescimento";
+import {
+  PersonagemImagem,
+  personagemImagemSchema,
+} from "./components/v2/PersonagemImagem";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -200,18 +204,17 @@ export const MyComposition = () => {
         height={1920}
         schema={listaCheckSchema}
         defaultProps={{
+          texto: "EMPRESAS BOAS",
+          destaque: "BOAS",
+          top: 0.15,
           corFundo: "#0d0f14",
-          itens: [
-            { texto: "EMPRESAS BOAS", destaque: "BOAS" },
-            { texto: "PREÇO CERTO", destaque: "CERTO" },
-            { texto: "LONGO PRAZO", destaque: "LONGO" },
-          ],
-          intervaloFrames: 26,
           corTexto: "#ffffff",
           corDestaque: "#22C55E",
           corCheck: "#22C55E",
           tamanhoFonte: 0.034,
+          frameEntradaCheck: 18,
           duracaoFrames: 150,
+          framesSaida: 25,
         }}
       />
       <Composition
@@ -323,6 +326,23 @@ export const MyComposition = () => {
           largura: 0.85,
           altura: 0.4,
           duracaoFramesDesenho: 130,
+        }}
+      />
+      <Composition
+        id="PersonagemImagem"
+        component={PersonagemImagem}
+        durationInFrames={100}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={personagemImagemSchema}
+        defaultProps={{
+          imagem: "investidor.png",
+          top: 0.3,
+          left: 0.36,
+          tamanho: 0.28,
+          duracaoFrames: 100,
+          framesSaida: 20,
         }}
       />
     </Folder>

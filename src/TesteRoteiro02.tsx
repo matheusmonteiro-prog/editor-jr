@@ -1,6 +1,7 @@
 import React from "react";
 import { OffthreadVideo, Sequence, staticFile, useVideoConfig } from "remotion";
 import { ListaCheck } from "./components/v2/ListaCheck";
+import { PersonagemImagem } from "./components/v2/PersonagemImagem";
 import { ColagemFotos } from "./components/v2/ColagemFotos";
 import { TextoContraste } from "./components/v2/TextoContraste";
 import { LegendaDiscreta } from "./components/v2/LegendaDiscreta";
@@ -23,24 +24,67 @@ export const TesteRoteiro02: React.FC = () => {
     <>
       <OffthreadVideo src={staticFile("videos/0926-cortado-v1.mp4")} />
 
-      {/* Cena 1 — 0:00–0:07 original (frame 0–187 cortado) — gancho */}
+      {/* Cena 1 — 0:00–0:07 original (frame 0–187 cortado) — gancho.
+          Cada frase é sua própria Sequence, direto na composição, com seu
+          próprio "from" — editável individualmente no Studio (arrastando ou
+          pelo painel), em vez de um array escondido dentro de um componente
+          de lista. As durações foram calculadas pra todas terminarem juntas
+          no frame global 172 (mesmo efeito de saída em conjunto de antes),
+          mas cada uma é uma camada independente. */}
       <Sequence durationInFrames={172}>
-        <ZonaTopo>
-          <ListaCheck
-            corFundo="transparent"
-            itens={[
-              { texto: "EMPRESAS BOAS", destaque: "BOAS" },
-              { texto: "PREÇO CERTO", destaque: "CERTO" },
-              { texto: "LONGO PRAZO", destaque: "LONGO" },
-            ]}
-            intervaloFrames={26}
-            corTexto="#ffffff"
-            corDestaque={VERDE}
-            corCheck={VERDE}
-            tamanhoFonte={0.034}
-            duracaoFrames={172}
-          />
-        </ZonaTopo>
+        <ListaCheck
+          texto="EMPRESAS BOAS"
+          destaque="BOAS"
+          top={0.08}
+          corFundo="transparent"
+          corTexto="#ffffff"
+          corDestaque={VERDE}
+          corCheck={VERDE}
+          tamanhoFonte={0.034}
+          frameEntradaCheck={18}
+          duracaoFrames={172}
+          framesSaida={27}
+        />
+      </Sequence>
+      <Sequence from={26} durationInFrames={146}>
+        <ListaCheck
+          texto="PREÇO CERTO"
+          destaque="CERTO"
+          top={0.155}
+          corFundo="transparent"
+          corTexto="#ffffff"
+          corDestaque={VERDE}
+          corCheck={VERDE}
+          tamanhoFonte={0.034}
+          frameEntradaCheck={18}
+          duracaoFrames={146}
+          framesSaida={27}
+        />
+      </Sequence>
+      <Sequence from={52} durationInFrames={120}>
+        <ListaCheck
+          texto="LONGO PRAZO"
+          destaque="LONGO"
+          top={0.23}
+          corFundo="transparent"
+          corTexto="#ffffff"
+          corDestaque={VERDE}
+          corCheck={VERDE}
+          tamanhoFonte={0.034}
+          frameEntradaCheck={18}
+          duracaoFrames={120}
+          framesSaida={27}
+        />
+      </Sequence>
+      <Sequence from={70} durationInFrames={102}>
+        <PersonagemImagem
+          imagem="investidor.png"
+          top={0.22}
+          left={0.65}
+          tamanho={0.28}
+          duracaoFrames={102}
+          framesSaida={27}
+        />
       </Sequence>
 
       {/* Cena 2 — 0:07–0:13 original (frame 187–341 cortado) */}
@@ -56,6 +100,7 @@ export const TesteRoteiro02: React.FC = () => {
             mostrarEtiqueta
             corEtiqueta={VERDE}
             larguraFoto={0.4}
+            imagemPersonagem="casa-terreno.png"
           />
         </ZonaBase>
       </Sequence>
@@ -134,6 +179,7 @@ export const TesteRoteiro02: React.FC = () => {
             largura={0.85}
             altura={0.7}
             duracaoFramesDesenho={130}
+            imagemPersonagem="crescimento.png"
           />
         </ZonaTopo>
       </Sequence>
