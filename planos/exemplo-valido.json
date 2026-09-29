@@ -1,0 +1,58 @@
+{
+  "video": "videos/0926-cortado-v1.mp4",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "gancho-1",
+      "componente": "TextoDestaque",
+      "descricao": "Abertura com o gancho principal",
+      "texto": "Como isso funciona na prática",
+      "inicio": "0:00",
+      "duracao": 4,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": false,
+      "props": { "corTexto": "#ffffff" }
+    },
+    {
+      "id": "grafico-1",
+      "componente": "GraficoLinha",
+      "descricao": "Gráfico de crescimento",
+      "texto": "Trajetória ilustrativa dos últimos anos",
+      "inicio": "0:05",
+      "duracao": 5,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": true,
+      "tempo_estimado": false,
+      "props": { "corLinha": "#22C55E" }
+    },
+    {
+      "id": "legenda-1",
+      "componente": "LegendaDiscreta",
+      "descricao": "Legenda de reforço",
+      "texto": "Guardar um pouco todo mês",
+      "inicio": "0:11",
+      "duracao": 3,
+      "posicao": "base",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": "a confirmar"
+    },
+    {
+      "id": "cta-1",
+      "componente": "a confirmar",
+      "descricao": "Chamada final",
+      "texto": "Deixe seu comentário",
+      "inicio": "0:15",
+      "duracao": 3,
+      "posicao": "base",
+      "slot": 2,
+      "ilustrativo": false,
+      "tempo_estimado": false,
+      "props": {}
+    }
+  ]
+}

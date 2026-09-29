@@ -1,0 +1,133 @@
+{
+  "video": "0926",
+  "orientacao": "vertical",
+  "fps": 30,
+  "elementos": [
+    {
+      "id": "criterio-empresas-boas",
+      "componente": "ListaCheck",
+      "descricao": "card de frase-chave; 1º de 3 critérios que se acumulam no topo e saem juntos",
+      "texto": "Empresas boas",
+      "inicio": "0:04", "duracao": 5, "duracaoFrames": 150,
+      "posicao": "topo", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "texto": "Empresas boas", "destaque": "boas", "top": 0.15,
+        "corFundo": "#0F2A1D", "corTexto": "#F5F0E6",
+        "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
+        "duracaoFrames": 150
+      }
+    },
+    {
+      "id": "criterio-preco-certo",
+      "componente": "ListaCheck",
+      "descricao": "card de frase-chave; 2º critério",
+      "texto": "Pelo preço certo",
+      "inicio": "0:05", "duracao": 4, "duracaoFrames": 120,
+      "posicao": "topo", "slot": 2,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "texto": "Pelo preço certo", "destaque": "certo", "top": 0.20,
+        "corFundo": "#0F2A1D", "corTexto": "#F5F0E6",
+        "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
+        "duracaoFrames": 120
+      }
+    },
+    {
+      "id": "criterio-longo-prazo",
+      "componente": "ListaCheck",
+      "descricao": "card de frase-chave; 3º critério",
+      "texto": "Pra longo prazo",
+      "inicio": "0:07", "duracao": 2, "duracaoFrames": 60,
+      "posicao": "topo", "slot": 3,
+      "ilustrativo": false, "tempo_estimado": false,
+      "props": {
+        "texto": "Pra longo prazo", "destaque": "longo", "top": 0.25,
+        "corFundo": "#0F2A1D", "corTexto": "#F5F0E6",
+        "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
+        "duracaoFrames": 60
+      }
+    },
+    {
+      "id": "terra-terreno-casa",
+      "componente": ["PersonagemImagem", "LegendaDiscreta"],
+      "descricao": "ilustração com legenda — casa-terreno.png",
+      "texto": "Terra, terreno, casa",
+      "inicio": "0:10", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "PersonagemImagem": { "imagem": "casa-terreno.png", "top": 0.62, "left": 0.05, "tamanho": 0.28, "duracaoFrames": 90 },
+        "LegendaDiscreta": { "texto": "Terra, terreno, casa", "corTexto": "#F5F0E6", "posicao": "rodape", "duracaoFrames": 90 }
+      }
+    },
+    {
+      "id": "investir-nao-especular",
+      "componente": "TextoContraste",
+      "descricao": "contraste positivo/negativo; o risco desenha sobre a palavra negativa quando o JR diz 'não vou especular'",
+      "texto": "Investir / Especular",
+      "inicio": "0:14", "duracao": 4, "duracaoFrames": 120,
+      "posicao": "topo", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "corFundo": "#0F2A1D",
+        "textoPositivo": "Investir",
+        "textoNegativo": "Especular",
+        "corPositivo": "#EFAF20",
+        "corNegativo": "rgba(245,240,230,0.6)",
+        "frameRisco": 30
+      }
+    },
+    {
+      "id": "em-vez-da-poupanca",
+      "componente": "BarrasDuelo",
+      "descricao": "card de comparação, sem números, barras de mesma altura",
+      "texto": "Em vez da poupança, um pedaço de empresa boa",
+      "inicio": "0:24", "duracao": 5, "duracaoFrames": 150,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": true, "tempo_estimado": false,
+      "props": {
+        "corFundo": "#0F2A1D",
+        "barras": [
+          { "label": "Poupança", "alturaRelativa": 0.5, "cor": "#F5F0E6", "destaque": false, "frameEntrada": 0 },
+          { "label": "Pedaço de empresa boa", "alturaRelativa": 0.5, "cor": "#EFAF20", "destaque": true, "frameEntrada": 120 }
+        ],
+        "legenda": "ilustrativo",
+        "mostrarLegenda": true
+      }
+    },
+    {
+      "id": "aposentadoria",
+      "componente": ["PersonagemImagem", "LegendaDiscreta"],
+      "descricao": "ilustração com legenda — investidor.png",
+      "texto": "Aposentadoria",
+      "inicio": "0:32", "duracao": 2, "duracaoFrames": 60,
+      "posicao": "topo", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "PersonagemImagem": { "imagem": "investidor.png", "top": 0.08, "left": 0.67, "tamanho": 0.28, "duracaoFrames": 60 },
+        "LegendaDiscreta": { "texto": "Aposentadoria", "corTexto": "#F5F0E6", "posicao": "topo", "duracaoFrames": 60 }
+      }
+    },
+    {
+      "id": "os-anos-se-passaram",
+      "componente": "GraficoCrescimento",
+      "descricao": "linha de crescimento sem números, com 'ilustrativo' escrito na tela",
+      "texto": "Os anos se passaram",
+      "inicio": "0:36", "duracao": 2, "duracaoFrames": 60,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": true, "tempo_estimado": true,
+      "props": {
+        "corFundo": "#0F2A1D",
+        "corLinha": "#EFAF20",
+        "rotuloEixoX": "Anos",
+        "mostrarRotuloEixoX": true,
+        "textoIlustrativo": "ilustrativo",
+        "mostrarTextoIlustrativo": true,
+        "textoFinal": "Os anos se passaram",
+        "mostrarTextoFinal": true,
+        "duracaoFramesDesenho": 40
+      }
+    }
+  ]
+}
