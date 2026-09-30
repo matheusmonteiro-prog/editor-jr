@@ -200,10 +200,13 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   Studio** — só testada mentalmente/por leitura do código até aqui.
 - `Checkmark` — check animado (pop de escala com spring), círculo de fundo opcional, cor do
   traço, posição x/y, tamanho, duração em frames. Pronto e validado no Studio (26/09/2026).
+- `Contador` (`src/components/v2/`) — número animado subindo até um valor final, formato
+  brasileiro (`R$ 1.250,00`), card sólido, fonte Inter SemiBold, rótulo opcional acima. Pronto e
+  **validado no Studio (30/09/2026)**.
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
-- `CirculoDestaque` (com pulso) · `Spotlight` · `Contador`
+- `CirculoDestaque` (com pulso) · `Spotlight`
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
 - `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
   (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).

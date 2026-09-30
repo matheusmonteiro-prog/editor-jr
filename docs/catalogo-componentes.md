@@ -309,3 +309,34 @@ pra não esconder a imagem dentro de outro componente (ver nota do topo).
 | `tamanho` | `number` (min 0.05, max 0.8) | não | `0.28` |
 | `duracaoFrames` | `number` (min 10) | não | `100` |
 | `framesSaida` | `number` (min 1) | não | `20` |
+
+---
+
+### Contador (v2)
+**Arquivo:** `src/components/v2/Contador.tsx`
+**O que faz:** número contando de `valorInicial` até `valorFinal`, formato
+brasileiro (`Intl.NumberFormat('pt-BR', ...)`, ex. `R$ 1.250,00`, tabular-nums),
+dentro de um card sólido; rótulo opcional acima do número; fonte Inter
+SemiBold via `@remotion/google-fonts`.
+**Status:** **Pronto e validado no Studio (30/09/2026)** — nota do ARQUITETURA.md.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `valorInicial` | `number` | não | sem padrão — vem do plano |
+| `valorFinal` | `number` | não | sem padrão — vem do plano |
+| `prefixo` | `string` | não | `"R$ "` |
+| `casasDecimais` | `number` (min 0, max 4) | não | `2` |
+| `rotulo` | `string` | **sim** | sem padrão (não aparece se omitido) |
+| `corCard` | `zColor()` | não | `"#0F2A1D"` |
+| `corNumero` | `zColor()` | não | `"#F5F0E6"` |
+| `corRotulo` | `zColor()` | não | `"#F5F0E6"` |
+| `duracaoFramesContagem` | `number` (min 1) | não | `45` |
+| `framesSaida` | `number` (min 1) | não | `15` |
+| `duracaoFrames` | `number` (min 10) | não | `90` |
+| `tamanhoFonte` | `number` (min 0.01, max 0.5) | não | `0.09` |
+| `top` | `number` (min 0, max 1) | não | `0.38` |
+
+**Regra:** todas as props do `Contador` têm valor padrão, exceto `valorInicial`
+e `valorFinal` — só esses dois precisam vir do plano de edição (JSON, ver
+ARQUITETURA.md Etapa 6); todo o resto (formato, cores, tamanho, tempos) já
+funciona sem nenhum dado extra.
