@@ -78,7 +78,7 @@ export const Contador: React.FC<Props> = ({
   const fontSize = width * tamanhoFonte;
 
   return (
-    <Sequence name="Contador">
+    <Sequence name="Contador" freeze={15}>
       <div
         style={{
           position: "absolute",

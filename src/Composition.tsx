@@ -30,6 +30,7 @@ import {
 } from "./components/v2/PersonagemImagem";
 import { Contador, contadorSchema } from "./components/v2/Contador";
 import { Spotlight, spotlightSchema } from "./components/v2/Spotlight";
+import { CallToAction, callToActionSchema } from "./components/v2/CallToAction";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -391,6 +392,46 @@ export const MyComposition = () => {
           framesSaida: 15,
           duracaoFrames: 90,
           suavizacao: 0,
+        }}
+      />
+      <Composition
+        id="CallToAction"
+        component={CallToAction}
+        durationInFrames={90}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={callToActionSchema}
+        defaultProps={{
+          texto: "Inscreva-se",
+          posicao: "inferior-direito",
+          corBotao: "#EFAF20",
+          corTexto: "#0F2A1D",
+          tamanhoFonte: 0.032,
+          margem: 0.05,
+          duracaoFrames: 90,
+          framesEntrada: 15,
+          framesSaida: 15,
+        }}
+      />
+      <Composition
+        id="CallToActionHorizontal"
+        component={CallToAction}
+        durationInFrames={90}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={callToActionSchema}
+        defaultProps={{
+          texto: "Inscreva-se",
+          posicao: "inferior-direito",
+          corBotao: "#EFAF20",
+          corTexto: "#0F2A1D",
+          tamanhoFonte: 0.022,
+          margem: 0.04,
+          duracaoFrames: 90,
+          framesEntrada: 15,
+          framesSaida: 15,
         }}
       />
     </Folder>

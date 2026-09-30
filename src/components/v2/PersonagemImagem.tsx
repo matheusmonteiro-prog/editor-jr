@@ -53,24 +53,5 @@ export const PersonagemImagem: React.FC<Props> = ({
 
   const tamanhoPx = width * tamanho;
 
-  return (
-    <Sequence name={`PersonagemImagem: ${imagem}`}>
-      <div
-        style={{
-          position: "absolute",
-          left: width * left,
-          top: height * top,
-          width: tamanhoPx,
-          height: tamanhoPx,
-          opacity: Math.min(1, entrada) * saida,
-          transform: `scale(${escala})`,
-        }}
-      >
-        <Img
-          src={staticFile(`images/personagens/${imagem}`)}
-          style={{ width: "100%", height: "100%", objectFit: "contain" }}
-        />
-      </div>
-    </Sequence>
-  );
+  return null;
 };
