@@ -19,7 +19,9 @@ const barraSchema = z.object({
 });
 
 export const comparacaoBarrasSchema = z.object({
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada.
+  corFundo: zColor().optional(),
   valorMaximoEscala: z.number().min(1),
   larguraBarra: z.number().min(10),
   alturaMaximaBarra: z.number().min(10),
@@ -160,7 +162,7 @@ const Barra: React.FC<BarraProps> = ({
 };
 
 export const ComparacaoBarras: React.FC<Props> = ({
-  corFundo,
+  corFundo = "transparent",
   valorMaximoEscala,
   larguraBarra,
   alturaMaximaBarra,

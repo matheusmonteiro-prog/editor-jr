@@ -24,7 +24,9 @@ const barraSchema = z.object({
 });
 
 export const barrasDueloSchema = z.object({
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada.
+  corFundo: zColor().optional(),
   barras: z.array(barraSchema),
   legenda: z.string(),
   mostrarLegenda: z.boolean(),
@@ -113,7 +115,7 @@ const Coluna: React.FC<{
 };
 
 export const BarrasDuelo: React.FC<Props> = ({
-  corFundo,
+  corFundo = "transparent",
   barras,
   legenda,
   mostrarLegenda,

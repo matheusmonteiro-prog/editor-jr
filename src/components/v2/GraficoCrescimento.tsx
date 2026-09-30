@@ -16,7 +16,9 @@ import { zColor } from "@remotion/zod-types";
 // ilustrativa. Ponto na ponta acompanha o traço.
 
 export const graficoCrescimentoSchema = z.object({
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada.
+  corFundo: zColor().optional(),
   corLinha: zColor(),
   rotuloEixoX: z.string(),
   mostrarRotuloEixoX: z.boolean(),
@@ -50,7 +52,7 @@ const pontosBase = [
 ];
 
 export const GraficoCrescimento: React.FC<Props> = ({
-  corFundo,
+  corFundo = "transparent",
   corLinha,
   rotuloEixoX,
   mostrarRotuloEixoX,

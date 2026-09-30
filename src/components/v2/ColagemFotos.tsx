@@ -22,7 +22,9 @@ const fotoSchema = z.object({
 });
 
 export const colagemFotosSchema = z.object({
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada.
+  corFundo: zColor().optional(),
   fotos: z.array(fotoSchema),
   etiqueta: z.string(),
   mostrarEtiqueta: z.boolean(),
@@ -104,7 +106,7 @@ const Foto: React.FC<{
 };
 
 export const ColagemFotos: React.FC<Props> = ({
-  corFundo,
+  corFundo = "transparent",
   fotos,
   etiqueta,
   mostrarEtiqueta,

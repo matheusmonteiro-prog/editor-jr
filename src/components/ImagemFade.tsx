@@ -11,7 +11,10 @@ import { zColor } from "@remotion/zod-types";
 
 export const imagemFadeSchema = z.object({
   src: z.string(),
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada. Passe uma cor sólida só se quiser um
+  // fundo de propósito (ex.: testando o componente isolado no Studio).
+  corFundo: zColor().optional(),
   larguraPorcentagem: z.number().min(1).max(100),
   frameEntrada: z.number().min(0),
 });
@@ -20,7 +23,7 @@ type Props = z.infer<typeof imagemFadeSchema>;
 
 export const ImagemFade: React.FC<Props> = ({
   src,
-  corFundo,
+  corFundo = "transparent",
   larguraPorcentagem,
   frameEntrada,
 }) => {

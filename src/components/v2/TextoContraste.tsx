@@ -16,7 +16,9 @@ import { zColor } from "@remotion/zod-types";
 // configurável). Tamanhos em fração da largura do vídeo.
 
 export const textoContrasteSchema = z.object({
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada.
+  corFundo: zColor().optional(),
   textoPositivo: z.string(),
   textoNegativo: z.string(),
   corPositivo: zColor(),
@@ -37,7 +39,7 @@ type Props = z.infer<typeof textoContrasteSchema>;
 const framesDesenhoCheck = 14;
 
 export const TextoContraste: React.FC<Props> = ({
-  corFundo,
+  corFundo = "transparent",
   textoPositivo,
   textoNegativo,
   corPositivo,

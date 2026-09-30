@@ -22,7 +22,13 @@ export const listaCheckSchema = z.object({
   texto: z.string(),
   destaque: z.string(),
   top: z.number().min(0).max(1),
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada.
+  corFundo: zColor().optional(),
+  // Opcional (29/09/2026): cor do card de vidro fosco, separada de
+  // corFundo (que é a tela toda). Padrão = valor fixo que já existia antes
+  // dessa prop existir.
+  corCard: zColor().optional(),
   corTexto: zColor(),
   corDestaque: zColor(),
   corCheck: zColor(),
@@ -79,7 +85,8 @@ export const ListaCheck: React.FC<Props> = ({
   texto,
   destaque,
   top,
-  corFundo,
+  corFundo = "transparent",
+  corCard = "rgba(8,10,8,0.4)",
   corTexto,
   corDestaque,
   corCheck,
@@ -139,7 +146,7 @@ export const ListaCheck: React.FC<Props> = ({
         >
           <div
             style={{
-              backgroundColor: "rgba(8,10,8,0.4)",
+              backgroundColor: corCard,
               backdropFilter: "blur(18px)",
               WebkitBackdropFilter: "blur(18px)",
               border: "1px solid rgba(255,255,255,0.08)",

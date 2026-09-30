@@ -12,7 +12,9 @@ import { zColor } from "@remotion/zod-types";
 export const graficoLinhaSchema = z.object({
   titulo: z.string(),
   valorFinal: z.number(),
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada.
+  corFundo: zColor().optional(),
   corLinhaInicio: zColor(),
   corLinhaFim: zColor(),
   largura: z.number().min(100),
@@ -54,7 +56,7 @@ const pontosBaseOscilante = [
 export const GraficoLinha: React.FC<Props> = ({
   titulo,
   valorFinal,
-  corFundo,
+  corFundo = "transparent",
   corLinhaInicio,
   corLinhaFim,
   largura,

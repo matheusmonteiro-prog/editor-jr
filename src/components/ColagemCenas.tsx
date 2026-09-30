@@ -23,7 +23,9 @@ const cenaSchema = z.object({
 type CenaProps = z.infer<typeof cenaSchema> & { estiloPolaroid: boolean };
 
 export const colagemCenasSchema = z.object({
-  corFundo: zColor(),
+  // Opcional (29/09/2026): padrão transparente, pra não tampar o vídeo por
+  // engano quando usado como camada.
+  corFundo: zColor().optional(),
   cenas: z.array(cenaSchema),
   // Opcional (26/09/2026, TesteRoteiro01): preserva o comportamento atual
   // quando omitido (sem moldura).
@@ -93,7 +95,7 @@ const Cena: React.FC<CenaProps> = ({
 };
 
 export const ColagemCenas: React.FC<Props> = ({
-  corFundo,
+  corFundo = "transparent",
   cenas,
   estiloPolaroid = false,
 }) => {
