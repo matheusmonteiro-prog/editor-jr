@@ -13,7 +13,12 @@
  * é pulada, com um aviso no topo da saída.
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
+
+const RAIZ = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // ---------------------------------------------------------------- cli
 
@@ -39,6 +44,176 @@ if (duracaoTxt !== null) {
     process.exit(1);
   }
 }
+
+// ---------------------------------------------------------------- catálogo de componentes (via AST)
+
+// Lê os .tsx do catálogo (nunca os executa — JSX não roda em Node puro, só
+// faz parsing da árvore de sintaxe) pra saber quais props cada componente
+// exige no plano. Roda de novo a cada execução: não existe arquivo
+// catalogo-props.json pra ficar desatualizado.
+
+const PASTAS_CATALOGO = [
+  path.join(RAIZ, 'src', 'components'),
+  path.join(RAIZ, 'src', 'components', 'v2'),
+];
+
+const listarArquivosComponentes = () => {
+  const arquivos = [];
+  for (const pasta of PASTAS_CATALOGO) {
+    let nomes;
+    try {
+      nomes = readdirSync(pasta);
+    } catch {
+      continue;
+    }
+    for (const nome of nomes) {
+      if (nome.endsWith('.tsx')) arquivos.push(path.join(pasta, nome));
+    }
+  }
+  return arquivos;
+};
+
+// Segue a cadeia de chamadas de uma prop (ex.: z.number().min(0).max(1).default(0.5))
+// coletando os nomes dos métodos encontrados, até a raiz da cadeia.
+const nomesDaCadeia = (node) => {
+  const nomes = new Set();
+  let atual = node;
+  while (ts.isCallExpression(atual) && ts.isPropertyAccessExpression(atual.expression)) {
+    nomes.add(atual.expression.name.text);
+    atual = atual.expression.expression;
+  }
+  return nomes;
+};
+
+// Lê um .tsx e procura `export const xSchema = z.object({...})` no nível
+// mais alto do arquivo. Retorna [{ nome, obrigatoria }] ou null se não achar
+// nenhum schema exportado nesse formato.
+const extrairPropsDoArquivo = (caminho) => {
+  let texto;
+  try {
+    texto = readFileSync(caminho, 'utf8');
+  } catch {
+    return null;
+  }
+  const sourceFile = ts.createSourceFile(caminho, texto, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+
+  let resultado = null;
+  for (const node of sourceFile.statements) {
+    if (resultado) break;
+    if (!ts.isVariableStatement(node)) continue;
+    const exportado = node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+    if (!exportado) continue;
+
+    for (const decl of node.declarationList.declarations) {
+      const init = decl.initializer;
+      const chamaZObject =
+        init &&
+        ts.isCallExpression(init) &&
+        ts.isPropertyAccessExpression(init.expression) &&
+        init.expression.name.text === 'object' &&
+        ts.isIdentifier(init.expression.expression) &&
+        init.expression.expression.text === 'z' &&
+        init.arguments[0] &&
+        ts.isObjectLiteralExpression(init.arguments[0]);
+      if (!chamaZObject) continue;
+
+      const props = [];
+      for (const prop of init.arguments[0].properties) {
+        if (!ts.isPropertyAssignment(prop)) continue;
+        const nome = prop.name.getText(sourceFile);
+        const cadeia = nomesDaCadeia(prop.initializer);
+        const obrigatoria = !cadeia.has('optional') && !cadeia.has('default');
+        props.push({ nome, obrigatoria });
+      }
+      resultado = props;
+      break;
+    }
+  }
+  return resultado;
+};
+
+// Fallback: lê src/Composition.tsx pra mapear id="X" (da <Composition>) até
+// o arquivo do schema importado, pros casos em que o nome do componente no
+// plano não bate com nenhum nome de arquivo do catálogo.
+const extrairMapaComposition = () => {
+  const caminho = path.join(RAIZ, 'src', 'Composition.tsx');
+  const texto = readFileSync(caminho, 'utf8');
+  const sourceFile = ts.createSourceFile(caminho, texto, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+
+  const importsPorNome = {};
+  const resolverModulo = (especificador) => {
+    if (!especificador.startsWith('.')) return null;
+    return path.join(path.dirname(caminho), `${especificador}.tsx`);
+  };
+
+  const visitarTopo = (node) => {
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+      const arquivoAbsoluto = resolverModulo(node.moduleSpecifier.text);
+      const clausula = node.importClause;
+      if (arquivoAbsoluto && clausula?.namedBindings && ts.isNamedImports(clausula.namedBindings)) {
+        for (const especifico of clausula.namedBindings.elements) {
+          importsPorNome[especifico.name.text] = arquivoAbsoluto;
+        }
+      }
+    }
+    ts.forEachChild(node, visitarTopo);
+  };
+  visitarTopo(sourceFile);
+
+  const pegarAtributo = (elemento, nomeAtributo) => {
+    for (const attr of elemento.attributes.properties) {
+      if (!ts.isJsxAttribute(attr) || attr.name.getText(sourceFile) !== nomeAtributo) continue;
+      const init = attr.initializer;
+      if (init && ts.isStringLiteral(init)) return init.text;
+      if (init && ts.isJsxExpression(init) && init.expression && ts.isIdentifier(init.expression)) {
+        return init.expression.text;
+      }
+    }
+    return null;
+  };
+
+  const mapaIdParaCaminho = {};
+  const visitarJsx = (node) => {
+    const ehComposition =
+      (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) &&
+      node.tagName.getText(sourceFile) === 'Composition';
+    if (ehComposition) {
+      const id = pegarAtributo(node, 'id');
+      const nomeSchema = pegarAtributo(node, 'schema');
+      if (id && nomeSchema && importsPorNome[nomeSchema]) {
+        mapaIdParaCaminho[id] = importsPorNome[nomeSchema];
+      }
+    }
+    ts.forEachChild(node, visitarJsx);
+  };
+  visitarJsx(sourceFile);
+
+  return mapaIdParaCaminho;
+};
+
+const construirCatalogo = () => {
+  const catalogo = {};
+
+  // Regra principal: nome do arquivo = nome do componente.
+  for (const caminho of listarArquivosComponentes()) {
+    const nomeComponente = path.basename(caminho, '.tsx');
+    catalogo[nomeComponente] = extrairPropsDoArquivo(caminho);
+  }
+
+  // Fallback: id do Composition.tsx, só pro que não bateu por nome de arquivo.
+  try {
+    const mapaPorId = extrairMapaComposition();
+    for (const [id, caminhoSchema] of Object.entries(mapaPorId)) {
+      if (!(id in catalogo)) catalogo[id] = extrairPropsDoArquivo(caminhoSchema);
+    }
+  } catch {
+    // Composition.tsx ilegível: segue só com o que veio dos arquivos.
+  }
+
+  return catalogo;
+};
+
+const catalogo = construirCatalogo();
 
 // ---------------------------------------------------------------- leitura
 
@@ -347,6 +522,47 @@ for (const el of elementos) {
   const temMinuscula = /\p{Ll}/u.test(texto);
   if (letras > 3 && !temMinuscula) {
     aviso(el.label, `caixa alta: texto todo em maiúsculas ("${texto}") — a marca pede caixa de frase`);
+  }
+}
+
+// 9. props obrigatórias por componente, contra o catálogo (via AST)
+
+const checarPropsDeUmComponente = (nomeComponente, propsObjeto, rotulo) => {
+  if (nomeComponente === 'a confirmar') return;
+  const entradaCatalogo = catalogo[nomeComponente];
+  if (entradaCatalogo === undefined) {
+    aviso(rotulo, `catalogo: componente "${nomeComponente}" não encontrado no catálogo, não dá pra checar props`);
+    return;
+  }
+  if (entradaCatalogo === null) {
+    aviso(rotulo, `catalogo: componente "${nomeComponente}" não tem schema exportado, não dá pra checar props`);
+    return;
+  }
+  if (typeof propsObjeto !== 'object' || propsObjeto === null || Array.isArray(propsObjeto)) {
+    erro(rotulo, `props: faltou o objeto de props de "${nomeComponente}"`);
+    return;
+  }
+  const faltando = entradaCatalogo
+    .filter((p) => p.obrigatoria && !(p.nome in propsObjeto))
+    .map((p) => p.nome);
+  if (faltando.length > 0) {
+    erro(rotulo, `props: faltam props obrigatórias de "${nomeComponente}": ${faltando.join(', ')}`);
+  }
+};
+
+for (const el of elementos) {
+  const { componente, props } = el.original;
+  if (componente === undefined || componente === 'a confirmar') continue;
+  if (typeof props !== 'object' || props === null) continue; // já coberto pela checagem 1
+
+  if (Array.isArray(componente)) {
+    for (const nome of componente) {
+      if (nome === 'a confirmar' || typeof nome !== 'string') continue;
+      const propsDoComponente = Array.isArray(props) ? undefined : props[nome];
+      checarPropsDeUmComponente(nome, propsDoComponente, el.label);
+    }
+  } else if (typeof componente === 'string') {
+    checarPropsDeUmComponente(componente, props, el.label);
   }
 }
 
