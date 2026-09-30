@@ -340,3 +340,31 @@ SemiBold via `@remotion/google-fonts`.
 e `valorFinal` — só esses dois precisam vir do plano de edição (JSON, ver
 ARQUITETURA.md Etapa 6); todo o resto (formato, cores, tamanho, tempos) já
 funciona sem nenhum dado extra.
+
+---
+
+### Spotlight (v2)
+**Arquivo:** `src/components/v2/Spotlight.tsx`
+**O que faz:** escurece o resto da tela (cor chapada + opacidade) e deixa um
+círculo "aceso" no meio, via `mask-image`/`WebkitMaskImage` com
+`radial-gradient` — a área dentro do raio fica sem nenhuma camada por cima,
+então o vídeo aparece normalmente ali. O raio cresce de 0 até o valor final
+com `spring()` durante `framesEntrada`; a borda dourada acompanha o mesmo
+raio animado. Sem `box-shadow`, sem `blur`, sem glow. Nota no código: na
+futura `PlanoComposicao` (Etapa 6), o Spotlight deve ficar **abaixo** dos
+cards na ordem das camadas.
+**Status:** **Pronto e validado no Studio (30/09/2026)** — nota do ARQUITETURA.md.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `x` (fração da largura) | `number` (min 0, max 1) | não | `0.5` |
+| `y` (fração da altura) | `number` (min 0, max 1) | não | `0.4` |
+| `raio` (fração da largura) | `number` (min 0.02, max 0.6) | não | `0.18` |
+| `corEscurecimento` | `zColor()` | não | `"#0F2A1D"` |
+| `opacidadeEscurecimento` | `number` (min 0, max 1) | não | `0.65` |
+| `corBorda` | `zColor()` | não | `"#EFAF20"` |
+| `espessuraBorda` (px, `0` = desligada) | `number` (min 0) | não | `2` |
+| `framesEntrada` | `number` (min 1) | não | `18` |
+| `framesSaida` | `number` (min 1) | não | `15` |
+| `duracaoFrames` | `number` (min 10) | não | `90` |
+| `suavizacao` (fração da largura, `0` = borda seca) | `number` (min 0, max 0.3) | não | `0` |

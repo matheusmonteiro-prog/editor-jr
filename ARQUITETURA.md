@@ -203,10 +203,14 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
 - `Contador` (`src/components/v2/`) — número animado subindo até um valor final, formato
   brasileiro (`R$ 1.250,00`), card sólido, fonte Inter SemiBold, rótulo opcional acima. Pronto e
   **validado no Studio (30/09/2026)**.
+- `Spotlight` (`src/components/v2/`) — destaque circular: escurece o resto da tela (cor chapada
+  + opacidade) e deixa um círculo "aceso" via `mask-image`, sem cobrir o vídeo no centro. Raio
+  cresce com spring na entrada, borda dourada fina opcional. Pronto e **validado no Studio
+  (30/09/2026)**.
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
-- `CirculoDestaque` (com pulso) · `Spotlight`
+- `CirculoDestaque` (com pulso)
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
 - `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
   (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).
