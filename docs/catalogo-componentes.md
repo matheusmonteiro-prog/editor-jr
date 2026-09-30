@@ -362,7 +362,7 @@ com `spring()` durante `framesEntrada`; a borda dourada acompanha o mesmo
 raio animado. Sem `box-shadow`, sem `blur`, sem glow. Nota no código: na
 futura `PlanoComposicao` (Etapa 6), o Spotlight deve ficar **abaixo** dos
 cards na ordem das camadas.
-**Status:** **Pronto e validado no Studio (30/09/2026)** — nota do ARQUITETURA.md.
+**Status:** não confirmado (ainda não testado visualmente no Studio).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
