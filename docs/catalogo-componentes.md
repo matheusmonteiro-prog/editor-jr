@@ -5,11 +5,6 @@ Gerado lido direto do código em `src/components/` e `src/components/v2/` (e dos
 30/09/2026. Onde o código não diz algo explicitamente, este documento diz
 **"não confirmado"** em vez de supor.
 
-**Nota (30/09/2026):** `src/components/v2/PersonagemImagem.tsx` está com o
-corpo apagado (`return null`) por uma edição não commitada do Studio —
-efetivamente quebrado no momento em que este documento foi atualizado. Ver
-ARQUITETURA.md, seção 6, sobre esse padrão de bug conhecido.
-
 **Nota sobre cores:** os valores padrão de cor de vários componentes (ex.:
 `#22C55E`, `#0d0f14`, `#f0ebe0`) são de um estilo provisório antigo, usado só
 pra testar os componentes isolados no Studio — **não são as cores da marca**.
