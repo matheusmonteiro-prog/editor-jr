@@ -1,8 +1,16 @@
 # Catálogo de Componentes
 
 Gerado lido direto do código em `src/components/` e `src/components/v2/` (e dos
-`defaultProps` em `src/Composition.tsx`) em 28/09/2026. Onde o código não diz
-algo explicitamente, este documento diz **"não confirmado"** em vez de supor.
+`defaultProps` em `src/Composition.tsx`) em 28/09/2026, atualizado em
+30/09/2026. Onde o código não diz algo explicitamente, este documento diz
+**"não confirmado"** em vez de supor.
+
+**Nota sobre cores:** os valores padrão de cor de vários componentes (ex.:
+`#22C55E`, `#0d0f14`, `#f0ebe0`) são de um estilo provisório antigo, usado só
+pra testar os componentes isolados no Studio — **não são as cores da marca**.
+Os planos de edição (JSON, Etapa 6) passam as cores da marca explicitamente
+via props; esses padrões nunca deveriam aparecer no vídeo final sem serem
+sobrescritos.
 
 ## ⚠️ Dois padrões de personagem, ainda não unificados
 
@@ -33,7 +41,7 @@ componentes, ou se os dois vão continuar existindo por motivos diferentes.
 | Prop | Tipo (zod) | Opcional | Valor padrão (Composition.tsx) |
 |---|---|---|---|
 | `src` | `string` | não | `"images/selic.png"` |
-| `corFundo` | `zColor()` | não | `"#ffffff"` |
+| `corFundo` | `zColor()` | **sim** | `"#ffffff"` no Composition.tsx; padrão do componente = `"transparent"` |
 | `larguraPorcentagem` | `number` (min 1, max 100) | não | `80` |
 | `frameEntrada` | `number` (min 0) | não | `30` |
 
@@ -49,7 +57,7 @@ preenchida embaixo; número contando e ponto pulsante na ponta.
 |---|---|---|---|
 | `titulo` | `string` | não | `"Valorização"` |
 | `valorFinal` | `number` | não | `32` |
-| `corFundo` | `zColor()` | não | `"#111318"` |
+| `corFundo` | `zColor()` | **sim** | `"#111318"` no Composition.tsx; padrão do componente = `"transparent"` |
 | `corLinhaInicio` | `zColor()` | não | `"#00d9ff"` |
 | `corLinhaFim` | `zColor()` | não | `"#00ff9d"` |
 | `largura` | `number` (min 100) | não | `880` |
@@ -70,7 +78,7 @@ spring (estilo "colagem de papel"); moldura branca opcional (`estiloPolaroid`).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `corFundo` | `zColor()` | não | `"#f0ebe0"` |
+| `corFundo` | `zColor()` | **sim** | `"#f0ebe0"` no Composition.tsx; padrão do componente = `"transparent"` |
 | `cenas` | `array` de objeto (ver abaixo) | não | 3 itens (ver código) |
 | `estiloPolaroid` | `boolean` | **sim** | não definido no Composition.tsx; padrão do componente = `false` |
 
@@ -86,7 +94,7 @@ Cada item de `cenas`: `{ src: string, x: number, y: number, largura: number (min
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `corFundo` | `zColor()` | **sim** | `"#0d0f14"` no Composition.tsx; padrão do componente = `"transparent"` |
 | `valorMaximoEscala` | `number` (min 1) | não | `30` |
 | `larguraBarra` | `number` (min 10) | não | `220` |
 | `alturaMaximaBarra` | `number` (min 10) | não | `380` |
@@ -174,7 +182,8 @@ uma chamada separada do componente, cada uma dentro da sua própria
 | `texto` | `string` | não | `"EMPRESAS BOAS"` |
 | `destaque` | `string` | não | `"BOAS"` |
 | `top` | `number` (min 0, max 1) | não | `0.15` |
-| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `corFundo` | `zColor()` | **sim** | `"#0d0f14"` no Composition.tsx; padrão do componente = `"transparent"` |
+| `corCard` | `zColor()` | **sim** | não definido no Composition.tsx; padrão do componente = `"rgba(8,10,8,0.4)"` — cor do card de vidro fosco, separada do `corFundo` (tela toda) |
 | `corTexto` | `zColor()` | não | `"#ffffff"` |
 | `corDestaque` | `zColor()` | não | `"#22C55E"` |
 | `corCheck` | `zColor()` | não | `"#22C55E"` |
@@ -193,7 +202,7 @@ rotação leve), entrando uma por vez; etiqueta de texto opcional em cima.
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `corFundo` | `zColor()` | **sim** | `"#0d0f14"` no Composition.tsx; padrão do componente = `"transparent"` |
 | `fotos` | `array` de objeto (ver abaixo) | não | 3 itens (ver código) |
 | `etiqueta` | `string` | não | `"Ativos Reais"` |
 | `mostrarEtiqueta` | `boolean` | não | `true` |
@@ -216,7 +225,7 @@ frame configurável).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `corFundo` | `zColor()` | **sim** | `"#0d0f14"` no Composition.tsx; padrão do componente = `"transparent"` |
 | `textoPositivo` | `string` | não | `"INVESTIR"` |
 | `textoNegativo` | `string` | não | `"ESPECULAR"` |
 | `corPositivo` | `zColor()` | não | `"#ffffff"` |
@@ -255,7 +264,7 @@ nunca um dado mostrado na tela.
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `corFundo` | `zColor()` | **sim** | `"#0d0f14"` no Composition.tsx; padrão do componente = `"transparent"` |
 | `barras` | `array` de objeto (ver abaixo) | não | 2 itens (ver código) |
 | `legenda` | `string` | não | `"ilustrativo"` |
 | `mostrarLegenda` | `boolean` | não | `true` |
@@ -278,7 +287,7 @@ brilhante acompanhando a ponta. Sem nenhum número exibido em lugar nenhum
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `corFundo` | `zColor()` | não | `"#0d0f14"` |
+| `corFundo` | `zColor()` | **sim** | `"#0d0f14"` no Composition.tsx; padrão do componente = `"transparent"` |
 | `corLinha` | `zColor()` | não | `"#22C55E"` |
 | `rotuloEixoX` | `string` | não | `"ANOS"` |
 | `mostrarRotuloEixoX` | `boolean` | não | `true` |
@@ -309,3 +318,62 @@ pra não esconder a imagem dentro de outro componente (ver nota do topo).
 | `tamanho` | `number` (min 0.05, max 0.8) | não | `0.28` |
 | `duracaoFrames` | `number` (min 10) | não | `100` |
 | `framesSaida` | `number` (min 1) | não | `20` |
+
+---
+
+### Contador (v2)
+**Arquivo:** `src/components/v2/Contador.tsx`
+**O que faz:** número contando de `valorInicial` até `valorFinal`, formato
+brasileiro (`Intl.NumberFormat('pt-BR', ...)`, ex. `R$ 1.250,00`, tabular-nums),
+dentro de um card sólido; rótulo opcional acima do número; fonte Inter
+SemiBold via `@remotion/google-fonts`.
+**Status:** **Pronto e validado no Studio (30/09/2026)** — nota do ARQUITETURA.md.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `valorInicial` | `number` | não | sem padrão — vem do plano |
+| `valorFinal` | `number` | não | sem padrão — vem do plano |
+| `prefixo` | `string` | não | `"R$ "` |
+| `casasDecimais` | `number` (min 0, max 4) | não | `2` |
+| `rotulo` | `string` | **sim** | sem padrão (não aparece se omitido) |
+| `corCard` | `zColor()` | não | `"#0F2A1D"` |
+| `corNumero` | `zColor()` | não | `"#F5F0E6"` |
+| `corRotulo` | `zColor()` | não | `"#F5F0E6"` |
+| `duracaoFramesContagem` | `number` (min 1) | não | `45` |
+| `framesSaida` | `number` (min 1) | não | `15` |
+| `duracaoFrames` | `number` (min 10) | não | `90` |
+| `tamanhoFonte` | `number` (min 0.01, max 0.5) | não | `0.09` |
+| `top` | `number` (min 0, max 1) | não | `0.38` |
+
+**Regra:** todas as props do `Contador` têm valor padrão, exceto `valorInicial`
+e `valorFinal` — só esses dois precisam vir do plano de edição (JSON, ver
+ARQUITETURA.md Etapa 6); todo o resto (formato, cores, tamanho, tempos) já
+funciona sem nenhum dado extra.
+
+---
+
+### Spotlight (v2)
+**Arquivo:** `src/components/v2/Spotlight.tsx`
+**O que faz:** escurece o resto da tela (cor chapada + opacidade) e deixa um
+círculo "aceso" no meio, via `mask-image`/`WebkitMaskImage` com
+`radial-gradient` — a área dentro do raio fica sem nenhuma camada por cima,
+então o vídeo aparece normalmente ali. O raio cresce de 0 até o valor final
+com `spring()` durante `framesEntrada`; a borda dourada acompanha o mesmo
+raio animado. Sem `box-shadow`, sem `blur`, sem glow. Nota no código: na
+futura `PlanoComposicao` (Etapa 6), o Spotlight deve ficar **abaixo** dos
+cards na ordem das camadas.
+**Status:** não confirmado (ainda não testado visualmente no Studio).
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `x` (fração da largura) | `number` (min 0, max 1) | não | `0.5` |
+| `y` (fração da altura) | `number` (min 0, max 1) | não | `0.4` |
+| `raio` (fração da largura) | `number` (min 0.02, max 0.6) | não | `0.18` |
+| `corEscurecimento` | `zColor()` | não | `"#0F2A1D"` |
+| `opacidadeEscurecimento` | `number` (min 0, max 1) | não | `0.65` |
+| `corBorda` | `zColor()` | não | `"#EFAF20"` |
+| `espessuraBorda` (px, `0` = desligada) | `number` (min 0) | não | `2` |
+| `framesEntrada` | `number` (min 1) | não | `18` |
+| `framesSaida` | `number` (min 1) | não | `15` |
+| `duracaoFrames` | `number` (min 10) | não | `90` |
+| `suavizacao` (fração da largura, `0` = borda seca) | `number` (min 0, max 0.3) | não | `0` |

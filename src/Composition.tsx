@@ -28,6 +28,8 @@ import {
   PersonagemImagem,
   personagemImagemSchema,
 } from "./components/v2/PersonagemImagem";
+import { Contador, contadorSchema } from "./components/v2/Contador";
+import { Spotlight, spotlightSchema } from "./components/v2/Spotlight";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -343,6 +345,52 @@ export const MyComposition = () => {
           tamanho: 0.28,
           duracaoFrames: 100,
           framesSaida: 20,
+        }}
+      />
+      <Composition
+        id="Contador"
+        component={Contador}
+        durationInFrames={90}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={contadorSchema}
+        defaultProps={{
+          valorInicial: 0,
+          valorFinal: 100,
+          prefixo: "R$ ",
+          casasDecimais: 2,
+          rotulo: "Patrimônio",
+          corCard: "#0F2A1D",
+          corNumero: "#F5F0E6",
+          corRotulo: "#F5F0E6",
+          duracaoFramesContagem: 45,
+          framesSaida: 15,
+          duracaoFrames: 90,
+          tamanhoFonte: 0.09,
+          top: 0.38,
+        }}
+      />
+      <Composition
+        id="Spotlight"
+        component={Spotlight}
+        durationInFrames={90}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={spotlightSchema}
+        defaultProps={{
+          x: 0.5,
+          y: 0.4,
+          raio: 0.18,
+          corEscurecimento: "#0F2A1D",
+          opacidadeEscurecimento: 0.65,
+          corBorda: "#EFAF20",
+          espessuraBorda: 2,
+          framesEntrada: 18,
+          framesSaida: 15,
+          duracaoFrames: 90,
+          suavizacao: 0,
         }}
       />
     </Folder>

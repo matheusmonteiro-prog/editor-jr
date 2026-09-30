@@ -13,7 +13,15 @@
       "slot": 1,
       "ilustrativo": false,
       "tempo_estimado": false,
-      "props": { "corTexto": "#ffffff" }
+      "props": {
+        "texto": "Como isso funciona na prática",
+        "posicao": "topo",
+        "duracaoFrames": 90,
+        "corTexto": "#ffffff",
+        "corFundo": "rgba(0,0,0,0.55)",
+        "mostrarFundo": true,
+        "tamanhoFonte": 80
+      }
     },
     {
       "id": "grafico-1",
@@ -26,7 +34,15 @@
       "slot": 1,
       "ilustrativo": true,
       "tempo_estimado": false,
-      "props": { "corLinha": "#22C55E" }
+      "props": {
+        "titulo": "Trajetória ilustrativa",
+        "valorFinal": 32,
+        "corLinhaInicio": "#22C55E",
+        "corLinhaFim": "#00ff9d",
+        "largura": 880,
+        "altura": 420,
+        "frameFimSaida": 140
+      }
     },
     {
       "id": "legenda-1",

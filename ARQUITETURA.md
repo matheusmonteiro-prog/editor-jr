@@ -200,10 +200,17 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   Studio** — só testada mentalmente/por leitura do código até aqui.
 - `Checkmark` — check animado (pop de escala com spring), círculo de fundo opcional, cor do
   traço, posição x/y, tamanho, duração em frames. Pronto e validado no Studio (26/09/2026).
+- `Contador` (`src/components/v2/`) — número animado subindo até um valor final, formato
+  brasileiro (`R$ 1.250,00`), card sólido, fonte Inter SemiBold, rótulo opcional acima. Pronto e
+  **validado no Studio (30/09/2026)**.
+- `Spotlight` (`src/components/v2/`) — destaque circular: escurece o resto da tela (cor chapada
+  + opacidade) e deixa um círculo "aceso" via `mask-image`, sem cobrir o vídeo no centro. Raio
+  cresce com spring na entrada, borda dourada fina opcional. Pronto e **validado no Studio
+  (30/09/2026)**.
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
-- `CirculoDestaque` (com pulso) · `Spotlight` · `Contador`
+- `CirculoDestaque` (com pulso)
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
 - `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
   (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).
@@ -496,6 +503,35 @@ criado):**
 - Prompt em linguagem totalmente livre
 - IA analisando o frame para sugerir posição dos elementos
 - Transformar em produto (servidor, outros usuários). Atenção: a licença do Remotion depende do tamanho da empresa que usa; conferir em remotion.dev/license antes de escalar.
+
+### Referências visuais para direção de arte (30/09/2026)
+IDEIAS FUTURAS — não implementadas, fora da etapa atual. Registradas a partir de
+prints de um curso de edição com IA, visto no Instagram (set/2026).
+
+**Cinco técnicas como norte:**
+1. Letreiro com fontes criativas passando **atrás** do apresentador.
+2. Ícones acompanhando o que o JR fala.
+3. Imagem entrando no momento da fala (já registrada como vídeo
+   complementar/B-roll — ver catálogo, `ColagemCenas`/`ColagemFotos`).
+4. Moldura que abre espaço para explicações (já existe na seção 3a:
+   câmera encolhendo pro centro-inferior com colagem entrando atrás).
+5. Camadas que ganham profundidade (fundo, texto, apresentador, ícones, moldura).
+
+**Análise técnica (leitura a partir das imagens — NÃO confirmada na prática):**
+- "Profundidade" parece ser camadas empilhadas com sombra e leve deslocamento —
+  viável com `<Sequence>` no Remotion, sem precisar separar o JR do fundo.
+- Texto **atrás** do apresentador exige separar a pessoa do fundo (fundo verde
+  na gravação, ou segmentação por IA). Etapa futura separada — ainda sem
+  decisão de como fazer.
+
+**Ideia: usar vídeos de referência sem depender de prints.** O Claude não
+recebe vídeo direto — o caminho seria extrair frames com ffmpeg (e
+transcrição do áudio) e analisar as imagens. Existem ferramentas de terceiros
+que fazem isso, **NÃO avaliadas quanto à segurança e NÃO instaladas**. Se for
+tentar, preferir um script próprio com ffmpeg, testado isolado.
+
+**Objetivo de longo prazo:** o mesmo roteiro/plano adaptado a vários formatos —
+horizontal, anúncios, aulas, tutoriais, vídeos caixinha e redes sociais.
 
 ## 9. Pendências do Matheus (fora do código)
 - [ ] Finalizar Emparelhamento (fontes e cores) no Claude Design
