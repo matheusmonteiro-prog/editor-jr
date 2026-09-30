@@ -13,7 +13,7 @@
       "ilustrativo": false, "tempo_estimado": true,
       "props": {
         "texto": "Empresas boas", "destaque": "boas", "top": 0.15,
-        "corFundo": "#0F2A1D", "corTexto": "#F5F0E6",
+        "corCard": "#0F2A1D", "corTexto": "#F5F0E6",
         "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
         "duracaoFrames": 150
       }
@@ -28,7 +28,7 @@
       "ilustrativo": false, "tempo_estimado": true,
       "props": {
         "texto": "Pelo preço certo", "destaque": "certo", "top": 0.20,
-        "corFundo": "#0F2A1D", "corTexto": "#F5F0E6",
+        "corCard": "#0F2A1D", "corTexto": "#F5F0E6",
         "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
         "duracaoFrames": 120
       }
@@ -43,7 +43,7 @@
       "ilustrativo": false, "tempo_estimado": false,
       "props": {
         "texto": "Pra longo prazo", "destaque": "longo", "top": 0.25,
-        "corFundo": "#0F2A1D", "corTexto": "#F5F0E6",
+        "corCard": "#0F2A1D", "corTexto": "#F5F0E6",
         "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
         "duracaoFrames": 60
       }
@@ -70,7 +70,6 @@
       "posicao": "topo", "slot": 1,
       "ilustrativo": false, "tempo_estimado": true,
       "props": {
-        "corFundo": "#0F2A1D",
         "textoPositivo": "Investir",
         "textoNegativo": "Especular",
         "corPositivo": "#EFAF20",
@@ -87,7 +86,6 @@
       "posicao": "base", "slot": 1,
       "ilustrativo": true, "tempo_estimado": false,
       "props": {
-        "corFundo": "#0F2A1D",
         "barras": [
           { "label": "Poupança", "alturaRelativa": 0.5, "cor": "#F5F0E6", "destaque": false, "frameEntrada": 0 },
           { "label": "Pedaço de empresa boa", "alturaRelativa": 0.5, "cor": "#EFAF20", "destaque": true, "frameEntrada": 120 }
@@ -118,7 +116,6 @@
       "posicao": "base", "slot": 1,
       "ilustrativo": true, "tempo_estimado": true,
       "props": {
-        "corFundo": "#0F2A1D",
         "corLinha": "#EFAF20",
         "rotuloEixoX": "Anos",
         "mostrarRotuloEixoX": true,
