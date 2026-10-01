@@ -35,16 +35,16 @@ export const callToActionSchema = z.object({
 type Props = z.infer<typeof callToActionSchema>;
 
 export const CallToAction: React.FC<Props> = ({
-  texto,
-  posicao,
-  corBotao,
-  corTexto,
+  texto = "Inscreva-se",
+  posicao = "inferior-direito",
+  corBotao = "#EFAF20",
+  corTexto = "#0F2A1D",
   corFundo = "transparent",
-  tamanhoFonte,
-  margem,
-  duracaoFrames,
-  framesEntrada,
-  framesSaida,
+  tamanhoFonte = 0.032,
+  margem = 0.05,
+  duracaoFrames = 90,
+  framesEntrada = 15,
+  framesSaida = 15,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
