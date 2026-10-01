@@ -1,0 +1,70 @@
+{
+  "video": "0926",
+  "orientacao": "vertical",
+  "fps": 30,
+  "elementos": [
+    {
+      "id": "teste-call-to-action",
+      "componente": "CallToAction",
+      "descricao": "chamada pra seguir, teste do componente novo no catálogo",
+      "texto": "Siga e conheça o Método JR",
+      "inicio": "0:02", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "texto": "Siga e conheça o Método JR", "posicao": "inferior-direito",
+        "corBotao": "#EFAF20", "corTexto": "#0F2A1D",
+        "tamanhoFonte": 0.032, "margem": 0.05,
+        "duracaoFrames": 90, "framesEntrada": 15, "framesSaida": 15
+      }
+    },
+    {
+      "id": "teste-circulo-destaque",
+      "componente": "CirculoDestaque",
+      "descricao": "círculo desenhado à mão em volta de um ponto da tela, teste do componente",
+      "texto": "Círculo de teste",
+      "inicio": "0:06", "duracao": 2, "duracaoFrames": 60,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": true, "tempo_estimado": true,
+      "props": {
+        "posicaoX": 0.5, "posicaoY": 0.82,
+        "largura": 0.5, "altura": 0.08,
+        "cor": "#EFAF20", "espessura": 0.006,
+        "duracaoFrames": 60, "framesEntrada": 20, "framesSaida": 15
+      }
+    },
+    {
+      "id": "teste-spotlight",
+      "componente": "Spotlight",
+      "descricao": "destaque circular escurecendo o resto da tela, teste do componente",
+      "texto": "Spotlight de teste",
+      "inicio": "0:09", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": true, "tempo_estimado": true,
+      "props": {
+        "x": 0.5, "y": 0.4, "raio": 0.18,
+        "corEscurecimento": "#0F2A1D", "opacidadeEscurecimento": 0.65,
+        "corBorda": "#EFAF20", "espessuraBorda": 2,
+        "framesEntrada": 18, "framesSaida": 15, "duracaoFrames": 90,
+        "suavizacao": 0
+      }
+    },
+    {
+      "id": "teste-contador",
+      "componente": "Contador",
+      "descricao": "contador subindo até um número que não é dinheiro, teste do componente",
+      "texto": "Inscritos crescendo",
+      "inicio": "0:13", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": true, "tempo_estimado": true,
+      "props": {
+        "valorInicial": 0, "valorFinal": 12500,
+        "prefixo": "", "casasDecimais": 0,
+        "rotulo": "Inscritos",
+        "corCard": "#0F2A1D", "corNumero": "#F5F0E6", "corRotulo": "#F5F0E6",
+        "duracaoFramesContagem": 45, "framesSaida": 15, "duracaoFrames": 90,
+        "tamanhoFonte": 0.09, "top": 0.38
+      }
+    }
+  ]
+}

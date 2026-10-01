@@ -7,6 +7,7 @@ import "./index.css";
 import { MyComposition } from "./Composition";
 import { PlanoComposicao } from "./PlanoComposicao";
 import plano0926 from "../planos/0926.plano.json";
+import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
 import cortes0926 from "../videos/0926.cortes.json";
 
 const FPS_0926 = 30;
@@ -59,6 +60,19 @@ export const RemotionRoot: React.FC = () => {
           defaultProps={{
             videoSrc: "videos/0926-cortado-v1.mp4",
             plano: plano0926,
+            cortes: cortes0926,
+          }}
+        />
+        <Composition
+          id="TesteComponentesNovos"
+          component={PlanoComposicao}
+          durationInFrames={431}
+          fps={FPS_0926}
+          width={2160}
+          height={3872}
+          defaultProps={{
+            videoSrc: "videos/0926-cortado-v1.mp4",
+            plano: planoTeste4Componentes,
             cortes: cortes0926,
           }}
         />

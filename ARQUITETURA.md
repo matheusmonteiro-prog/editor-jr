@@ -564,3 +564,11 @@ horizontal, anúncios, aulas, tutoriais, vídeos caixinha e redes sociais.
 - [ ] Baixar músicas e efeitos iniciais
 - [ ] Vídeo bruto de teste
 - [ ] Chave da API da Anthropic (etapa 6b)
+
+Não commite nada.
+1. Mostre a linha exata (com número) onde o Spotlight usa espessuraBorda e diga se é pixel ou fração de width/height.
+2. Mostre o conteúdo COMPLETO de planos/teste-4-componentes.plano.json.
+3. Confira se o arquivo videos/0926-cortado-v1.mp4 existe e me diga o resultado.
+4. Aplique a Opção B no src/Root.tsx: uma composição nova "TesteComponentesNovos" na pasta Testes, usando o plano novo, o mesmo vídeo e os mesmos cortes do 0926. Calcule o durationInFrames para cobrir o fim do último elemento do plano (inicio + duracao, convertidos pelo fps) e me diga a conta. Mostre o diff antes de salvar.
+5. Depois de salvar, rode npx tsc --noEmit e git status.
+Mostre o conteúdo de cada item, não só a confirmação.

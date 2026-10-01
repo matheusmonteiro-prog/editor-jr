@@ -1,0 +1,91 @@
+{
+  "video": "0926",
+  "formato": "vertical",
+  "resolucao": [1080, 1920],
+  "fps": 30,
+  "referencia_tempo": "video_original",
+  "corte": { "inicio": 0, "fim": 37.9, "tempo_estimado": true },
+  "elementos": [
+    {
+      "id": "e01", "componente": "ListaCheck",
+      "inicio": 3.0, "fim": 9.0, "tempo_estimado": true,
+      "fala": "empresas boas",
+      "props": { "texto": "Empresas boas", "destaque": "boas", "top": 0.08,
+        "corCard": "#0F2A1D", "corTexto": "#F5F0E6", "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
+        "tamanhoFonte": 0.034, "frameEntradaCheck": 18, "duracaoFrames": 180, "framesSaida": 15 }
+    },
+    {
+      "id": "e02", "componente": "ListaCheck",
+      "inicio": 5.0, "fim": 9.0, "tempo_estimado": true,
+      "fala": "pelo preço certo",
+      "props": { "texto": "Pelo preço certo", "destaque": "preço certo", "top": 0.16,
+        "corCard": "#0F2A1D", "corTexto": "#F5F0E6", "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
+        "tamanhoFonte": 0.034, "frameEntradaCheck": 18, "duracaoFrames": 120, "framesSaida": 15 }
+    },
+    {
+      "id": "e03", "componente": "ListaCheck",
+      "inicio": 7.0, "fim": 9.0, "tempo_estimado": false,
+      "fala": "pra longo prazo",
+      "props": { "texto": "Pra longo prazo", "destaque": "longo prazo", "top": 0.24,
+        "corCard": "#0F2A1D", "corTexto": "#F5F0E6", "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
+        "tamanhoFonte": 0.034, "frameEntradaCheck": 18, "duracaoFrames": 60, "framesSaida": 15 }
+    },
+    {
+      "id": "e04", "componente": "PersonagemImagem",
+      "inicio": 9.5, "fim": 13.0, "tempo_estimado": true,
+      "fala": "um pedaço de terra, um terreno, uma casa",
+      "props": { "imagem": "casa-terreno.png", "top": 0.08, "left": 0.06, "tamanho": 0.3,
+        "duracaoFrames": 105, "framesSaida": 20 }
+    },
+    {
+      "id": "e05", "componente": "TextoContraste",
+      "inicio": 14.0, "fim": 19.0, "tempo_estimado": true,
+      "fala": "eu vou investir, eu não vou especular",
+      "props": { "textoPositivo": "Investir", "textoNegativo": "Especular",
+        "corPositivo": "#F5F0E6", "corNegativo": "rgba(245,240,230,0.6)",
+        "frameRisco": 75, "duracaoFramesRisco": 18,
+        "tamanhoFontePositivo": 0.06, "tamanhoFonteNegativo": 0.042 }
+    },
+    {
+      "id": "e06", "componente": "PersonagemImagem",
+      "inicio": 19.0, "fim": 24.0, "tempo_estimado": false,
+      "fala": "a pessoa ganha um tanto por mês",
+      "props": { "imagem": "investidor.png", "top": 0.08, "left": 0.06, "tamanho": 0.28,
+        "duracaoFrames": 150, "framesSaida": 20 }
+    },
+    {
+      "id": "e07", "componente": "LegendaDiscreta",
+      "inicio": 20.5, "fim": 24.0, "tempo_estimado": true,
+      "fala": "quer guardar um pouco de dinheiro",
+      "props": { "texto": "Guardar um pouco por mês", "corTexto": "#F5F0E6",
+        "tamanhoFonte": 0.04, "posicao": "rodape", "duracaoFrames": 105 }
+    },
+    {
+      "id": "e08", "componente": "ListaCheck",
+      "inicio": 27.0, "fim": 30.5, "tempo_estimado": true,
+      "fala": "ela compra um pedaço de uma empresa boa",
+      "props": { "texto": "Um pedaço de uma empresa boa", "destaque": "empresa boa", "top": 0.08,
+        "corCard": "#0F2A1D", "corTexto": "#F5F0E6", "corDestaque": "#EFAF20", "corCheck": "#EFAF20",
+        "tamanhoFonte": 0.034, "frameEntradaCheck": 18, "duracaoFrames": 105, "framesSaida": 15 }
+    },
+    {
+      "id": "e09", "componente": "GraficoCrescimento",
+      "inicio": 31.5, "fim": 37.9, "tempo_estimado": true,
+      "fala": "os anos se passaram, aquilo valorizou",
+      "props": { "corLinha": "#EFAF20",
+        "rotuloEixoX": "Anos", "mostrarRotuloEixoX": true,
+        "textoIlustrativo": "ilustrativo", "mostrarTextoIlustrativo": true,
+        "textoFinal": "Valorizou", "mostrarTextoFinal": true,
+        "largura": 0.85, "altura": 0.3, "duracaoFramesDesenho": 130 }
+    },
+    {
+      "id": "e10", "componente": "CallToAction",
+      "inicio": 34.6, "fim": 37.9, "tempo_estimado": true,
+      "fala": "(fim do vídeo)",
+      "props": { "texto": "Siga e conheça o Método JR", "posicao": "inferior-direito",
+        "corBotao": "#EFAF20", "corTexto": "#0F2A1D",
+        "tamanhoFonte": 0.032, "margem": 0.05,
+        "duracaoFrames": 99, "framesEntrada": 15, "framesSaida": 15 }
+    }
+  ]
+}
