@@ -195,7 +195,7 @@ uma chamada separada do componente, cada uma dentro da sua própria
 | `destaque` | `string` | não | `"BOAS"` |
 | `top` | `number` (min 0, max 1) | não | `0.15` |
 | `corFundo` | `zColor()` | **sim** | `"#0d0f14"` no Composition.tsx; padrão do componente = `"transparent"` |
-| `corCard` | `zColor()` | **sim** | não definido no Composition.tsx; padrão do componente = `"rgba(8,10,8,0.4)"` — cor do card de vidro fosco, separada do `corFundo` (tela toda) |
+| `corCard` | `zColor()` | **sim** | não definido no Composition.tsx; padrão do componente = `"rgba(8,10,8,0.4)"` — cor do card chapado (sem blur), separada do `corFundo` (tela toda) |
 | `corTexto` | `zColor()` | não | `"#ffffff"` |
 | `corDestaque` | `zColor()` | não | `"#22C55E"` |
 | `corCheck` | `zColor()` | não | `"#22C55E"` |
@@ -303,7 +303,7 @@ Cada item de `barras`: `{ label: string, alturaRelativa: number (min 0, max 1), 
 **Arquivo:** `src/components/v2/GraficoCrescimento.tsx`
 **O que faz:** linha "realista" (com pequenos recuos, não uma reta perfeita)
 que se desenha da esquerda pra direita, área preenchida translúcida, ponto
-brilhante acompanhando a ponta. Sem nenhum número exibido em lugar nenhum
+acompanhando a ponta. Sem nenhum número exibido em lugar nenhum
 (nem como opção).
 **Status:** não confirmado.
 

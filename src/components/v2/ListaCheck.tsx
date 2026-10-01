@@ -147,8 +147,6 @@ export const ListaCheck: React.FC<Props> = ({
           <div
             style={{
               backgroundColor: corCard,
-              backdropFilter: "blur(18px)",
-              WebkitBackdropFilter: "blur(18px)",
               border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: fontSize * 0.3,
               padding: `${fontSize * 0.35}px ${fontSize * 0.7}px`,

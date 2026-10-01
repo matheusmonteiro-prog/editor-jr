@@ -153,13 +153,6 @@ export const GraficoCrescimento: React.FC<Props> = ({
                 <stop offset="0%" stopColor={corLinha} stopOpacity={0.35} />
                 <stop offset="100%" stopColor={corLinha} stopOpacity={0} />
               </linearGradient>
-              <filter id="gc-brilho">
-                <feGaussianBlur stdDeviation="6" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
             </defs>
             <path d={areaPath} fill="url(#gc-area)" />
             <path
@@ -168,7 +161,6 @@ export const GraficoCrescimento: React.FC<Props> = ({
               stroke={corLinha}
               strokeWidth={5}
               strokeLinecap="round"
-              filter="url(#gc-brilho)"
             />
             {ultimoPonto && (
               <>
