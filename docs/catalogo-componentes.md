@@ -252,6 +252,16 @@ saída. Sem prop de imagem.
 | `tamanhoFonte` | `number` (min 0.005, max 0.5) | não | `0.024` |
 | `posicao` | `enum("topo","centro","rodape")` | não | `"rodape"` |
 | `duracaoFrames` | `number` (min 10) | não | `120` |
+| `sombra` | `boolean` | **sim** | sem padrão no Composition.tsx; padrão do componente = `false` (desligada) |
+
+**Quando ligar `sombra` (01/10/2026):** o componente já tem um `textShadow`
+escuro com blur, fixo, pensado pra contraste sobre vídeo. Isso não basta
+quando a legenda cai sobre um **fundo claro**, ou sobre uma cor **parecida
+com `corTexto`** — nesses casos o texto quase some. `sombra: true` acrescenta
+um contorno fino chapado (sem blur, `-webkit-text-stroke`) na cor da marca
+(`#0F2A1D`), escalado pelo tamanho da fonte (que já escala pela largura do
+vídeo) — nunca pixel fixo. Desligado por padrão, porque a maioria dos usos é
+sobre vídeo, onde o `textShadow` já resolve.
 
 ---
 

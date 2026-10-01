@@ -17,6 +17,11 @@ export const legendaDiscretaSchema = z.object({
   tamanhoFonte: z.number().min(0.005).max(0.5),
   posicao: z.enum(["topo", "centro", "rodape"]),
   duracaoFrames: z.number().min(10),
+  // Opcional (01/10/2026): contorno fino chapado atrás do texto, sem blur,
+  // na cor da marca — pra quando o fundo for claro ou tiver cor parecida
+  // com corTexto (onde o textShadow escuro sozinho não dá contraste
+  // suficiente). Desligado por padrão.
+  sombra: z.boolean().optional(),
 });
 
 type Props = z.infer<typeof legendaDiscretaSchema>;
@@ -33,6 +38,7 @@ export const LegendaDiscreta: React.FC<Props> = ({
   tamanhoFonte,
   posicao,
   duracaoFrames,
+  sombra = false,
 }) => {
   const frame = useCurrentFrame();
   const { width } = useVideoConfig();
@@ -64,6 +70,9 @@ export const LegendaDiscreta: React.FC<Props> = ({
             textAlign: "center",
             opacity,
             textShadow: "0 2px 10px rgba(0,0,0,0.6)",
+            ...(sombra
+              ? { WebkitTextStroke: `${width * tamanhoFonte * 0.045}px #0F2A1D` }
+              : {}),
           }}
         >
           {texto.toUpperCase()}

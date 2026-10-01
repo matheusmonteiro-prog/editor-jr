@@ -61,7 +61,7 @@
       "ilustrativo": false, "tempo_estimado": true,
       "props": {
         "PersonagemImagem": { "imagem": "casa-terreno.png", "top": 0.62, "left": 0.05, "tamanho": 0.28, "duracaoFrames": 90, "framesSaida": 20 },
-        "LegendaDiscreta": { "texto": "Terra, terreno, casa", "corTexto": "#F5F0E6", "posicao": "rodape", "duracaoFrames": 90, "tamanhoFonte": 0.024 }
+        "LegendaDiscreta": { "texto": "Terra, terreno, casa", "corTexto": "#F5F0E6", "posicao": "rodape", "duracaoFrames": 90, "tamanhoFonte": 0.024, "sombra": true }
       }
     },
     {
