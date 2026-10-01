@@ -558,6 +558,15 @@ tentar, preferir um script próprio com ffmpeg, testado isolado.
 **Objetivo de longo prazo:** o mesmo roteiro/plano adaptado a vários formatos —
 horizontal, anúncios, aulas, tutoriais, vídeos caixinha e redes sociais.
 
+### HyperFrames (longo prazo, só registrado — 01/10/2026)
+IDEIA FUTURA — não implementada, fora da etapa atual. **HyperFrames** (oficial
+da HeyGen, open-source) gerando overlays isolados com fundo transparente,
+usados pelo Remotion como camada de vídeo. Dois motores, comunicação só por
+arquivo (o overlay exportado), nunca por timeline compartilhada entre os dois.
+Só testar depois do render estável, numa pasta fora do repositório. **Ainda
+não confirmado:** se o webm transparente que o HyperFrames gera abre direto
+no Remotion (ex.: via `OffthreadVideo`) sem conversão.
+
 ## Pontos de melhoria (01/10/2026)
 - **Seta:** funciona, mas o visual não ficou moderno; refazer com descrição
   melhor (estilo de traço, velocidade, entrada).
