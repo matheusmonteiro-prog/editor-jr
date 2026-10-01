@@ -480,6 +480,14 @@ para os detalhes e a decisão pendente.
 - **A composição Remotion que lê esse JSON ainda NÃO EXISTE.** Este formato é
   só a decisão do formato; a implementação (6a) é trabalho futuro desta etapa.
 
+**Nota (01/10/2026), sem alterar o formato decidido acima:** `"naPalavra"`
+(com `"ocorrencia"`) é um atalho futuro para `"inicio"` — em vez de digitar
+`"m:ss"` à mão, aponta a palavra e qual ocorrência dela no vídeo. Um script
+converte `naPalavra`+`ocorrencia` em `"inicio"` **antes** da validação
+(`scripts/validar-plano.mjs`), usando a transcrição palavra-por-palavra da
+Etapa 4. Depende da Etapa 4 (Whisper) existir primeiro — ainda não
+implementado, e o formato acima continua sendo o único decidido por ora.
+
 **Regras de conteúdo (registradas antes do schema, para valer quando ele for
 criado):**
 - **Uma camada por ideia falada:** se a fala cita vários critérios em
