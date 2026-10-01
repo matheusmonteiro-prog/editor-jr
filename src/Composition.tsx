@@ -31,6 +31,10 @@ import {
 import { Contador, contadorSchema } from "./components/v2/Contador";
 import { Spotlight, spotlightSchema } from "./components/v2/Spotlight";
 import { CallToAction, callToActionSchema } from "./components/v2/CallToAction";
+import {
+  CirculoDestaque,
+  circuloDestaqueSchema,
+} from "./components/v2/CirculoDestaque";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -431,6 +435,26 @@ export const MyComposition = () => {
           margem: 0.04,
           duracaoFrames: 90,
           framesEntrada: 15,
+          framesSaida: 15,
+        }}
+      />
+      <Composition
+        id="CirculoDestaque"
+        component={CirculoDestaque}
+        durationInFrames={60}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={circuloDestaqueSchema}
+        defaultProps={{
+          posicaoX: 0.5,
+          posicaoY: 0.5,
+          largura: 0.3,
+          altura: 0.15,
+          cor: "#EFAF20",
+          espessura: 0.006,
+          duracaoFrames: 60,
+          framesEntrada: 20,
           framesSaida: 15,
         }}
       />

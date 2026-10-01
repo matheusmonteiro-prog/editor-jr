@@ -414,3 +414,29 @@ composições: `CallToAction` (1080×1920) e `CallToActionHorizontal`
 | `duracaoFrames` | `number` (min 10) | não | `90` |
 | `framesEntrada` | `number` (min 1) | não | `15` |
 | `framesSaida` | `number` (min 1) | não | `15` |
+
+---
+
+### CirculoDestaque (v2)
+**Arquivo:** `src/components/v2/CirculoDestaque.tsx`
+**O que faz:** círculo "desenhado à mão" que se traça em volta de uma região
+da tela (uma palavra, um número, um ponto do vídeo) pra destacar, fica
+visível e some. A forma sketchy (não uma elipse geométrica perfeita) vem de
+pequenos desvios de raio fixos por ponto ao redor da elipse, ligados por
+curvas suaves — mesma técnica da linha "realista" do `GraficoCrescimento`.
+Nenhuma biblioteca de terceiro. Traço chapado, sem blur, cores da marca.
+Todo o dimensionamento vem de `useVideoConfig()` — sem pixel fixo.
+**Status:** não confirmado (ainda não testado visualmente no Studio).
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `posicaoX` (fração da largura) | `number` (min 0, max 1) | **sim** | `0.5` |
+| `posicaoY` (fração da altura) | `number` (min 0, max 1) | **sim** | `0.5` |
+| `largura` (fração da largura, diâmetro da região) | `number` (min 0.02, max 1) | **sim** | `0.3` |
+| `altura` (fração da altura, diâmetro da região) | `number` (min 0.02, max 1) | **sim** | `0.15` |
+| `cor` | `zColor()` | **sim** | `"#EFAF20"` |
+| `espessura` (fração da largura) | `number` (min 0.001, max 0.05) | **sim** | `0.006` |
+| `duracaoFrames` | `number` (min 10) | **sim** | `60` |
+| `framesEntrada` | `number` (min 1) | **sim** | `20` |
+| `framesSaida` | `number` (min 1) | **sim** | `15` |
+| `corFundo` | `zColor()` | **sim** | sem padrão no Composition.tsx; padrão do componente = `"transparent"` |
