@@ -384,7 +384,7 @@ com `spring()` durante `framesEntrada`; a borda dourada acompanha o mesmo
 raio animado. Sem `box-shadow`, sem `blur`, sem glow. Nota no código: na
 futura `PlanoComposicao` (Etapa 6), o Spotlight deve ficar **abaixo** dos
 cards na ordem das camadas.
-**Status:** não confirmado (ainda não testado visualmente no Studio).
+**Status:** Visto no Studio (30/09/2026): círculo aceso em volta, resto escurecido.
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
@@ -412,7 +412,7 @@ Todo o dimensionamento vem de `useVideoConfig()` (largura/altura), sem
 pixel fixo — funciona igual em vertical e horizontal. Registrado em duas
 composições: `CallToAction` (1080×1920) e `CallToActionHorizontal`
 (1920×1080).
-**Status:** não confirmado (ainda não testado visualmente no Studio).
+**Status:** Pronto e validado no Studio (01/10/2026).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
@@ -438,7 +438,7 @@ pequenos desvios de raio fixos por ponto ao redor da elipse, ligados por
 curvas suaves — mesma técnica da linha "realista" do `GraficoCrescimento`.
 Nenhuma biblioteca de terceiro. Traço chapado, sem blur, cores da marca.
 Todo o dimensionamento vem de `useVideoConfig()` — sem pixel fixo.
-**Status:** não confirmado (ainda não testado visualmente no Studio).
+**Status:** Pronto e validado no Studio (01/10/2026).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
