@@ -377,3 +377,30 @@ cards na ordem das camadas.
 | `framesSaida` | `number` (min 1) | não | `15` |
 | `duracaoFrames` | `number` (min 10) | não | `90` |
 | `suavizacao` (fração da largura, `0` = borda seca) | `number` (min 0, max 0.3) | não | `0` |
+
+---
+
+### CallToAction (v2)
+**Arquivo:** `src/components/v2/CallToAction.tsx`
+**O que faz:** pill sólido com texto (ex.: "Inscreva-se") num dos 4 cantos da
+tela, com entrada (spring + slide a partir do canto) e saída (fade) —
+durante o tempo em que fica visível, um anel chapado (sem blur) pulsa ao
+redor pra chamar atenção. Não reproduz ícone/logo de nenhuma plataforma.
+Todo o dimensionamento vem de `useVideoConfig()` (largura/altura), sem
+pixel fixo — funciona igual em vertical e horizontal. Registrado em duas
+composições: `CallToAction` (1080×1920) e `CallToActionHorizontal`
+(1920×1080).
+**Status:** não confirmado (ainda não testado visualmente no Studio).
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `texto` | `string` | não | `"Inscreva-se"` |
+| `posicao` | `enum("superior-esquerdo","superior-direito","inferior-esquerdo","inferior-direito")` | não | `"inferior-direito"` |
+| `corBotao` | `zColor()` | não | `"#EFAF20"` |
+| `corTexto` | `zColor()` | não | `"#0F2A1D"` |
+| `corFundo` | `zColor()` | **sim** | sem padrão no Composition.tsx; padrão do componente = `"transparent"` |
+| `tamanhoFonte` (fração da largura) | `number` (min 0.01, max 0.5) | não | `0.032` (vertical) / `0.022` (horizontal) |
+| `margem` (fração da largura/altura) | `number` (min 0, max 0.3) | não | `0.05` (vertical) / `0.04` (horizontal) |
+| `duracaoFrames` | `number` (min 10) | não | `90` |
+| `framesEntrada` | `number` (min 1) | não | `15` |
+| `framesSaida` | `number` (min 1) | não | `15` |

@@ -268,6 +268,13 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   esses padrões oficialmente — inclusive foi ela que confirmou a exigência do `defaultProps`
   como objeto literal. `.claude/skills/` fica fora do Git (é só um link simbólico local pro
   conteúdo real em `.agents/skills/`, que esse sim é versionado).
+- **Todo componente novo precisa de valor padrão em JS na desestruturação das props, além do
+  `.default()` no schema Zod.** O `.default()` do Zod só é aplicado dentro de um
+  `schema.parse()`/`.safeParse()` — qualquer código que passe `props` direto pro componente sem
+  rodar isso (ex.: uma composição que lê um plano de edição em JSON) recebe `undefined` em vez do
+  padrão. Risco confirmado no `CallToAction` (30/09/2026).
+- **Não criar variante horizontal nem outras variações de um componente a menos que seja pedido
+  explicitamente no prompt.**
 
 ## 7. Etapas
 
