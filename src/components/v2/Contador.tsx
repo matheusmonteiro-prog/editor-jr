@@ -42,17 +42,17 @@ const formatarValor = (valor: number, casasDecimais: number) =>
 export const Contador: React.FC<Props> = ({
   valorInicial,
   valorFinal,
-  prefixo,
-  casasDecimais,
+  prefixo = "R$ ",
+  casasDecimais = 2,
   rotulo,
-  corCard,
-  corNumero,
-  corRotulo,
-  duracaoFramesContagem,
-  framesSaida,
-  duracaoFrames,
-  tamanhoFonte,
-  top,
+  corCard = "#0F2A1D",
+  corNumero = "#F5F0E6",
+  corRotulo = "#F5F0E6",
+  duracaoFramesContagem = 45,
+  framesSaida = 15,
+  duracaoFrames = 90,
+  tamanhoFonte = 0.09,
+  top = 0.38,
 }) => {
   const frame = useCurrentFrame();
   const { width } = useVideoConfig();

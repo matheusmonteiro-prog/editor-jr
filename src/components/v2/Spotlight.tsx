@@ -30,17 +30,17 @@ export const spotlightSchema = z.object({
 type Props = z.infer<typeof spotlightSchema>;
 
 export const Spotlight: React.FC<Props> = ({
-  x,
-  y,
-  raio,
-  corEscurecimento,
-  opacidadeEscurecimento,
-  corBorda,
-  espessuraBorda,
-  framesEntrada,
-  framesSaida,
-  duracaoFrames,
-  suavizacao,
+  x = 0.5,
+  y = 0.4,
+  raio = 0.18,
+  corEscurecimento = "#0F2A1D",
+  opacidadeEscurecimento = 0.65,
+  corBorda = "#EFAF20",
+  espessuraBorda = 2,
+  framesEntrada = 18,
+  framesSaida = 15,
+  duracaoFrames = 90,
+  suavizacao = 0,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
