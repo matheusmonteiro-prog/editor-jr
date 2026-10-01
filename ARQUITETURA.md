@@ -420,6 +420,21 @@ para os detalhes e a decisão pendente.
 - `ArrobaInstagram` e `AvisoCVM` fixos
 - Música de fundo e efeito sonoro sincronizado a um elemento visual
 - **Teste de tempo de renderização** com vídeo longo (10–20 min) no computador do Matheus
+- **Loop de verificação pós-render — `scripts/folha-contato.mjs`** (testado em
+  01/10/2026 com vídeo de teste, **não validado** como processo final): roda
+  dentro do WSL, depois de renderizar. Uso:
+  `node scripts/folha-contato.mjs <plano> <render>` (ex.: `0926 0926-final` →
+  lê `planos/0926.plano.json` e `videos/0926.cortes.json`, abre
+  `~/editor-jr/out/0926-final.mp4`). Tira 1 quadro no **meio da duração** de
+  cada elemento do plano (não no início), reduz pra ~360px de largura,
+  embute o `id` do elemento como legenda (via `drawtext`, com fallback pra
+  listar a ordem no terminal se não achar fonte) e monta tudo numa grade só.
+  Salva em `~/editor-jr/out/<render>-folha-contato.png`. No computador do
+  trabalho isso só valida a **mecânica** do script (extração, meio da
+  duração, grade, legenda) — o `videos/*.cortes.json` usado no teste é
+  provisório/falso, então os tempos da folha não representam o corte real
+  até o arquivo de cortes de verdade (do computador de casa) substituir o
+  provisório.
 - **Pré-requisitos:** @ do Instagram, uma música e um efeito sonoro de teste baixados;
   gravar um teste curto (1-2 min) no OBS e conferir a sincronia dos 3 arquivos (Formato A,
   ver seção 3a); alguns vídeos já gravados em vertical (Shorts/Reels) como referência.
