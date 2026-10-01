@@ -126,22 +126,34 @@ topo/centro/rodapé, fundo semi-transparente opcional ou sombra.
 
 ### Seta
 **Arquivo:** `src/components/Seta.tsx`
-**O que faz:** traço (reto ou curvo) que se desenha do início até uma ponta
-que aparece nos últimos 25% da animação, proporcional a `duracaoFrames`.
-**Status:** **pronta no código (26/09/2026), ainda não validada visualmente
-pelo Matheus no Studio** — só testada mentalmente/por leitura do código,
-segundo o ARQUITETURA.md.
+**O que faz:** traço "desenhado à mão" (reto ou curvo, nunca geometricamente
+perfeito — pontos fixos com pequeno desvio perpendicular, ligados por curva
+suave, mesma técnica do `CirculoDestaque`) que se desenha da base até a
+ponta na entrada (~0,5s por padrão) e some com fade completo na saída.
+Traço chapado, sem blur. Nenhum tamanho fixo em pixel — tudo em fração de
+`width`/`height` do `useVideoConfig()`.
+**Status:** **redesenhada (01/10/2026), ainda não validada visualmente pelo
+Matheus no Studio.**
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `xInicial` | `number` | não | `300` |
-| `yInicial` | `number` | não | `520` |
-| `xFinal` | `number` | não | `720` |
-| `yFinal` | `number` | não | `240` |
-| `cor` | `zColor()` | não | `"#ff3b30"` |
-| `espessura` | `number` (min 1) | não | `8` |
-| `curvatura` | `enum("reta","curva")` | não | `"curva"` |
-| `duracaoFrames` | `number` (min 1) | não | `40` |
+| `xInicial` (fração da largura) | `number` (min 0, max 1) | **sim** | `0.25` |
+| `yInicial` (fração da altura) | `number` (min 0, max 1) | **sim** | `0.7` |
+| `xFinal` (fração da largura) | `number` (min 0, max 1) | **sim** | `0.6` |
+| `yFinal` (fração da altura) | `number` (min 0, max 1) | **sim** | `0.35` |
+| `cor` | `zColor()` | **sim** | `"#EFAF20"` |
+| `espessura` (fração da largura) | `number` (min 0.001, max 0.05) | **sim** | `0.008` |
+| `curvatura` | `enum("reta","curva")` | **sim** | `"curva"` |
+| `duracaoFrames` | `number` (min 10) | **sim** | `60` |
+| `framesEntrada` | `number` (min 1) | **sim** | `15` |
+| `framesSaida` | `number` (min 1) | **sim** | `15` |
+
+**Mudança de unidade (01/10/2026):** antes `xInicial`/`yInicial`/`xFinal`/
+`yFinal`/`espessura` eram pixel absoluto (ex.: `300`, `8`), calibrados pra
+tela de 1280×720. Agora são fração (0 a 1) de `width`/`height`, como todo o
+resto do catálogo novo — nada usava esses valores antigos em nenhum plano,
+então não quebrou nada real. `framesEntrada`/`framesSaida` são novas: antes
+não existia conceito de saída/fade, só entrada.
 
 ---
 

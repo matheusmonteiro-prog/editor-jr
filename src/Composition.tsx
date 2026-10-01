@@ -168,20 +168,22 @@ export const MyComposition = () => {
       <Composition
         id="Seta"
         component={Seta}
-        durationInFrames={120}
+        durationInFrames={60}
         fps={30}
         width={1280}
         height={720}
         schema={setaSchema}
         defaultProps={{
-          xInicial: 300,
-          yInicial: 520,
-          xFinal: 720,
-          yFinal: 240,
-          cor: "#ff3b30",
-          espessura: 8,
+          xInicial: 0.25,
+          yInicial: 0.7,
+          xFinal: 0.6,
+          yFinal: 0.35,
+          cor: "#EFAF20",
+          espessura: 0.008,
           curvatura: "curva",
-          duracaoFrames: 40,
+          duracaoFrames: 60,
+          framesEntrada: 15,
+          framesSaida: 15,
         }}
       />
       <Composition
