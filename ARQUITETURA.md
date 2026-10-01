@@ -540,6 +540,24 @@ tentar, preferir um script próprio com ffmpeg, testado isolado.
 **Objetivo de longo prazo:** o mesmo roteiro/plano adaptado a vários formatos —
 horizontal, anúncios, aulas, tutoriais, vídeos caixinha e redes sociais.
 
+## Pontos de melhoria (01/10/2026)
+- **Seta:** funciona, mas o visual não ficou moderno; refazer com descrição
+  melhor (estilo de traço, velocidade, entrada).
+- **Spotlight:** testado, círculo em volta de um fundo preto transparente;
+  comportamento ok.
+- **Contador e CallToAction:** aprovados no Studio.
+- **LegendaDiscreta** ganhou prop `sombra` opcional (fundo claro ou cor
+  parecida com a do texto); avaliar o mesmo nos outros componentes de texto
+  se o problema aparecer.
+- **BarrasDuelo:** aviso do Studio "Could not find or extract defaultProps"
+  ao salvar props; causa não investigada, afeta só o botão de salvar do
+  painel.
+- **Studio reescreve o código ao arrastar elementos na timeline/canvas**
+  (drift); evitar arrastar durante testes e rodar `git status` depois.
+- **Backlog:** `CirculoDestaque`, `LegendaAnimada`, `AvisoCVM`,
+  `ArrobaInstagram`, `LogoAnimada`, Whisper por palavra, B-roll, passada da
+  marca (Etapa 5).
+
 ## 9. Pendências do Matheus (fora do código)
 - [ ] Finalizar Emparelhamento (fontes e cores) no Claude Design
 - [ ] Logo em PNG com fundo transparente
