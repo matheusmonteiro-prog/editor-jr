@@ -21,3 +21,6 @@ videos/
 # do projeto, escrita à mão — essa precisa ir pro Git.
 .claude/skills/*
 !.claude/skills/editor-jr/
+
+# Configuração local de permissões do Claude Code, específica da máquina.
+.claude/settings.local.json
