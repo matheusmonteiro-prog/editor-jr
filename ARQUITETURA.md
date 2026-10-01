@@ -34,6 +34,24 @@ Se validar bem, pode virar produto no futuro. Isso é outro projeto (ver seção
   ruído e equalização. Para a Etapa 2b é preciso o FFmpeg completo:
   `winget install Gyan.FFmpeg` (já instalado na máquina do trabalho, falta em casa).
 
+### Ambiente de render (WSL) — informado em 01/10/2026, ainda NÃO confirmado pelo repositório
+Fatos relatados pelo Matheus, registrados aqui como informados (não verificados
+por mim nos arquivos do projeto):
+- No PC do trabalho, o Remotion roda **dentro do WSL (Ubuntu)**, Node v24.21.0.
+- Existe uma cópia do projeto em `~/editor-jr` **sem `.git`**, dentro do Linux.
+- O script `~/render.sh` sincroniza o projeto do Windows pro Linux e renderiza
+  (uso: `~/render.sh Composicao nome-do-arquivo [flags]`).
+- Os vídeos renderizados ficam em `~/editor-jr/out`, dentro do Linux, e
+  precisam ser copiados pra uma pasta do Windows.
+- Em casa o render continua bloqueado e o WSL não está instalado.
+- O Git continua só no Windows.
+
+**Superado por este caminho:** o experimento discutido (nunca registrado
+aqui antes) de copiar o FFmpeg completo do Gyan pra dentro de
+`out/binarios-teste` e apontar `--binaries-directory` pra lá — era uma
+tentativa de contornar o ffmpeg do Remotion falhando no `-version` no
+Windows. Com o render rodando no WSL, essa rota fica sem efeito.
+
 ### Cuidado ao conferir vídeo (custou horas na Etapa 2)
 **Não use a pré-visualização do VS Code para testar áudio.** Ela roda sobre Chromium,
 que não embarca o decodificador de AAC: o vídeo toca e o áudio some, sem nenhum aviso.
