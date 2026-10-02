@@ -67,6 +67,12 @@ REGRAS DO FORMATO (não inventar nada fora disso):
 9. Nada de blur, glow ou sombra difusa — os componentes do catálogo já são
    chapados por padrão, não peça esse efeito.
 
+10. O componente "AvisoCVM" (aviso de que o conteúdo não é recomendação de
+   investimento) só entra no plano se eu pedir no roteiro. Nunca coloque por
+   conta própria e nunca escreva o texto do aviso: deixe "props" sem "texto"
+   que o componente usa o texto padrão, que é PROVISÓRIO (eu e o JR conferimos
+   o texto antes de publicar qualquer vídeo).
+
 COMPONENTES DISPONÍVEIS (nome exato — use só estes) e suas PROPS OBRIGATÓRIAS
 (as que não aparecem aqui têm valor padrão e são opcionais):
 
@@ -93,7 +99,7 @@ AVISOs você pode comentar comigo, mas ERROs têm que estar zerados.
 
 Gerado em 01/10/2026 lendo o AST dos schemas Zod reais (mesma técnica usada por
 `scripts/validar-plano.mjs`) e o `CATALOGO` real de `src/PlanoComposicao.tsx` — são os únicos
-18 nomes válidos em `"componente"` hoje. Prop **não** citada aqui tem `.default()`/`.optional()`
+19 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
 no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada uma).
 
 | Componente | Props obrigatórias |
@@ -116,9 +122,38 @@ no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada um
 | `CirculoDestaque` | nenhuma (todas têm padrão) |
 | `Spotlight` | nenhuma (todas têm padrão) |
 | `Contador` | `valorInicial`, `valorFinal` |
+| `AvisoCVM` | nenhuma (todas têm padrão) |
 
 Pra detalhe completo de cada prop (tipo, opcional ou não, valor padrão), ver
 `docs/catalogo-componentes.md`.
+
+### Como pedir o `AvisoCVM` no roteiro
+
+O aviso **só entra quando o roteiro pedir** (ex.: "aviso CVM aos 0:05"). A IA não deve
+colocar por conta própria. Ele aparece no canto inferior esquerdo, em faixa, e como todas as
+props têm valor padrão, o `"props"` pode ir vazio:
+
+```json
+{
+  "id": "aviso-cvm",
+  "componente": "AvisoCVM",
+  "descricao": "aviso de que o conteúdo não é recomendação de investimento",
+  "texto": "Aviso CVM",
+  "inicio": "0:05", "duracao": 5,
+  "posicao": "base", "slot": 1,
+  "ilustrativo": false, "tempo_estimado": true,
+  "props": {}
+}
+```
+
+- O **texto padrão é PROVISÓRIO** ("Conteúdo informativo. Não constitui recomendação ou
+  indicação de investimento."). O Matheus/JR confere o texto antes de publicar qualquer vídeo.
+  Se o texto oficial mudar, ele entra na prop `"texto"` dentro de `"props"`, só por decisão
+  deles — a IA não escreve o texto do aviso.
+- `"duracao"` (segundos) e `"duracaoFrames"` (em `"props"`, padrão 150 = 5 s a 30 fps) devem
+  contar a mesma história; se mudar um, mude o outro.
+- Se outro elemento de `"posicao": "base"` aparecer ao mesmo tempo com o mesmo `"slot"`, o
+  validador dá AVISO (não erro).
 
 ---
 
