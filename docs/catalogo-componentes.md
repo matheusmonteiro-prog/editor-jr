@@ -458,13 +458,15 @@ Todo o dimensionamento vem de `useVideoConfig()` — sem pixel fixo.
 ### AvisoCVM (v2)
 **Arquivo:** `src/components/v2/AvisoCVM.tsx`
 **O que faz:** aviso de compliance (CVM) em forma de faixa de texto com fundo
-sólido semi-transparente, no topo ou no rodapé (nunca no centro, pra nunca
-cobrir o rosto do JR). Fade de entrada e saída via `interpolate()`. Mesma
-composição funciona em vertical e horizontal — tudo em fração de
-`width`/`height` via `useVideoConfig()`, sem variante separada.
-**O texto NUNCA é decidido pelo código** — vem sempre da prop `texto`, vinda
-do plano de edição; o padrão é string vazia (placeholder genérico, não é
-texto jurídico inventado). Registrado em `src/Composition.tsx` (Studio) e no
+semi-transparente, fixa no canto inferior esquerdo, dentro da área segura
+(margens como o `CallToAction`: 0.05 vertical, 0.04 horizontal). Fade de
+entrada e saída via `interpolate()`. Mesma composição funciona em vertical e
+horizontal — tudo em fração de `width`/`height` via `useVideoConfig()`, sem
+variante separada. Sem blur, sem ícone, sem borda.
+**Texto padrão PROVISÓRIO** ("Conteúdo informativo. Não constitui recomendação
+ou indicação de investimento."): texto provisório, a definir pelo Matheus/JR
+antes de publicar qualquer vídeo. A prop `texto` do plano de edição
+sobrescreve o padrão. Registrado em `src/Composition.tsx` (Studio) e no
 `CATALOGO` de `src/PlanoComposicao.tsx`.
 **Status:** feito; conferência visual no Studio pendente (Matheus vê em casa
 e ajusta se precisar); texto e tempo em tela provisórios, a definir pelo
@@ -472,11 +474,13 @@ Matheus/JR antes de publicar qualquer vídeo (ver `docs/perguntas-pendentes.md`)
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `texto` | `string` | não (tem `.default()`) | `""` — vem do plano, nunca hardcoded |
-| `posicao` | `enum("topo","rodape")` | não (tem `.default()`) | `"rodape"` |
-| `tamanhoFonte` (fração da largura) | `number` (min 0.005, max 0.1) | não (tem `.default()`) | `0.022` |
+| `texto` | `string` | não (tem `.default()`) | texto provisório acima |
+| `tamanhoFonte` (fração da largura) | `number` (min 0.005, max 0.1) | não (tem `.default()`) | `0.024` |
+| `margemVertical` (fração da altura) | `number` (0 a 0.3) | não (tem `.default()`) | `0.05` |
+| `margemHorizontal` (fração da largura) | `number` (0 a 0.3) | não (tem `.default()`) | `0.04` |
 | `corTexto` | `zColor()` | não (tem `.default()`) | `"#F5F0E6"` |
-| `corFundo` | `zColor()` | não (tem `.default()`) | `"rgba(15, 42, 29, 0.78)"` |
+| `corFundo` (tela toda) | `zColor().optional()` | sim, sem `.default()` | `"transparent"` só no JS |
+| `corCard` (a faixa) | `zColor()` | não (tem `.default()`) | `"rgba(15, 42, 29, 0.78)"` |
 | `mostrarFundo` | `boolean` | não (tem `.default()`) | `true` |
 | `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
 | `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `15` |

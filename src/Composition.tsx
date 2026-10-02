@@ -470,11 +470,13 @@ export const MyComposition = () => {
         height={1920}
         schema={avisoCVMSchema}
         defaultProps={{
-          texto: "",
-          posicao: "rodape",
-          tamanhoFonte: 0.022,
+          texto:
+            "Conteúdo informativo. Não constitui recomendação ou indicação de investimento.",
+          tamanhoFonte: 0.024,
+          margemVertical: 0.05,
+          margemHorizontal: 0.04,
           corTexto: "#F5F0E6",
-          corFundo: "rgba(15, 42, 29, 0.78)",
+          corCard: "rgba(15, 42, 29, 0.78)",
           mostrarFundo: true,
           duracaoFrames: 150,
           framesEntrada: 15,
