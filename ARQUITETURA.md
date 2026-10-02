@@ -225,10 +225,18 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   + opacidade) e deixa um círculo "aceso" via `mask-image`, sem cobrir o vídeo no centro. Raio
   cresce com spring na entrada, borda dourada fina opcional. Pronto e **validado no Studio
   (30/09/2026)**.
+- `CallToAction` (`src/components/v2/`) — pill sólido com texto (ex.: "Inscreva-se") num dos 4
+  cantos da tela, com entrada (spring + slide a partir do canto) e saída (fade); anel chapado
+  pulsa ao redor durante a exibição. Tudo via `useVideoConfig()`, funciona igual em vertical e
+  horizontal. Registrado em duas composições (`CallToAction` e `CallToActionHorizontal`). Pronto
+  e **validado no Studio (01/10/2026)**.
+- `CirculoDestaque` (`src/components/v2/`) — círculo "desenhado à mão" (traço sketchy, não uma
+  elipse geométrica perfeita) que se traça em volta de uma região da tela pra destacar algo,
+  fica visível e some. Chapado, sem blur, cores da marca, tudo em fração via `useVideoConfig()`.
+  Pronto e **validado no Studio (01/10/2026)**.
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
-- `CirculoDestaque` (com pulso)
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
 - `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
   (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).
@@ -237,10 +245,6 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   que formato e posição — pra não colidir com outros elementos, como o gancho.
 - `LegendaAnimada` — legenda automática com estilo padrão e destaque para
   frases-chave (Etapa 4)
-- `CallToAction` — elemento fixo reutilizável (ex.: "inscreva-se", sino, like),
-  chamado via prompt quando necessário. Segue o padrão de imagem + som
-  sincronizado decidido para a Etapa 3 ("Música de fundo e efeito sonoro
-  sincronizado a um elemento visual").
 
 **Padrão de organização no Studio (desde 25/09/2026):**
 - Cada composição do catálogo fica dentro de `<Folder name="Catalogo">`, em `Composition.tsx`.
