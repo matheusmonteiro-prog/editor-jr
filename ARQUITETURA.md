@@ -34,6 +34,24 @@ Se validar bem, pode virar produto no futuro. Isso é outro projeto (ver seção
   ruído e equalização. Para a Etapa 2b é preciso o FFmpeg completo:
   `winget install Gyan.FFmpeg` (já instalado na máquina do trabalho, falta em casa).
 
+### Ambiente de render (WSL) — informado em 01/10/2026, ainda NÃO confirmado pelo repositório
+Fatos relatados pelo Matheus, registrados aqui como informados (não verificados
+por mim nos arquivos do projeto):
+- No PC do trabalho, o Remotion roda **dentro do WSL (Ubuntu)**, Node v24.21.0.
+- Existe uma cópia do projeto em `~/editor-jr` **sem `.git`**, dentro do Linux.
+- O script `~/render.sh` sincroniza o projeto do Windows pro Linux e renderiza
+  (uso: `~/render.sh Composicao nome-do-arquivo [flags]`).
+- Os vídeos renderizados ficam em `~/editor-jr/out`, dentro do Linux, e
+  precisam ser copiados pra uma pasta do Windows.
+- Em casa o render continua bloqueado e o WSL não está instalado.
+- O Git continua só no Windows.
+
+**Superado por este caminho:** o experimento discutido (nunca registrado
+aqui antes) de copiar o FFmpeg completo do Gyan pra dentro de
+`out/binarios-teste` e apontar `--binaries-directory` pra lá — era uma
+tentativa de contornar o ffmpeg do Remotion falhando no `-version` no
+Windows. Com o render rodando no WSL, essa rota fica sem efeito.
+
 ### Cuidado ao conferir vídeo (custou horas na Etapa 2)
 **Não use a pré-visualização do VS Code para testar áudio.** Ela roda sobre Chromium,
 que não embarca o decodificador de AAC: o vídeo toca e o áudio some, sem nenhum aviso.
@@ -402,6 +420,21 @@ para os detalhes e a decisão pendente.
 - `ArrobaInstagram` e `AvisoCVM` fixos
 - Música de fundo e efeito sonoro sincronizado a um elemento visual
 - **Teste de tempo de renderização** com vídeo longo (10–20 min) no computador do Matheus
+- **Loop de verificação pós-render — `scripts/folha-contato.mjs`** (testado em
+  01/10/2026 com vídeo de teste, **não validado** como processo final): roda
+  dentro do WSL, depois de renderizar. Uso:
+  `node scripts/folha-contato.mjs <plano> <render>` (ex.: `0926 0926-final` →
+  lê `planos/0926.plano.json` e `videos/0926.cortes.json`, abre
+  `~/editor-jr/out/0926-final.mp4`). Tira 1 quadro no **meio da duração** de
+  cada elemento do plano (não no início), reduz pra ~360px de largura,
+  embute o `id` do elemento como legenda (via `drawtext`, com fallback pra
+  listar a ordem no terminal se não achar fonte) e monta tudo numa grade só.
+  Salva em `~/editor-jr/out/<render>-folha-contato.png`. No computador do
+  trabalho isso só valida a **mecânica** do script (extração, meio da
+  duração, grade, legenda) — o `videos/*.cortes.json` usado no teste é
+  provisório/falso, então os tempos da folha não representam o corte real
+  até o arquivo de cortes de verdade (do computador de casa) substituir o
+  provisório.
 - **Pré-requisitos:** @ do Instagram, uma música e um efeito sonoro de teste baixados;
   gravar um teste curto (1-2 min) no OBS e conferir a sincronia dos 3 arquivos (Formato A,
   ver seção 3a); alguns vídeos já gravados em vertical (Shorts/Reels) como referência.
@@ -461,6 +494,14 @@ para os detalhes e a decisão pendente.
   transcrição da gravação — não dentro do editor-jr.
 - **A composição Remotion que lê esse JSON ainda NÃO EXISTE.** Este formato é
   só a decisão do formato; a implementação (6a) é trabalho futuro desta etapa.
+
+**Nota (01/10/2026), sem alterar o formato decidido acima:** `"naPalavra"`
+(com `"ocorrencia"`) é um atalho futuro para `"inicio"` — em vez de digitar
+`"m:ss"` à mão, aponta a palavra e qual ocorrência dela no vídeo. Um script
+converte `naPalavra`+`ocorrencia` em `"inicio"` **antes** da validação
+(`scripts/validar-plano.mjs`), usando a transcrição palavra-por-palavra da
+Etapa 4. Depende da Etapa 4 (Whisper) existir primeiro — ainda não
+implementado, e o formato acima continua sendo o único decidido por ora.
 
 **Regras de conteúdo (registradas antes do schema, para valer quando ele for
 criado):**
@@ -539,6 +580,15 @@ tentar, preferir um script próprio com ffmpeg, testado isolado.
 
 **Objetivo de longo prazo:** o mesmo roteiro/plano adaptado a vários formatos —
 horizontal, anúncios, aulas, tutoriais, vídeos caixinha e redes sociais.
+
+### HyperFrames (longo prazo, só registrado — 01/10/2026)
+IDEIA FUTURA — não implementada, fora da etapa atual. **HyperFrames** (oficial
+da HeyGen, open-source) gerando overlays isolados com fundo transparente,
+usados pelo Remotion como camada de vídeo. Dois motores, comunicação só por
+arquivo (o overlay exportado), nunca por timeline compartilhada entre os dois.
+Só testar depois do render estável, numa pasta fora do repositório. **Ainda
+não confirmado:** se o webm transparente que o HyperFrames gera abre direto
+no Remotion (ex.: via `OffthreadVideo`) sem conversão.
 
 ## Pontos de melhoria (01/10/2026)
 - **Seta:** funciona, mas o visual não ficou moderno; refazer com descrição

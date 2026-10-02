@@ -50,10 +50,17 @@ const acharBinario = (nome) => {
   if (pacote) {
     const sufixo = process.platform === 'win32' ? '.exe' : '';
     const caminho = join(RAIZ, 'node_modules', ...pacote.split('/'), nome + sufixo);
-    if (existsSync(caminho)) return caminho;
+    if (existsSync(caminho)) {
+      const teste = spawnSync(caminho, ['-version'], {encoding: 'utf8', timeout: 10000});
+      if (!teste.error && teste.status === 0) return caminho;
+    }
   }
-  // Sem o binário do Remotion, tenta o que estiver instalado no sistema.
-  return nome;
+  // Sem o binário do Remotion (ou ele não roda), tenta o do PATH do sistema.
+  const testePath = spawnSync(nome, ['-version'], {encoding: 'utf8', timeout: 10000});
+  if (!testePath.error && testePath.status === 0) return nome;
+
+  console.error(`Não consegui rodar nem o "${nome}" do Remotion, nem o "${nome}" do PATH do sistema.`);
+  process.exit(1);
 };
 
 const FFMPEG = acharBinario('ffmpeg');
