@@ -7,10 +7,10 @@
   - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
   - [x] 2b — Redução de ruído e equalização da voz (aprovado em 23/09/2026, amostra A/B)
   - [x] Gancho (reordenar trechos), incluindo teaser com múltiplos trechos — testado e aprovado (23/09/2026)
-- [ ] Etapa 3 — Montagem sobre vídeo real
+- [ ] Etapa 3 — Montagem sobre vídeo real (em andamento)
 - [ ] Etapa 4 — Legendas automáticas
 - [ ] Etapa 5 — Identidade visual
-- [ ] Etapa 6 — Leitor de prompt
+- [ ] Etapa 6 — Leitor de prompt (em andamento)
 - [ ] Etapa 7 — Interface própria
 - [ ] Etapa 8 — Exportação e entrega
 
@@ -461,7 +461,7 @@ para os detalhes e a decisão pendente.
 - O formato oficial do roteiro/prompt (schema) só é definido aqui — não criar
   schema antes desta etapa.
 
-**Formato do plano de edição (JSON) — DECIDIDO, NÃO IMPLEMENTADO:**
+**Formato do plano de edição (JSON) — DECIDIDO, EM IMPLEMENTAÇÃO:**
 ```json
 {
   "video": "...",
@@ -492,8 +492,11 @@ para os detalhes e a decisão pendente.
   (Decisões tomadas).
 - **Onde o plano é gerado:** no chat de um Projeto do Claude, a partir da
   transcrição da gravação — não dentro do editor-jr.
-- **A composição Remotion que lê esse JSON ainda NÃO EXISTE.** Este formato é
-  só a decisão do formato; a implementação (6a) é trabalho futuro desta etapa.
+- **A composição Remotion que lê esse JSON já existe** (`src/PlanoComposicao.tsx`,
+  conversão de tempo em `src/utils/tempoCortado.ts`, validação em
+  `scripts/validar-plano.mjs`) e já tem um plano real aprovado no Studio
+  (`planos/0926.plano.json`, composição `PlanoComposicao0926`) — 6a em
+  andamento. 6b (gerar componente novo via API) ainda não começou.
 
 **Nota (01/10/2026), sem alterar o formato decidido acima:** `"naPalavra"`
 (com `"ocorrencia"`) é um atalho futuro para `"inicio"` — em vez de digitar
