@@ -54,7 +54,13 @@ export const AvisoCVM: React.FC<Props> = ({
   const fontSize = width * tamanhoFonte;
 
   return (
-    <Sequence name="AvisoCVM">
+    <Sequence
+      name="AvisoCVM"
+      style={{
+        translate: "0px -115.8px",
+        scale: 0.69
+      }}
+    >
       <div
         style={{
           flex: 1,

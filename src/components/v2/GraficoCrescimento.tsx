@@ -1,3 +1,4 @@
+import { AvisoCVM } from "./AvisoCVM";
 import React from "react";
 import {
   Img,
@@ -126,120 +127,150 @@ export const GraficoCrescimento: React.FC<Props> = ({
   const escalaPersonagem = interpolate(progressoClamp, [0, 1], [0.7, 1]);
 
   return (
-    <Sequence name="GraficoCrescimento">
-      <div
+    <>
+      <Sequence
+        name="GraficoCrescimento"
         style={{
-          flex: 1,
-          backgroundColor: corFundo,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          translate: "0px -448.3px"
         }}
       >
         <div
           style={{
-            opacity: opacityGeral,
-            transform: `translateY(${translateY}px)`,
-            position: "relative",
+            flex: 1,
+            backgroundColor: corFundo,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          <svg
-            width={larguraPx}
-            height={alturaPx}
-            viewBox={`0 0 ${larguraPx} ${alturaPx}`}
+          <div
+            style={{
+              opacity: opacityGeral,
+              transform: `translateY(${translateY}px)`,
+              position: "relative",
+            }}
           >
-            <defs>
-              <linearGradient id="gc-area" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={corLinha} stopOpacity={0.35} />
-                <stop offset="100%" stopColor={corLinha} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <path d={areaPath} fill="url(#gc-area)" />
-            <path
-              d={linhaPath}
-              fill="none"
-              stroke={corLinha}
-              strokeWidth={5}
-              strokeLinecap="round"
-            />
-            {ultimoPonto && (
-              <>
-                <circle
-                  cx={ultimoPonto.x}
-                  cy={ultimoPonto.y}
-                  r={pulso + 8}
-                  fill={corLinha}
-                  fillOpacity={0.25}
-                />
-                <circle
-                  cx={ultimoPonto.x}
-                  cy={ultimoPonto.y}
-                  r={pulso}
-                  fill={corLinha}
-                />
-              </>
-            )}
-            {mostrarTextoIlustrativo && (
-              <text
-                x={larguraPx * 0.98}
-                y={alturaPx * 0.06}
-                fill="#8a8f9c"
-                fontSize={larguraPx * 0.023}
-                fontFamily="'Arial Narrow', Arial, sans-serif"
-                textAnchor="end"
-                letterSpacing={2}
-              >
-                {textoIlustrativo.toUpperCase()}
-              </text>
-            )}
-            {mostrarRotuloEixoX && (
-              <text
-                x={larguraPx / 2}
-                y={alturaPx * 0.99}
-                fill="#8a8f9c"
-                fontSize={larguraPx * 0.02}
-                fontFamily="'Arial Narrow', Arial, sans-serif"
-                textAnchor="middle"
-                letterSpacing={2}
-              >
-                {rotuloEixoX.toUpperCase()}
-              </text>
-            )}
-            {mostrarTextoFinal && ultimoPonto && (
-              <text
-                x={ultimoPonto.x}
-                y={ultimoPonto.y - pulso - 16}
-                fill={corLinha}
-                fontSize={larguraPx * 0.045}
-                fontWeight={800}
-                fontFamily="'Arial Narrow', Arial, sans-serif"
-                textAnchor="middle"
-                opacity={popTextoFinal}
-              >
-                {textoFinal.toUpperCase()}
-              </text>
-            )}
-          </svg>
-          {imagemPersonagem && (
-            <div
-              style={{
-                position: "absolute",
-                left: 0,
-                bottom: alturaPx * 0.02,
-                width: tamanhoImagemPx,
-                height: tamanhoImagemPx,
-                opacity: progressoClamp,
-                transform: `scale(${escalaPersonagem})`,
-              }}
+            <svg
+              width={larguraPx}
+              height={alturaPx}
+              viewBox={`0 0 ${larguraPx} ${alturaPx}`}
             >
-              <Img
-                src={staticFile(`images/personagens/${imagemPersonagem}`)}
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              <defs>
+                <linearGradient id="gc-area" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={corLinha} stopOpacity={0.35} />
+                  <stop offset="100%" stopColor={corLinha} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <path d={areaPath} fill="url(#gc-area)" />
+              <path
+                d={linhaPath}
+                fill="none"
+                stroke={corLinha}
+                strokeWidth={5}
+                strokeLinecap="round"
               />
-            </div>
-          )}
+              {ultimoPonto && (
+                <>
+                  <circle
+                    cx={ultimoPonto.x}
+                    cy={ultimoPonto.y}
+                    r={pulso + 8}
+                    fill={corLinha}
+                    fillOpacity={0.25}
+                  />
+                  <circle
+                    cx={ultimoPonto.x}
+                    cy={ultimoPonto.y}
+                    r={pulso}
+                    fill={corLinha}
+                  />
+                </>
+              )}
+              {mostrarTextoIlustrativo && (
+                <text
+                  x={larguraPx * 0.98}
+                  y={alturaPx * 0.06}
+                  fill="#8a8f9c"
+                  fontSize={larguraPx * 0.023}
+                  fontFamily="'Arial Narrow', Arial, sans-serif"
+                  textAnchor="end"
+                  letterSpacing={2}
+                >
+                  {textoIlustrativo.toUpperCase()}
+                </text>
+              )}
+              {mostrarRotuloEixoX && (
+                <text
+                  x={larguraPx / 2}
+                  y={alturaPx * 0.99}
+                  fill="#8a8f9c"
+                  fontSize={larguraPx * 0.02}
+                  fontFamily="'Arial Narrow', Arial, sans-serif"
+                  textAnchor="middle"
+                  letterSpacing={2}
+                >
+                  {rotuloEixoX.toUpperCase()}
+                </text>
+              )}
+              {mostrarTextoFinal && ultimoPonto && (
+                <text
+                  x={ultimoPonto.x}
+                  y={ultimoPonto.y - pulso - 16}
+                  fill={corLinha}
+                  fontSize={larguraPx * 0.045}
+                  fontWeight={800}
+                  fontFamily="'Arial Narrow', Arial, sans-serif"
+                  textAnchor="middle"
+                  opacity={popTextoFinal}
+                >
+                  {textoFinal.toUpperCase()}
+                </text>
+              )}
+            </svg>
+            {imagemPersonagem && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  bottom: alturaPx * 0.02,
+                  width: tamanhoImagemPx,
+                  height: tamanhoImagemPx,
+                  opacity: progressoClamp,
+                  transform: `scale(${escalaPersonagem})`,
+                }}
+              >
+                <Img
+                  src={staticFile(`images/personagens/${imagemPersonagem}`)}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </Sequence>
+      </Sequence>
+      <Sequence
+        name="AvisoCVM"
+        width={1080}
+        height={1920}
+        durationInFrames={150}
+        style={{
+          position: "absolute",
+          translate: "0px -899.6px"
+        }}
+        from={9}
+      >
+        <AvisoCVM
+          texto=""
+          posicao="rodape"
+          tamanhoFonte={0.022}
+          corTexto="#F5F0E6"
+          corFundo="rgba(15, 42, 29, 0.78)"
+          mostrarFundo={true}
+          duracaoFrames={150}
+          framesEntrada={15}
+          framesSaida={15}
+        />
+      </Sequence>
+    </>
   );
 };
