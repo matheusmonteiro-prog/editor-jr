@@ -85,6 +85,45 @@ const nomesDaCadeia = (node) => {
   return nomes;
 };
 
+// Acha a chamada-base da cadeia (`z.number()`, `z.enum([...])`, `zColor()`
+// etc.) pra inferir um tipo aproximado da prop, sem executar o schema de
+// verdade (não dá pra importar o .tsx direto em Node puro — ver nota grande
+// mais abaixo, em checarPropsDeUmComponente). Cobre só os tipos usados hoje
+// no catálogo; o que não reconhecer vira `tipo: null` (sem checagem de tipo
+// pra essa prop, só de presença).
+const tipoDaCadeia = (node) => {
+  let atual = node;
+  while (ts.isCallExpression(atual)) {
+    if (ts.isPropertyAccessExpression(atual.expression)) {
+      const objeto = atual.expression.expression;
+      if (ts.isIdentifier(objeto) && objeto.text === 'z') {
+        const metodo = atual.expression.name.text;
+        if (metodo === 'enum') {
+          const valores = [];
+          const arg = atual.arguments[0];
+          if (arg && ts.isArrayLiteralExpression(arg)) {
+            for (const el of arg.elements) {
+              if (ts.isStringLiteral(el)) valores.push(el.text);
+            }
+          }
+          return { tipo: 'enum', valoresEnum: valores };
+        }
+        if (['number', 'string', 'boolean', 'array', 'object'].includes(metodo)) {
+          return { tipo: metodo, valoresEnum: null };
+        }
+        return { tipo: null, valoresEnum: null }; // z.any(), z.record() etc. — não coberto
+      }
+      atual = atual.expression.expression;
+      continue;
+    }
+    if (ts.isIdentifier(atual.expression) && atual.expression.text === 'zColor') {
+      return { tipo: 'string', valoresEnum: null }; // cor é string no JSON do plano
+    }
+    break;
+  }
+  return { tipo: null, valoresEnum: null };
+};
+
 // Lê um .tsx e procura `export const xSchema = z.object({...})` no nível
 // mais alto do arquivo. Retorna [{ nome, obrigatoria }] ou null se não achar
 // nenhum schema exportado nesse formato.
@@ -123,7 +162,8 @@ const extrairPropsDoArquivo = (caminho) => {
         const nome = prop.name.getText(sourceFile);
         const cadeia = nomesDaCadeia(prop.initializer);
         const obrigatoria = !cadeia.has('optional') && !cadeia.has('default');
-        props.push({ nome, obrigatoria });
+        const { tipo, valoresEnum } = tipoDaCadeia(prop.initializer);
+        props.push({ nome, obrigatoria, tipo, valoresEnum });
       }
       resultado = props;
       break;
@@ -215,6 +255,60 @@ const construirCatalogo = () => {
 
 const catalogo = construirCatalogo();
 
+// ------------------------------------------------- catálogo REAL (runtime)
+
+// O catálogo acima (nomes de arquivo em src/components) serve pra achar o
+// schema de cada componente e checar as props. Mas quem decide se um nome
+// realmente funciona no render é o objeto `CATALOGO` dentro de
+// src/PlanoComposicao.tsx — se o nome não estiver lá (ex.: arquivo criado
+// mas esquecido de importar/registrar), o Remotion quebra em runtime com
+// "Componente desconhecido no catálogo". Por isso essa checagem lê o AST de
+// PlanoComposicao.tsx direto, em vez de supor que todo .tsx em
+// src/components vira um componente utilizável — não duplica lista, lê a
+// fonte da verdade.
+const extrairCatalogoReal = () => {
+  const caminho = path.join(RAIZ, 'src', 'PlanoComposicao.tsx');
+  let texto;
+  try {
+    texto = readFileSync(caminho, 'utf8');
+  } catch {
+    return null; // arquivo não existe: quem chama decide o que fazer
+  }
+  const sourceFile = ts.createSourceFile(caminho, texto, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+
+  let nomes = null;
+  const visitar = (node) => {
+    if (nomes) return;
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === 'CATALOGO' &&
+      node.initializer &&
+      ts.isObjectLiteralExpression(node.initializer)
+    ) {
+      nomes = [];
+      for (const prop of node.initializer.properties) {
+        // forma usada no arquivo: `{ ImagemFade, GraficoLinha, ... }`
+        // (shorthand) — cada propriedade é o próprio nome importado.
+        if (ts.isShorthandPropertyAssignment(prop)) nomes.push(prop.name.text);
+        else if (ts.isPropertyAssignment(prop)) nomes.push(prop.name.getText(sourceFile));
+      }
+      return;
+    }
+    ts.forEachChild(node, visitar);
+  };
+  visitar(sourceFile);
+  return nomes;
+};
+
+const catalogoReal = extrairCatalogoReal();
+if (catalogoReal === null) {
+  console.log(
+    'Aviso: não consegui ler o CATALOGO real de src/PlanoComposicao.tsx — a checagem de ' +
+      'componente inexistente no catálogo foi pulada.\n',
+  );
+}
+
 // ---------------------------------------------------------------- leitura
 
 let bruto;
@@ -247,7 +341,7 @@ if (!Array.isArray(dados.elementos)) {
 
 const problemasGerais = [];
 if (typeof dados.video !== 'string' || dados.video.trim() === '') {
-  problemasGerais.push('campo "video" ausente ou vazio');
+  problemasGerais.push('campo "video" ausente ou vazio — informe o nome do vídeo, sem extensão (ex. "0926")');
 }
 if (dados.orientacao !== 'vertical' && dados.orientacao !== 'horizontal') {
   problemasGerais.push(
@@ -277,11 +371,23 @@ const formatarTempo = (seg) => {
 
 // ---------------------------------------------------------------- checagem 1
 
-// "componente" e "props" aceitam o texto "a confirmar" (nunca é erro) ou
-// qualquer valor preenchido (string não vazia, ou objeto/array).
+// "componente"/"props" não podem mais ficar "a confirmar": essa saída era
+// PROVISÓRIA, válida só "até existir docs/catalogo-componentes.md" (ver
+// ARQUITETURA.md seção 7) — esse arquivo já existe desde 28/09/2026, então
+// qualquer "a confirmar" restando hoje é um plano incompleto, que a
+// PlanoComposicao renderiza como elemento vazio (nada aparece) sem avisar
+// ninguém. Por isso agora é ERRO, não passa mais batido.
 const validarComponenteOuProps = (valor) => {
-  if (valor === undefined) return { ok: false, msg: 'ausente' };
-  if (valor === 'a confirmar') return { ok: true, aConfirmar: true };
+  if (valor === undefined) return { ok: false, aConfirmar: false, msg: 'ausente' };
+  if (valor === 'a confirmar') {
+    return {
+      ok: false,
+      aConfirmar: true,
+      msg:
+        'ainda está "a confirmar" — escolha o componente real do catálogo (ver docs/catalogo-componentes.md) ' +
+        'e preencha "props" com os dados dele antes de renderizar',
+    };
+  }
   const preenchido =
     (typeof valor === 'string' && valor.trim().length > 0) ||
     (typeof valor === 'object' && valor !== null);
@@ -289,7 +395,7 @@ const validarComponenteOuProps = (valor) => {
     return {
       ok: false,
       aConfirmar: false,
-      msg: `deve ser "a confirmar" ou um valor preenchido (objeto, string ou array) (veio ${JSON.stringify(valor)})`,
+      msg: `deve ser um valor preenchido (objeto, string ou array) (veio ${JSON.stringify(valor)}) — preencha com o componente/props reais`,
     };
   }
   return { ok: true, aConfirmar: false };
@@ -298,42 +404,47 @@ const validarComponenteOuProps = (valor) => {
 const checagem1 = (el) => {
   const problemas = [];
 
-  if (el.id === undefined) problemas.push('id ausente');
+  if (el.id === undefined) problemas.push('id ausente — adicione uma string única, ex. "criterio-1"');
   else if (typeof el.id !== 'string' || el.id.trim() === '')
-    problemas.push(`id deve ser string não vazia (veio ${JSON.stringify(el.id)})`);
+    problemas.push(`id deve ser string não vazia (veio ${JSON.stringify(el.id)}) — use um texto curto e único`);
 
   const comp = validarComponenteOuProps(el.componente);
   if (!comp.ok) problemas.push(`componente ${comp.msg}`);
 
-  if (el.descricao === undefined) problemas.push('descricao ausente');
+  if (el.descricao === undefined)
+    problemas.push('descricao ausente — descreva em poucas palavras o que esse elemento mostra');
   else if (typeof el.descricao !== 'string' || el.descricao.trim() === '')
     problemas.push(`descricao deve ser string não vazia (veio ${JSON.stringify(el.descricao)})`);
 
-  if (el.texto === undefined) problemas.push('texto ausente');
+  if (el.texto === undefined)
+    problemas.push('texto ausente — escreva o texto que aparece na tela (ou a fala do JR, se for o caso)');
   else if (typeof el.texto !== 'string' || el.texto.trim() === '')
     problemas.push(`texto deve ser string não vazia (veio ${JSON.stringify(el.texto)})`);
 
-  if (el.inicio === undefined) problemas.push('inicio ausente');
+  if (el.inicio === undefined)
+    problemas.push('inicio ausente — use o formato m:ss referente ao vídeo ORIGINAL, ex. "1:05"');
   else if (paraSegundos(el.inicio) === null)
-    problemas.push(`inicio deve estar no formato m:ss, com segundos < 60 (veio ${JSON.stringify(el.inicio)})`);
+    problemas.push(
+      `inicio deve estar no formato m:ss, com segundos < 60, e não pode ser negativo (veio ${JSON.stringify(el.inicio)}) — ex. "1:05"`,
+    );
 
-  if (el.duracao === undefined) problemas.push('duracao ausente');
+  if (el.duracao === undefined) problemas.push('duracao ausente — informe a duração em segundos (número > 0)');
   else if (typeof el.duracao !== 'number' || !Number.isFinite(el.duracao) || el.duracao <= 0)
     problemas.push(`duracao deve ser número > 0 (veio ${JSON.stringify(el.duracao)})`);
 
-  if (el.posicao === undefined) problemas.push('posicao ausente');
+  if (el.posicao === undefined) problemas.push('posicao ausente — use "topo" ou "base"');
   else if (el.posicao !== 'topo' && el.posicao !== 'base')
     problemas.push(`posicao deve ser "topo" ou "base" (veio ${JSON.stringify(el.posicao)})`);
 
-  if (el.slot === undefined) problemas.push('slot ausente');
+  if (el.slot === undefined) problemas.push('slot ausente — use um inteiro >= 1 (1 é o mais alto)');
   else if (!Number.isInteger(el.slot) || el.slot < 1)
     problemas.push(`slot deve ser inteiro >= 1 (veio ${JSON.stringify(el.slot)})`);
 
-  if (el.ilustrativo === undefined) problemas.push('ilustrativo ausente');
+  if (el.ilustrativo === undefined) problemas.push('ilustrativo ausente — use true ou false');
   else if (typeof el.ilustrativo !== 'boolean')
     problemas.push(`ilustrativo deve ser boolean (veio ${JSON.stringify(el.ilustrativo)})`);
 
-  if (el.tempo_estimado === undefined) problemas.push('tempo_estimado ausente');
+  if (el.tempo_estimado === undefined) problemas.push('tempo_estimado ausente — use true ou false');
   else if (typeof el.tempo_estimado !== 'boolean')
     problemas.push(`tempo_estimado deve ser boolean (veio ${JSON.stringify(el.tempo_estimado)})`);
 
@@ -366,13 +477,20 @@ const termosCautela = (texto) => {
 // Cada elemento vira { original, label, inicioSeg, fimSeg } pra alimentar as
 // checagens de intervalo (2 a 5). inicioSeg/fimSeg ficam null quando não dá
 // pra calcular (já vai sobrar erro da checagem 1 pra esse elemento).
+// `label` é o "id" de verdade do elemento sempre que ele existir e for uma
+// string não vazia — é isso que aparece em toda mensagem de erro/aviso, pra
+// bater com o id que o Matheus vê no plano. Só cai pra "el-N (sem id
+// válido)" quando o id está ausente/inválido (aí a checagem 1 já aponta o
+// problema do id em separado).
 const elementos = dados.elementos.map((el, i) => {
   const original = el && typeof el === 'object' ? el : {};
   const inicioSeg = paraSegundos(original.inicio);
   const duracaoOk =
     typeof original.duracao === 'number' && Number.isFinite(original.duracao) && original.duracao > 0;
   const fimSeg = inicioSeg !== null && duracaoOk ? inicioSeg + original.duracao : null;
-  return { original, label: `el-${i + 1}`, inicioSeg, fimSeg };
+  const label =
+    typeof original.id === 'string' && original.id.trim() !== '' ? original.id : `el-${i + 1} (sem id válido)`;
+  return { original, label, inicioSeg, fimSeg };
 });
 
 // ---------------------------------------------------------------- rodar checagens
@@ -393,8 +511,32 @@ const aviso = (labels, texto) => {
   for (const l of labels.split(',')) semProblema.delete(l);
 };
 
+// Sem --duracao explícito, tenta carregar a duração do vídeo ORIGINAL de
+// videos/<video>.cortes.json (campo "duracaoOriginal", gravado pelo
+// cortar-silencio.mjs — ver ARQUITETURA.md Etapa 2). Evita exigir o
+// Matheus digitar a duração à mão toda vez; se o arquivo não existir ou não
+// tiver o campo, a checagem 5 continua pulando, como antes.
+let duracaoFonte = duracaoMax !== null ? '--duracao' : null;
+if (duracaoMax === null && typeof dados.video === 'string' && dados.video.trim() !== '') {
+  const caminhoCortes = path.join(RAIZ, 'videos', `${dados.video}.cortes.json`);
+  try {
+    const cortes = JSON.parse(readFileSync(caminhoCortes, 'utf8'));
+    if (typeof cortes.duracaoOriginal === 'number' && Number.isFinite(cortes.duracaoOriginal)) {
+      duracaoMax = cortes.duracaoOriginal;
+      duracaoFonte = caminhoCortes;
+    }
+  } catch {
+    // Sem videos/<video>.cortes.json (ou JSON inválido): segue sem duração.
+  }
+}
+
 if (duracaoMax === null) {
-  console.log('Aviso: sem --duracao, a checagem 5 (elemento terminando depois do fim do vídeo) foi pulada.\n');
+  console.log(
+    'Aviso: sem --duracao e sem videos/<video>.cortes.json com "duracaoOriginal", a checagem 5 ' +
+      '(elemento fora da duração do vídeo original) foi pulada.\n',
+  );
+} else if (duracaoFonte !== '--duracao') {
+  console.log(`Duração do vídeo original carregada de ${duracaoFonte}: ${duracaoMax}s\n`);
 }
 
 for (const msg of problemasGerais) {
@@ -422,10 +564,13 @@ for (const el of elementos) {
   }
 }
 for (const [id, lista] of porId) {
-  if (lista.length > 1) erro(lista.map((e) => e.label).join(','), `ids: id duplicado "${id}"`);
+  if (lista.length > 1)
+    erro(lista.map((e) => e.label).join(','), `ids: id duplicado "${id}" — escolha um id diferente para cada elemento`);
 }
 
-// 3. colisão posicao+slot
+// 3. colisão posicao+slot (mesma região da tela E tempos se cruzando) — é
+// AVISO, não erro: pode ser proposital (ex.: transição), o Matheus decide
+// olhando o Studio.
 const porPosSlot = new Map();
 for (const el of elementos) {
   const { posicao, slot } = el.original;
@@ -443,10 +588,11 @@ for (const [chave, lista] of porPosSlot) {
       const a = lista[i];
       const b = lista[j];
       if (a.inicioSeg < b.fimSeg && b.inicioSeg < a.fimSeg) {
-        erro(
+        aviso(
           `${a.label},${b.label}`,
           `colisao: mesma posicao/slot (${posicao}/${slot}), tempos se cruzam ` +
-            `(${formatarTempo(a.inicioSeg)}-${formatarTempo(a.fimSeg)} x ${formatarTempo(b.inicioSeg)}-${formatarTempo(b.fimSeg)})`,
+            `(${formatarTempo(a.inicioSeg)}-${formatarTempo(a.fimSeg)} x ${formatarTempo(b.inicioSeg)}-${formatarTempo(b.fimSeg)}) — ` +
+            `ajuste o "slot" de um dos dois ou os tempos, se não for proposital`,
         );
       }
     }
@@ -479,18 +625,27 @@ for (let i = 0; i < blocos.length - 1; i++) {
   if (folga > 0 && folga < 0.5) {
     aviso(
       `${atual.elementoFim.label},${proximo.elementoInicio.label}`,
-      `respiro: ${folga.toFixed(1)}s de folga entre os blocos`,
+      `respiro: ${folga.toFixed(1)}s de folga entre os blocos — ok se for proposital; senão, encoste os tempos ` +
+        `ou aumente a folga pra mais de 0.5s`,
     );
   }
 }
 
-// 5. elemento termina depois do fim do vídeo (só com --duracao)
+// 5. "inicio" fora da duração do vídeo original (negativo já é pego pela
+// checagem 1, porque o formato m:ss não aceita sinal de menos)
 if (duracaoMax !== null) {
   for (const el of elementos) {
-    if (el.fimSeg !== null && el.fimSeg > duracaoMax) {
+    if (el.inicioSeg !== null && el.inicioSeg > duracaoMax) {
       erro(
         el.label,
-        `duracao: termina em ${formatarTempo(el.fimSeg)}, mas o vídeo só tem ${formatarTempo(duracaoMax)}`,
+        `inicio: começa em ${formatarTempo(el.inicioSeg)}, mas o vídeo original só tem ${formatarTempo(duracaoMax)} ` +
+          `— corrija "inicio" para um tempo dentro do vídeo`,
+      );
+    } else if (el.fimSeg !== null && el.fimSeg > duracaoMax) {
+      erro(
+        el.label,
+        `duracao: termina em ${formatarTempo(el.fimSeg)}, mas o vídeo original só tem ${formatarTempo(duracaoMax)} ` +
+          `— reduza "duracao" ou adiante "inicio"`,
       );
     }
   }
@@ -502,7 +657,11 @@ for (const el of elementos) {
   if (typeof texto !== 'string') continue; // já reportado na checagem 1
   const termos = termosCautela(texto);
   if (termos.length > 0) {
-    aviso(el.label, `cautela editorial: texto contém ${termos.map((t) => `"${t}"`).join(', ')}`);
+    aviso(
+      el.label,
+      `cautela editorial: texto contém ${termos.map((t) => `"${t}"`).join(', ')} — reveja para não soar ` +
+        `como garantia ou regra geral (ver ARQUITETURA.md seção 7)`,
+    );
   }
 }
 
@@ -510,7 +669,11 @@ for (const el of elementos) {
 for (const el of elementos) {
   const { ilustrativo, texto } = el.original;
   if (ilustrativo === true && typeof texto === 'string' && /\d/.test(texto)) {
-    erro(el.label, `ilustrativo: texto tem dígito ("${texto}") mas ilustrativo=true`);
+    erro(
+      el.label,
+      `ilustrativo: texto tem dígito ("${texto}") mas ilustrativo=true — remova o número do texto, ou ` +
+        `mude para ilustrativo=false se o dado for real`,
+    );
   }
 }
 
@@ -521,17 +684,48 @@ for (const el of elementos) {
   const letras = (texto.match(/\p{L}/gu) ?? []).length;
   const temMinuscula = /\p{Ll}/u.test(texto);
   if (letras > 3 && !temMinuscula) {
-    aviso(el.label, `caixa alta: texto todo em maiúsculas ("${texto}") — a marca pede caixa de frase`);
+    aviso(
+      el.label,
+      `caixa alta: texto todo em maiúsculas ("${texto}") — a marca pede caixa de frase, ex. "${texto[0]}${texto.slice(1).toLowerCase()}"`,
+    );
   }
 }
 
-// 9. props obrigatórias por componente, contra o catálogo (via AST)
-
+// 9. componente existe no CATALOGO real + props obrigatórias/tipo, contra
+// o schema de cada componente (via AST do TypeScript).
+//
+// Nota sobre "importar os schemas Zod direto": tentamos, mas cada arquivo de
+// componente é .tsx — tem JSX no corpo do componente React — e pelo menos um
+// deles (`Contador.tsx`) roda código de verdade no topo do módulo
+// (`loadFont(...)` de `@remotion/google-fonts/Inter`, que baixa metadados de
+// fonte). Um `import()` puro do Node não entende JSX/TS, e mesmo
+// transpilando (dá pra fazer com o `typescript` que já é dependência, via
+// `ts.transpileModule`) o import executaria esse código de topo de módulo —
+// efeito colateral de rede dentro de um validador que deveria ser
+// determinístico e rápido. Por isso a checagem de tipo usa o mesmo caminho
+// já escolhido pelo resto do script (parsing do arquivo fonte, nunca
+// execução): a função `tipoDaCadeia` acima lê a chamada-base de cada prop no
+// `z.object({...})` (z.number/z.string/z.boolean/z.enum/z.array/z.object/
+// zColor) sem rodar nada.
 const checarPropsDeUmComponente = (nomeComponente, propsObjeto, rotulo) => {
   if (nomeComponente === 'a confirmar') return;
+
+  if (catalogoReal !== null && !catalogoReal.includes(nomeComponente)) {
+    erro(
+      rotulo,
+      `catalogo: componente "${nomeComponente}" não está registrado no CATALOGO de src/PlanoComposicao.tsx ` +
+        `— isso quebra o render ("Componente desconhecido no catálogo"). Corrija o nome no plano, ou importe ` +
+        `o componente e adicione-o ao objeto CATALOGO`,
+    );
+    return;
+  }
+
   const entradaCatalogo = catalogo[nomeComponente];
   if (entradaCatalogo === undefined) {
-    aviso(rotulo, `catalogo: componente "${nomeComponente}" não encontrado no catálogo, não dá pra checar props`);
+    aviso(
+      rotulo,
+      `catalogo: componente "${nomeComponente}" não tem arquivo em src/components (ou src/components/v2), não dá pra checar props`,
+    );
     return;
   }
   if (entradaCatalogo === null) {
@@ -539,14 +733,43 @@ const checarPropsDeUmComponente = (nomeComponente, propsObjeto, rotulo) => {
     return;
   }
   if (typeof propsObjeto !== 'object' || propsObjeto === null || Array.isArray(propsObjeto)) {
-    erro(rotulo, `props: faltou o objeto de props de "${nomeComponente}"`);
+    erro(rotulo, `props: faltou o objeto de props de "${nomeComponente}" — adicione "props": { ... } nesse elemento`);
     return;
   }
+
   const faltando = entradaCatalogo
     .filter((p) => p.obrigatoria && !(p.nome in propsObjeto))
     .map((p) => p.nome);
   if (faltando.length > 0) {
-    erro(rotulo, `props: faltam props obrigatórias de "${nomeComponente}": ${faltando.join(', ')}`);
+    erro(
+      rotulo,
+      `props: faltam props obrigatórias de "${nomeComponente}": ${faltando.join(', ')} — adicione esses campos em "props"`,
+    );
+  }
+
+  for (const descricaoProp of entradaCatalogo) {
+    if (!(descricaoProp.nome in propsObjeto) || !descricaoProp.tipo) continue; // ausente (já coberto acima) ou tipo não inferido
+    const valor = propsObjeto[descricaoProp.nome];
+    const tipoReal = Array.isArray(valor) ? 'array' : valor === null ? 'null' : typeof valor;
+    let ok;
+    if (descricaoProp.tipo === 'enum') {
+      ok =
+        tipoReal === 'string' &&
+        (!descricaoProp.valoresEnum || descricaoProp.valoresEnum.length === 0 || descricaoProp.valoresEnum.includes(valor));
+    } else {
+      ok = tipoReal === descricaoProp.tipo;
+    }
+    if (!ok) {
+      const esperado =
+        descricaoProp.tipo === 'enum' && descricaoProp.valoresEnum?.length
+          ? `um destes valores: ${descricaoProp.valoresEnum.map((v) => `"${v}"`).join(', ')}`
+          : descricaoProp.tipo;
+      erro(
+        rotulo,
+        `props: "${descricaoProp.nome}" de "${nomeComponente}" deveria ser ${esperado} ` +
+          `(veio ${JSON.stringify(valor)}, tipo ${tipoReal}) — corrija o valor no plano`,
+      );
+    }
   }
 };
 
