@@ -86,104 +86,101 @@ Greps usados (limites: só hex/`rgba()`, não pega nome de cor tipo
 - blur: `blur`, `Shadow`, `drop-shadow`
 - fonte: `fontFamily`
 
+A comparação com a dívida é por **arquivo + valor**, nunca por número
+de linha.
+
 ### Pergunta pro Matheus (não decidido)
-- `src/components/v2/LegendaDiscreta.tsx:72` — `textShadow: "0 2px 10px
+- `src/components/v2/LegendaDiscreta.tsx` — `textShadow: "0 2px 10px
   rgba(0,0,0,0.6)"` (sombra com desfoque de 10px). Fica, sai, ou vira
   outra coisa? Não decidido.
 
 ### `src/components/ColagemCenas.tsx`
-- Cor: `:78` `#ffffff`; `:81` `rgba(0,0,0,0.5)`
-- Blur: `:81` `boxShadow: "0 16px 32px ..."`
+- Cor: `#ffffff`; `rgba(0,0,0,0.5)`
+- Blur: `boxShadow: "0 16px 32px ..."`
 
 ### `src/components/ComparacaoBarras.tsx`
-- Cor: `:144` `#c7cad1`; `:211` `#ffffff`; `:232` `#8a8f9c`
-- Fonte: `:104`, `:146`, `:234` `Arial, sans-serif`
+- Cor: `#c7cad1`; `#ffffff`; `#8a8f9c`
+- Fonte: `Arial, sans-serif`
 
 ### `src/components/GraficoLinha.tsx`
-- Cor: `:176` `#ffffff`; `:223` `#8a8f9c`; `:235` `#8a8f9c`
-- Blur: `:162` `<feGaussianBlur stdDeviation="6">` (usado em `:164`)
-- Fonte: `:214`, `:225`, `:237`, `:251` `Arial, sans-serif`
+- Cor: `#ffffff`; `#8a8f9c`
+- Blur: `<feGaussianBlur stdDeviation="6">` (e o filtro que o usa)
+- Fonte: `Arial, sans-serif`
 
 ### `src/components/TextoDestaque.tsx`
-- Cor: `:79` `rgba(0,0,0,0.7)`
-- Pixel: `:77` `padding: "16px 32px"`; `:78` `borderRadius: 12`
-- Blur: `:79` `textShadow: "0 2px 12px ..."`
-- Fonte: `:87` `Arial, sans-serif`
+- Cor: `rgba(0,0,0,0.7)`
+- Pixel: `padding: "16px 32px"`; `borderRadius: 12`
+- Blur: `textShadow: "0 2px 12px ..."`
+- Fonte: `Arial, sans-serif`
 
 ### `src/components/v2/AvisoCVM.tsx`
-- Cor: `:24`, `:38` `rgba(15, 42, 29, 0.78)` — é o `#0F2A1D` da marca
-  com transparência; listado só porque o grep pegou.
-- Fonte: `:73` `Arial, sans-serif`
+- Cor: `rgba(15, 42, 29, 0.78)` — é o `#0F2A1D` da marca com
+  transparência; listado só porque o grep pegou.
+- Fonte: `Arial, sans-serif`
 
 ### `src/components/v2/BarrasDuelo.tsx`
-- Cor: `:104` `#c7cad1`; `:170` `#ffffff`; `:188` `#8a8f9c`
-- Blur: `:98` `drop-shadow(${glow})`, com `glow` = `0 0
-  ${larguraBarra * 0.25}px` (`:79-80`)
-- Fonte: `:106`, `:190` `'Arial Narrow', Arial, sans-serif`
+- Cor: `#c7cad1`; `#ffffff`; `#8a8f9c`
+- Blur: `drop-shadow(${glow})`, com `glow` = `0 0
+  ${larguraBarra * 0.25}px`
+- Fonte: `'Arial Narrow', Arial, sans-serif`
 
 ### `src/components/v2/CallToAction.tsx`
-- Fonte: `:130` `Arial, sans-serif`
+- Fonte: `Arial, sans-serif`
 
 ### `src/components/v2/ColagemFotos.tsx`
-- Cor: `:92` `#ffffff`; `:95` `rgba(0,0,0,0.55)`
-- Blur: `:95` `boxShadow: "0 1.2vw 2.4vw ..."`
-- Fonte: `:163` `'Arial Narrow', Arial, sans-serif`
+- Cor: `#ffffff`; `rgba(0,0,0,0.55)`
+- Blur: `boxShadow: "0 1.2vw 2.4vw ..."`
+- Fonte: `'Arial Narrow', Arial, sans-serif`
 
 ### `src/components/v2/Contador.tsx`
-- Pixel: `:96` `borderRadius: 28`
-- Fonte: `:13` `loadFont(...)` (Inter, via `@remotion/google-fonts`),
-  usada em `:108`, `:120` — escolhida no componente, não num design
-  system.
+- Pixel: `borderRadius: 28`
+- Fonte: `loadFont(...)` (Inter, via `@remotion/google-fonts`) e seus
+  usos — escolhida no componente, não num design system.
 
 ### `src/components/v2/GraficoCrescimento.tsx`
-- Cor: `:186`, `:199` `#8a8f9c`
-- Fonte: `:188`, `:201`, `:215` `'Arial Narrow', Arial, sans-serif`
+- Cor: `#8a8f9c`
+- Fonte: `'Arial Narrow', Arial, sans-serif`
 
 ### `src/components/v2/LegendaDiscreta.tsx`
-- Cor: `:72` `rgba(0,0,0,0.6)`
-- Blur: `:72` — ver "Pergunta pro Matheus" acima.
-- Fonte: `:68` `'Arial Narrow', Arial, sans-serif`
+- Cor: `rgba(0,0,0,0.6)`
+- Blur: o `textShadow` — ver "Pergunta pro Matheus" acima.
+- Fonte: `'Arial Narrow', Arial, sans-serif`
 
 ### `src/components/v2/ListaCheck.tsx`
-- Cor: `:89` `rgba(8,10,8,0.4)`; `:150` `rgba(255,255,255,0.08)`
-- Fonte: `:160` `'Arial Narrow', Arial, sans-serif`
+- Cor: `rgba(8,10,8,0.4)`; `rgba(255,255,255,0.08)`
+- Fonte: `'Arial Narrow', Arial, sans-serif`
 
 ### `src/components/v2/TextoContraste.tsx`
-- Blur: `:120` `textShadow: \`0 0 ${fontePositivo * 0.3}px ...\``
-- Fonte: `:117`, `:174` `'Arial Narrow', Arial, sans-serif`
+- Blur: `textShadow: \`0 0 ${fontePositivo * 0.3}px ...\``
+- Fonte: `'Arial Narrow', Arial, sans-serif`
 
 ### `src/Composition.tsx` (defaultProps do catálogo, por composição)
-- `ImagemFade` — cor: `:56` `#ffffff`
-- `GraficoLinha` — cor: `:72` `#111318`, `:73` `#00d9ff`, `:74`
-  `#00ff9d`; pixel: `:75` `largura: 880`, `:76` `altura: 420`
-- `ColagemCenas` — cor: `:89` `#f0ebe0`; pixel: `:93-95` `x: 40, y: 100,
-  largura: 380`, `:101-103` `x: 450, y: 80, largura: 380`, `:109-111`
-  `x: 860, y: 110, largura: 380`
-- `ComparacaoBarras` — cor: `:127` `#0d0f14`, `:135` `#3d5a80`, `:136`
-  `#6ea8d8`, `:143` `#0f9e6e`, `:144` `#00ff9d`
-- `TextoDestaque` — cor: `:163` `#ffffff`, `:164` `rgba(0,0,0,0.55)`;
-  pixel: `:166` `tamanhoFonte: 80`
-- `Checkmark` — cor: `:202` `#ffffff`, `:203` `#0f9e6e`; pixel: `:199`
-  `x: 640`, `:200` `y: 360`, `:201` `tamanho: 160`
-- `ListaCheck` — cor: `:220` `#0d0f14`, `:221` `#ffffff`, `:222`, `:223`
-  `#22C55E`
-- `ColagemFotos` — cor: `:239` `#0d0f14`, `:247` `#22C55E`
-- `TextoContraste` — cor: `:260` `#0d0f14`, `:263` `#ffffff`, `:264`
-  `#6b7280`
-- `LegendaDiscreta` — cor: `:281` `#e5e7eb`
-- `BarrasDuelo` — cor: `:296` `#0d0f14`, `:301` `#6b7280`, `:308`
-  `#22C55E`
-- `GraficoCrescimento` — cor: `:328` `#0d0f14`, `:329` `#22C55E`
-- `AvisoCVM` — cor: `:477` `rgba(15, 42, 29, 0.78)` (= `#0F2A1D` com
+- `ImagemFade` — cor: `#ffffff`
+- `GraficoLinha` — cor: `#111318`, `#00d9ff`, `#00ff9d`; pixel:
+  `largura: 880`, `altura: 420`
+- `ColagemCenas` — cor: `#f0ebe0`; pixel: `x: 40, y: 100,
+  largura: 380`, `x: 450, y: 80, largura: 380`, `x: 860, y: 110,
+  largura: 380`
+- `ComparacaoBarras` — cor: `#0d0f14`, `#3d5a80`, `#6ea8d8`,
+  `#0f9e6e`, `#00ff9d`
+- `TextoDestaque` — cor: `#ffffff`, `rgba(0,0,0,0.55)`; pixel:
+  `tamanhoFonte: 80`
+- `Checkmark` — cor: `#ffffff`, `#0f9e6e`; pixel: `x: 640`, `y: 360`,
+  `tamanho: 160`
+- `ListaCheck` — cor: `#0d0f14`, `#ffffff`, `#22C55E`
+- `ColagemFotos` — cor: `#0d0f14`, `#22C55E`
+- `TextoContraste` — cor: `#0d0f14`, `#ffffff`, `#6b7280`
+- `LegendaDiscreta` — cor: `#e5e7eb`
+- `BarrasDuelo` — cor: `#0d0f14`, `#6b7280`, `#22C55E`
+- `GraficoCrescimento` — cor: `#0d0f14`, `#22C55E`
+- `AvisoCVM` — cor: `rgba(15, 42, 29, 0.78)` (= `#0F2A1D` com
   transparência)
 
 ### Composições de teste (pasta "Testes", fora do catálogo)
-- `src/TesteRoteiro01.tsx` — cor: `:23` `#22C55E`, `:24` `#6b7280`,
-  `:122` `rgba(10,12,10,0.4)`, `:125` `rgba(255,255,255,0.08)`, `:132`,
-  `:149`, `:300`, `:315` `#ffffff`, `:305` `rgba(34,197,94,0.65)`,
-  `:377` `#e5e7eb`, `:411` `#4b5563`, `:412` `#9ca3af`, `:419`
-  `#15803d`, `:450` `#4ade80`
-- `src/TesteRoteiro02.tsx` — cor: `:16` `#22C55E`, `:17` `#6b7280`,
-  `:40`, `:55`, `:70`, `:115` `#ffffff`, `:130` `#e5e7eb`
-- `src/TesteVideoReal.tsx` — cor: `:18` `#ffffff`, `:19`
-  `rgba(0,0,0,0.55)`
+- `src/TesteRoteiro01.tsx` — cor: `#22C55E`, `#6b7280`,
+  `rgba(10,12,10,0.4)`, `rgba(255,255,255,0.08)`, `#ffffff`,
+  `rgba(34,197,94,0.65)`, `#e5e7eb`, `#4b5563`, `#9ca3af`, `#15803d`,
+  `#4ade80`
+- `src/TesteRoteiro02.tsx` — cor: `#22C55E`, `#6b7280`, `#ffffff`,
+  `#e5e7eb`
+- `src/TesteVideoReal.tsx` — cor: `#ffffff`, `rgba(0,0,0,0.55)`
