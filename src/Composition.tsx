@@ -35,6 +35,7 @@ import {
   CirculoDestaque,
   circuloDestaqueSchema,
 } from "./components/v2/CirculoDestaque";
+import { AvisoCVM, avisoCVMSchema } from "./components/v2/AvisoCVM";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -457,6 +458,26 @@ export const MyComposition = () => {
           espessura: 0.006,
           duracaoFrames: 60,
           framesEntrada: 20,
+          framesSaida: 15,
+        }}
+      />
+      <Composition
+        id="AvisoCVM"
+        component={AvisoCVM}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={avisoCVMSchema}
+        defaultProps={{
+          texto: "",
+          posicao: "rodape",
+          tamanhoFonte: 0.022,
+          corTexto: "#F5F0E6",
+          corFundo: "rgba(15, 42, 29, 0.78)",
+          mostrarFundo: true,
+          duracaoFrames: 150,
+          framesEntrada: 15,
           framesSaida: 15,
         }}
       />

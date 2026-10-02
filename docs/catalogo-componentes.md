@@ -452,3 +452,34 @@ Todo o dimensionamento vem de `useVideoConfig()` — sem pixel fixo.
 | `framesEntrada` | `number` (min 1) | **sim** | `20` |
 | `framesSaida` | `number` (min 1) | **sim** | `15` |
 | `corFundo` | `zColor()` | **sim** | sem padrão no Composition.tsx; padrão do componente = `"transparent"` |
+
+---
+
+### AvisoCVM (v2)
+**Arquivo:** `src/components/v2/AvisoCVM.tsx`
+**O que faz:** aviso de compliance (CVM) em forma de faixa de texto com fundo
+sólido semi-transparente, no topo ou no rodapé (nunca no centro, pra nunca
+cobrir o rosto do JR). Fade de entrada e saída via `interpolate()`. Mesma
+composição funciona em vertical e horizontal — tudo em fração de
+`width`/`height` via `useVideoConfig()`, sem variante separada.
+**O texto NUNCA é decidido pelo código** — vem sempre da prop `texto`, vinda
+do plano de edição; o padrão é string vazia (placeholder genérico, não é
+texto jurídico inventado). Registrado só em `src/Composition.tsx` (Studio) —
+**não** registrado no `CATALOGO` de `src/PlanoComposicao.tsx` ainda, de
+propósito, porque não está validado visualmente (ver status abaixo); um
+plano de edição que tentar usá-lo hoje recebe erro do validador.
+**Status:** criado em 02/10/2026, não validado visualmente — aguardando
+Matheus. Pendente: texto oficial do aviso e exigência de tempo mínimo em
+tela (ver `docs/perguntas-pendentes.md`).
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `texto` | `string` | não (tem `.default()`) | `""` — vem do plano, nunca hardcoded |
+| `posicao` | `enum("topo","rodape")` | não (tem `.default()`) | `"rodape"` |
+| `tamanhoFonte` (fração da largura) | `number` (min 0.005, max 0.1) | não (tem `.default()`) | `0.022` |
+| `corTexto` | `zColor()` | não (tem `.default()`) | `"#F5F0E6"` |
+| `corFundo` | `zColor()` | não (tem `.default()`) | `"rgba(15, 42, 29, 0.78)"` |
+| `mostrarFundo` | `boolean` | não (tem `.default()`) | `true` |
+| `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
+| `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `15` |
+| `framesSaida` | `number` (min 1) | não (tem `.default()`) | `15` |
