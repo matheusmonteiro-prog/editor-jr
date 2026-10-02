@@ -1,0 +1,19 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "elemento-a-confirmar",
+      "componente": "a confirmar",
+      "descricao": "componente ainda não decidido, de propósito (não pode sobrar assim)",
+      "texto": "Teste de a confirmar restando",
+      "inicio": "0:02",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": "a confirmar"
+    }
+  ]
+}

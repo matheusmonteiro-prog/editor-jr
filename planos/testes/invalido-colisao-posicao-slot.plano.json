@@ -1,0 +1,40 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "check-a",
+      "componente": "Checkmark",
+      "descricao": "mesma posicao/slot que check-b, tempos se cruzam, de propósito",
+      "texto": "Primeiro elemento da colisão",
+      "inicio": "0:02",
+      "duracao": 5,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": 300, "y": 300, "tamanho": 120,
+        "cor": "#F5F0E6", "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 150
+      }
+    },
+    {
+      "id": "check-b",
+      "componente": "Checkmark",
+      "descricao": "mesma posicao/slot que check-a, tempos se cruzam, de propósito",
+      "texto": "Segundo elemento da colisão",
+      "inicio": "0:05",
+      "duracao": 3,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": 300, "y": 300, "tamanho": 120,
+        "cor": "#F5F0E6", "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 90
+      }
+    }
+  ]
+}

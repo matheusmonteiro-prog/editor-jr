@@ -1,0 +1,19 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "elemento-fantasma",
+      "componente": "ComponenteFantasma",
+      "descricao": "componente que não existe no catálogo, de propósito",
+      "texto": "Teste de componente inexistente",
+      "inicio": "0:02",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": { "qualquerCoisa": 1 }
+    }
+  ]
+}

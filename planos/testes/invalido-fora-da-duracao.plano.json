@@ -1,0 +1,23 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "check-depois-do-fim",
+      "componente": "Checkmark",
+      "descricao": "começa depois do fim do vídeo original, de propósito (testar com --duracao 10)",
+      "texto": "Teste de início fora da duração",
+      "inicio": "0:15",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": 300, "y": 300, "tamanho": 120,
+        "cor": "#F5F0E6", "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 60
+      }
+    }
+  ]
+}

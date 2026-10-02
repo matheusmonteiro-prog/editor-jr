@@ -1,0 +1,40 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "check-1",
+      "componente": "Checkmark",
+      "descricao": "check de teste, primeiro critério",
+      "texto": "Primeiro critério atendido",
+      "inicio": "0:02",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": 300, "y": 300, "tamanho": 120,
+        "cor": "#F5F0E6", "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 60
+      }
+    },
+    {
+      "id": "check-2",
+      "componente": "Checkmark",
+      "descricao": "check de teste, segundo critério",
+      "texto": "Segundo critério atendido",
+      "inicio": "0:06",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 2,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": 300, "y": 450, "tamanho": 120,
+        "cor": "#F5F0E6", "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 60
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "check-sem-cor",
+      "componente": "Checkmark",
+      "descricao": "falta a prop obrigatória cor, de propósito",
+      "texto": "Teste de prop obrigatória faltando",
+      "inicio": "0:02",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": 300, "y": 300, "tamanho": 120,
+        "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 60
+      }
+    }
+  ]
+}

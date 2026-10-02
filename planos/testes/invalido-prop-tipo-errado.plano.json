@@ -1,0 +1,23 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "check-x-string",
+      "componente": "Checkmark",
+      "descricao": "prop x devia ser número, veio string, de propósito",
+      "texto": "Teste de prop com tipo errado",
+      "inicio": "0:02",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": "trezentos", "y": 300, "tamanho": 120,
+        "cor": "#F5F0E6", "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 60
+      }
+    }
+  ]
+}
