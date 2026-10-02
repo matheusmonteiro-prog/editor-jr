@@ -18,3 +18,20 @@ dele). Duas perguntas em aberto:
    regra de alguma plataforma, ou prática do canal)? O componente hoje usa
    `duracaoFrames: 150` (5s a 30fps) como padrão arbitrário, sem base em
    nenhuma exigência confirmada.
+
+## Envio automático pro Google Drive — Etapa 8 (02/10/2026)
+
+`ARQUITETURA.md` já lista "Envio automático do vídeo pronto para o Google
+Drive" como parte da Etapa 8, com pré-requisito "autorizar acesso à conta
+Google" — não implementado nesta sessão, de propósito (depende de decisão e
+autorização do Matheus, não é algo técnico que eu decida sozinho). Duas
+coisas em aberto:
+
+1. **Autorização da conta Google** — precisa ser feita pelo Matheus (OAuth),
+   não dá pra fazer por mim nesta sessão sem interação.
+2. **Qual conector/API usar** — ex.: Google Drive API direta (upload via
+   `files.create`), ou algum conector já disponível no ambiente (o Claude
+   Code tem um conector de Google Drive, mas ele é pra eu ler/gerenciar
+   arquivos nesta conversa, não necessariamente o que o `editor-jr` deveria
+   usar em produção, rodando sem mim no meio). Não decidi nenhum dos dois —
+   fica pro Matheus escolher quando chegar na Etapa 8 de verdade.
