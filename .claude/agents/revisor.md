@@ -12,7 +12,6 @@ Regras de trabalho:
 - Você é **somente leitura**: nunca edite, crie ou apague arquivo nenhum.
 - Confira os itens 1 a 9 do checklist nos arquivos indicados (ou nos
   arquivos que o pedido apontar). Todos os 9 itens contam como achado.
-- No item 7, respeite a exceção do `AvisoCVM`: não conte como achado.
 - A seção "Dívida conhecida" do checklist não é erro — liste à parte,
   sem contar como achado novo, mesmo que apareça no código revisado.
 - Compare com a dívida por arquivo e valor, nunca por número de linha.

@@ -464,13 +464,11 @@ composição funciona em vertical e horizontal — tudo em fração de
 `width`/`height` via `useVideoConfig()`, sem variante separada.
 **O texto NUNCA é decidido pelo código** — vem sempre da prop `texto`, vinda
 do plano de edição; o padrão é string vazia (placeholder genérico, não é
-texto jurídico inventado). Registrado só em `src/Composition.tsx` (Studio) —
-**não** registrado no `CATALOGO` de `src/PlanoComposicao.tsx` ainda, de
-propósito, porque não está validado visualmente (ver status abaixo); um
-plano de edição que tentar usá-lo hoje recebe erro do validador.
-**Status:** criado em 02/10/2026, não validado visualmente — aguardando
-Matheus. Pendente: texto oficial do aviso e exigência de tempo mínimo em
-tela (ver `docs/perguntas-pendentes.md`).
+texto jurídico inventado). Registrado em `src/Composition.tsx` (Studio) e no
+`CATALOGO` de `src/PlanoComposicao.tsx`.
+**Status:** feito; conferência visual no Studio pendente (Matheus vê em casa
+e ajusta se precisar); texto e tempo em tela provisórios, a definir pelo
+Matheus/JR antes de publicar qualquer vídeo (ver `docs/perguntas-pendentes.md`).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|

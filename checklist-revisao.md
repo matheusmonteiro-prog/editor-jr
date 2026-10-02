@@ -36,7 +36,8 @@ scripts antes de considerar um trecho pronto.
   ou já está "a construir".
 - Fonte: `.claude/skills/editor-jr/SKILL.md`, seções 1 e 4;
   `scripts/validar-plano.mjs` (comentário "componente existe no CATALOGO
-  real", linha ~694) confere isso em runtime pro plano de edição.
+  real", função que valida o campo `"componente"`) confere isso em
+  runtime pro plano de edição.
 
 ## 6. "Validado"/"pronto" em docs só com data de conferência no Studio
 - Todo "validado" ou "pronto" escrito em docs deve ter, ao lado, a data
@@ -47,13 +48,8 @@ scripts antes de considerar um trecho pronto.
 ## 7. Todo componente de `src/components/v2/` está no `CATALOGO`
 - Cada arquivo em `src/components/v2/` tem entrada no `CATALOGO` de
   `src/PlanoComposicao.tsx`.
-- **Exceção: `AvisoCVM`** — pendente de validação no Studio; entra no
-  `CATALOGO` depois que o Matheus validar. Não contar como achado enquanto
-  essa exceção valer. Fonte: `docs/relatorio-noite-0201.md` (criado
-  02/10/2026).
-- Situação em 02/10/2026: os outros 11 componentes de `v2/` estão no
-  `CATALOGO`; `AvisoCVM` está em `src/components/v2/AvisoCVM.tsx` mas não
-  no `CATALOGO` (`src/PlanoComposicao.tsx:28-47`).
+- Sem exceções: todos os componentes de `v2/`, incluindo `AvisoCVM`,
+  devem estar no `CATALOGO` em `src/PlanoComposicao.tsx`.
 
 ## 8. Sem blur
 - Sem `blur`, sem `box-shadow`/`text-shadow`/`drop-shadow` difusa (com

@@ -19,7 +19,8 @@ marca de "em andamento".
 - Catálogo (Etapa 3): `CirculoDestaque` e `CallToAction` movidos pra
   "Componentes prontos" no `ARQUITETURA.md` seção 6; componente novo
   `AvisoCVM` (`src/components/v2/AvisoCVM.tsx`) criado, registrado em
-  `src/Composition.tsx` e em `docs/catalogo-componentes.md`.
+  `src/Composition.tsx`, no `CATALOGO` de `src/PlanoComposicao.tsx` e em
+  `docs/catalogo-componentes.md`.
 - `scripts/folha-contato.mjs`: pasta de saída configurável via `PASTA_OUT`.
 - `scripts/validar-plano.mjs` fortalecido: `"componente"` conferido contra o
   `CATALOGO` real (AST), tipo de cada prop conferido contra o schema Zod
@@ -39,9 +40,9 @@ marca de "em andamento".
 
 ## Falta
 
-- `AvisoCVM`: validação visual no Studio (feito nesta sessão sem abrir o
-  Studio, por regra). Só depois disso entra no `CATALOGO` de
-  `PlanoComposicao.tsx`.
+- `AvisoCVM`: feito; conferência visual no Studio pendente (Matheus vê em
+  casa e ajusta se precisar); texto e tempo em tela provisórios, a definir
+  pelo Matheus/JR antes de publicar qualquer vídeo.
 - `Seta` (redesenhada em 01/10/2026): validação visual no Studio — ainda
   pendente de sessão anterior.
 - `ArrobaInstagram`, `LogoAnimada`: não construídos (lista "A construir" do
