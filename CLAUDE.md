@@ -33,3 +33,15 @@ Matheus é iniciante em programação, Git e Remotion. Explique em português do
 
 ## Nomes de arquivo
 Sem espaço. Ex.: `selic-setembro.png`, `dinheiro-tim.mp3`.
+
+## Protocolo de etapas
+- Etapas: 0 a 8, conforme o `ARQUITETURA.md`. Hoje: 3 e 6 em andamento.
+- Cada etapa precisa de critério de fechamento escrito. Se faltar,
+  proponha antes de dar a etapa como fechada.
+- Quando todos os critérios de uma etapa forem cumpridos, avise o Matheus
+  na hora e deixe um resumo de continuação pronto para o chat da próxima
+  etapa.
+- Se uma etapa ficar aberta por depender de outra, avise e registre no
+  `docs/estado-atual.md` a que chat/etapa voltar.
+- Nunca escrever "validado" sem o Matheus ter visto no Studio.
+- Ao fim de cada sessão, atualizar o `docs/estado-atual.md` por etapa.

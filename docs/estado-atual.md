@@ -50,6 +50,8 @@ marca de "em andamento".
   de verdade (só `--dry-run`).
 - `videos/0926.cortes.json` real (1.167 bytes, 26/09): ainda não está no
   projeto — o arquivo atual tem 194 bytes (01/10/2026), é provisório.
+  Informação dada pelo Matheus: o arquivo real está no computador de casa
+  e ainda não entrou neste projeto (trabalho).
 - Etapa 8 (envio automático pro Google Drive): não implementada, depende de
   autorização de conta e escolha de conector pelo Matheus.
 - `naPalavra`/`ocorrencia` (Etapa 6): não implementado, depende da Etapa 4
