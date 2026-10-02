@@ -36,7 +36,7 @@ if (!nomePlano || !nomeRender) {
 
 const caminhoPlano = join(RAIZ, 'planos', `${nomePlano}.plano.json`);
 const caminhoCortes = join(RAIZ, 'videos', `${nomePlano}.cortes.json`);
-const pastaOut = join(homedir(), 'editor-jr', 'out');
+const pastaOut = process.env.PASTA_OUT ?? join(homedir(), 'editor-jr', 'out');
 const caminhoRender = join(pastaOut, `${nomeRender}.mp4`);
 const caminhoSaida = join(pastaOut, `${nomeRender}-folha-contato.png`);
 
