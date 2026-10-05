@@ -214,11 +214,13 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   curta que o JR está falando. Posição topo/centro/rodapé, cor do texto, fundo semi-transparente
   opcional (ou sombra, se o fundo estiver desligado), duração em frames, entrada/saída com spring.
   Pronto e testado no Studio (25/09/2026).
-- `Seta` — seta que "desenha" na tela (traço crescendo até a ponta), reta ou curva, pra apontar
-  algo no vídeo. Posição inicial/final, cor, espessura, curvatura, duração em frames. A ponta só
-  aparece nos últimos 25% do traço, sempre proporcional a `duracaoFrames` (testado com 10, 40 e
-  100 frames). **Pronta no código (26/09/2026), ainda não validada visualmente pelo Matheus no
-  Studio** — só testada mentalmente/por leitura do código até aqui.
+- `Seta` — seta que "desenha" na tela, da base até a ponta, pra apontar algo no vídeo: uma curva
+  única e ampla (arco, sem onda em S) em forma de fita, fina na base e mais grossa perto da
+  ponta, bordas levemente irregulares, ponta aberta em V que aparece no fim do desenho, saída com
+  fade completo. Props: posição inicial/final (`xInicial`, `yInicial`, `xFinal`, `yFinal`, em
+  fração 0 a 1), `cor` (padrão `#EFAF20`), `espessura` (fração da largura, 0.001 a 0.05, padrão
+  0.008), `curvatura` (`reta`/`curva`), `duracaoFrames`, `framesEntrada`, `framesSaida` (todas com
+  padrão). Redesenhada em 05/10/2026. Pronta e **validada no Studio (05/10/2026)**.
 - `Checkmark` — check animado (pop de escala com spring), círculo de fundo opcional, cor do
   traço, posição x/y, tamanho, duração em frames. Pronto e validado no Studio (26/09/2026).
 - `Contador` (`src/components/v2/`) — número animado subindo até um valor final, formato

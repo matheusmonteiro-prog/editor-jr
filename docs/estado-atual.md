@@ -23,6 +23,8 @@ marca de "em andamento".
   `docs/catalogo-componentes.md`. AvisoCVM: com texto provisório, prop
   `corCard` separada, canto inferior esquerdo (conferência visual pendente;
   commits `40cf3ba` e `34bccc8`).
+- `Seta` redesenhada (05/10/2026): curva única, espessura variável, ponta em V;
+  aprovada pelo Matheus no Studio em 05/10/2026 e mesclada na `noite-etapa6`.
 - `scripts/folha-contato.mjs`: pasta de saída configurável via `PASTA_OUT`.
 - `scripts/validar-plano.mjs` fortalecido: `"componente"` conferido contra o
   `CATALOGO` real (AST), tipo de cada prop conferido contra o schema Zod
@@ -44,8 +46,6 @@ marca de "em andamento".
 
 - `AvisoCVM`: código completo, registrado; conferência visual no Studio
   pendente (Matheus vê em casa e ajusta se precisar).
-- `Seta` (redesenhada em 01/10/2026): validação visual no Studio — ainda
-  pendente de sessão anterior.
 - `ArrobaInstagram`, `LogoAnimada`: não construídos (lista "A construir" do
   ARQUITETURA.md seção 6).
 - `scripts/render-final.mjs`: comando montado e impresso, nunca executado
@@ -66,7 +66,12 @@ marca de "em andamento".
   repositório está parada em `907de81`, 4 commits atrás de `origin/main`
   (`32cef76`, `02e24d6`, `4b69d4e`, `9432337`) — precisa de `git pull` na
   branch `main` pra atualizar.
-- **`noite-etapa6`** (atual) — 16 commits acima de `origin/main` (`git rev-list --count origin/main..noite-etapa6`, contado em 05/10/2026): move
+- **`noite-etapa6`** (atual) — 20 commits acima de `origin/main` (`git rev-list --count
+  origin/main..noite-etapa6`, contado em 05/10/2026 depois do merge da `seta-nova`, antes do
+  commit desta atualização, que soma +1). Conta: 16 (contados antes) + `3c9f7ca` + `52bb293` +
+  `e71b51c` (Seta) + `d3ac949` (commit de junção) = 20. Quatro desses ainda não estão no
+  GitHub (`origin/noite-etapa6` está em `d3b85b3`). **Seta aprovada pelo Matheus no Studio em
+  05/10/2026 e mesclada** (a branch `seta-nova` continua existindo). Inclui: move
   `CirculoDestaque`/`CallToAction` pra "prontos", `PASTA_OUT` no
   folha-contato, `docs/etapa6-lacunas.md`, validador fortalecido +
   `testar-validador.mjs`, `docs/prompt-roteiro.md`, componente `AvisoCVM`,

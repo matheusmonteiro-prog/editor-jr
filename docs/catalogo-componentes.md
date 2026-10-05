@@ -126,14 +126,17 @@ topo/centro/rodapé, fundo semi-transparente opcional ou sombra.
 
 ### Seta
 **Arquivo:** `src/components/Seta.tsx`
-**O que faz:** traço "desenhado à mão" (reto ou curvo, nunca geometricamente
-perfeito — pontos fixos com pequeno desvio perpendicular, ligados por curva
-suave, mesma técnica do `CirculoDestaque`) que se desenha da base até a
-ponta na entrada (~0,5s por padrão) e some com fade completo na saída.
-Traço chapado, sem blur. Nenhum tamanho fixo em pixel — tudo em fração de
-`width`/`height` do `useVideoConfig()`.
-**Status:** **redesenhada (01/10/2026), ainda não validada visualmente pelo
-Matheus no Studio.**
+**O que faz:** seta "desenhada à mão", feita de uma curva única e ampla (um
+arco, sem onda em S) em forma de fita preenchida: fina na base, mais grossa
+perto da ponta, com bordas levemente irregulares (desvio fixo, não aleatório).
+A linha se desenha da base até a ponta nos primeiros 75% de `framesEntrada`; a
+ponta é um V aberto (dois traços curtos) que cresce nos últimos 25%. Na saída
+some com fade completo. Chapada, sem blur. Nenhum tamanho fixo em pixel — tudo
+em fração de `width`/`height` do `useVideoConfig()`. Curvatura `"reta"` deixa o
+arco quase reto; `"curva"` deixa o arco amplo.
+**Status:** **Pronto e validado no Studio (05/10/2026)** — o Matheus viu e
+aprovou. Redesenhada em 05/10/2026 (versão anterior, de 01/10, substituída);
+código em `src/components/Seta.tsx`.
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
@@ -147,6 +150,12 @@ Matheus no Studio.**
 | `duracaoFrames` | `number` (min 10) | **sim** | `60` |
 | `framesEntrada` | `number` (min 1) | **sim** | `15` |
 | `framesSaida` | `number` (min 1) | **sim** | `15` |
+
+"Opcional" aqui = tem `.default()` no schema **e** o mesmo valor repetido na
+desestruturação em JS do componente (item 3 do `checklist-revisao.md`). Os
+nomes e padrões acima foram lidos de `src/components/Seta.tsx`
+(`setaSchema` e a desestruturação do componente) em 05/10/2026. O redesenho
+de 05/10 não criou nem renomeou nenhuma prop.
 
 **Mudança de unidade (01/10/2026):** antes `xInicial`/`yInicial`/`xFinal`/
 `yFinal`/`espessura` eram pixel absoluto (ex.: `300`, `8`), calibrados pra

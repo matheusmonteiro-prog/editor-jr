@@ -106,27 +106,6 @@ Se remover, o campo é só ignorado e o plano continua funcionando (30 fps sempr
 
 ---
 
-## Detecção automática de vertical/horizontal
-
-**O que é:** o sistema decidir sozinho se a gravação é vertical ou horizontal (portrait/landscape)
-lendo as dimensões do vídeo, em vez de você declarar no roteiro.
-
-**Exemplo:** você sobe um vídeo de 1080×1920 (vertical), e o sistema deveria adivinhar
-"é vertical" sem você escrever `"orientacao": "vertical"` no plano.
-
-**Problema:** a seção 3 do `ARQUITETURA.md` diz que o formato é **declarado no prompt**,
-não detectado. Significa que o item "detecção automática" na Etapa 3 contradiz essa decisão.
-
-**Respostas possíveis:**
-- **Remover da Etapa 3** — só declaração manual, sem detecção.
-- **Implementar mesmo assim** — a detecção é um extra, não contradiz a regra (você continua
-  dizendo `"orientacao"`, e a detecção é só backup).
-
-**Como funciona:** se implementar, a composição testa "se hauteur > largeur, vertical",
-e avisos se a declaração não bate com as dimensões do arquivo.
-
----
-
 ## Como ajuste manual no Studio volta pra JSON?
 
 **O que é:** quando você arrasta um elemento no Remotion Studio (ex.: uma seta se move 50px
@@ -153,3 +132,21 @@ não sabe disso. A próxima vez que você renderizar com o mesmo plano, o ajuste
 (na composição específica), mas se você criar um plano novo, começa do zero.
 
 **Como funcionaria com exportação:** após fechar o Studio, você roda `node scripts/export-studio-ajustes.mjs planos/0926.plano.json`, e ele lê o `.tsx` e atualiza o JSON com os novos valores.
+
+---
+
+# Decididas
+
+## Detecção automática de vertical/horizontal — decidida em 05/10/2026
+
+**Decisão do Matheus:** o formato é **detectado automaticamente** a partir do vídeo, e o prompt
+pode **forçar manualmente** outro formato ("se ajusta sozinho, mas com opções, como no
+CapCut"). Já registrada na seção 3 e na Etapa 3 do `ARQUITETURA.md`.
+
+**Exemplo:** você sobe um vídeo de 1080×1920. O sistema entende "vertical" sozinho. Se quiser a
+versão horizontal do mesmo vídeo, pede no prompt e ele obedece.
+
+**O que ainda não existe (é código, não decisão):** como o plano de edição diferencia
+"automático" de "forçado". O campo `"orientacao"` da seção 7 já existe, e a regra não cria
+campo novo; falta implementar a detecção (comparar altura e largura do vídeo) e definir como o
+plano expressa o "forçar".
