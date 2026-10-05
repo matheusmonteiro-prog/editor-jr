@@ -1,4 +1,4 @@
-# Estado atual — editor-jr (02/10/2026)
+# Estado atual — editor-jr (02/10 a 05/10/2026)
 
 Gerado a partir do `ARQUITETURA.md`, do `git log`/`git branch -a` e de testes
 rodados nesta sessão (sem renderizar, sem abrir o Studio). Reflete a branch
@@ -20,7 +20,9 @@ marca de "em andamento".
   "Componentes prontos" no `ARQUITETURA.md` seção 6; componente novo
   `AvisoCVM` (`src/components/v2/AvisoCVM.tsx`) criado, registrado em
   `src/Composition.tsx`, no `CATALOGO` de `src/PlanoComposicao.tsx` e em
-  `docs/catalogo-componentes.md`.
+  `docs/catalogo-componentes.md`. AvisoCVM: com texto provisório, prop
+  `corCard` separada, canto inferior esquerdo (conferência visual pendente;
+  commits `40cf3ba` e `34bccc8`).
 - `scripts/folha-contato.mjs`: pasta de saída configurável via `PASTA_OUT`.
 - `scripts/validar-plano.mjs` fortalecido: `"componente"` conferido contra o
   `CATALOGO` real (AST), tipo de cada prop conferido contra o schema Zod
@@ -40,9 +42,8 @@ marca de "em andamento".
 
 ## Falta
 
-- `AvisoCVM`: feito; conferência visual no Studio pendente (Matheus vê em
-  casa e ajusta se precisar); texto e tempo em tela provisórios, a definir
-  pelo Matheus/JR antes de publicar qualquer vídeo.
+- `AvisoCVM`: código completo, registrado; conferência visual no Studio
+  pendente (Matheus vê em casa e ajusta se precisar).
 - `Seta` (redesenhada em 01/10/2026): validação visual no Studio — ainda
   pendente de sessão anterior.
 - `ArrobaInstagram`, `LogoAnimada`: não construídos (lista "A construir" do
@@ -65,13 +66,15 @@ marca de "em andamento".
   repositório está parada em `907de81`, 4 commits atrás de `origin/main`
   (`32cef76`, `02e24d6`, `4b69d4e`, `9432337`) — precisa de `git pull` na
   branch `main` pra atualizar.
-- **`noite-etapa6`** (atual) — 9 commits acima de `origin/main`: move
+- **`noite-etapa6`** (atual) — 11 commits acima de `origin/main`: move
   `CirculoDestaque`/`CallToAction` pra "prontos", `PASTA_OUT` no
   folha-contato, `docs/etapa6-lacunas.md`, validador fortalecido +
   `testar-validador.mjs`, `docs/prompt-roteiro.md`, componente `AvisoCVM`,
   `render-final.mjs` (Etapa 8 mínima), `docs/relatorio-noite-0201.md`.
-- **`teste-whisper`** — existe local e remota, **0 commits** além de
-  `origin/main` (branch criada, sem trabalho próprio ainda).
+- **`teste-whisper`** — existe só no GitHub (remota), **0 commits** exclusivos
+  além de `origin/main` (último commit `e5c0670`, 26/09, CirculoDestaque).
+- **`teste-trabalho`** — existe local, 1 commit além de `origin/main`
+  (checagem de props obrigatórias no validador).
 - **`wip-trabalho-0930`** — existe local e remota, 3 commits além de
   `origin/main` (`bb77b90` CallToAction valores padrão em JS, `56796e7`
   restaura PersonagemImagem, `20193cb` WIP 30/09). O `CallToAction` dessa
@@ -96,6 +99,8 @@ Ver `docs/perguntas-pendentes.md` — decisões do Matheus, não técnicas:
 - Campo `"fps"` em `planos/0926.plano.json` está fora do schema documentado
   na seção 7 do `ARQUITETURA.md` — não confirmado se deve ser formalizado
   ou removido.
+- `planos/0926.plano.json`: registrado em doc (composição `PlanoComposicao0926`),
+  formato da seção 7. Não confirmado pelo Matheus nesta sessão.
 - `planos/teste-0926-opus.plano.json` está num formato antigo/diferente do
   decidido na seção 7 — não corrigido nem apagado, só registrado.
 - Filtro `whisper` do FFmpeg (Gyan, instalado no PATH desta máquina) exige
