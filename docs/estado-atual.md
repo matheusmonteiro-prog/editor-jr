@@ -66,7 +66,7 @@ marca de "em andamento".
   repositório está parada em `907de81`, 4 commits atrás de `origin/main`
   (`32cef76`, `02e24d6`, `4b69d4e`, `9432337`) — precisa de `git pull` na
   branch `main` pra atualizar.
-- **`noite-etapa6`** (atual) — 11 commits acima de `origin/main`: move
+- **`noite-etapa6`** (atual) — 16 commits acima de `origin/main` (`git rev-list --count origin/main..noite-etapa6`, contado em 05/10/2026): move
   `CirculoDestaque`/`CallToAction` pra "prontos", `PASTA_OUT` no
   folha-contato, `docs/etapa6-lacunas.md`, validador fortalecido +
   `testar-validador.mjs`, `docs/prompt-roteiro.md`, componente `AvisoCVM`,

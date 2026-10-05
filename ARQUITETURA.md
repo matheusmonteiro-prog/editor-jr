@@ -75,10 +75,13 @@ formato livre — o que torna o sintoma ainda mais enganoso.
 - **Componentes editáveis:** propriedades expostas para edição sem prompt.
 - **Áudio:** voz original do JR, com limpeza de ruído. Sem voz gerada por IA.
 - **Retoque de pele:** fora do projeto. Resolver na gravação (iluminação).
-- **Vertical/horizontal:** o OBS grava em 16:9; não existe mais detecção automática 1:1 pelas
-  dimensões do arquivo. O formato de cada saída (horizontal, vertical, ou as duas da mesma
-  gravação) é **declarado no prompt** — gerar vertical a partir de gravação horizontal exige
-  um layout próprio, não é só redimensionar (ver Etapa 3 e Etapa 6, item de várias saídas).
+- **Vertical/horizontal (decisão do Matheus, 05/10/2026):** o formato é **detectado
+  automaticamente** a partir do vídeo, e o prompt pode **forçar manualmente** outro formato
+  ("se ajusta sozinho, mas com opções, como no CapCut"). Atenção: o OBS grava em 16:9, então
+  gerar vertical a partir de gravação horizontal exige um layout próprio, não é só
+  redimensionar (ver Etapa 3 e Etapa 6, item de várias saídas, que inclui o formato de tela de
+  cada saída). Ainda **não implementado**: como o plano de edição distingue "automático" de
+  "forçado" (o campo `"orientacao"` da seção 7 já existe; esta regra não cria campo novo).
 - **Posicionamento automático por visão (IA olhando o frame):** fora da v1.
 
 ## 3a. Formatos de entrada de vídeo (sessões de gravação)
@@ -420,8 +423,10 @@ para os detalhes e a decisão pendente.
 - Formato A (multi-camada): tela sempre visível por baixo, câmera por cima só
   nos trechos que o prompt definir — ver seção 3a
 - Vídeo base + camadas por cima (componentes com fundo transparente)
-- Detecção automática de vertical/horizontal
-- `ArrobaInstagram` e `AvisoCVM` fixos
+- Detecção automática de vertical/horizontal, com opção de forçar o formato pelo prompt
+  (ver seção 3, decisão de 05/10/2026)
+- `ArrobaInstagram` fixo; `AvisoCVM` **não é fixo**: entra só quando o roteiro pedir
+  (ver `docs/prompt-roteiro.md`)
 - Música de fundo e efeito sonoro sincronizado a um elemento visual
 - **Teste de tempo de renderização** com vídeo longo (10–20 min) no computador do Matheus
 - **Loop de verificação pós-render — `scripts/folha-contato.mjs`** (testado em
