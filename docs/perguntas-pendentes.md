@@ -117,36 +117,26 @@ quebra (conferido: nada lê o campo).
 
 ---
 
-## Como ajuste manual no Studio volta pra JSON?
-
-**O que é:** quando você arrasta um elemento no Remotion Studio (ex.: uma seta se move 50px
-pra esquerda), onde fica esse ajuste? No código TypeScript ou no plano JSON?
-
-**Exemplo real desta sessão:** alguém arrastou o `AvisoCVM` no Studio e o Studio gravou
-`translate: "0px -32.3px"` (pixel fixo) dentro de `src/components/v2/AvisoCVM.tsx`, o arquivo do
-**componente**. Também gravou `translate` e um `AvisoCVM` embutido em
-`src/components/v2/GraficoCrescimento.tsx` (guardado no stash e em `../*.patch`). Nenhum plano
-`.json` mudou.
-
-**Problema (fatos conferidos):** o Studio grava no código `.tsx`, não no plano `.json`
-(`ARQUITETURA.md`, seção 6, "Padrão de organização no Studio"). Ali também está o risco de
-`<Sequence>` criadas por `.map()`: editar uma instância pode afetar as outras.
-**NÃO CONFIRMADO:** se um ajuste gravado no arquivo de um componente vale para todos os
-planos que usam esse componente (parece que sim, pelo exemplo acima, mas não testei).
-
-**Respostas possíveis:**
-- **Aceitar como está** — o ajuste fica no código e você revisa o `git diff` depois de
-  qualquer sessão no Studio (regra que já está no `ARQUITETURA.md`).
-- **Levar o ajuste pro JSON** — um script leria o que o Studio gravou e escreveria no plano.
-  **Esse script NÃO EXISTE**; seria código novo, ainda sem desenho.
-- **Evitar arrastar** — usar o "Outline Toggle" (`ARQUITETURA.md`, seção 6) pra esconder os
-  contornos editáveis e ajustar posição só pelo plano.
-
-**Como funciona hoje:** o plano `.json` não sabe do que o Studio gravou no `.tsx`.
-
----
-
 # Decididas
+
+## Ajuste manual do Studio — decidido em 07/10/2026
+
+**Decisão do Matheus:** o ajuste manual no Studio (arrastar elementos e fazer isso voltar pro
+plano JSON) fica para a **Etapa 7**. Até lá vale a regra: **não clicar nem arrastar na tela do
+vídeo**. Já registrada no `ARQUITETURA.md` (seção 3a, seção 6 e alternativa 2 do teste de
+sincronia).
+
+**Por que a regra:** o Studio grava no código `.tsx`, não no plano `.json`
+(`ARQUITETURA.md`, seção 6, "Padrão de organização no Studio"). Exemplo real: um arrasto gravou
+`translate: "0px -32.3px"` (pixel fixo) dentro de `src/components/v2/AvisoCVM.tsx`, o arquivo do
+**componente**, e outro gravou `translate` e um `AvisoCVM` embutido em
+`src/components/v2/GraficoCrescimento.tsx` (guardado no stash e em `../*.patch`). Nenhum plano
+`.json` mudou. **NÃO CONFIRMADO:** se um ajuste gravado no arquivo de um componente vale para
+todos os planos que usam esse componente.
+
+**O que ainda não existe (é código da Etapa 7, não decisão):** o mecanismo de levar o ajuste
+pro JSON. Nenhum script faz isso hoje. Enquanto isso, depois de qualquer sessão no Studio, vale
+a regra que já estava no `ARQUITETURA.md`: rodar `git diff --stat` antes de commitar.
 
 ## Detecção automática de vertical/horizontal — decidida em 05/10/2026
 

@@ -21,8 +21,8 @@ marca de "em andamento".
   `AvisoCVM` (`src/components/v2/AvisoCVM.tsx`) criado, registrado em
   `src/Composition.tsx`, no `CATALOGO` de `src/PlanoComposicao.tsx` e em
   `docs/catalogo-componentes.md`. AvisoCVM: com texto provisório, prop
-  `corCard` separada, canto inferior esquerdo (conferência visual pendente;
-  commits `40cf3ba` e `34bccc8`).
+  `corCard` separada, canto inferior esquerdo (será conferido no vídeo final,
+  decisão do Matheus de 07/10/2026; commits `40cf3ba` e `34bccc8`).
 - `Seta` redesenhada (05/10/2026): curva única, espessura variável, ponta em V;
   aprovada pelo Matheus no Studio em 05/10/2026 e mesclada na `noite-etapa6`.
 - `scripts/folha-contato.mjs`: pasta de saída configurável via `PASTA_OUT`.
@@ -44,8 +44,9 @@ marca de "em andamento".
 
 ## Falta
 
-- `AvisoCVM`: código completo, registrado; conferência visual no Studio
-  pendente (Matheus vê em casa e ajusta se precisar).
+- `AvisoCVM`: código completo, registrado; será conferido no vídeo final
+  (decisão do Matheus de 07/10/2026, ainda aguardando a confirmação dele) e não
+  bloqueia o item 6.2 de `docs/criterios-fechamento.md`.
 - `ArrobaInstagram`, `LogoAnimada`: não construídos (lista "A construir" do
   ARQUITETURA.md seção 6).
 - `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem
@@ -103,10 +104,10 @@ Ver `docs/perguntas-pendentes.md` — decisões do Matheus, não técnicas:
 2. Envio automático pro Google Drive (Etapa 8): autorização de conta e
    escolha de conector/API.
 3. Campo `"fps"` do plano: formalizar ou remover.
-4. Como o ajuste manual feito no Studio volta pro plano JSON.
 
-(A detecção automática de vertical/horizontal já foi decidida em 05/10/2026 e está na seção
-"Decididas" do mesmo arquivo.)
+(Já decididas e na seção "Decididas" do mesmo arquivo: a detecção automática de
+vertical/horizontal, em 05/10/2026, e o ajuste manual do Studio, em 07/10/2026, que fica
+para a Etapa 7 com a regra "não clicar nem arrastar na tela do vídeo".)
 
 ## Itens "não confirmado"
 

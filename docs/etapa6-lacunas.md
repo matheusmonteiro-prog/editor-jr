@@ -11,9 +11,13 @@ Resumo fiel do que está escrito em `ARQUITETURA.md`, sem reinterpretar:
 
 - **6a** — ler o formato de comando e gerar a timeline, sem IA. **6b** — gerar componente
   novo via API do Claude quando não existe no catálogo; aprovado, entra no catálogo.
+  **Atualização de 07/10/2026 (decisão do Matheus):** a Etapa 6 fecha só com a 6a; a 6b só
+  começa se ele mandar.
 - O prompt pode pedir **várias saídas** da mesma gravação (ex.: vídeo principal + 2 cortes
   curtos). É o Matheus quem indica os trechos e as transições, não a IA sozinha. O formato
   do prompt precisa prever isso, incluindo o formato de tela de cada saída.
+  **Atualização de 07/10/2026 (decisão do Matheus):** por enquanto só **prever**: 1 saída
+  por padrão, e um plano antigo continua válido.
 - O **formato oficial do roteiro/prompt (schema) só é definido nesta etapa** — não criar
   schema antes dela (já foi criado; ver abaixo).
 - **Formato do plano de edição (JSON) — "DECIDIDO, EM IMPLEMENTAÇÃO"**: objeto com `video`,
@@ -42,7 +46,8 @@ Resumo fiel do que está escrito em `ARQUITETURA.md`, sem reinterpretar:
   palavra "ilustrativo" aparece na tela; texto na tela nunca mais forte que a fala do JR
   (evitar "garante", "sempre", "rende mais", símbolos `≠ × =`) — "cautela editorial, não
   validada juridicamente"; regra provisória do `"a confirmar"` citada acima.
-- **Pré-requisito da etapa:** chave da API da Anthropic, só pra 6b.
+- **Pré-requisito da etapa:** chave da API da Anthropic, só pra 6b (que só começa se o
+  Matheus mandar, decisão de 07/10/2026).
 
 ## 2. O que já existe de fato no código (confirmado lendo os arquivos)
 

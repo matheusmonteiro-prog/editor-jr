@@ -122,8 +122,9 @@ não um erro de configuração do Matheus.
 **Decisão pendente entre 3 alternativas:**
 1. Ensinar o script a detectar e compensar o deslocamento automaticamente.
 2. Aceitar a limitação por enquanto e ajustar a sincronia manualmente no
-   Remotion Studio, na Etapa 3 (arrastando a camada — a arquitetura já prevê
-   esse ajuste fino manual).
+   Remotion Studio (arrastando a camada). **Decisão de 07/10/2026:** o ajuste manual
+   no Studio fica para a Etapa 7, e até lá vale a regra "não clicar nem arrastar na
+   tela do vídeo" — então esta alternativa só poderia ser usada a partir da Etapa 7.
 3. Gravar um novo teste no OBS com um **evento de sincronismo** (ex.: bater
    palma visível e audível) pra medir o offset exato por correlação, em vez de
    inferir por timestamp de arquivo (que é só um proxy, não prova frame-exato).
@@ -142,7 +143,8 @@ Tela e câmera viram duas camadas no Remotion: tela sempre visível por baixo,
 câmera por cima só nos trechos que o prompt definir (ex.: "0:00-3:00 tela,
 3:00-3:45 câmera"). Troca de foco é controlar a visibilidade/duração da camada
 da câmera — **não é corte de clipe**. Isso nunca é automático, sempre vem do
-prompt. Ajuste fino é manual, arrastando a borda da camada no Remotion Studio.
+prompt. O ajuste fino manual (arrastando a borda da camada no Remotion Studio) fica
+para a Etapa 7; até lá, não clicar nem arrastar na tela do vídeo (decisão de 07/10/2026).
 Regra de layout vale aqui também: o JR centralizado, nada cobre o rosto dele
 (ver seção 3, Decisões tomadas).
 
@@ -278,9 +280,10 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   elas — ou seja, editar uma instância pelo Studio pode acabar mudando todas as instâncias
   geradas pelo mesmo `.map()`. Isso é risco direto pra composição futura que vai ler o plano em
   JSON (Etapa 6, "elementos"): se ela gerar as camadas com `.map()`, um ajuste manual no Studio
-  numa camada pode vazar pras outras. **A definir quando essa composição for desenhada:** o
-  ajuste manual provavelmente deve voltar pro JSON, não ficar só no código gerado — mecanismo
-  exato ainda em aberto.
+  numa camada pode vazar pras outras. **Decisão de 07/10/2026:** o ajuste manual do Studio
+  fica para a Etapa 7, com a regra "não clicar nem arrastar na tela do vídeo" até lá. O
+  mecanismo de fazer o ajuste voltar pro JSON (que provavelmente não deve ficar só no código
+  gerado) será definido na Etapa 7 — ainda em aberto.
 - **Opt-out documentado:** o "Outline Toggle" (v4.0.475/476) esconde os contornos editáveis no
   canvas, evitando arrasto sem querer. Por camada, `showInTimeline={false}` no `<Sequence>` tira
   a camada da timeline do Studio — e o ícone de "olho" na timeline também grava esse prop no
@@ -462,13 +465,15 @@ para os detalhes e a decisão pendente.
 
 ### Etapa 6 — Leitor de prompt
 - 6a: ler o formato de comando e gerar a timeline (sem IA)
-- 6b: gerar componente novo via API quando não existir no catálogo; aprovado → entra no catálogo
+- 6b: gerar componente novo via API quando não existir no catálogo; aprovado → entra no catálogo.
+  **Decisão de 07/10/2026:** a Etapa 6 fecha só com a 6a; a 6b só começa se o Matheus mandar.
 - O prompt pode pedir **várias saídas da mesma gravação** (ex.: vídeo principal +
   2 cortes curtos de 30-90s). É o Matheus quem indica os trechos e as transições
   de cada saída — não é a IA escolhendo sozinha. O formato do prompt (a definir
   nesta etapa) precisa prever isso, incluindo o formato de tela de cada saída
   (horizontal/vertical, ver seção 3 e Etapa 3). Transições mais chamativas em
-  vídeo curto, mais discretas no longo.
+  vídeo curto, mais discretas no longo. **Decisão de 07/10/2026:** por enquanto só
+  **prever**: 1 saída por padrão, e um plano antigo (sem várias saídas) continua válido.
 - O formato oficial do roteiro/prompt (schema) só é definido aqui — não criar
   schema antes desta etapa.
 
@@ -507,7 +512,8 @@ para os detalhes e a decisão pendente.
   conversão de tempo em `src/utils/tempoCortado.ts`, validação em
   `scripts/validar-plano.mjs`) e já tem um plano real aprovado no Studio
   (`planos/0926.plano.json`, composição `PlanoComposicao0926`) — 6a em
-  andamento. 6b (gerar componente novo via API) ainda não começou.
+  andamento. 6b (gerar componente novo via API) ainda não começou e só começa se o
+  Matheus mandar (decisão de 07/10/2026).
 
 **Nota (01/10/2026), sem alterar o formato decidido acima:** `"naPalavra"`
 (com `"ocorrencia"`) é um atalho futuro para `"inicio"` — em vez de digitar
@@ -540,7 +546,7 @@ criado):**
   elemento vai no campo `"descricao"`. O texto que aparece na tela vai no
   campo `"texto"` do próprio elemento.
 
-- **Pré-requisitos:** chave da API da Anthropic (só na 6b).
+- **Pré-requisitos:** chave da API da Anthropic (só na 6b, que só começa se o Matheus mandar).
 
 ### Etapa 7 — Interface própria
 - Tela local no navegador: subir vídeo, escrever prompt, ver prévia
