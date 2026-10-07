@@ -110,7 +110,7 @@ Cada item de `barras`: `{ label: string, valorFinal: number, cor: zColor(), corT
 **Arquivo:** `src/components/TextoDestaque.tsx`
 **O que faz:** overlay de texto (palavra/frase em destaque), posição
 topo/centro/rodapé, fundo semi-transparente opcional ou sombra.
-**Status:** **Pronto e testado no Studio (25/09/2026)** — nota do ARQUITETURA.md.
+**Status:** Visto pelo Matheus no Studio (registrado em doc em 25/09/2026; confirmado por ele em 07/10/2026).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|

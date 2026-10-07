@@ -215,7 +215,7 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
 - `TextoDestaque` — overlay de texto (ex.: "SOJA", "12% ao ano") para destacar uma palavra/frase
   curta que o JR está falando. Posição topo/centro/rodapé, cor do texto, fundo semi-transparente
   opcional (ou sombra, se o fundo estiver desligado), duração em frames, entrada/saída com spring.
-  Pronto e testado no Studio (25/09/2026).
+  Visto pelo Matheus no Studio (registrado em doc em 25/09/2026; confirmado por ele em 07/10/2026).
 - `Seta` — seta que "desenha" na tela, da base até a ponta, pra apontar algo no vídeo: uma curva
   única e ampla (arco, sem onda em S) em forma de fita, fina na base e mais grossa perto da
   ponta, bordas levemente irregulares, ponta aberta em V que aparece no fim do desenho, saída com
@@ -615,8 +615,9 @@ no Remotion (ex.: via `OffthreadVideo`) sem conversão.
 - **Seta:** (01/10) o visual não tinha ficado moderno. **Refeita em 05/10/2026**
   (curva única, espessura variável, ponta em V) e aprovada pelo Matheus no Studio em
   05/10/2026. Item fechado.
-- **Spotlight:** implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
-- **Contador e CallToAction:** implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
+- **Spotlight:** implementado, não confirmado pelo Matheus (registrado em doc em 30/09/2026).
+- **Contador:** implementado, não confirmado pelo Matheus (registrado em doc em 30/09/2026).
+- **CallToAction:** implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
 - **LegendaDiscreta** ganhou prop `sombra` opcional (fundo claro ou cor
   parecida com a do texto); avaliar o mesmo nos outros componentes de texto
   se o problema aparecer.

@@ -72,15 +72,8 @@ significa que a etapa começou.
   repositório está parada em `907de81`, 4 commits atrás de `origin/main`
   (`32cef76`, `02e24d6`, `4b69d4e`, `9432337`) — precisa de `git pull` na
   branch `main` pra atualizar.
-- **`noite-etapa6`** (atual, em `c71e6d1`; `git status --short` vazio = nada por commitar,
-  conferido em 07/10/2026) — 31 commits acima de `origin/main` (`git rev-list --count
-  origin/main..noite-etapa6`). Destes, 24 estão no GitHub (`origin/noite-etapa6` = `8710217`) e
-  7 só locais (`git rev-list --count origin/noite-etapa6..noite-etapa6` = 7). Os 8 commits mais
-  recentes (`git log --oneline -8`): `c71e6d1` hook pega git push como comando · `a37bf3c` hook
-  bloqueia git push do Claude Code · `2ad8c9d` validador avisa prop desconhecida · `30a3b68`
-  plano 0926 e AvisoCVM alinhados · `3899f68` regra de validação por marcos · `545e738` alinha
-  docs às decisões do Matheus · `91c09eb` critérios com decisões do Matheus · `8710217` notas da
-  etapa 4, sessão de 07/10 e perguntas pendentes. O reflog da ref remota
+- **`noite-etapa6`** (atual) — para ver o estado, rode `git log --oneline
+  origin/noite-etapa6..HEAD` (commits que ainda não foram pro GitHub). O reflog da ref remota
   (`git reflog show origin/noite-etapa6`) registra "update by push" em 02/10 e 05/10
   (11:25 e 18:25), ou seja, houve `git push` neste computador; o autor de todos os commits é o
   mesmo usuário do Git ("JR EDICOES"), então **NÃO CONFIRMADO quem rodou cada push**. **Seta aprovada pelo Matheus no
