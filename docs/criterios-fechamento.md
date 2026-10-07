@@ -19,7 +19,7 @@ exceto onde está escrito o contrário. Marcas:
 
 **(a) Regra de validação.** O Matheus valida **só os marcos**. Testes e ajustes pequenos seguem
 sem pedir a validação dele. O catálogo continua honesto: "validado" só com a data de quando ele
-viu no Studio. (Hoje a única coisa que ele já viu e aprovou é a **Seta, em 05/10/2026**.)
+viu no Studio. (Hoje ele já viu **Seta (05/10/2026)**, **TextoDestaque** e **AvisoCVM** (07/10/2026).)
 
 **(b) Escopo da Etapa 6.** A Etapa 6 fecha **só com a 6a** (ler o formato e gerar a timeline, sem
 IA). A **6b** (gerar componente novo via API) só começa se ele mandar.
@@ -42,7 +42,7 @@ A etapa fecha quando **todos** os itens abaixo estiverem cumpridos (escopo: só 
 
 | # | Critério | Tipo | Situação hoje (segundo os docs) |
 |---|---|---|---|
-| 6.1 | **Revisor calibrado**: o agente `revisor` pega erros plantados de propósito e não acusa a dívida conhecida como erro. (Item pedido pelo Matheus; vem do `CLAUDE.md`/`checklist-revisao.md`, não do `ARQUITETURA.md`.) | [M] aprovar | A calibração 2 foi feita em 02/10: o revisor apontou os 4 erros plantados. O Matheus ainda não disse se isso basta. |
+| 6.1 | **Revisor calibrado**: o agente `revisor` pega erros plantados de propósito e não acusa a dívida conhecida como erro. (Item pedido pelo Matheus; vem do `CLAUDE.md`/`checklist-revisao.md`, não do `ARQUITETURA.md`.) | [M] aprovar | A calibração 2 foi feita em 02/10: o revisor apontou os 4 erros plantados. O Matheus aprovou a calibração em 07/10/2026. |
 | 6.2 | **Seta vista no Studio e AvisoCVM visto pelo Matheus.** | [M] | **CUMPRIDO.** Seta: aprovada pelo Matheus em 05/10/2026. AvisoCVM: visto pelo Matheus em 07/10/2026 (gostou; ajustes previstos depois); texto provisório e texto oficial da CVM seguem pendentes. |
 | 6.3 | **`cortes.json` real com o validador passando**: o `videos/0926.cortes.json` de 1.167 bytes (hoje o do projeto é o provisório de 194 bytes) e `node scripts/validar-plano.mjs` sem ERRO no plano `0926`. | [M] trazer o arquivo de casa; depois [C] rodar o validador | Arquivo real ainda não está no projeto do trabalho. |
 | 6.4 | **Render e folha de contato**: renderizar o plano `0926` no WSL e gerar a folha com `scripts/folha-contato.mjs`. | [M] rodar no WSL do trabalho; depende de 6.3 | O script foi testado só com vídeo de teste e `cortes.json` provisório; o `ARQUITETURA.md` diz "não validado como processo final". |
