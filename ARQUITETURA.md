@@ -483,6 +483,7 @@ para os detalhes e a decisão pendente.
 {
   "video": "...",
   "orientacao": "vertical|horizontal",
+  "saidas": [{ "orientacao": "vertical|horizontal" }],
   "elementos": [
     {
       "id": "...",
@@ -500,6 +501,10 @@ para os detalhes e a decisão pendente.
   ]
 }
 ```
+- **`"saidas"` — opcional, SÓ PREVISTO (decisão do Matheus de 07/10/2026):** lista de objetos,
+  cada um com `"orientacao"` (`"vertical"` ou `"horizontal"`). Sem o campo, vale **1 saída**, e
+  um plano antigo continua válido. **Nenhum código lê esse campo ainda** (`validar-plano.mjs` e
+  `PlanoComposicao.tsx` o ignoram). Exemplo: `planos/testes/saidas-previsto.plano.json`.
 - **`"inicio"` sempre se refere ao vídeo original** (a gravação, antes de
   cortar), igual à regra já usada pelo `--gancho` — a conversão pro tempo do
   vídeo já cortado é feita a partir do `.cortes.json` (ver Etapa 2).

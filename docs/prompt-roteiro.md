@@ -24,7 +24,10 @@ na gravação original.
 REGRAS DO FORMATO (não inventar nada fora disso):
 
 1. O JSON é um objeto com "video" (nome do arquivo, sem extensão), "orientacao"
-   ("vertical" ou "horizontal") e "elementos" (lista).
+   ("vertical" ou "horizontal") e "elementos" (lista). Existe também um campo
+   OPCIONAL, "saidas" (lista de objetos, cada um com "orientacao"), mas ele só
+   está PREVISTO e AINDA NÃO É USADO por nenhum código: não preencha, a menos
+   que eu peça. Sem ele, vale 1 saída.
 
 2. Cada item de "elementos" tem: "id" (texto único, curto, sem espaço),
    "componente" (nome exato do catálogo — ver lista abaixo), "descricao"
@@ -203,6 +206,22 @@ props têm valor padrão, o `"props"` pode ir vazio:
 ```
 
 (Plano completo, com os 8 elementos, em `planos/0926.plano.json`.)
+
+**Campo opcional `"saidas"` (só previsto, ainda não usado):** o `0926.plano.json` não tem esse
+campo, então vale 1 saída. Se um dia for usado, ele fica no topo do plano, ao lado de
+`"orientacao"`:
+
+```json
+{
+  "video": "0926",
+  "orientacao": "vertical",
+  "saidas": [{ "orientacao": "vertical" }, { "orientacao": "horizontal" }],
+  "elementos": [ ... ]
+}
+```
+
+Hoje o validador e a composição ignoram `"saidas"`. Exemplo testado:
+`planos/testes/saidas-previsto.plano.json`.
 
 ---
 

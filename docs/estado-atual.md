@@ -45,6 +45,10 @@ significa que a etapa começou.
   o comando de render final, flags confirmadas em `npx remotion render
   --help`.
 - `docs/perguntas-pendentes.md`: registra decisões que são do Matheus.
+- Item 6.6 (várias saídas), **só previsto** (07/10/2026): campo opcional `"saidas"` (lista de
+  objetos com `"orientacao"`) documentado em `ARQUITETURA.md` §7 e `docs/prompt-roteiro.md`, com
+  a fixture `planos/testes/saidas-previsto.plano.json`. Nenhum código lê o campo; sem ele vale 1
+  saída.
 
 ## Falta
 
