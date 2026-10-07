@@ -48,8 +48,9 @@ marca de "em andamento".
   pendente (Matheus vê em casa e ajusta se precisar).
 - `ArrobaInstagram`, `LogoAnimada`: não construídos (lista "A construir" do
   ARQUITETURA.md seção 6).
-- `scripts/render-final.mjs`: comando montado e impresso, nunca executado
-  de verdade (só `--dry-run`).
+- `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem
+  `--dry-run` ele executa o render de verdade (`scripts/render-final.mjs`, linha 90). Se já
+  foi executado de verdade alguma vez: **NÃO CONFIRMADO**.
 - `videos/0926.cortes.json` real (1.167 bytes, 26/09): ainda não está no
   projeto — o arquivo atual tem 194 bytes (01/10/2026), é provisório.
   Informação dada pelo Matheus: o arquivo real está no computador de casa
@@ -66,20 +67,27 @@ marca de "em andamento".
   repositório está parada em `907de81`, 4 commits atrás de `origin/main`
   (`32cef76`, `02e24d6`, `4b69d4e`, `9432337`) — precisa de `git pull` na
   branch `main` pra atualizar.
-- **`noite-etapa6`** (atual) — 22 commits acima de `origin/main` (`git rev-list --count
-  origin/main..noite-etapa6`, contado em 07/10/2026, antes do commit desta atualização, que
-  soma +1). Conta: 20 (contados em 05/10, depois do merge da `seta-nova`) + `10227da` (docs) +
-  `f0ec9de` (relatório da sessão autônoma 2) = 22. Todos já estão no GitHub: a branch local e
-  `origin/noite-etapa6` estão no mesmo commit, `f0ec9de`. **Seta aprovada pelo Matheus no
+- **`noite-etapa6`** (atual) — 23 commits acima de `origin/main` (`git rev-list --count
+  origin/main..noite-etapa6`, conferido em 07/10/2026). Conta: 20 (contados em 05/10, depois do
+  merge da `seta-nova`) + `10227da` + `f0ec9de` + `8253e6f` = 23. Destes, 22 estão no GitHub
+  (`origin/noite-etapa6` = `f0ec9de`) e 1 só local (`8253e6f`; `git rev-list --count
+  origin/noite-etapa6..noite-etapa6` = 1). O reflog da ref remota
+  (`git reflog show origin/noite-etapa6`) registra "update by push" em 02/10 e 05/10
+  (11:25 e 18:25), ou seja, houve `git push` neste computador; o autor de todos os commits é o
+  mesmo usuário do Git ("JR EDICOES"), então **NÃO CONFIRMADO quem rodou cada push**. **Seta aprovada pelo Matheus no
   Studio em 05/10/2026 e mesclada** (a branch `seta-nova` continua existindo). Inclui: move
   `CirculoDestaque`/`CallToAction` pra "prontos", `PASTA_OUT` no
   folha-contato, `docs/etapa6-lacunas.md`, validador fortalecido +
   `testar-validador.mjs`, `docs/prompt-roteiro.md`, componente `AvisoCVM`,
   `render-final.mjs` (Etapa 8 mínima), `docs/relatorio-noite-0201.md`.
 - **`teste-whisper`** — existe só no GitHub (remota), **0 commits** exclusivos
-  além de `origin/main` (último commit `e5c0670`, 26/09, CirculoDestaque).
-- **`teste-trabalho`** — existe local, 1 commit além de `origin/main`
-  (checagem de props obrigatórias no validador).
+  além de `origin/main` (conferido em 07/10/2026 com `git rev-list --count
+  origin/main..origin/teste-whisper` = 0). Último commit: `e5c0670`, "CirculoDestaque:
+  componente novo", em 01/10/2026 01:16 (`git log -1 --format=%cd origin/teste-whisper`).
+- **`teste-trabalho`** — existe só local, **0 commits** além de `origin/main` (conferido em
+  07/10/2026 com `git rev-list --count origin/main..teste-trabalho` = 0). O último commit
+  dela, `7c27eff` ("checagem de props obrigatórias ... no validar-plano.mjs"), já está dentro
+  do `origin/main`.
 - **`wip-trabalho-0930`** — existe local e remota, 3 commits além de
   `origin/main` (`bb77b90` CallToAction valores padrão em JS, `56796e7`
   restaura PersonagemImagem, `20193cb` WIP 30/09). O `CallToAction` dessa
