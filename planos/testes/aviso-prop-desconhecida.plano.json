@@ -1,0 +1,22 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "circulo-1",
+      "componente": "CirculoDestaque",
+      "descricao": "círculo de teste com prop que o componente não conhece",
+      "texto": "Círculo de teste",
+      "inicio": "0:02",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "posicao": 0.5,
+        "posicaoY": 0.5
+      }
+    }
+  ]
+}

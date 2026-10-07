@@ -771,6 +771,18 @@ const checarPropsDeUmComponente = (nomeComponente, propsObjeto, rotulo) => {
       );
     }
   }
+
+  // Só é seguro avisar porque extrairPropsDoArquivo lê todas as props literais do z.object.
+  const conhecidas = entradaCatalogo.map((p) => p.nome);
+  for (const nomeProp of Object.keys(propsObjeto)) {
+    if (conhecidas.includes(nomeProp)) continue;
+    const parecida = conhecidas.find((k) => k.startsWith(nomeProp) || nomeProp.startsWith(k));
+    aviso(
+      rotulo,
+      `props: "${nomeProp}" não faz parte do schema de "${nomeComponente}"` +
+        `${parecida ? ` — você quis dizer "${parecida}"?` : ''} (props que existem: ${conhecidas.join(', ')})`,
+    );
+  }
 };
 
 for (const el of elementos) {

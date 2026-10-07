@@ -76,6 +76,13 @@ const casos = [
     esperaFalha: true,
     trechoEsperado: 'ainda está "a confirmar"',
   },
+  {
+    nome: 'prop desconhecida vira AVISO, não ERRO',
+    arquivo: fixture('aviso-prop-desconhecida.plano.json'),
+    args: [],
+    esperaFalha: false, // é aviso, plano continua válido
+    trechoEsperado: '"posicao" não faz parte do schema de "CirculoDestaque" — você quis dizer "posicaoX"?',
+  },
 ];
 
 let falhas = 0;
