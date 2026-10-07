@@ -1,7 +1,7 @@
 # ARQUITETURA — editor-jr (v1)
 
 ## Status
-- [x] Etapa 0 — Infraestrutura (Git, GitHub, SSH, Node, Remotion rodando em casa e no trabalho)
+- [x] Etapa 0 — Infraestrutura (Git, GitHub, SSH, Node, Remotion rodando em casa e no trabalho — vale para o **Studio**; o **render** só roda no trabalho, via WSL (informado pelo Matheus, **não confirmado** no repositório; ver seção 2))
 - [x] Etapa 1 — Organizar a casa
 - [x] Etapa 2 — Cortes, gancho e limpeza de voz (completa em 23/09/2026)
   - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
@@ -241,15 +241,16 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   elipse geométrica perfeita) que se traça em volta de uma região da tela pra destacar algo,
   fica visível e some. Chapado, sem blur, cores da marca, tudo em fração via `useVideoConfig()`.
   Pronto e **validado no Studio (01/10/2026)**.
+- `AvisoCVM` (`src/components/v2/`) — **código pronto, texto provisório, ainda NÃO visto
+  pelo Matheus no Studio** (será conferido no vídeo final, decisão de 07/10/2026). Por isso
+  não está marcado como validado. O texto **completo** do aviso vai na descrição do vídeo,
+  não dentro dele (ver seção 4; decisão por observação de mercado, não confirmada
+  juridicamente). Ainda **em aberto**: o texto oficial e se há tempo mínimo em tela (ver
+  `docs/perguntas-pendentes.md`).
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
 - `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
-- `AvisoCVM` — o texto **completo** vai na descrição do vídeo, não dentro dele
-  (ver seção 4; decisão por observação de mercado, não confirmada juridicamente).
-  Substitui o plano anterior de "versão completa no fim". Ainda **em aberto**:
-  se sobra algum indicador discreto dentro do vídeo (ex. rodapé), e se sim, com
-  que formato e posição — pra não colidir com outros elementos, como o gancho.
 - `LegendaAnimada` — legenda automática com estilo padrão e destaque para
   frases-chave (Etapa 4)
 
@@ -625,8 +626,7 @@ no Remotion (ex.: via `OffthreadVideo`) sem conversão.
   painel.
 - **Studio reescreve o código ao arrastar elementos na timeline/canvas**
   (drift); evitar arrastar durante testes e rodar `git status` depois.
-- **Backlog:** `CirculoDestaque`, `LegendaAnimada`, `AvisoCVM`,
-  `ArrobaInstagram`, `LogoAnimada`, Whisper por palavra, B-roll, passada da
+- **Backlog:** `LegendaAnimada`, `ArrobaInstagram`, `LogoAnimada`, Whisper por palavra, B-roll, passada da
   marca (Etapa 5).
 
 ## 9. Pendências do Matheus (fora do código)
