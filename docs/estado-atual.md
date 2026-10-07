@@ -1,4 +1,4 @@
-# Estado atual — editor-jr (02/10 a 05/10/2026)
+# Estado atual — editor-jr (02/10 a 07/10/2026)
 
 Gerado a partir do `ARQUITETURA.md`, do `git log`/`git branch -a` e de testes
 rodados nesta sessão (sem renderizar, sem abrir o Studio). Reflete a branch
@@ -66,12 +66,12 @@ marca de "em andamento".
   repositório está parada em `907de81`, 4 commits atrás de `origin/main`
   (`32cef76`, `02e24d6`, `4b69d4e`, `9432337`) — precisa de `git pull` na
   branch `main` pra atualizar.
-- **`noite-etapa6`** (atual) — 20 commits acima de `origin/main` (`git rev-list --count
-  origin/main..noite-etapa6`, contado em 05/10/2026 depois do merge da `seta-nova`, antes do
-  commit desta atualização, que soma +1). Conta: 16 (contados antes) + `3c9f7ca` + `52bb293` +
-  `e71b51c` (Seta) + `d3ac949` (commit de junção) = 20. Quatro desses ainda não estão no
-  GitHub (`origin/noite-etapa6` está em `d3b85b3`). **Seta aprovada pelo Matheus no Studio em
-  05/10/2026 e mesclada** (a branch `seta-nova` continua existindo). Inclui: move
+- **`noite-etapa6`** (atual) — 22 commits acima de `origin/main` (`git rev-list --count
+  origin/main..noite-etapa6`, contado em 07/10/2026, antes do commit desta atualização, que
+  soma +1). Conta: 20 (contados em 05/10, depois do merge da `seta-nova`) + `10227da` (docs) +
+  `f0ec9de` (relatório da sessão autônoma 2) = 22. Todos já estão no GitHub: a branch local e
+  `origin/noite-etapa6` estão no mesmo commit, `f0ec9de`. **Seta aprovada pelo Matheus no
+  Studio em 05/10/2026 e mesclada** (a branch `seta-nova` continua existindo). Inclui: move
   `CirculoDestaque`/`CallToAction` pra "prontos", `PASTA_OUT` no
   folha-contato, `docs/etapa6-lacunas.md`, validador fortalecido +
   `testar-validador.mjs`, `docs/prompt-roteiro.md`, componente `AvisoCVM`,
@@ -94,6 +94,11 @@ Ver `docs/perguntas-pendentes.md` — decisões do Matheus, não técnicas:
    de tempo mínimo em tela.
 2. Envio automático pro Google Drive (Etapa 8): autorização de conta e
    escolha de conector/API.
+3. Campo `"fps"` do plano: formalizar ou remover.
+4. Como o ajuste manual feito no Studio volta pro plano JSON.
+
+(A detecção automática de vertical/horizontal já foi decidida em 05/10/2026 e está na seção
+"Decididas" do mesmo arquivo.)
 
 ## Itens "não confirmado"
 

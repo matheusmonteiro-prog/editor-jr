@@ -605,8 +605,9 @@ não confirmado:** se o webm transparente que o HyperFrames gera abre direto
 no Remotion (ex.: via `OffthreadVideo`) sem conversão.
 
 ## Pontos de melhoria (01/10/2026)
-- **Seta:** funciona, mas o visual não ficou moderno; refazer com descrição
-  melhor (estilo de traço, velocidade, entrada).
+- **Seta:** (01/10) o visual não tinha ficado moderno. **Refeita em 05/10/2026**
+  (curva única, espessura variável, ponta em V) e aprovada pelo Matheus no Studio em
+  05/10/2026. Item fechado.
 - **Spotlight:** testado, círculo em volta de um fundo preto transparente;
   comportamento ok.
 - **Contador e CallToAction:** aprovados no Studio.
