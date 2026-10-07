@@ -224,26 +224,26 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   0.008), `curvatura` (`reta`/`curva`), `duracaoFrames`, `framesEntrada`, `framesSaida` (todas com
   padrão). Redesenhada em 05/10/2026. Pronta e **validada no Studio (05/10/2026)**.
 - `Checkmark` — check animado (pop de escala com spring), círculo de fundo opcional, cor do
-  traço, posição x/y, tamanho, duração em frames. Pronto e validado no Studio (26/09/2026).
+  traço, posição x/y, tamanho, duração em frames. Implementado, não confirmado pelo Matheus
+  (registrado em doc em 26/09/2026).
 - `Contador` (`src/components/v2/`) — número animado subindo até um valor final, formato
-  brasileiro (`R$ 1.250,00`), card sólido, fonte Inter SemiBold, rótulo opcional acima. Pronto e
-  **validado no Studio (30/09/2026)**.
+  brasileiro (`R$ 1.250,00`), card sólido, fonte Inter SemiBold, rótulo opcional acima.
+  Implementado, não confirmado pelo Matheus (registrado em doc em 30/09/2026).
 - `Spotlight` (`src/components/v2/`) — destaque circular: escurece o resto da tela (cor chapada
   + opacidade) e deixa um círculo "aceso" via `mask-image`, sem cobrir o vídeo no centro. Raio
-  cresce com spring na entrada, borda dourada fina opcional. Pronto e **validado no Studio
-  (30/09/2026)**.
+  cresce com spring na entrada, borda dourada fina opcional. Implementado, não confirmado pelo
+  Matheus (registrado em doc em 30/09/2026).
 - `CallToAction` (`src/components/v2/`) — pill sólido com texto (ex.: "Inscreva-se") num dos 4
   cantos da tela, com entrada (spring + slide a partir do canto) e saída (fade); anel chapado
   pulsa ao redor durante a exibição. Tudo via `useVideoConfig()`, funciona igual em vertical e
-  horizontal. Registrado em duas composições (`CallToAction` e `CallToActionHorizontal`). Pronto
-  e **validado no Studio (01/10/2026)**.
+  horizontal. Registrado em duas composições (`CallToAction` e `CallToActionHorizontal`).
+  Implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
 - `CirculoDestaque` (`src/components/v2/`) — círculo "desenhado à mão" (traço sketchy, não uma
   elipse geométrica perfeita) que se traça em volta de uma região da tela pra destacar algo,
   fica visível e some. Chapado, sem blur, cores da marca, tudo em fração via `useVideoConfig()`.
-  Pronto e **validado no Studio (01/10/2026)**.
-- `AvisoCVM` (`src/components/v2/`) — **código pronto, texto provisório, ainda NÃO visto
-  pelo Matheus no Studio** (será conferido no vídeo final, decisão de 07/10/2026). Por isso
-  não está marcado como validado. O texto **completo** do aviso vai na descrição do vídeo,
+  Implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
+- `AvisoCVM` (`src/components/v2/`) — **código pronto, texto provisório, visto pelo Matheus
+  em 07/10/2026 (gostou; ajustes previstos depois)**. O texto **completo** do aviso vai na descrição do vídeo,
   não dentro dele (ver seção 4; decisão por observação de mercado, não confirmada
   juridicamente). Ainda **em aberto**: o texto oficial e se há tempo mínimo em tela (ver
   `docs/perguntas-pendentes.md`).
@@ -615,9 +615,8 @@ no Remotion (ex.: via `OffthreadVideo`) sem conversão.
 - **Seta:** (01/10) o visual não tinha ficado moderno. **Refeita em 05/10/2026**
   (curva única, espessura variável, ponta em V) e aprovada pelo Matheus no Studio em
   05/10/2026. Item fechado.
-- **Spotlight:** testado, círculo em volta de um fundo preto transparente;
-  comportamento ok.
-- **Contador e CallToAction:** aprovados no Studio.
+- **Spotlight:** implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
+- **Contador e CallToAction:** implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
 - **LegendaDiscreta** ganhou prop `sombra` opcional (fundo claro ou cor
   parecida com a do texto); avaliar o mesmo nos outros componentes de texto
   se o problema aparecer.

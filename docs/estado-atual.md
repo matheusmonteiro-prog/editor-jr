@@ -25,8 +25,8 @@ significa que a etapa começou.
   `AvisoCVM` (`src/components/v2/AvisoCVM.tsx`) criado, registrado em
   `src/Composition.tsx`, no `CATALOGO` de `src/PlanoComposicao.tsx` e em
   `docs/catalogo-componentes.md`. AvisoCVM: com texto provisório, prop
-  `corCard` separada, canto inferior esquerdo (será conferido no vídeo final,
-  decisão do Matheus de 07/10/2026; commits `40cf3ba` e `34bccc8`).
+  `corCard` separada, canto inferior esquerdo (visto pelo Matheus em 07/10/2026:
+  gostou; ajustes previstos depois; commits `40cf3ba` e `34bccc8`).
 - `Seta` redesenhada (05/10/2026): curva única, espessura variável, ponta em V;
   aprovada pelo Matheus no Studio em 05/10/2026 e mesclada na `noite-etapa6`.
 - `scripts/folha-contato.mjs`: pasta de saída configurável via `PASTA_OUT`.
@@ -48,9 +48,9 @@ significa que a etapa começou.
 
 ## Falta
 
-- `AvisoCVM`: código completo, registrado; será conferido no vídeo final
-  (decisão do Matheus de 07/10/2026, ainda aguardando a confirmação dele) e não
-  bloqueia o item 6.2 de `docs/criterios-fechamento.md`.
+- `AvisoCVM`: código completo, registrado; visto pelo Matheus em 07/10/2026
+  (gostou; ajustes previstos depois). Texto continua provisório e o texto oficial
+  da CVM segue pendente. O item 6.2 de `docs/criterios-fechamento.md` está cumprido.
 - `ArrobaInstagram`, `LogoAnimada`: não construídos (lista "A construir" do
   ARQUITETURA.md seção 6).
 - `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem

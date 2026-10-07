@@ -169,7 +169,7 @@ não existia conceito de saída/fade, só entrada.
 ### Checkmark
 **Arquivo:** `src/components/Checkmark.tsx`
 **O que faz:** check com pop de escala (spring), círculo de fundo opcional.
-**Status:** **Pronto e validado no Studio (26/09/2026)** — nota do ARQUITETURA.md.
+**Status:** Implementado, não confirmado pelo Matheus (registrado em doc em 26/09/2026).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
@@ -358,7 +358,7 @@ pra não esconder a imagem dentro de outro componente (ver nota do topo).
 brasileiro (`Intl.NumberFormat('pt-BR', ...)`, ex. `R$ 1.250,00`, tabular-nums),
 dentro de um card sólido; rótulo opcional acima do número; fonte Inter
 SemiBold via `@remotion/google-fonts`.
-**Status:** **Pronto e validado no Studio (30/09/2026)** — nota do ARQUITETURA.md.
+**Status:** Implementado, não confirmado pelo Matheus (registrado em doc em 30/09/2026).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
@@ -393,7 +393,8 @@ com `spring()` durante `framesEntrada`; a borda dourada acompanha o mesmo
 raio animado. Sem `box-shadow`, sem `blur`, sem glow. Nota no código: na
 futura `PlanoComposicao` (Etapa 6), o Spotlight deve ficar **abaixo** dos
 cards na ordem das camadas.
-**Status:** Visto no Studio (30/09/2026): círculo aceso em volta, resto escurecido.
+**Status:** Implementado, não confirmado pelo Matheus (registrado em doc em 30/09/2026:
+círculo aceso em volta, resto escurecido).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
@@ -421,7 +422,7 @@ Todo o dimensionamento vem de `useVideoConfig()` (largura/altura), sem
 pixel fixo — funciona igual em vertical e horizontal. Registrado em duas
 composições: `CallToAction` (1080×1920) e `CallToActionHorizontal`
 (1920×1080).
-**Status:** Pronto e validado no Studio (01/10/2026).
+**Status:** Implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
@@ -447,7 +448,7 @@ pequenos desvios de raio fixos por ponto ao redor da elipse, ligados por
 curvas suaves — mesma técnica da linha "realista" do `GraficoCrescimento`.
 Nenhuma biblioteca de terceiro. Traço chapado, sem blur, cores da marca.
 Todo o dimensionamento vem de `useVideoConfig()` — sem pixel fixo.
-**Status:** Pronto e validado no Studio (01/10/2026).
+**Status:** Implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
@@ -477,10 +478,9 @@ ou indicação de investimento."): texto provisório, a definir pelo Matheus/JR
 antes de publicar qualquer vídeo. A prop `texto` do plano de edição
 sobrescreve o padrão. Registrado em `src/Composition.tsx` (Studio) e no
 `CATALOGO` de `src/PlanoComposicao.tsx`.
-**Status:** feito; **ainda não visto pelo Matheus**. A conferência será no vídeo
-final e não bloqueia (decisão de 07/10/2026, aguardando o Matheus confirmar);
-texto e tempo em tela provisórios, a definir pelo Matheus/JR antes de publicar
-qualquer vídeo (ver `docs/perguntas-pendentes.md`).
+**Status:** feito; **visto pelo Matheus em 07/10/2026 (gostou; ajustes previstos
+depois)**. Texto e tempo em tela provisórios, a definir pelo Matheus/JR antes de
+publicar qualquer vídeo (ver `docs/perguntas-pendentes.md`).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|

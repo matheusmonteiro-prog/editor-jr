@@ -1,7 +1,7 @@
 # Critérios de fechamento — Etapas 3 e 6
 
 **RASCUNHO, AGUARDANDO APROVAÇÃO DO MATHEUS.** As decisões (a) a (e) abaixo já foram passadas por
-ele em 07/10/2026 e estão incorporadas; a decisão (e) ainda aguarda a confirmação dele. O resto do
+ele em 07/10/2026 e estão incorporadas; o AvisoCVM (e) foi visto por ele em 07/10/2026. O resto do
 documento continua rascunho: ele pode cortar, trocar ou acrescentar.
 
 Por que existe: o `CLAUDE.md` exige um critério de fechamento escrito por etapa. Hoje as
@@ -31,8 +31,8 @@ afetados e **avisar o Matheus se forem mais de 2**.
 **(d) Ajuste manual do Studio.** Fica para a **Etapa 7**. Até lá vale a regra: **não clicar nem
 arrastar na tela do vídeo** no Studio.
 
-**(e) AvisoCVM.** Será conferido **no vídeo final** e **não bloqueia o item 6.2**.
-*Aguardando o Matheus confirmar.*
+**(e) AvisoCVM.** Visto pelo Matheus em 07/10/2026 (gostou; ajustes previstos depois).
+**Não bloqueia o item 6.2.** O texto oficial da CVM continua pendente.
 
 ---
 
@@ -43,7 +43,7 @@ A etapa fecha quando **todos** os itens abaixo estiverem cumpridos (escopo: só 
 | # | Critério | Tipo | Situação hoje (segundo os docs) |
 |---|---|---|---|
 | 6.1 | **Revisor calibrado**: o agente `revisor` pega erros plantados de propósito e não acusa a dívida conhecida como erro. (Item pedido pelo Matheus; vem do `CLAUDE.md`/`checklist-revisao.md`, não do `ARQUITETURA.md`.) | [M] aprovar | A calibração 2 foi feita em 02/10: o revisor apontou os 4 erros plantados. O Matheus ainda não disse se isso basta. |
-| 6.2 | **Seta vista no Studio.** O AvisoCVM **não bloqueia** este item (decisão e): ele é conferido no vídeo final, item 6.5. | [M] | Seta: aprovada pelo Matheus em 05/10/2026. AvisoCVM: conferência visual pendente, movida para o 6.5 (aguardando o Matheus confirmar). |
+| 6.2 | **Seta vista no Studio e AvisoCVM visto pelo Matheus.** | [M] | **CUMPRIDO.** Seta: aprovada pelo Matheus em 05/10/2026. AvisoCVM: visto pelo Matheus em 07/10/2026 (gostou; ajustes previstos depois); texto provisório e texto oficial da CVM seguem pendentes. |
 | 6.3 | **`cortes.json` real com o validador passando**: o `videos/0926.cortes.json` de 1.167 bytes (hoje o do projeto é o provisório de 194 bytes) e `node scripts/validar-plano.mjs` sem ERRO no plano `0926`. | [M] trazer o arquivo de casa; depois [C] rodar o validador | Arquivo real ainda não está no projeto do trabalho. |
 | 6.4 | **Render e folha de contato**: renderizar o plano `0926` no WSL e gerar a folha com `scripts/folha-contato.mjs`. | [M] rodar no WSL do trabalho; depende de 6.3 | O script foi testado só com vídeo de teste e `cortes.json` provisório; o `ARQUITETURA.md` diz "não validado como processo final". |
 | 6.5 | **Vídeo de ponta a ponta**: da gravação + prompt até um vídeo montado com as camadas do plano, sem corrigir nada à mão. **Inclui conferir o AvisoCVM no vídeo final** (decisão e). | [M] ver e aprovar; depende de 6.3 e 6.4 | Não feito. A exportação final com melhor configuração por plataforma é Etapa 8. |
@@ -69,7 +69,7 @@ A etapa fecha quando **todos** os itens abaixo estiverem cumpridos.
 | 3.2 | **Vídeo base + camadas por cima** (componentes de fundo transparente) sobre vídeo real. | [C]; [M] ver no Studio | Já existem composições de teste; nada confirmado pelo Matheus sobre vídeo real. |
 | 3.3 | **Formato vertical/horizontal automático, com opção de forçar pelo prompt** (decisão de 05/10/2026). | [C] | Decidido, não implementado. |
 | 3.4 | **`ArrobaInstagram` fixo.** | [M] mandar o @; depois [C] | Não construído. |
-| 3.5 | **`AvisoCVM` entra só quando o roteiro pedir**, com texto oficial. | [M] texto oficial e tempo em tela; conferência no vídeo final | Código pronto com texto provisório. Conferência no vídeo final (item 6.5), aguardando o Matheus confirmar; **não bloqueia o 6.2**. |
+| 3.5 | **`AvisoCVM` entra só quando o roteiro pedir**, com texto oficial. | [M] texto oficial e tempo em tela; conferência no vídeo final | Código pronto com texto provisório. Visto pelo Matheus em 07/10/2026 (gostou; ajustes previstos depois). Texto oficial da CVM e tempo em tela seguem pendentes. |
 | 3.6 | **Música de fundo e efeito sonoro sincronizado a um elemento visual.** | [M] baixar música e efeito; depois [C] | Arquivos ainda não baixados. |
 | 3.7 | **Teste de tempo de renderização** com vídeo longo (10 a 20 min) no computador do Matheus. | [M] | Não feito. Em casa o render está bloqueado. |
 | 3.8 | **Loop de verificação pós-render** (`scripts/folha-contato.mjs`) rodando com o `cortes.json` real. | [M] (mesma dependência de 6.3 e 6.4) | Ver 6.4. |
