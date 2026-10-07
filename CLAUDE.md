@@ -24,6 +24,21 @@ Matheus é iniciante em programação, Git e Remotion. Explique em português do
 - Rodar `npm audit fix --force`.
 - Tratar warning como erro sem analisar. Analise antes de reinstalar qualquer coisa.
 
+## Regras fixas de toda sessão
+- Commit só de arquivos nomeados, nunca `git add .` nem `git add -A`.
+- Além de push, merge e apagar (já na regra 2 de "Regras de trabalho"), também exigem o nome da
+  ação escrito pelo Matheus: `git stash pop`, `git restore` e `git reset`. Isso vale para apagar
+  qualquer arquivo, não só a pasta `.git`.
+- Pedido marcado "só leitura" = não editar nenhum arquivo.
+- Não fazer nada além do que foi pedido. Se achar algo para arrumar, listar no relatório em vez
+  de mexer.
+- Relatório sempre neste formato (linguagem simples e exemplo do dia a dia, como em "Quem é o
+  usuário"):
+  1. **O que mudou** — arquivo e o que mudou, em frases curtas.
+  2. **Prova** — tsc, teste, `git diff` ou Studio: o que rodou e o resultado.
+  3. **O que supus sem confirmar.**
+  4. **Estado do Git** — `git status --short` e `git log --oneline -3`.
+
 ## Padrão dos componentes
 - Um componente por arquivo em `src/components/`.
 - Propriedades editáveis expostas (texto, posição X/Y, tamanho, cor, tempo de entrada/saída), com valores padrão que já funcionam bem.
