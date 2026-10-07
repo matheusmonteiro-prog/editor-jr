@@ -45,9 +45,29 @@ A etapa fecha quando **todos** os itens abaixo estiverem cumpridos (escopo: só 
 | 6.1 | **Revisor calibrado**: o agente `revisor` pega erros plantados de propósito e não acusa a dívida conhecida como erro. (Item pedido pelo Matheus; vem do `CLAUDE.md`/`checklist-revisao.md`, não do `ARQUITETURA.md`.) | [M] aprovar | A calibração 2 foi feita em 02/10: o revisor apontou os 4 erros plantados. O Matheus aprovou a calibração em 07/10/2026. |
 | 6.2 | **Seta vista no Studio e AvisoCVM visto pelo Matheus.** | [M] | **CUMPRIDO.** Seta: aprovada pelo Matheus em 05/10/2026. AvisoCVM: visto pelo Matheus em 07/10/2026 (gostou; ajustes previstos depois); texto provisório e texto oficial da CVM seguem pendentes. |
 | 6.3 | **`cortes.json` real com o validador passando**: o `videos/0926.cortes.json` de 1.167 bytes (hoje o do projeto é o provisório de 194 bytes) e `node scripts/validar-plano.mjs` sem ERRO no plano `0926`. | [M] trazer o arquivo de casa; depois [C] rodar o validador | Arquivo real ainda não está no projeto do trabalho. |
-| 6.4 | **Render e folha de contato**: renderizar o plano `0926` no WSL e gerar a folha com `scripts/folha-contato.mjs`. | [M] rodar no WSL do trabalho; depende de 6.3 | O script foi testado só com vídeo de teste e `cortes.json` provisório; o `ARQUITETURA.md` diz "não validado como processo final". |
-| 6.5 | **Vídeo de ponta a ponta**: da gravação + prompt até um vídeo montado com as camadas do plano, sem corrigir nada à mão. **Inclui conferir o AvisoCVM no vídeo final** (decisão e). | [M] ver e aprovar; depende de 6.3 e 6.4 | Não feito. A exportação final com melhor configuração por plataforma é Etapa 8. |
+| 6.4 | **Render e folha de contato**: renderizar o plano `0926` no WSL e gerar a folha com `scripts/folha-contato.mjs`. | [M] rodar no WSL do trabalho; depende de 6.3 | O script foi testado só com vídeo de teste e `cortes.json` provisório; o `ARQUITETURA.md` diz "não validado como processo final". **Nota:** em 07/10/2026, o 0926-cortado-v1.mp4 do WSL é cópia do teste-jr-cortado-v7.mp4 (mesmo sha256) e o 0926.cortes.json é o provisório. Os arquivos reais vão na pasta do Windows: `videos/0926.cortes.json` e `public/videos/0926-cortado-v1.mp4`. |
+| 6.5 | **Vídeo de ponta a ponta**: da gravação + prompt até um vídeo montado com as camadas do plano, sem corrigir nada à mão. **Inclui conferir o AvisoCVM no vídeo final** (decisão e). | [M] ver e aprovar; depende de 6.3 e 6.4 | Não feito. A exportação final com melhor configuração por plataforma é Etapa 8. Checklist de aprovação logo abaixo da tabela. |
 | 6.6 | **Várias saídas: só prever** (decisão c). O formato do plano prevê mais de uma saída, com **1 saída por padrão**, e um plano antigo continua válido sem mudança. | [C]; [M] ser avisado se afetar mais de 2 arquivos | **CUMPRIDO, "só previsto" (07/10/2026).** Campo `"saidas"` (lista opcional de objetos com `"orientacao"`) documentado no `ARQUITETURA.md` §7 e no `docs/prompt-roteiro.md`, com fixture `planos/testes/saidas-previsto.plano.json`. Os arquivos de código (`validar-plano.mjs`, `testar-validador.mjs`, `PlanoComposicao.tsx`) **não foram alterados**: nenhum código lê o campo ainda. Sem o campo, vale 1 saída. |
+
+### Checklist de aprovação do 6.5 (rascunho)
+Para o Matheus conferir no vídeo final do 0926. As linhas citadas valem para 07/10/2026 e podem
+mudar se o arquivo de origem for editado.
+
+1. **Montado sem corrigir nada à mão.** Origem: item 6.5 da tabela acima ("sem corrigir nada à mão").
+2. **Elementos entram no momento da fala, no vídeo cortado.** Origem: `ARQUITETURA.md:508–509`
+   (`"inicio"` vale para o vídeo original, convertido pelo `.cortes.json`). Depende do
+   `cortes.json` real (6.3).
+3. **"Ilustrativo" onde não há dado real:** o campo `"ilustrativo": true` **e** a palavra
+   "ilustrativo" na tela. Origem: `ARQUITETURA.md:540–541`.
+4. **AvisoCVM aparecendo.** Origem: item 6.5 da tabela acima ("Inclui conferir o AvisoCVM no
+   vídeo final"); entra só quando o roteiro pedir, `ARQUITETURA.md:434`. Texto oficial e tempo
+   em tela ainda pendentes (item 3.5).
+5. **Extras escritos nos documentos:** nada cobre o rosto do JR (`ARQUITETURA.md:69` e `:148`);
+   texto na tela nunca mais forte que a fala (`ARQUITETURA.md:543`); uma camada por ideia
+   falada (`ARQUITETURA.md:534`).
+6. **Cortes sem pulo visível.** Critério do Matheus, 07/10/2026.
+7. **Componentes só com as cores da marca (#0F2A1D, #F5F0E6, #EFAF20).** Critério do Matheus,
+   07/10/2026.
 
 ### Decisões tomadas e itens fora deste fechamento
 - **6b (componente novo via API):** fora deste fechamento. Só se o Matheus mandar (decisão b).
