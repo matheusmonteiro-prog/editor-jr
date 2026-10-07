@@ -510,9 +510,9 @@ para os detalhes e a decisão pendente.
   transcrição da gravação — não dentro do editor-jr.
 - **A composição Remotion que lê esse JSON já existe** (`src/PlanoComposicao.tsx`,
   conversão de tempo em `src/utils/tempoCortado.ts`, validação em
-  `scripts/validar-plano.mjs`) e já tem um plano real aprovado no Studio
-  (`planos/0926.plano.json`, composição `PlanoComposicao0926`) — 6a em
-  andamento. 6b (gerar componente novo via API) ainda não começou e só começa se o
+  `scripts/validar-plano.mjs`) e já tem um plano real registrado em doc
+  (`planos/0926.plano.json`, composição `PlanoComposicao0926`), **não confirmado
+  pelo Matheus** — 6a em andamento. 6b (gerar componente novo via API) ainda não começou e só começa se o
   Matheus mandar (decisão de 07/10/2026).
 
 **Nota (01/10/2026), sem alterar o formato decidido acima:** `"naPalavra"`

@@ -477,9 +477,10 @@ ou indicação de investimento."): texto provisório, a definir pelo Matheus/JR
 antes de publicar qualquer vídeo. A prop `texto` do plano de edição
 sobrescreve o padrão. Registrado em `src/Composition.tsx` (Studio) e no
 `CATALOGO` de `src/PlanoComposicao.tsx`.
-**Status:** feito; conferência visual no Studio pendente (Matheus vê em casa
-e ajusta se precisar); texto e tempo em tela provisórios, a definir pelo
-Matheus/JR antes de publicar qualquer vídeo (ver `docs/perguntas-pendentes.md`).
+**Status:** feito; **ainda não visto pelo Matheus**. A conferência será no vídeo
+final e não bloqueia (decisão de 07/10/2026, aguardando o Matheus confirmar);
+texto e tempo em tela provisórios, a definir pelo Matheus/JR antes de publicar
+qualquer vídeo (ver `docs/perguntas-pendentes.md`).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
