@@ -465,6 +465,8 @@ para os detalhes e a decisão pendente.
 - **Pré-requisitos:** logo em PNG (fundo transparente) e Emparelhamento finalizado no Claude Design.
 
 ### Etapa 6 — Leitor de prompt
+Pausada em 08/10/2026 por falta dos arquivos reais do 0926 (estão em casa). Retomar em casa: 6.3, 6.4, 6.5.
+
 - 6a: ler o formato de comando e gerar a timeline (sem IA)
 - 6b: gerar componente novo via API quando não existir no catálogo; aprovado → entra no catálogo.
   **Decisão de 07/10/2026:** a Etapa 6 fecha só com a 6a; a 6b só começa se o Matheus mandar.
