@@ -18,6 +18,9 @@ marca de "em andamento".
 mas a etapa segue **sem marca de andamento** no `ARQUITETURA.md`. Ter o script não
 significa que a etapa começou.
 
+A que chat voltar: chat do projeto (claude.ai) da Etapa 6. Próximo passo: 6.4, render + folha
+de contato no PC do trabalho.
+
 ## Feito (conforme histórico de commits e `docs/relatorio-noite-0201.md`)
 
 - Catálogo (Etapa 3): `CirculoDestaque` e `CallToAction` movidos pra
@@ -60,10 +63,11 @@ significa que a etapa começou.
 - `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem
   `--dry-run` ele executa o render de verdade (`scripts/render-final.mjs`, linha 90). Se já
   foi executado de verdade alguma vez: **NÃO CONFIRMADO**.
-- `videos/0926.cortes.json` real (1.167 bytes, 26/09): ainda não está no
-  projeto — o arquivo atual tem 194 bytes (01/10/2026), é provisório.
-  Informação dada pelo Matheus: o arquivo real está no computador de casa
-  e ainda não entrou neste projeto (trabalho).
+- `videos/0926.cortes.json` — PC de casa: 0926.cortes.json real, 1.167 bytes
+  (08/10/2026). PC do trabalho: o do WSL ainda é o provisório de 194 bytes
+  (01/10/2026); trocar pelo real antes do 6.4. validar-plano.mjs no planos/0926.plano.json deu 8 OK, 0 erro, 0 aviso; duração
+  original 43,141995 s. Validador OK em casa. Conteúdo do json ainda não conferido
+  contra o vídeo: confirmar no render do 6.4 (só roda no PC do trabalho).
 - Etapa 8 (envio automático pro Google Drive): não implementada, depende de
   autorização de conta e escolha de conector pelo Matheus.
 - `naPalavra`/`ocorrencia` (Etapa 6): não implementado, depende da Etapa 4
