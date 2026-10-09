@@ -60,7 +60,52 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   a fixture `planos/testes/saidas-previsto.plano.json`. Nenhum código lê o campo; sem ele vale 1
   saída.
 
+- **Etapa 3, preparar vídeo (09/10/2026, PC do trabalho, WSL):** foi criado o
+  `scripts/preparar-video.mjs` (ainda sem commit), que gera a cópia leve antes do render. Ver
+  `ARQUITETURA.md` seção 2, "Preparar vídeo", e a regra "nunca renderizar o original 2160×3872
+  no WSL".
+  - **Provado no 0926:** a saída `public/videos/0926-cortado-v1-leve-v1.mp4` tem 1080×1920,
+    SAR 1:1, 37,93 s e áudio AAC.
+  - **Corte:** 8 px em cima e 8 px embaixo, sem tirar rosto nem o "T" dourado (frame 0
+    comparado).
+  - **Ficha:** `videos/0926.preparo.json`, gravada **só no Linux**. A cópia leve também
+    existe só no Linux.
+  - **Também provado:** a detecção em vídeos sintéticos (1:1, 16:10, 16:9) e o modo dos 3
+    arquivos sintéticos.
+  - **Diagnóstico do original:** ele falha no compositor do Remotion (`write ECANCELED`) mesmo
+    com a composição em 1080×1920. Causa exata **não confirmada**.
+
+- **Etapa 3, par real de teste (09/10/2026):** a sessão de 25/09/2026 (`2026-09-25 13-42-46`):
+  - **Tela com som** (`Videos\SOM TELA\`): 8,07 s, voz presente (−28,1 dB). O quadro do segundo 3
+    mostra a janela do próprio OBS gravando, sem o JR.
+  - **Câmera muda** (`Videos\CAMERA GRAV\`): 7,03 s, faixa de áudio em silêncio puro (−91,0 dB).
+    O quadro do segundo 3 mostra uma sala vazia, sem o JR.
+  - Os dois são **horizontais 1280×720**.
+  - **A diferença de cerca de 1,03 s entre os dois não foi medida como sincronia e não foi
+    corrigida.** Só se leu a duração de cada arquivo.
+  - **O `preparar-video.mjs` ganhou a opção `--saida-dir`** (as cópias vão para a pasta indicada)
+    e, no modo de camadas, o papel entra no nome da cópia (`...-tela-leve-v1.mp4`,
+    `...-camera-leve-v1.mp4`).
+  - **Execução real feita no WSL**, só com `--tela` + `--camera` (sem `--camera-mic`) e
+    `--saida-dir ~/editor-jr/public/videos`: saíram `2026-09-25 13-42-46-tela-leve-v1.mp4`
+    (1280×720, SAR 1:1, 8,033 s, voz presente) e `2026-09-25 13-42-46-camera-leve-v1.mp4`
+    (1280×720, SAR 1:1, 7,033 s, áudio continua mudo, −91,0 dB), **só no Linux**.
+  - **Ficha:** `videos/2026-09-25 13-42-46.preparo.json`, também só no Linux.
+  - **Nada novo em `C:\Users\edica\Videos`** (listagens antes e depois idênticas).
+  - A cópia da tela ficou 1 quadro mais curta que o original (8,033 s contra 8,067 s); causa não
+    investigada.
+- **Render curto com a cópia leve do 0926 (quadros 0 a 29):** passou, 1080×1920, SAR 1:1, 30
+  quadros, sem `ECANCELED` (sem elementos do plano nesse trecho).
+
 ## Falta
+
+- Etapa 3: **não testados** — render do Remotion com as cópias leves do par de 25/09 e com a
+  cópia do 0926 nos quadros que têm elementos (o de 0 a 29 não tem); `--camera-mic` junto com
+  `--saida-dir` e os 3 arquivos reais do OBS na mesma sessão; arquivo único em execução real com
+  `--saida-dir`; vídeo com rotação; entrada com SAR ≠ 1:1; rodar o script no Windows.
+- Etapa 3: a cópia dos arquivos para o PC de casa (a ficha e a pasta `videos/` não vão pro Git).
+- Etapa 3: **sincronia tela/câmera** (a alternativa 3 de `ARQUITETURA.md`, seção 3a) segue sem
+  resultado registrado.
 
 - `AvisoCVM`: código completo, registrado; visto pelo Matheus em 07/10/2026
   (gostou; ajustes previstos depois). Texto continua provisório e o texto oficial

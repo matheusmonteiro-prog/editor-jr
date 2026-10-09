@@ -52,6 +52,117 @@ aqui antes) de copiar o FFmpeg completo do Gyan pra dentro de
 tentativa de contornar o ffmpeg do Remotion falhando no `-version` no
 Windows. Com o render rodando no WSL, essa rota fica sem efeito.
 
+### Regra: nunca renderizar o original 2160×3872 no WSL (09/10/2026)
+O vídeo `0926-cortado-v1.mp4` (2160×3872, sha256 `6b57cefa…8b8bc4`) **falha no Remotion do
+WSL**, em still e em render. Testado em 09/10/2026, com o log guardado em `~/diag-verbose.log`
+no Linux: o compositor do Remotion decodifica os quadros e cai em seguida com
+`Could not extract frame from compositor Error: write ECANCELED`. A mensagem de "disk space is
+low" que vem junto é genérica: há 953 GB livres no disco e 3,8 GB no `/dev/shm`.
+- **Falha mesmo com a composição em 1080×1920** (`--width 1080 --height 1920`). O problema é
+  o tamanho do vídeo de entrada, não o da composição.
+- **Passa com uma cópia reduzida 1080×1920**, mesmo com a composição em 2160×3872.
+- **Causa exata NÃO confirmada.** A hipótese é um limite do compositor com quadros desse tamanho.
+- **Atenção:** o `npx remotion` pode imprimir o erro e mesmo assim sair com código 0 dentro de
+  um pipe. Conferir o arquivo de saída, não só o código.
+
+Por isso, antes de renderizar, passar sempre pelo **preparar vídeo**:
+
+### Preparar vídeo — `scripts/preparar-video.mjs` (caminho A, 09/10/2026)
+Cria uma cópia **leve** do vídeo (lado maior 1920, pixel quadrado) e imprime o comando de
+render com `--props` para colar. Não muda o `Root.tsx`. Roda no WSL, com o Node do Linux.
+```
+node scripts/preparar-video.mjs public/videos/0926-cortado-v1.mp4 --dry-run   # só mostra
+node scripts/preparar-video.mjs public/videos/0926-cortado-v1.mp4             # gera
+node scripts/preparar-video.mjs --tela T.mp4 --camera C.mp4 --camera-mic CM.mp4
+node scripts/preparar-video.mjs --saida-dir ~/editor-jr/public/videos --tela T.mp4 --camera C.mp4
+```
+Opções: `--altura-max` (padrão 1920, nunca aumenta o vídeo) · `--forcar vertical|horizontal`
+· `--crf` (padrão 18) · `--saida-dir <pasta>` · `--dry-run`.
+- **FFmpeg:** usa o `ffmpeg` e o `ffprobe` **completos do PATH**, nunca os do Remotion. No WSL
+  é o do apt (8.0.1).
+- **Orientação:** é detectada pela proporção real (altura ÷ largura, já com o formato do pixel
+  e a rotação aplicados). Razão ≥ 1,15 é vertical; razão ≤ 0,87 é horizontal. Entre as duas,
+  o script para (código 2) e pede `--forcar`.
+- **Ajuste ao formato:** se a diferença para 9:16 (ou 16:9) for até 3%, reduz e corta as
+  bordas. Acima disso, reduz com barras pretas e avisa. As três constantes
+  (`MARGEM_PROPORCAO`, `LIMITE_VERTICAL`, `LIMITE_HORIZONTAL`) ficam no topo do script.
+- **Áudio:** copiado sem recomprimir.
+- **Saída:** versionada, nunca sobrescreve (`<nome>-leve-v1.mp4`, `-v2`…). Sem `--saida-dir`,
+  fica ao lado do original; com `--saida-dir`, vai para a pasta indicada (e ela é criada se não
+  existir). **No modo de camadas o papel entra no nome** (`<nome>-tela-leve-v1.mp4`,
+  `<nome>-camera-leve-v1.mp4`, `<nome>-camera-mic-leve-v1.mp4`), para dois arquivos com o mesmo
+  nome base não colidirem. Arquivo único não leva papel no nome. O script confere a saída com
+  o `ffprobe` antes de gravar a ficha.
+- **Ficha:** `videos/<nome>.preparo.json` (decisão do Matheus de 09/10/2026), ao lado do
+  `.cortes.json`. **O `--saida-dir` não muda o lugar da ficha** (só o das cópias). Descreve
+  **só a última cópia**, com o campo `copiaLeve` (ex.: `"leve-v1"`).
+  A pasta `videos/` está no `.gitignore`, então a ficha não vai pro GitHub e é levada à mão
+  entre os PCs, igual ao `.cortes.json`.
+- **Comando impresso:** não adivinha o id da composição. Ele usa `<ID-DA-COMPOSICAO>` e avisa
+  para conferir o id no `Root.tsx`.
+
+**Provado em 09/10/2026 (WSL, PC do trabalho):**
+- **No 0926 real:** saiu `0926-cortado-v1-leve-v1.mp4` com 1080×1920, SAR 1:1, 37,93 s e
+  áudio AAC estéreo, em 12 s.
+  - O corte foi de 0,83%, ou 8 px em cima e 8 px embaixo.
+  - Comparando o frame 0, o corte tirou só teto e a borda da mesa. Rosto e "T" dourado intactos.
+- **Em sintéticos:**
+  - 1:1 → ambíguo, pede `--forcar`;
+  - 16:10 → horizontal com barras;
+  - 16:9 → horizontal com corte de 0%;
+  - modo dos 3 arquivos (tela 16:9, câmera 9:16, câmera+mic 9:16 com áudio) → cada um na
+    orientação certa, e o áudio só no câmera+mic.
+- **Render do Remotion com a cópia leve do script (só 30 quadros, `--frames=0-29`, sem
+  nenhum elemento do plano nesse trecho):** saiu 1080×1920, SAR 1:1, 30 quadros, e o log não
+  tem `ECANCELED`. O compositor trabalhou em 1080×1920, não 1936. O código de saída do
+  `render.sh` foi 1, mas o arquivo foi gerado; a causa provável é o `explorer.exe` no fim do
+  script (inferência).
+
+**Par real de teste: a sessão de 25/09/2026 (`2026-09-25 13-42-46`).** Duas gravações do OBS
+em `C:\Users\edica\Videos\`:
+- **Tela com som** — `SOM TELA\2026-09-25 13-42-46.mp4`: 1280×720, SAR 1:1, 30 fps, 8,07 s,
+  áudio com voz (`mean_volume` −28,1 dB, `max_volume` −6,9 dB). O quadro do segundo 3 mostra
+  a **própria janela do OBS** (em português, gravando, cronômetro 00:00:03), com a imagem da
+  câmera num canto. Não aparece o JR.
+- **Câmera muda** — `CAMERA GRAV\2026-09-25 13-42-46.mp4`: 1280×720, SAR 1:1, 30 fps, 7,03 s.
+  Tem uma faixa de áudio, mas ela é **silêncio puro** (`mean_volume` e `max_volume` −91,0 dB). O
+  quadro do segundo 3 mostra uma sala vazia (mesa, cadeira, porta, parede), **sem o JR**.
+- Os dois são **horizontais 1280×720**.
+- **A diferença de duração entre os dois é de cerca de 1,03 s** (8,067 s contra 7,033 s,
+  só a duração do contêiner pelo `ffprobe`). **O deslocamento real de sincronia entre os dois
+  NÃO foi medido e NÃO foi corrigido.**
+- **Execução real no WSL (09/10/2026), só com `--tela` e `--camera`, sem `--camera-mic`, e
+  com `--saida-dir ~/editor-jr/public/videos`** (leu os originais em `/mnt/c/...`). Decidiu para
+  cada um: horizontal, detectada, reduzir e cortar (diferença de 0% para 16:9). Gerou, no Linux:
+  - `public/videos/2026-09-25 13-42-46-tela-leve-v1.mp4`: 1280×720, SAR 1:1, 8,033 s, áudio
+    AAC 48 kHz estéreo, `mean_volume` −28,1 dB (voz presente);
+  - `public/videos/2026-09-25 13-42-46-camera-leve-v1.mp4`: 1280×720, SAR 1:1, 7,033 s, áudio
+    AAC 48 kHz estéreo, `mean_volume` e `max_volume` −91,0 dB (**continua muda**).
+- **Ficha:** `videos/2026-09-25 13-42-46.preparo.json` (no Linux, `tipoSessao: "multi_layer"`,
+  com `arquivos.tela` e `arquivos.camera`, sem `cameraMic`). O nome saiu do primeiro arquivo
+  digitado na linha de comando (a tela); como os dois originais têm o mesmo nome base, o nome da
+  ficha não distingue tela de câmera.
+- **Nada novo foi criado em `C:\Users\edica\Videos`:** as listagens de `SOM TELA` e
+  `CAMERA GRAV` antes e depois são idênticas.
+- **A cópia da tela ficou 1 quadro mais curta que o original** (8,033 s contra 8,067 s na
+  duração do contêiner); a da câmera manteve 7,033 s. Causa **não investigada**. Com isso a
+  diferença de duração entre as cópias é de 1,00 s (era cerca de 1,03 s nos originais).
+- **Modo de arquivo único conferido em `--dry-run`:** o nome continua sem papel
+  (`0926-cortado-v1-leve-v2.mp4`; é `v2` porque o `v1` já existia), com ou sem `--saida-dir`.
+
+**Não testado:**
+- a sincronia tela/câmera do par de 25/09 (nada foi medido nem corrigido além de ler as
+  durações);
+- o modo com `--camera-mic` junto com `--saida-dir` em execução real, e os 3 arquivos reais do
+  OBS numa mesma sessão (o par de 25/09 só tem tela e câmera);
+- render do Remotion com as cópias leves do par de 25/09, e com a cópia do 0926 nos quadros
+  que têm elementos do plano (o teste foi só nos quadros 0 a 29, que não têm elemento);
+- o modo de arquivo único **em execução real** com `--saida-dir` (só `--dry-run`);
+- vídeo com rotação;
+- vídeo de entrada com SAR diferente de 1:1;
+- `--forcar` contra a orientação real num vídeo real;
+- rodar no Windows (o `--dry-run` rodou no Windows, mas nenhuma cópia foi gerada lá).
+
 ### Cuidado ao conferir vídeo (custou horas na Etapa 2)
 **Não use a pré-visualização do VS Code para testar áudio.** Ela roda sobre Chromium,
 que não embarca o decodificador de AAC: o vídeo toca e o áudio some, sem nenhum aviso.
