@@ -3,6 +3,7 @@ import { Naruto } from "./Naruto";
 import { TesteVideoReal } from "./TesteVideoReal";
 import { TesteRoteiro01 } from "./TesteRoteiro01";
 import { TesteRoteiro02 } from "./TesteRoteiro02";
+import { CamadasVidro } from "./testes/CamadasVidro";
 import "./index.css";
 import { MyComposition } from "./Composition";
 import { PlanoComposicao } from "./PlanoComposicao";
@@ -75,6 +76,14 @@ export const RemotionRoot: React.FC = () => {
             plano: planoTeste4Componentes,
             cortes: cortes0926,
           }}
+        />
+        <Composition
+          id="TesteCamadasVidro"
+          component={CamadasVidro}
+          durationInFrames={240}
+          fps={30}
+          width={1080}
+          height={1920}
         />
       </Folder>
     </>
