@@ -1,8 +1,8 @@
 # Critérios de fechamento — Etapas 3 e 6
 
-**RASCUNHO, AGUARDANDO APROVAÇÃO DO MATHEUS.** As decisões (a) a (e) abaixo já foram passadas por
-ele em 07/10/2026 e estão incorporadas; o AvisoCVM (e) foi visto por ele em 07/10/2026. O resto do
-documento continua rascunho: ele pode cortar, trocar ou acrescentar.
+**Estado: aprovado pelo Matheus em 07/10/2026; Etapa 6 (6a) cumprida em 09/10/2026.** As decisões
+(a) a (e) abaixo foram passadas por ele em 07/10/2026 e estão incorporadas; o AvisoCVM (e) foi
+visto por ele em 07/10/2026. A Etapa 3 continua em andamento.
 
 Por que existe: o `CLAUDE.md` exige um critério de fechamento escrito por etapa. Hoje as
 Etapas 3 e 6 estão "em andamento" no `ARQUITETURA.md`.

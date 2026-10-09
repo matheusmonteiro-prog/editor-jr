@@ -444,12 +444,12 @@ para os detalhes e a decisão pendente.
   cada elemento do plano (não no início), reduz pra ~360px de largura,
   embute o `id` do elemento como legenda (via `drawtext`, com fallback pra
   listar a ordem no terminal se não achar fonte) e monta tudo numa grade só.
-  Salva em `~/editor-jr/out/<render>-folha-contato.png`. No computador do
-  trabalho isso só valida a **mecânica** do script (extração, meio da
-  duração, grade, legenda) — o `videos/*.cortes.json` usado no teste é
-  provisório/falso, então os tempos da folha não representam o corte real
-  até o arquivo de cortes de verdade (do computador de casa) substituir o
-  provisório.
+  Salva em `~/editor-jr/out/<render>-folha-contato.png`. Em 01/10/2026,
+  no computador do trabalho, isso só validava a **mecânica** do script (extração, meio da
+  duração, grade, legenda), porque o `videos/*.cortes.json` usado no teste era
+  provisório/falso (194 bytes). **Em 09/10/2026 a folha foi gerada com o
+  `0926.cortes.json` real** (1.167 bytes), sobre o render `0926-real-v1` (feito com a cópia
+  reduzida 1080×1920 como entrada).
 - **Pré-requisitos:** @ do Instagram, uma música e um efeito sonoro de teste baixados;
   gravar um teste curto (1-2 min) no OBS e conferir a sincronia dos 3 arquivos (Formato A,
   ver seção 3a); alguns vídeos já gravados em vertical (Shorts/Reels) como referência.
