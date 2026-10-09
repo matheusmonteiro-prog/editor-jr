@@ -10,7 +10,7 @@
 - [ ] Etapa 3 — Montagem sobre vídeo real (em andamento)
 - [ ] Etapa 4 — Legendas automáticas
 - [ ] Etapa 5 — Identidade visual
-- [ ] Etapa 6 — Leitor de prompt (em andamento)
+- [x] Etapa 6 — Leitor de prompt (6a cumprida em 09/10/2026, critérios 6.1 a 6.6 de `docs/criterios-fechamento.md`; 6b só se o Matheus mandar; pendências na seção 7, Etapa 6)
 - [ ] Etapa 7 — Interface própria
 - [ ] Etapa 8 — Exportação e entrega
 
@@ -465,7 +465,15 @@ para os detalhes e a decisão pendente.
 - **Pré-requisitos:** logo em PNG (fundo transparente) e Emparelhamento finalizado no Claude Design.
 
 ### Etapa 6 — Leitor de prompt
-Pausada em 08/10/2026 por falta dos arquivos reais do 0926 (estão em casa). Retomar em casa: 6.3, 6.4, 6.5.
+**Status (09/10/2026):** 6a cumprida (critérios 6.1 a 6.6). A pausa de 08/10/2026 acabou: os arquivos
+reais do 0926 foram levados ao PC do trabalho e o render foi feito no WSL. Pendências:
+- `src/Root.tsx` ainda aponta para o vídeo original 2160×3872 (`videos/0926-cortado-v1.mp4`). O render
+  de 09/10 só passou porque o `videoSrc` foi trocado por `--props` para a cópia reduzida 1080×1920;
+  **um render sem `--props` falharia** (o original falha no Remotion deste ambiente, causa exata
+  não confirmada).
+- Texto oficial do `AvisoCVM` e tempo em tela: pendentes (o texto atual é provisório).
+- Vídeo em resolução real (2160×3872): fica para a Etapa 8.
+- 6b: só se o Matheus mandar.
 
 - 6a: ler o formato de comando e gerar a timeline (sem IA)
 - 6b: gerar componente novo via API quando não existir no catálogo; aprovado → entra no catálogo.
@@ -520,7 +528,7 @@ Pausada em 08/10/2026 por falta dos arquivos reais do 0926 (estão em casa). Ret
   conversão de tempo em `src/utils/tempoCortado.ts`, validação em
   `scripts/validar-plano.mjs`) e já tem um plano real registrado em doc
   (`planos/0926.plano.json`, composição `PlanoComposicao0926`), **não confirmado
-  pelo Matheus** — 6a em andamento. 6b (gerar componente novo via API) ainda não começou e só começa se o
+  pelo Matheus** — 6a cumprida em 09/10/2026 (ver Status da Etapa 6). 6b (gerar componente novo via API) ainda não começou e só começa se o
   Matheus mandar (decisão de 07/10/2026).
 
 **Nota (01/10/2026), sem alterar o formato decidido acima:** `"naPalavra"`

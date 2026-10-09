@@ -18,8 +18,15 @@ marca de "em andamento".
 mas a etapa segue **sem marca de andamento** no `ARQUITETURA.md`. Ter o script não
 significa que a etapa começou.
 
-A que chat voltar: chat do projeto (claude.ai) da Etapa 6. Próximo passo: 6.4, render + folha
-de contato no PC do trabalho.
+A que chat voltar: chat do projeto (claude.ai) da Etapa 6. **6.4 cumprido e 6.5 visto e aprovado
+pelo Matheus em 09/10/2026** (PC do trabalho, WSL): render do `PlanoComposicao0926` com 1137
+quadros, 1080×1920, 37,9 s, 2 min 28 s, `--concurrency=2`, saída `0926-real-v1.mp4` e folha de
+contato. A entrada foi a **cópia reduzida 1080×1920** (`0926-diag-1080.mp4`, sha256
+`e307828a…cb581c`), passada por `--props`. O original 2160×3872 (sha256 `6b57cefa…8b8bc4`) falha no
+Remotion deste ambiente (still e render); causa exata **não confirmada**. O checklist de 7 pontos
+do 6.5 **não foi conferido item a item**. 6.3 cumprido em 09/10/2026 (conteúdo do `cortes.json`
+confirmado pelo render e pelo Matheus). **6a cumprida em 09/10/2026 (critérios 6.1 a 6.6)**;
+pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 
 ## Feito (conforme histórico de commits e `docs/relatorio-noite-0201.md`)
 
@@ -63,11 +70,11 @@ de contato no PC do trabalho.
 - `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem
   `--dry-run` ele executa o render de verdade (`scripts/render-final.mjs`, linha 90). Se já
   foi executado de verdade alguma vez: **NÃO CONFIRMADO**.
-- `videos/0926.cortes.json` — PC de casa: 0926.cortes.json real, 1.167 bytes
-  (08/10/2026). PC do trabalho: o do WSL ainda é o provisório de 194 bytes
-  (01/10/2026); trocar pelo real antes do 6.4. validar-plano.mjs no planos/0926.plano.json deu 8 OK, 0 erro, 0 aviso; duração
-  original 43,141995 s. Validador OK em casa. Conteúdo do json ainda não conferido
-  contra o vídeo: confirmar no render do 6.4 (só roda no PC do trabalho).
+- `videos/0926.cortes.json` — **resolvido (6.3 cumprido em 09/10/2026):** no WSL e no Windows é o
+  real, 1.167 bytes, sha256 `424456a2…e5491c04`, conferido em 09/10/2026. O provisório de 194
+  bytes (01/10/2026) é o **antigo**. `validar-plano.mjs` no `planos/0926.plano.json`: 8 OK, 0 erro,
+  0 aviso; duração original 43,141995 s. Conteúdo do json confirmado pelo render e pelo Matheus
+  em 09/10/2026.
 - Etapa 8 (envio automático pro Google Drive): não implementada, depende de
   autorização de conta e escolha de conector pelo Matheus.
 - `naPalavra`/`ocorrencia` (Etapa 6): não implementado, depende da Etapa 4
@@ -120,10 +127,9 @@ para a Etapa 7 com a regra "não clicar nem arrastar na tela do vídeo".)
 
 ## Itens "não confirmado"
 
-- `videos/0926.cortes.json` atual é provisório (194 bytes) — os tempos
-  calculados por `scripts/folha-contato.mjs` ou `validar-plano.mjs` contra
-  ele não refletem o corte real até o arquivo de 1.167 bytes (26/09)
-  substituir o provisório.
+- `videos/0926.cortes.json`: **antigo** (até 08/10/2026) era o provisório de 194 bytes
+  (01/10/2026). Em 09/10/2026, no WSL e no Windows, é o real (1.167 bytes, sha256
+  `424456a2…e5491c04`), então este item deixou de valer.
 - Campo `"fps"` em `planos/0926.plano.json` está fora do schema documentado
   na seção 7 do `ARQUITETURA.md` — não confirmado se deve ser formalizado
   ou removido.
