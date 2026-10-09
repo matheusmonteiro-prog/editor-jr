@@ -38,6 +38,10 @@ Matheus é iniciante em programação, Git e Remotion. Explique em português do
   2. **Prova** — tsc, teste, `git diff` ou Studio: o que rodou e o resultado.
   3. **O que supus sem confirmar.**
   4. **Estado do Git** — `git status --short` e `git log --oneline -3`.
+- **Modelo recomendado por passo:** todo relatório termina com uma linha "Modelo recomendado para
+  o próximo passo: Haiku, Sonnet ou Opus, porque <motivo>". Guia: **Haiku** para leitura de
+  arquivos e comandos mecânicos; **Sonnet** para editar documentação, rodar validador, render;
+  **Opus** para erro que não entendo ou análise crítica.
 
 ## Padrão dos componentes
 - Um componente por arquivo em `src/components/`.
