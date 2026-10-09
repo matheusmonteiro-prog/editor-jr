@@ -5,6 +5,7 @@ import { TesteRoteiro01 } from "./TesteRoteiro01";
 import { TesteRoteiro02 } from "./TesteRoteiro02";
 import { CamadasVidro } from "./testes/CamadasVidro";
 import { MoedasCrescendo } from "./testes/MoedasCrescendo";
+import { TelasFlutuantes } from "./testes/TelasFlutuantes";
 import "./index.css";
 import { MyComposition } from "./Composition";
 import { PlanoComposicao } from "./PlanoComposicao";
@@ -90,6 +91,14 @@ export const RemotionRoot: React.FC = () => {
           id="TesteMoedas3D"
           component={MoedasCrescendo}
           durationInFrames={210}
+          fps={30}
+          width={1080}
+          height={1920}
+        />
+        <Composition
+          id="TesteTelasFlutuantes"
+          component={TelasFlutuantes}
+          durationInFrames={240}
           fps={30}
           width={1080}
           height={1920}
