@@ -94,7 +94,12 @@ const TesteControleCamadas: React.FC = () => {
   const para = cenas[i];
 
   return (
-    <AbsoluteFill>
+    <AbsoluteFill
+      style={{
+        scale: 1.004,
+        translate: "3.8px 2.1px"
+      }}
+    >
       <CamadaVideo
         src={ARQUIVO_CAMERA}
         mudo
