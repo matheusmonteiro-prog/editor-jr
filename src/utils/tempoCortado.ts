@@ -1,40 +1,59 @@
 // Converte um tempo do vídeo ORIGINAL pro frame do vídeo já cortado (sem os
-// silêncios), a partir dos "trechos" (intervalos mantidos) de um
-// videos/*.cortes.json. Um tempo que caiu dentro de um silêncio cortado é
-// jogado pro fim do trecho anterior — foi exatamente esse instante que o
-// corte engoliu.
+// silêncios), a partir dos "trechos" de um videos/*.cortes.json.
+//
+// A ordem do array é a ordem do vídeo cortado. Com gancho, os pedaços do
+// gancho vêm primeiro (marcados com `gancho`), então os tempos originais NÃO
+// crescem ao longo do array — por isso a busca não depende da ordem.
+//
+// Regras:
+// - tempo dentro de um trecho: a posição dele no vídeo cortado. Com --copiar,
+//   o mesmo tempo existe na cópia do gancho e no lugar original: vale o
+//   lugar original.
+// - tempo num silêncio cortado: fim do trecho anterior NO TEMPO ORIGINAL (o
+//   de maior fim ≤ tempo) — foi exatamente esse instante que o corte engoliu.
+// - antes do primeiro trecho: frame 0. Depois do último: fim do vídeo cortado.
 
-export type TrechoCortado = { inicio: number; fim: number };
+export type TrechoCortado = { inicio: number; fim: number; gancho?: number };
 
 export function criarParaFrameCortado(
   trechos: TrechoCortado[],
   fps: number,
 ) {
-  // inicioCortadoPorTrecho[i] = posição (em segundos, na timeline JÁ
-  // cortada) onde o trecho i começa.
-  const inicioCortadoPorTrecho: number[] = [];
+  // inicioCortado[i] = posição (em segundos, na timeline JÁ cortada) onde o
+  // trecho i começa.
+  const inicioCortado: number[] = [];
   let acumulado = 0;
   for (const t of trechos) {
-    inicioCortadoPorTrecho.push(acumulado);
+    inicioCortado.push(acumulado);
     acumulado += t.fim - t.inicio;
   }
+  const ultimoFrame = Math.round(acumulado * fps);
+  const fimOriginal = Math.max(...trechos.map((t) => t.fim));
+
+  // Trechos originais antes das cópias de gancho (o sort é estável: dentro de
+  // cada grupo, mantém a ordem do array).
+  const indices = trechos
+    .map((_, i) => i)
+    .sort((a, b) => Number(trechos[a].gancho !== undefined) - Number(trechos[b].gancho !== undefined));
 
   return (segundoOriginal: number): number => {
-    for (let i = 0; i < trechos.length; i++) {
+    for (const i of indices) {
       const t = trechos[i];
-      if (segundoOriginal < t.inicio) {
-        const fimCortadoAnterior =
-          i === 0 ? 0 : inicioCortadoPorTrecho[i - 1] + (trechos[i - 1].fim - trechos[i - 1].inicio);
-        return Math.round(fimCortadoAnterior * fps);
-      }
-      if (segundoOriginal <= t.fim) {
-        return Math.round((inicioCortadoPorTrecho[i] + (segundoOriginal - t.inicio)) * fps);
+      if (segundoOriginal >= t.inicio && segundoOriginal <= t.fim) {
+        return Math.round((inicioCortado[i] + (segundoOriginal - t.inicio)) * fps);
       }
     }
-    // depois do último trecho: extrapola a partir do fim cortado
-    const ultimo = trechos[trechos.length - 1];
-    const fimCortado =
-      inicioCortadoPorTrecho[inicioCortadoPorTrecho.length - 1] + (ultimo.fim - ultimo.inicio);
-    return Math.round((fimCortado + (segundoOriginal - ultimo.fim)) * fps);
+    if (segundoOriginal > fimOriginal) return ultimoFrame;
+
+    // Silêncio: o trecho de maior fim ≤ tempo (no empate, o original ganha).
+    let anterior = -1;
+    for (const i of indices) {
+      if (trechos[i].fim <= segundoOriginal && (anterior < 0 || trechos[i].fim > trechos[anterior].fim)) {
+        anterior = i;
+      }
+    }
+    if (anterior < 0) return 0;
+    const t = trechos[anterior];
+    return Math.round((inicioCortado[anterior] + (t.fim - t.inicio)) * fps);
   };
 }
