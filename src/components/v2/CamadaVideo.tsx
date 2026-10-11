@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Loop,
   OffthreadVideo,
   interpolate,
   staticFile,
@@ -21,6 +22,8 @@ export const camadaVideoSchema = z.object({
   volume: z.number().min(0).max(1).default(1),
   mudo: z.boolean().default(false),
   duracaoFrames: z.number().min(1).optional(), // sem ela, toca até o fim
+  opacidade: z.number().min(0).max(1).default(1), // animada de fora, sem remontar o vídeo
+  repetirFrames: z.number().min(1).optional(), // duração do arquivo: repete (Loop) até o fim
   framesEntrada: z.number().min(0).default(0),
   framesSaida: z.number().min(0).default(0),
 });
@@ -37,6 +40,8 @@ export const CamadaVideo: React.FC<Props> = ({
   volume = 1,
   mudo = false,
   duracaoFrames,
+  opacidade = 1,
+  repetirFrames,
   framesEntrada = 0,
   framesSaida = 0,
 }) => {
@@ -56,6 +61,15 @@ export const CamadaVideo: React.FC<Props> = ({
   const larguraPx = width * largura;
   const alturaPx = height * altura;
 
+  const video = (
+    <OffthreadVideo
+      src={staticFile(src)}
+      volume={volume}
+      muted={mudo}
+      style={{ width: "100%", height: "100%" }}
+    />
+  );
+
   return (
     <div
       style={{
@@ -64,15 +78,17 @@ export const CamadaVideo: React.FC<Props> = ({
         top: height * y - alturaPx / 2,
         width: larguraPx,
         height: alturaPx,
-        opacity: Math.min(entrada, saida),
+        opacity: Math.min(entrada, saida) * opacidade,
       }}
     >
-      <OffthreadVideo
-        src={staticFile(src)}
-        volume={volume}
-        muted={mudo}
-        style={{ width: "100%", height: "100%" }}
-      />
+      {/* Loop fica só em volta do vídeo: caixa e opacidade seguem o frame da composição */}
+      {repetirFrames !== undefined ? (
+        <Loop durationInFrames={repetirFrames} layout="none">
+          {video}
+        </Loop>
+      ) : (
+        video
+      )}
     </div>
   );
 };
