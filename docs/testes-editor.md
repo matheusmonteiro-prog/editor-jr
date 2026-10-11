@@ -102,8 +102,33 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
     `PlanoComposicao` só renderiza **um** vídeo (`src/PlanoComposicao.tsx:114`).
     Não existe teste lado a lado de corte seco contra transição. O teste de sincronia dos
     arquivos do OBS com palma, que é pré-requisito do Formato A, ainda não foi feito
-    (`ARQUITETURA.md:243-245`, `docs/criterios-fechamento.md:88`).
+    (`ARQUITETURA.md:243-245`, `docs/criterios-fechamento.md:88`). **A palma é decisão pendente
+    do Matheus:** ele disse tê-la dispensado em 07/10 e 09/10, mas isso **não está registrado**
+    nos docs (busca por "palma" em `ARQUITETURA.md` e `docs/`).
   - Os testes usam a "tela" provisória (`teste2-tela.mp4`, com erros de leitura).
+  - **Lacuna para ligar ao plano (apurada em 11/10/2026, só leitura):**
+    - `PlanoComposicao` renderiza um vídeo só (`videoSrc`, `src/PlanoComposicao.tsx:114`) e o
+      tipo `Plano` não tem campo de câmera (`:60-64`: `video`, `orientacao`, `elementos`).
+    - **Inferência, não testada:** um vídeo de câmera dentro de uma `<Sequence>` do plano
+      começaria no frame 0 do arquivo dele; falta um deslocamento de sincronia.
+    - Zoom e tela/câmera meio a meio só existem como teste: `src/testes/TesteZoom.tsx` e
+      `src/testes/TesteLayouts.tsx` (soltos, sem commit) e a cena 1 do `TesteControleCamadas`
+      (`src/Root.tsx`, commit `b52f316`).
+    - **Esforço, estimado e não medido:** cerca de 5 arquivos, pelo modelo do commit `5c605ab`
+      (AvisoCVM: `.claude/agents/revisor.md`, `checklist-revisao.md`,
+      `docs/catalogo-componentes.md`, `docs/estado-atual.md`, `src/PlanoComposicao.tsx`). Para o
+      plano controlar tela + câmera de verdade falta ainda **um segundo vídeo no plano** e o
+      **deslocamento de sincronia**.
+  - **`TesteControleCamadas` (11/10/2026):** o Matheus abriu no Studio, em casa, e disse que
+    funcionou. A tela era provisória (`teste2-tela.mp4`, com erros de leitura), sem sincronia
+    medida e sem render.
+  - **Commit `d7c0ce9` (mensagem "origem a confirmar"):** só mudou `src/Root.tsx`: o
+    `<AbsoluteFill>` do `TesteControleCamadas` ganhou
+    `style={{ scale: 1.004, translate: "3.8px 2.1px" }}`. **Arrasto no Studio confirmado pelo
+    Matheus em 11/10; revertido em `b42ae1f`.** `scale` e `translate` são propriedades que o
+    Studio grava ao arrastar (`ARQUITETURA.md:379-383`), os valores são quebrados, e o
+    `ARQUITETURA.md` manda não arrastar (`:258`, `:753-754`). Também contrariava a regra de
+    nada de tamanho fixo em pixel (ex.: `docs/catalogo-componentes.md:134`, Seta).
 
 ### T14 — Sincronia depois do corte de silêncio
 - **O que é:** os elementos do plano (gráfico, texto, seta...) precisam cair no frame certo
@@ -148,8 +173,8 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
   fala do gancho entra no frame certo **dentro do gancho**; (b) o elemento que ilustra a fala
   no lugar original entra no frame certo; (c) a fala do gancho não aparece duas vezes (a menos
   que seja `--copiar`, de propósito).
-- **Status apurado: ERRO PROVADO e CORRIGIDO no mapa de tempo (11/10/2026), sem commit.
-  Falta ver com um vídeo real com gancho no Studio.**
+- **Status apurado: ERRO PROVADO; corrigido em `a055886` segundo o commit; o Matheus ainda
+  não conferiu o resultado.** Falta ver com um vídeo real com gancho no Studio.
   - **O corte com gancho existe e foi aprovado no `teste-jr.mp4`** (`ARQUITETURA.md:484-490`),
     inclusive com vários trechos, opção `--copiar` (`scripts/cortar-silencio.mjs:236`) e
     proteção contra ganchos que se sobrepõem (`:250-256`).
@@ -165,7 +190,7 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
   - **Causa:** a versão antiga percorria os trechos assumindo que o tempo original sempre
     cresce ao longo do array (`if (segundoOriginal < t.inicio)`), e extrapolava o fim a partir
     do último trecho do **array**, não do último no tempo original.
-  - **Correção aplicada em `src/utils/tempoCortado.ts`:**
+  - **Correção aplicada em `src/utils/tempoCortado.ts` (commit `a055886`, 11/10/2026):**
     - procura o trecho que **contém** o tempo, sem depender da ordem do array;
     - com `--copiar`, os trechos originais são consultados antes das cópias (campo `gancho`),
       então vale o **lugar original**;
@@ -177,9 +202,12 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
     movido, 7 de 7 no `--copiar`, e **regressão** com o `0926.cortes.json` real: 1296 tempos
     (de 0 até a duração original, a cada 1/30 s), **0 diferenças** entre a função antiga e a
     nova. `npx tsc --noEmit` sem erro fora de `src/testes/CasaExplicativa.tsx`.
+  - **Teste no repositório (pelo diff do commit `a055886`):** o commit adicionou
+    `scripts/teste-tempo-cortado.mjs` (arquivo novo, 56 linhas) com 20 casos: gancho movido
+    (12), `--copiar` (7) e tempo depois do último trecho (1). Esse arquivo **não foi rodado**
+    ao escrever este registro.
   - **Ainda não testado:** um vídeo real cortado com `--gancho` passando pelo `PlanoComposicao`
-    e visto no Studio (o `0926.cortes.json` real tem `gancho: []`). Também não existe teste
-    automático permanente da função.
+    e visto no Studio (o `0926.cortes.json` real tem `gancho: []`).
 
 ---
 
@@ -313,7 +341,8 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
 1. **T14 — sincronia depois do corte.** Tudo o que vem depois (gancho, elementos, música)
    depende de os elementos caírem no frame certo. E já dá para testar em casa, no Studio, com o
    `0926.cortes.json` real.
-2. **T15 — gancho.** O erro do mapa de tempo foi provado e corrigido (11/10/2026); falta ver
+2. **T15 — gancho.** O erro do mapa de tempo foi provado e corrigido em `a055886` (11/10/2026,
+   segundo o commit); falta ver
    um vídeo real com gancho no Studio, em cima do T14.
 3. **T19 — mesmo plano nos dois formatos.** Barato (só Studio) e pega elemento fora do quadro
    antes de construir mais componentes.

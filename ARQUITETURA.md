@@ -564,6 +564,12 @@ para os detalhes e a decisão pendente.
 - **Pré-requisitos:** @ do Instagram, uma música e um efeito sonoro de teste baixados;
   gravar um teste curto (1-2 min) no OBS e conferir a sincronia dos 3 arquivos (Formato A,
   ver seção 3a); alguns vídeos já gravados em vertical (Shorts/Reels) como referência.
+- **Pendências (11/10/2026, ver `docs/estado-atual.md` e `docs/testes-editor.md`, T13):**
+  `CamadaVideo` ainda não está no `CATALOGO` e o plano não tem campo de câmera nem
+  deslocamento de sincronia; a palma é **decisão pendente do Matheus**; o commit `d7c0ce9`
+  (`scale`/`translate` no `TesteControleCamadas`) foi **arrasto no Studio confirmado pelo
+  Matheus em 11/10; revertido em `b42ae1f`**; o corte com tela + câmera (opção A ou B, de
+  10/10) **não foi decidido**.
 
 ### Etapa 4 — Legendas automáticas
 - Transcrição local e gratuita (verificar a ferramenta oficial do Remotion para legendas / Whisper)

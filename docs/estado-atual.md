@@ -97,6 +97,13 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 - **Render curto com a cópia leve do 0926 (quadros 0 a 29):** passou, 1080×1920, SAR 1:1, 30
   quadros, sem `ECANCELED` (sem elementos do plano nesse trecho).
 
+- **Etapa 3, mapa de tempo com gancho (11/10/2026):** o commit `a055886` ("fix: tempoCortado
+  acerta com gancho e --copiar (T15), com teste") mudou 3 arquivos: `src/utils/tempoCortado.ts`
+  (40 inserções, 21 remoções), `scripts/teste-tempo-cortado.mjs` (novo, 56 linhas, um teste com
+  20 casos) e `docs/testes-editor.md` (novo, 355 linhas). **Corrigido em `a055886` segundo o
+  commit; o Matheus ainda não conferiu o resultado.** O teste do script não foi rodado ao
+  escrever este registro.
+
 ## Falta
 
 - Etapa 3: **não testados** — render do Remotion com as cópias leves do par de 25/09 e com a
@@ -106,6 +113,32 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 - Etapa 3: a cópia dos arquivos para o PC de casa (a ficha e a pasta `videos/` não vão pro Git).
 - Etapa 3: **sincronia tela/câmera** (a alternativa 3 de `ARQUITETURA.md`, seção 3a) segue sem
   resultado registrado.
+- Etapa 3 — **lacuna: ligar tela + câmera ao plano** (apurado em 11/10/2026, só leitura; detalhe
+  em `docs/testes-editor.md`, T13): `CamadaVideo` não está no `CATALOGO`; `PlanoComposicao.tsx`
+  renderiza um vídeo só (`videoSrc`); o plano não tem campo de câmera; falta o deslocamento de
+  sincronia (**inferência, não testada:** a câmera dentro de uma `Sequence` começaria no frame 0
+  do arquivo). Zoom e tela/câmera meio a meio só existem como teste (`src/testes/`, e a cena 1
+  do `TesteControleCamadas`). Cerca de 5 arquivos pelo modelo do commit `5c605ab` (AvisoCVM),
+  mais um segundo vídeo no plano e o deslocamento de sincronia (estimativa, não medida).
+- Etapa 3 — `TesteControleCamadas`: aberto no Studio pelo Matheus, em casa, em 11/10/2026; ele
+  disse que funcionou. Tela provisória (`teste2-tela.mp4`, com erros de leitura), sem sincronia
+  medida e sem render.
+- Etapa 3 — **commit `d7c0ce9`** (`src/Root.tsx`: `scale: 1.004` e `translate: "3.8px 2.1px"` no
+  `TesteControleCamadas`, mensagem "origem a confirmar"): **arrasto no Studio confirmado pelo
+  Matheus em 11/10; revertido em `b42ae1f`** (o `d7c0ce9` continua no histórico;
+  `ARQUITETURA.md:258` e `:753-754` mandam não arrastar). Foge da regra de nada de tamanho fixo
+  em pixel.
+- Etapa 3 — **palma: decisão pendente do Matheus.** `ARQUITETURA.md:243-245` e
+  `docs/criterios-fechamento.md:88` a listam como pré-requisito do Formato A; o Matheus disse
+  tê-la dispensado em 07/10 e 09/10, e isso não está registrado nos docs.
+- Etapa 3 — **propostas de 10/10, ainda NÃO decididas** (cortes com tela + câmera):
+  - **Opção A:** o `cortar-silencio.mjs` ganha um modo de 2 arquivos, e a tela com áudio decide
+    os cortes.
+  - **Opção B:** cortar dentro do Remotion.
+  - **Fatos relacionados:** o `--limpar` mexe no áudio (`highpass`, `afftdn`, `acompressor`,
+    `loudnorm`; `ARQUITETURA.md:471-474`); a cópia leve guarda o áudio original (`ARQUITETURA.md:89`);
+    o `cortar-silencio.mjs` ainda exige os 3 arquivos no modo multi-camada, inclusive
+    `--camera-mic` (`scripts/cortar-silencio.mjs:175-181`).
 
 - `AvisoCVM`: código completo, registrado; visto pelo Matheus em 07/10/2026
   (gostou; ajustes previstos depois). Texto continua provisório e o texto oficial
@@ -142,6 +175,14 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   folha-contato, `docs/etapa6-lacunas.md`, validador fortalecido +
   `testar-validador.mjs`, `docs/prompt-roteiro.md`, componente `AvisoCVM`,
   `render-final.mjs` (Etapa 8 mínima), `docs/relatorio-noite-0201.md`.
+  - **Em 11/10/2026, 4 commits à frente do GitHub, sem push** (`git log
+    origin/noite-etapa6..noite-etapa6`): `b52f316` ("Etapa 3 (em andamento):
+    TesteControleCamadas, CamadaVideo com opacidade e loop; tela provisória, sem sincronia nem
+    render"), `a055886` ("fix: tempoCortado acerta com gancho e --copiar (T15), com teste"),
+    `d7c0ce9` ("Etapa 3: scale/translate do TesteControleCamadas (origem a confirmar)") e
+    `b42ae1f` ("Reverte d7c0ce9: ajuste de scale/translate veio de arrasto no Studio (confirmado
+    pelo Matheus)"). **O push segue parado até o Matheus escrever "push"** (o hook
+    `bloquear-push.mjs` bloqueia o Claude Code).
 - **`teste-whisper`** — existe só no GitHub (remota), **0 commits** exclusivos
   além de `origin/main` (conferido em 07/10/2026 com `git rev-list --count
   origin/main..origin/teste-whisper` = 0). Último commit: `e5c0670`, "CirculoDestaque:
