@@ -17,10 +17,18 @@ import { PlanoComposicao } from "./PlanoComposicao";
 import { CamadaVideo } from "./components/v2/CamadaVideo";
 import plano0926 from "../planos/0926.plano.json";
 import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
+import planoTesteCamera from "../planos/teste-camera.plano.json";
 import cortes0926 from "../videos/0926.cortes.json";
 
 const FPS_0926 = 30;
 const DURACAO_FRAMES_0926 = Math.round(cortes0926.duracaoFinal * FPS_0926);
+
+// PlanoCameraTeste (Etapa 3, fase 1): tela = 0926 cortado, câmera = teste2-camera
+// (sala vazia, Loop de 211). Trechos de planos/teste-camera.plano.json, original → cortado:
+//   cam-cheia            0 s–4 s   → 0,000 s–4,000 s   = frames 0–120
+//   cam-janelinha        20 s–28 s → 17,106 s–25,106 s = frames 513–753
+//   cam-em-cima          31 s–33 s → 27,133 s–29,133 s = frames 814–874
+//   cam-atravessa-corte  38 s–42 s → 33,517 s–36,756 s = frames 1006–1103 (corte real de 39,753 a 40,513 s; silêncio de 39,603 a 40,663 s menos 0,15 s de margem de cada lado)
 
 // Fase 1 (Etapa 3): tela cheia com som + câmera muda no canto, par de 25/09.
 // A câmera é 16:9 como a composição, então largura = altura em fração.
@@ -185,6 +193,21 @@ export const RemotionRoot: React.FC = () => {
           fps={30}
           width={1920}
           height={1080}
+        />
+        <Composition
+          id="PlanoCameraTeste"
+          component={PlanoComposicao}
+          durationInFrames={DURACAO_FRAMES_0926}
+          fps={FPS_0926}
+          width={1080}
+          height={1920}
+          defaultProps={{
+            videoSrc: "videos/0926-cortado-v1.mp4",
+            plano: planoTesteCamera,
+            cortes: cortes0926,
+            cameraSrc: "videos/teste2-camera.mp4",
+            cameraRepetirFrames: 211,
+          }}
         />
       </Folder>
     </>

@@ -1,5 +1,14 @@
 import React, { useMemo } from "react";
-import { OffthreadVideo, Sequence, staticFile, useVideoConfig } from "remotion";
+import {
+  AbsoluteFill,
+  interpolate,
+  OffthreadVideo,
+  Sequence,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
+import { CamadaVideo } from "./components/v2/CamadaVideo";
 import { ImagemFade } from "./components/ImagemFade";
 import { GraficoLinha } from "./components/GraficoLinha";
 import { ColagemCenas } from "./components/ColagemCenas";
@@ -57,16 +66,37 @@ type ElementoPlano = {
   props: Record<string, any> | "a confirmar";
 };
 
+// Um trecho em que a câmera aparece. Tempos no vídeo ORIGINAL; caixa em
+// fração de width/height (centro em x, y).
+type TrechoCamera = {
+  id: string;
+  inicio: string; // "m:ss"
+  duracao: number; // segundos
+  x?: number;
+  y?: number;
+  largura?: number;
+  altura?: number;
+  ajuste?: string; // "cobrir" (padrão) ou "conter"; string porque o JSON importado não guarda o literal
+  framesEntrada?: number;
+  framesSaida?: number;
+};
+
 export type Plano = {
   video: string;
   orientacao: string;
   elementos: ElementoPlano[];
+  camera?: TrechoCamera[];
+  // Atraso da câmera em relação à tela, em segundos (padrão 0). Reservado:
+  // o efeito vem numa fase seguinte; por enquanto é ignorado.
+  deslocamentoCamera?: number;
 };
 
 export type PlanoComposicaoProps = {
   videoSrc: string; // caminho relativo a public/, ex: "videos/0926-cortado-v1.mp4"
   plano: Plano;
   cortes: { trechos: TrechoCortado[] };
+  cameraSrc?: string; // sem ela (ou sem plano.camera), nada de câmera
+  cameraRepetirFrames?: number; // só pra arquivo de teste mais curto que o vídeo
 };
 
 const paraSegundos = (tempo: string): number => {
@@ -98,10 +128,60 @@ const renderizarComponente = (
   );
 };
 
+// UMA instância da câmera pela composição inteira (nunca uma Sequence por
+// trecho, senão o vídeo recomeçaria): só a caixa e a opacidade mudam.
+// Fora dos trechos fica montada com opacidade 0.
+const CameraDoPlano: React.FC<{
+  src: string;
+  repetirFrames?: number;
+  trechos: TrechoCamera[];
+  paraFrameCortado: (segundoOriginal: number) => number;
+}> = ({ src, repetirFrames, trechos, paraFrameCortado }) => {
+  const frame = useCurrentFrame();
+  const janelas = useMemo(
+    () =>
+      trechos.map((t) => {
+        const inicio = paraSegundos(t.inicio);
+        return { ...t, de: paraFrameCortado(inicio), ate: paraFrameCortado(inicio + t.duracao) };
+      }),
+    [trechos, paraFrameCortado],
+  );
+
+  const atual = janelas.find((j) => frame >= j.de && frame < j.ate);
+  const caixa = atual ?? janelas[0];
+
+  let opacidade = 0;
+  if (atual) {
+    const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+    const entrada = atual.framesEntrada ?? 0;
+    const saida = atual.framesSaida ?? 0;
+    const fadeIn = entrada > 0 ? interpolate(frame, [atual.de, atual.de + entrada], [0, 1], clamp) : 1;
+    const fadeOut = saida > 0 ? interpolate(frame, [atual.ate - saida, atual.ate], [1, 0], clamp) : 1;
+    opacidade = Math.min(fadeIn, fadeOut);
+  }
+
+  return (
+    <CamadaVideo
+      src={src}
+      mudo
+      volume={0}
+      repetirFrames={repetirFrames}
+      x={caixa.x ?? 0.5}
+      y={caixa.y ?? 0.5}
+      largura={caixa.largura ?? 1}
+      altura={caixa.altura ?? 1}
+      ajuste={caixa.ajuste === "conter" ? "conter" : "cobrir"}
+      opacidade={opacidade}
+    />
+  );
+};
+
 export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
   videoSrc,
   plano,
   cortes,
+  cameraSrc,
+  cameraRepetirFrames,
 }) => {
   const { fps } = useVideoConfig();
   const paraFrameCortado = useMemo(
@@ -111,7 +191,21 @@ export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
 
   return (
     <>
-      <OffthreadVideo src={staticFile(videoSrc)} />
+      {/* Tela (vídeo base). Caixa do tamanho da composição: com vídeo do mesmo
+          tamanho, igual a antes; com composição menor, o vídeo cabe nela. */}
+      <AbsoluteFill>
+        <OffthreadVideo src={staticFile(videoSrc)} style={{ width: "100%", height: "100%" }} />
+      </AbsoluteFill>
+      {cameraSrc && plano.camera && plano.camera.length > 0 ? (
+        <Sequence name="camera">
+          <CameraDoPlano
+            src={cameraSrc}
+            repetirFrames={cameraRepetirFrames}
+            trechos={plano.camera}
+            paraFrameCortado={paraFrameCortado}
+          />
+        </Sequence>
+      ) : null}
       {plano.elementos.map((el) => {
         const from = paraFrameCortado(paraSegundos(el.inicio));
         const durationInFrames = el.duracaoFrames ?? Math.round(el.duracao * fps);

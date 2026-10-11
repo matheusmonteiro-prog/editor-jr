@@ -26,6 +26,9 @@ export const camadaVideoSchema = z.object({
   repetirFrames: z.number().min(1).optional(), // duração do arquivo: repete (Loop) até o fim
   framesEntrada: z.number().min(0).default(0),
   framesSaida: z.number().min(0).default(0),
+  // "cobrir" = objectFit cover, "conter" = contain. Sem ajuste: como antes
+  // (nenhum objectFit), pra não mudar os testes que já usam a camada.
+  ajuste: z.enum(["cobrir", "conter"]).optional(),
 });
 
 // z.input: as props com .default() podem ser omitidas ao usar o componente.
@@ -44,6 +47,7 @@ export const CamadaVideo: React.FC<Props> = ({
   repetirFrames,
   framesEntrada = 0,
   framesSaida = 0,
+  ajuste = undefined,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, durationInFrames } = useVideoConfig();
@@ -66,7 +70,11 @@ export const CamadaVideo: React.FC<Props> = ({
       src={staticFile(src)}
       volume={volume}
       muted={mudo}
-      style={{ width: "100%", height: "100%" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        ...(ajuste ? { objectFit: ajuste === "conter" ? "contain" : "cover" } : {}),
+      }}
     />
   );
 
