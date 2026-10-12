@@ -146,6 +146,18 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
     provado:** render; sincronia com par real; o JR na câmera; o aviso de duração nunca disparou;
     deriva de frame com os 7 trechos reais e fps 60 contra 30; `--limpar` no modo novo;
     repetição com o ffmpeg do Remotion. Sem prova visual do `deslocamentoCamera` no Studio.
+  - **Modo de 2 arquivos com arquivos reais (12/10/2026, PC de casa):** tela = `videos/0926.mp4`
+    (2160×3872, 30 fps, 43,14 s, com voz e 6 pausas); câmera = `teste2-camera.mp4` **em loop**
+    (sala vazia, 1280×720, 30 fps, 43,17 s, sem áudio, construída fora do projeto). Exit 0 em
+    154 s, 7 trechos, nenhum aviso. Saídas: tela 37,924 s e 1137 quadros, com áudio; câmera
+    37,933 s e 1138 quadros, sem áudio. Soma dos trechos = `duracaoFinal`; os 7 trechos são
+    idênticos aos de `videos/0926.cortes.json`; a tela cortada é byte a byte idêntica ao
+    `public/videos/0926-cortado-v1.mp4`. A câmera saiu com 1 quadro a mais (0,009 s), abaixo do
+    limite do aviso (provável arredondamento de `-t`; causa não investigada). O script não avisa
+    quando as resoluções diferem. **Não provado:** sincronia (sala vazia em loop, sem par real); o
+    JR na câmera; render; deriva com fps 60 contra 30; o aviso de duração nunca disparou; a
+    diferença de 1 quadro pode acumular com mais cortes reais; qual ffmpeg o script usou (Remotion
+    ou PATH). "Voz" = nível de áudio e pausas, não escuta.
   - **`TesteControleCamadas` (11/10/2026):** o Matheus abriu no Studio, em casa, e disse que
     funcionou. A tela era provisória (`teste2-tela.mp4`, com erros de leitura), sem sincronia
     medida e sem render.

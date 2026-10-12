@@ -545,6 +545,14 @@ arquivos ficaram iguais aos anteriores (comparado com o `HEAD`, mesmo ffmpeg). T
 **Sem prova:** render; sincronia com par real de gravação; o JR na câmera. (Isto não é a
 "variação 1b" acima, que é câmera+mic + tela.)
 
+Rodou também com arquivos reais (12/10/2026, PC de casa): tela `videos/0926.mp4` (2160×3872,
+43,14 s, com voz e 6 pausas) e a câmera de teste em loop (sala vazia, 1280×720, sem áudio,
+construída fora do projeto). Exit 0, 7 trechos, nenhum aviso; tela cortada com 1137 quadros e
+câmera com 1138 (1 quadro a mais, abaixo do limite do aviso; causa não investigada). Os trechos
+são idênticos aos de `videos/0926.cortes.json` e a tela cortada é byte a byte idêntica ao
+`public/videos/0926-cortado-v1.mp4`. O script não avisa quando as resoluções diferem. **Ainda sem
+prova:** sincronia (a câmera era a sala vazia), o JR na câmera, render e fps diferentes.
+
 Testado de ponta a ponta com arquivos sintéticos (3 arquivos em pastas
 diferentes, com espaço no nome, verificado quadro a quadro e o áudio
 decodificado pra confirmar que não estava mudo) **e com uma gravação real do

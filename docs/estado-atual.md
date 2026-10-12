@@ -200,6 +200,22 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
     inteiro (`/` contra `\` conta como diferente); `preparar-video.mjs` ainda pode exigir 3
     arquivos (a conferir, só leitura parcial). **Sem prova visual do `deslocamentoCamera`** (o
     Matheus não abriu no Studio).
+- **Etapa 3, modo de 2 arquivos com arquivos reais (12/10/2026, PC de casa):**
+  - **Rodou:** `--tela` + `--camera` `--gerar` `--saida-dir` (em `%TEMP%`, fora do projeto). Tela =
+    `videos/0926.mp4` (2160×3872, 30 fps, 43,14 s, com voz e 6 pausas). Câmera = `teste2-camera.mp4`
+    **em loop** (sala vazia, 1280×720, 30 fps, 43,17 s, sem áudio, **construída fora do projeto**).
+    Exit 0 em 154 s, 7 trechos, **nenhum aviso**.
+  - **Saídas:** tela 37,924 s e 1137 quadros, com áudio; câmera 37,933 s e 1138 quadros, sem áudio.
+    A soma dos trechos bate com `duracaoFinal`. Os 7 trechos são **idênticos** aos de
+    `videos/0926.cortes.json`. A tela cortada é **byte a byte idêntica** ao
+    `public/videos/0926-cortado-v1.mp4` (`cmp`).
+  - **Observações:** a câmera saiu com 1 quadro a mais (0,009 s), abaixo do limite do aviso (1
+    frame); provavelmente arredondamento de `-t` em segundos por pedaço, **causa não investigada**.
+    O script **não avisa** quando as resoluções de tela e câmera diferem; só as mostra.
+  - **NÃO provado:** sincronia (a câmera é a sala vazia em loop, sem par real); o JR na câmera;
+    render; deriva com fps diferentes (60 contra 30); o aviso de duração nunca disparou; a diferença
+    de 1 quadro pode acumular com mais cortes reais; qual binário do ffmpeg o script usou (Remotion
+    ou PATH) não foi confirmado. "Voz" vem do nível de áudio e das pausas, não de alguém ter ouvido.
 
 - `AvisoCVM`: código completo, registrado; visto pelo Matheus em 07/10/2026
   (gostou; ajustes previstos depois). Texto continua provisório e o texto oficial
