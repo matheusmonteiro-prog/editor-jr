@@ -136,8 +136,9 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   - A tela passou a ficar dentro de um `AbsoluteFill` com 100% de largura e altura em todas as
     composições do `PlanoComposicao`; o resultado visual do `PlanoComposicao0926` **não foi
     conferido** no Studio depois dessa mudança (dedução pelo CSS).
-- **Etapa 3, câmera no plano, limites conhecidos:** o `cortar-silencio.mjs` ainda exige os 3
-  arquivos (`--tela`, `--camera`, `--camera-mic`; modo de 2 arquivos **não existe**); a checagem
+- **Etapa 3, câmera no plano, limites conhecidos:** o `cortar-silencio.mjs` agora tem o modo de 2
+  arquivos (`--tela` + `--camera`, commit `6b83f36`; ver "modo de 2 arquivos" abaixo), sem prova
+  com par real de gravação; a checagem
   "trecho passa do fim do vídeo" só funciona se o validador conhece a duração (`--duracao` ou
   `videos/<video>.cortes.json`); `framesEntrada` e `framesSaida` não têm limite de máximo.
 - **Atenção no PC do trabalho:** depois do `npm install`, os 29 erros do `tsc` em
@@ -174,12 +175,31 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   sem palma (a definir). `docs/criterios-fechamento.md:88` ainda a lista: não editado nesta rodada.
 - Etapa 3 — **propostas de 10/10, ainda NÃO decididas** (cortes com tela + câmera):
   - **Opção A:** o `cortar-silencio.mjs` ganha um modo de 2 arquivos, e a tela com áudio decide
-    os cortes.
+    os cortes. **Feita no código** (Fase A, commit `6b83f36`; detalhe no bullet abaixo).
   - **Opção B:** cortar dentro do Remotion.
   - **Fatos relacionados:** o `--limpar` mexe no áudio (`highpass`, `afftdn`, `acompressor`,
-    `loudnorm`; `ARQUITETURA.md:471-474`); a cópia leve guarda o áudio original (`ARQUITETURA.md:89`);
-    o `cortar-silencio.mjs` ainda exige os 3 arquivos no modo multi-camada, inclusive
-    `--camera-mic` (`scripts/cortar-silencio.mjs:175-181`).
+    `loudnorm`; `ARQUITETURA.md:471-474`); a cópia leve guarda o áudio original (`ARQUITETURA.md:89`).
+- **Etapa 3, modo de 2 arquivos no `cortar-silencio.mjs` (Fase A, commit `6b83f36`):**
+  - **O que faz:** `--tela` + `--camera` (sem `--camera-mic`); o **áudio da tela decide os
+    cortes**; a tela sai **com** áudio e a câmera sem; as duas recebem a mesma lista de trechos.
+    `.cortes.json` com `tipoSessao: "two_files"`, `arquivos: {tela, camera}` e
+    `parametros.deslocamentoCamera = 0` (**sem deslocamento no script**). Saídas
+    `<base>-tela-cortado-vN.mp4` e `<base>-camera-cortado-vN.mp4`.
+  - **`--saida-dir`:** pasta das saídas, do `.cortes.json` e do `.tmp-cortes` (padrão: ao lado do
+    original). Com `--saida-dir` ou no modo de 2 arquivos, um `.cortes.json` **diferente** já
+    existente faz o script avisar e parar sem gravar; um igual é regravado.
+  - **Extras:** erro se a tela não tem áudio; aviso (não erro) de fps diferente entre tela e
+    câmera e de duração das saídas diferindo mais de 1 frame.
+  - **Modos de 1 e de 3 arquivos:** saída idêntica à do `HEAD`, comparada com o mesmo ffmpeg.
+  - **Teste:** `scripts/teste-cortar-dois-arquivos.mjs`, `OK (26 verificações)`, com vídeos
+    sintéticos em `%TEMP%`.
+  - **NÃO provado:** render; sincronia com par real de gravação; o JR na câmera; o aviso de
+    duração **nunca disparou** (só lido no código); deriva de frame com os 7 trechos reais e fps
+    diferentes (60 contra 30); `--limpar` não rodado no modo novo; o teste usou o ffmpeg do PATH e o
+    script também usa o do Remotion (não repetido com ele); a comparação do JSON é pelo texto
+    inteiro (`/` contra `\` conta como diferente); `preparar-video.mjs` ainda pode exigir 3
+    arquivos (a conferir, só leitura parcial). **Sem prova visual do `deslocamentoCamera`** (o
+    Matheus não abriu no Studio).
 
 - `AvisoCVM`: código completo, registrado; visto pelo Matheus em 07/10/2026
   (gostou; ajustes previstos depois). Texto continua provisório e o texto oficial

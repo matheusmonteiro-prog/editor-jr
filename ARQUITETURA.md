@@ -526,6 +526,25 @@ no modo multi, `arquivos: {tela, camera, cameraMic}` com os 3 caminhos.
 Se tela ou câmera tiverem duração diferente da do câmera+mic (mais de 1s de
 diferença), o script avisa — mas não impede de continuar, o Matheus decide.
 
+**Modo de 2 arquivos (tela + câmera, sem `--camera-mic`; commit `6b83f36`, Etapa 3):**
+
+```
+node scripts/cortar-silencio.mjs --gerar --tela "caminho\tela.mkv" --camera "caminho\camera.mkv"
+```
+
+O áudio da **tela** (com a voz embutida) decide os cortes; a tela sai com áudio e a câmera sem;
+as duas recebem a mesma lista de trechos (gancho incluso). Saídas
+`<nome-da-tela>-tela-cortado-vN.mp4` e `<nome-da-tela>-camera-cortado-vN.mp4`. O `.cortes.json`
+tem `tipoSessao: "two_files"`, `arquivos: {tela, camera}` e `parametros.deslocamentoCamera = 0`
+(**o script não desloca a câmera**). `--saida-dir P` (todos os modos) leva saídas, `.cortes.json` e
+`.tmp-cortes` para a pasta P; com `--saida-dir` ou no modo de 2 arquivos, um `.cortes.json`
+diferente já existente faz o script avisar e parar. Avisos: fps diferente entre tela e câmera e
+duração das saídas diferindo mais de 1 frame; erro se a tela não tem áudio. Os modos de 1 e de 3
+arquivos ficaram iguais aos anteriores (comparado com o `HEAD`, mesmo ffmpeg). Teste:
+`scripts/teste-cortar-dois-arquivos.mjs`, `OK (26 verificações)`, só com vídeos sintéticos.
+**Sem prova:** render; sincronia com par real de gravação; o JR na câmera. (Isto não é a
+"variação 1b" acima, que é câmera+mic + tela.)
+
 Testado de ponta a ponta com arquivos sintéticos (3 arquivos em pastas
 diferentes, com espaço no nome, verificado quadro a quadro e o áudio
 decodificado pra confirmar que não estava mudo) **e com uma gravação real do

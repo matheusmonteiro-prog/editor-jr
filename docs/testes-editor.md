@@ -133,11 +133,19 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
     render; o JR na câmera (a câmera de teste é a sala vazia); a câmera **não recomeçar a cada
     trecho** (desenho com uma instância fixa, não medido); `deslocamentoCamera` (agora com efeito,
     commit `1cc8211`; provado só na conta de frames, não no Studio).
-  - **Limites:** o `cortar-silencio.mjs` ainda exige os 3 arquivos (modo de 2 arquivos não
-    existe); a checagem "passa do fim do vídeo" depende de `--duracao` ou
+  - **Limites:** o `cortar-silencio.mjs` tem modo de 2 arquivos (commit `6b83f36`, só teste
+    sintético, sem par real); a checagem "passa do fim do vídeo" depende de `--duracao` ou
     `videos/<video>.cortes.json`; `framesEntrada` e `framesSaida` não têm máximo; no trabalho,
     após `npm install`, os 29 erros do `CasaExplicativa.tsx` podem voltar no `tsc` (pacotes 3D só
     no `package.json` da `testes-ideias`; **inferência, não testada lá**).
+  - **Modo de 2 arquivos no `cortar-silencio.mjs` (commit `6b83f36`):** `--tela` + `--camera`, o
+    áudio da tela decide os cortes, a tela sai com áudio e a câmera sem, mesma lista de trechos;
+    `tipoSessao: "two_files"`, `parametros.deslocamentoCamera = 0` (sem deslocamento no script);
+    `--saida-dir`; `.cortes.json` diferente já existente para o script sem gravar. Teste:
+    `scripts/teste-cortar-dois-arquivos.mjs`, `OK (26 verificações)`, vídeos sintéticos. **Não
+    provado:** render; sincronia com par real; o JR na câmera; o aviso de duração nunca disparou;
+    deriva de frame com os 7 trechos reais e fps 60 contra 30; `--limpar` no modo novo;
+    repetição com o ffmpeg do Remotion. Sem prova visual do `deslocamentoCamera` no Studio.
   - **`TesteControleCamadas` (11/10/2026):** o Matheus abriu no Studio, em casa, e disse que
     funcionou. A tela era provisória (`teste2-tela.mp4`, com erros de leitura), sem sincronia
     medida e sem render.
