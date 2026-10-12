@@ -1,0 +1,9 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "camera": [
+    { "id": "cam-a", "inicio": "0:10", "duracao": 5 },
+    { "id": "cam-b", "inicio": "0:12", "duracao": 5 }
+  ],
+  "elementos": []
+}

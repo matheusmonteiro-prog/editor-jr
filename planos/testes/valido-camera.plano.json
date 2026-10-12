@@ -1,0 +1,10 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "deslocamentoCamera": 0,
+  "camera": [
+    { "id": "cam-cheia", "inicio": "0:00", "duracao": 4, "x": 0.5, "y": 0.5, "largura": 1, "altura": 1, "ajuste": "cobrir", "framesEntrada": 0, "framesSaida": 10 },
+    { "id": "cam-janelinha", "inicio": "0:20", "duracao": 8, "x": 0.82, "y": 0.86, "largura": 0.3, "altura": 0.17 }
+  ],
+  "elementos": []
+}

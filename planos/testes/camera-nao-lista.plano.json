@@ -1,0 +1,6 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "camera": { "id": "cam-cheia", "inicio": "0:00", "duracao": 4 },
+  "elementos": []
+}

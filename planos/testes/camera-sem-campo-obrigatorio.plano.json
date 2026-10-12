@@ -1,0 +1,8 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "camera": [
+    { "inicio": "0:00" }
+  ],
+  "elementos": []
+}

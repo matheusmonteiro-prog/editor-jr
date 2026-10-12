@@ -801,6 +801,99 @@ for (const el of elementos) {
   }
 }
 
+// 10. lista "camera" (opcional). Não usa texto/posicao/slot/ilustrativo e não
+// entra no respiro nem na colisão dos elementos. O validador NÃO prova o visual
+// (câmera cobrir rosto, sincronia): isso é conferência no Studio.
+const CHAVES_CAMERA = ['id', 'inicio', 'duracao', 'x', 'y', 'largura', 'altura', 'ajuste', 'framesEntrada', 'framesSaida'];
+const numeroNaFaixa = (v, min, max) => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
+const inteiroNaoNegativo = (v) => Number.isInteger(v) && v >= 0;
+
+if (dados.deslocamentoCamera !== undefined) {
+  if (typeof dados.deslocamentoCamera !== 'number' || !Number.isFinite(dados.deslocamentoCamera)) {
+    erro('geral', `camera: deslocamentoCamera deve ser número em segundos (veio ${JSON.stringify(dados.deslocamentoCamera)})`);
+  } else if (dados.deslocamentoCamera !== 0) {
+    aviso('geral', `camera: deslocamentoCamera=${dados.deslocamentoCamera} — efeito ainda não implementado, o valor é ignorado`);
+  }
+}
+
+if (dados.camera !== undefined) {
+  if (!Array.isArray(dados.camera)) {
+    erro('geral', `camera: deve ser uma lista (array) de trechos (veio ${JSON.stringify(dados.camera)})`);
+  } else {
+    const idsCamera = new Map();
+    const trechosCamera = [];
+    dados.camera.forEach((t, i) => {
+      const rotulo = typeof t?.id === 'string' && t.id.trim() !== '' ? `camera:${t.id}` : `camera #${i + 1}`;
+      if (!t || typeof t !== 'object' || Array.isArray(t)) {
+        erro(rotulo, 'camera: cada trecho deve ser um objeto');
+        return;
+      }
+      const problemas = [];
+      if (t.id === undefined) problemas.push('id ausente');
+      else if (typeof t.id !== 'string' || t.id.trim() === '') problemas.push('id deve ser texto não vazio');
+      if (t.inicio === undefined) problemas.push('inicio ausente');
+      if (t.duracao === undefined) problemas.push('duracao ausente');
+      if (problemas.length > 0) erro(rotulo, `camera: ${problemas.join('; ')}`);
+
+      if (typeof t.id === 'string' && t.id.trim() !== '') {
+        if (!idsCamera.has(t.id)) idsCamera.set(t.id, []);
+        idsCamera.get(t.id).push(rotulo);
+      }
+
+      const inicioCam = t.inicio === undefined ? null : paraSegundos(t.inicio);
+      if (t.inicio !== undefined && inicioCam === null)
+        erro(rotulo, `camera: inicio deve estar no formato m:ss, com segundos < 60 (veio ${JSON.stringify(t.inicio)})`);
+
+      if (t.duracao !== undefined && !(typeof t.duracao === 'number' && Number.isFinite(t.duracao) && t.duracao > 0))
+        erro(rotulo, `camera: duracao deve ser número > 0 (veio ${JSON.stringify(t.duracao)})`);
+
+      for (const eixo of ['x', 'y']) {
+        if (t[eixo] !== undefined && !numeroNaFaixa(t[eixo], 0, 1))
+          erro(rotulo, `camera: ${eixo} deve estar entre 0 e 1 (veio ${JSON.stringify(t[eixo])})`);
+      }
+      for (const dim of ['largura', 'altura']) {
+        if (t[dim] !== undefined && !numeroNaFaixa(t[dim], 0.05, 1))
+          erro(rotulo, `camera: ${dim} deve estar entre 0.05 e 1 (veio ${JSON.stringify(t[dim])})`);
+      }
+
+      if (t.ajuste !== undefined && t.ajuste !== 'cobrir' && t.ajuste !== 'conter')
+        erro(rotulo, `camera: ajuste deve ser "cobrir" ou "conter" (veio ${JSON.stringify(t.ajuste)})`);
+
+      for (const campo of ['framesEntrada', 'framesSaida']) {
+        if (t[campo] !== undefined && !inteiroNaoNegativo(t[campo]))
+          erro(rotulo, `camera: ${campo} deve ser inteiro >= 0 (veio ${JSON.stringify(t[campo])})`);
+      }
+
+      for (const chave of Object.keys(t)) {
+        if (!CHAVES_CAMERA.includes(chave))
+          aviso(rotulo, `camera: campo "${chave}" não existe em um trecho de câmera (campos: ${CHAVES_CAMERA.join(', ')})`);
+      }
+
+      if (inicioCam !== null && typeof t.duracao === 'number' && t.duracao > 0) {
+        const fimCam = inicioCam + t.duracao;
+        trechosCamera.push({ label: rotulo, inicioSeg: inicioCam, fimSeg: fimCam });
+        if (duracaoMax !== null && fimCam > duracaoMax)
+          erro(rotulo, `camera: termina em ${formatarTempo(fimCam)}, mas o vídeo original só tem ${formatarTempo(duracaoMax)} — reduza "duracao" ou adiante "inicio"`);
+      }
+    });
+
+    for (const [id, labels] of idsCamera) {
+      if (labels.length > 1) erro(labels.join(','), `camera: id repetido "${id}" — escolha um id diferente para cada trecho`);
+    }
+
+    const ordenados = [...trechosCamera].sort((a, b) => a.inicioSeg - b.inicioSeg);
+    for (let i = 0; i < ordenados.length - 1; i++) {
+      const a = ordenados[i];
+      const b = ordenados[i + 1];
+      if (b.inicioSeg < a.fimSeg)
+        erro(
+          `${a.label},${b.label}`,
+          `camera: trechos se sobrepõem (${formatarTempo(a.inicioSeg)}-${formatarTempo(a.fimSeg)} x ${formatarTempo(b.inicioSeg)}-${formatarTempo(b.fimSeg)}) — a câmera só pode estar em um trecho por vez`,
+        );
+    }
+  }
+}
+
 // ---------------------------------------------------------------- saída
 
 for (const linha of linhas) console.log(linha);
