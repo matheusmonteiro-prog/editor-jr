@@ -567,7 +567,7 @@ para os detalhes e a decisão pendente.
 - **Pendências (11/10/2026, ver `docs/estado-atual.md` e `docs/testes-editor.md`, T13):**
   o plano já tem a lista `"camera"` (commit `e570119`, Fase 1) e o validador a confere (Fase 2,
   sem commit ainda), mas **sem prova** de Studio, sincronia tela/câmera, render, do JR na
-  câmera e do `deslocamentoCamera` (efeito **não implementado**); `CamadaVideo` continua fora do
+  câmera e do `deslocamentoCamera` (efeito **implementado** no commit `1cc8211`, provado só na conta de frames, não visto no Studio); `CamadaVideo` continua fora do
   `CATALOGO` (a câmera usa lista própria); a palma foi **dispensada pelo Matheus em 11/10/2026** (alinhar tela e câmera sem palma: decisão de método pendente); o commit `d7c0ce9`
   (`scale`/`translate` no `TesteControleCamadas`) foi **arrasto no Studio confirmado pelo
   Matheus em 11/10; revertido em `b42ae1f`**; o corte com tela + câmera (opção A ou B, de
@@ -646,8 +646,11 @@ reais do 0926 foram levados ao PC do trabalho e o render foi feito no WSL. Pend�
   trecho: `id`, `inicio` (`"m:ss"` do original), `duracao` (segundos), `x`, `y` (centro, 0 a 1),
   `largura`, `altura` (0.05 a 1), `ajuste` (`"cobrir"` ou `"conter"`), `framesEntrada`,
   `framesSaida`. Sem a lista, o plano funciona como antes (`planos/0926.plano.json` não mudou).
-  `"deslocamentoCamera"` (segundos, padrão 0) é **só aceito no tipo e avisado pelo validador**:
-  **o efeito não está implementado**. O **caminho do arquivo da câmera não vai no plano**: vem de
+  `"deslocamentoCamera"` (segundos, padrão 0) tem efeito no `PlanoComposicao` (commit `1cc8211`):
+  positivo = a câmera avança (`trimBefore`, em frames); negativo = a câmera espera (`Sequence from`,
+  em frames); com 0, igual ao anterior. O validador aceita número finito e avisa se `|valor|` > 5 s.
+  **Não visto no Studio** e sem par real de gravação; a prova é só a conta de frames e o `tsc`.
+  Não prova que a boca bate com a voz. O **caminho do arquivo da câmera não vai no plano**: vem de
   `src/Root.tsx`, na prop `cameraSrc` da composição (como o `videoSrc`). Código:
   `src/PlanoComposicao.tsx` (tipo `TrechoCamera`, `CameraDoPlano`, uma instância fixa de
   `CamadaVideo` pela composição inteira); validação: `scripts/validar-plano.mjs`, checagem 10;

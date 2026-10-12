@@ -131,8 +131,8 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
   - **PlanoCameraTeste: a câmera vista e aprovada pelo Matheus em 11/10/2026, no Studio.**
   - **Continua SEM prova:** sincronia tela/câmera;
     render; o JR na câmera (a câmera de teste é a sala vazia); a câmera **não recomeçar a cada
-    trecho** (desenho com uma instância fixa, não medido); `deslocamentoCamera` (efeito **não
-    implementado**, só aceito no tipo).
+    trecho** (desenho com uma instância fixa, não medido); `deslocamentoCamera` (agora com efeito,
+    commit `1cc8211`; provado só na conta de frames, não no Studio).
   - **Limites:** o `cortar-silencio.mjs` ainda exige os 3 arquivos (modo de 2 arquivos não
     existe); a checagem "passa do fim do vídeo" depende de `--duracao` ou
     `videos/<video>.cortes.json`; `framesEntrada` e `framesSaida` não têm máximo; no trabalho,

@@ -127,7 +127,12 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 - **Etapa 3, câmera no plano, SEM prova (registrado em 11/10/2026):**
   - **Sincronia** tela/câmera, **render**, o **JR na câmera** (a câmera de teste é a sala vazia)
     e a câmera **não recomeçar a cada trecho** (o desenho usa uma instância fixa; não foi medido).
-  - **`deslocamentoCamera`:** só aceito no tipo, **efeito não implementado**.
+  - **`deslocamentoCamera`:** tem efeito no `PlanoComposicao` (commit `1cc8211`): positivo = a
+    câmera avança (`trimBefore`); negativo = a câmera espera (`Sequence from`); padrão 0 = igual ao
+    anterior. Validador: 27/27 casos; AVISO se `|valor|` > 5 s. Prova só a conta de frames e o
+    `tsc`; **não visto no Studio** e sem par real.
+  - Fixture `planos/testes/aviso-camera-deslocamento.plano.json`: **nome enganoso** (agora passa
+    limpo, sem aviso); renomear é um passo à parte.
   - A tela passou a ficar dentro de um `AbsoluteFill` com 100% de largura e altura em todas as
     composições do `PlanoComposicao`; o resultado visual do `PlanoComposicao0926` **não foi
     conferido** no Studio depois dessa mudança (dedução pelo CSS).
@@ -152,8 +157,8 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 - Etapa 3 — **lacuna: ligar tela + câmera ao plano** (apurado em 11/10/2026, só leitura; detalhe
   em `docs/testes-editor.md`, T13). **Fases 1 e 2 feitas (ver acima):** o plano tem a lista
   `"camera"` e o validador a confere. **Continua em aberto:** `CamadaVideo` fora do `CATALOGO`
-  (a câmera usa lista própria); o efeito do `deslocamentoCamera` (**inferência, não testada:** a
-  câmera começaria no frame 0 do arquivo, então falta deslocar para sincronizar). Zoom e tela/câmera meio a meio só existem como teste (`src/testes/`, e a cena 1
+  (a câmera usa lista própria); o `deslocamentoCamera` agora tem efeito (commit `1cc8211`); falta só
+  provar com um par real de gravação (tela + câmera). Zoom e tela/câmera meio a meio só existem como teste (`src/testes/`, e a cena 1
   do `TesteControleCamadas`). Cerca de 5 arquivos pelo modelo do commit `5c605ab` (AvisoCVM),
   mais um segundo vídeo no plano e o deslocamento de sincronia (estimativa, não medida).
 - Etapa 3 — `TesteControleCamadas`: aberto no Studio pelo Matheus, em casa, em 11/10/2026; ele
