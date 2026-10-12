@@ -128,7 +128,7 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
     (`scripts/validar-plano.mjs`, checagem 10); `scripts/testar-validador.mjs`: **25 de 25**
     casos OK; 0 erros em `planos/teste-camera.plano.json` e em `planos/0926.plano.json`. O
     validador **não prova o visual** (câmera cobrir o rosto, sincronia): é conferência no Studio.
-  - **PlanoCameraTeste: câmera visto e aprovado pelo Matheus em 11/10/2026, no Studio.**
+  - **PlanoCameraTeste: a câmera vista e aprovada pelo Matheus em 11/10/2026, no Studio.**
   - **Continua SEM prova:** sincronia tela/câmera;
     render; o JR na câmera (a câmera de teste é a sala vazia); a câmera **não recomeçar a cada
     trecho** (desenho com uma instância fixa, não medido); `deslocamentoCamera` (efeito **não

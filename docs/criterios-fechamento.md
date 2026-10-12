@@ -85,7 +85,7 @@ A etapa fecha quando **todos** os itens abaixo estiverem cumpridos.
 
 | # | Critério | Tipo | Situação hoje (segundo os docs) |
 |---|---|---|---|
-| 3.1 | **Formato A (multi-camada)**: tela por baixo, câmera por cima só nos trechos que o prompt definir. Pré-requisito: o teste de sincronia dos 3 arquivos do OBS com palma (alternativa 3, já escolhida). | [M] gravar o teste; depois [C] montar | Teste de sincronia ainda não gravado. |
+| 3.1 | **Formato A (multi-camada)**: tela por baixo, câmera por cima só nos trechos que o prompt definir. Pré-requisito: o teste de sincronia dos 3 arquivos do OBS. A palma foi dispensada pelo Matheus em 11/10/2026; alinhamento sem palma pendente. | [M] gravar o teste; depois [C] montar | Teste de sincronia ainda não gravado. |
 | 3.2 | **Vídeo base + camadas por cima** (componentes de fundo transparente) sobre vídeo real. | [C]; [M] ver no Studio | Já existem composições de teste; nada confirmado pelo Matheus sobre vídeo real. |
 | 3.3 | **Formato vertical/horizontal automático, com opção de forçar pelo prompt** (decisão de 05/10/2026). | [C] | Decidido, não implementado. |
 | 3.4 | **`ArrobaInstagram` fixo.** | [M] mandar o @; depois [C] | Não construído. |

@@ -116,7 +116,7 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   passou de 8 para **25 de 25 casos OK** (17 fixtures novas em `planos/testes/`, `camera-*`,
   `aviso-camera-*` e `valido-camera`). `planos/teste-camera.plano.json` e `planos/0926.plano.json`:
   0 erro, 0 aviso.
-- **PlanoCameraTeste: câmera visto e aprovado pelo Matheus em 11/10/2026, no Studio.**
+- **PlanoCameraTeste: a câmera vista e aprovada pelo Matheus em 11/10/2026, no Studio.**
 - **Etapa 3, câmera no plano, SEM prova (registrado em 11/10/2026):**
   - **Sincronia** tela/câmera, **render**, o **JR na câmera** (a câmera de teste é a sala vazia)
     e a câmera **não recomeçar a cada trecho** (o desenho usa uma instância fixa; não foi medido).
