@@ -19,6 +19,9 @@ import plano0926 from "../planos/0926.plano.json";
 import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
 import planoTesteCamera from "../planos/teste-camera.plano.json";
 import cortes0926 from "../videos/0926.cortes.json";
+import type { CalculateMetadataFunction } from "remotion";
+import type { PlanoComposicaoProps } from "./PlanoComposicao";
+import { tamanhoDoPlano } from "./utils/tamanhoDoPlano";
 
 const FPS_0926 = 30;
 const DURACAO_FRAMES_0926 = Math.round(cortes0926.duracaoFinal * FPS_0926);
@@ -115,6 +118,23 @@ const TesteControleCamadas: React.FC = () => {
   );
 };
 
+// Tamanho vindo do plano (Etapa 3, 3.3, fase 1): "vertical" -> 1080x1920,
+// "horizontal" -> 1920x1080. Valor desconhecido ou erro: {} (vale o width/height
+// literal da Composition) e aviso no console. A ficha .preparo.json não é lida.
+const calcularTamanhoDoPlano: CalculateMetadataFunction<PlanoComposicaoProps> = ({ props }) => {
+  try {
+    const orientacao = props.plano?.orientacao;
+    const tamanho = tamanhoDoPlano(orientacao);
+    if (tamanho) return tamanho;
+    console.warn(
+      `calculateMetadata: orientacao ${JSON.stringify(orientacao)} do plano não é "vertical" nem "horizontal"; vale o tamanho literal da composição.`,
+    );
+  } catch (erro) {
+    console.warn("calculateMetadata: não consegui ler a orientacao do plano; vale o tamanho literal da composição.", erro);
+  }
+  return {};
+};
+
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -207,6 +227,39 @@ export const RemotionRoot: React.FC = () => {
             cortes: cortes0926,
             cameraSrc: "videos/teste2-camera.mp4",
             cameraRepetirFrames: 211,
+          }}
+        />
+        {/* Tamanho vindo do plano (vertical): igual ao PlanoCameraTeste, abre em 1080x1920. */}
+        <Composition
+          id="PlanoAutomatico"
+          component={PlanoComposicao}
+          durationInFrames={DURACAO_FRAMES_0926}
+          fps={FPS_0926}
+          width={1080}
+          height={1920}
+          calculateMetadata={calcularTamanhoDoPlano}
+          defaultProps={{
+            videoSrc: "videos/0926-cortado-v1.mp4",
+            plano: planoTesteCamera,
+            cortes: cortes0926,
+            cameraSrc: "videos/teste2-camera.mp4",
+            cameraRepetirFrames: 211,
+          }}
+        />
+        {/* Tamanho literal 1080x1920 de propósito: o plano horizontal faz o calculateMetadata
+            mudar para 1920x1080. Câmera de teste (sala vazia) como vídeo, sem elementos. */}
+        <Composition
+          id="PlanoAutomaticoHorizontal"
+          component={PlanoComposicao}
+          durationInFrames={211}
+          fps={FPS_0926}
+          width={1080}
+          height={1920}
+          calculateMetadata={calcularTamanhoDoPlano}
+          defaultProps={{
+            videoSrc: "videos/teste2-camera.mp4",
+            plano: { video: "teste2-camera", orientacao: "horizontal", elementos: [] },
+            cortes: { trechos: [{ inicio: 0, fim: 7.03 }] },
           }}
         />
       </Folder>
