@@ -28,11 +28,23 @@
  *   os cortes, e os MESMOS cortes são aplicados nos 3 arquivos — senão perde
  *   a sincronia. As saídas e o .cortes.json vão para a pasta do --camera-mic:
  *   node scripts/cortar-silencio.mjs --gerar --tela "D:\OBS\tela\tela.mkv" --camera "D:\OBS\CAMERA_GRAV\camera.mkv" --camera-mic "D:\OBS\camera-mic.mkv"
+ *
+ *   Modo de 2 arquivos (tela COM a voz embutida + câmera sem som): o áudio da
+ *   TELA decide os cortes e os MESMOS cortes vão para a câmera. A tela sai com
+ *   áudio, a câmera sem. Saídas: <nome>-tela-cortado-vN.mp4 e
+ *   <nome>-camera-cortado-vN.mp4, na pasta do --tela (ou do --saida-dir):
+ *   node scripts/cortar-silencio.mjs --gerar --tela "D:\OBS\tela.mkv" --camera "D:\OBS\camera.mkv"
+ *
+ *   --saida-dir P   pasta das saídas, do .cortes.json e do .tmp-cortes (relativa
+ *                   ao diretório atual; criada se não existir). Padrão: ao lado
+ *                   do arquivo que decide os cortes. Com --saida-dir (ou no modo
+ *                   de 2 arquivos), um .cortes.json já existente e DIFERENTE
+ *                   não é sobrescrito: o script avisa e para.
  */
 
 import {spawnSync} from 'node:child_process';
-import {existsSync, mkdirSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
-import {dirname, join, resolve} from 'node:path';
+import {existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
+import {basename, dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -146,6 +158,7 @@ const FLAGS_COM_VALOR = new Set([
   'tela',
   'camera',
   'camera-mic',
+  'saida-dir',
 ]);
 let entrada = null;
 for (let i = 0; i < argv.length; i++) {
@@ -171,14 +184,20 @@ const TELA = opcao('tela', null);
 const CAMERA = opcao('camera', null);
 const CAMERA_MIC = opcao('camera-mic', null);
 const MULTI = Boolean(TELA || CAMERA || CAMERA_MIC);
+// Modo de 2 arquivos: tela (com a voz) + câmera (sem som), sem --camera-mic.
+// Aqui a TELA faz o papel de arquivo que decide os cortes.
+const DOIS = Boolean(TELA && CAMERA && !CAMERA_MIC);
 
 if (MULTI) {
   const faltando = [];
   if (!TELA) faltando.push('--tela');
   if (!CAMERA) faltando.push('--camera');
-  if (!CAMERA_MIC) faltando.push('--camera-mic');
   if (faltando.length > 0) {
-    console.error(`Modo multi-camada precisa dos 3 arquivos. Faltou: ${faltando.join(', ')}`);
+    console.error(
+      'Modo com camadas precisa de --tela e --camera (2 arquivos: a tela com a voz e a câmera sem som) ' +
+        'ou de --tela, --camera e --camera-mic (3 arquivos). ' +
+        `Faltou: ${faltando.join(', ')}`,
+    );
     process.exit(1);
   }
   if (entrada) {
@@ -187,7 +206,9 @@ if (MULTI) {
     );
     process.exit(1);
   }
-  for (const [nome, caminho] of [['--tela', TELA], ['--camera', CAMERA], ['--camera-mic', CAMERA_MIC]]) {
+  const presentes = [['--tela', TELA], ['--camera', CAMERA]];
+  if (CAMERA_MIC) presentes.push(['--camera-mic', CAMERA_MIC]);
+  for (const [nome, caminho] of presentes) {
     if (!existsSync(caminho)) {
       console.error(`Não achei o arquivo de ${nome}: ${caminho}`);
       process.exit(1);
@@ -205,8 +226,38 @@ if (MULTI) {
 }
 
 // A partir daqui, ARQUIVO_BASE é quem manda no cálculo dos cortes: o vídeo
-// único, ou o câmera+mic no modo multi-camada (o único com áudio).
-const ARQUIVO_BASE = MULTI ? CAMERA_MIC : entrada;
+// único, o câmera+mic no modo de 3 arquivos (o único com áudio) ou a tela no
+// modo de 2 arquivos (a voz vem embutida nela).
+const ARQUIVO_BASE = MULTI ? (DOIS ? TELA : CAMERA_MIC) : entrada;
+
+// --saida-dir: pasta das saídas, do .cortes.json e do .tmp-cortes. Sem ela,
+// tudo vai ao lado de ARQUIVO_BASE, como sempre foi.
+const SAIDA_DIR_TXT = opcao('saida-dir', null);
+if (argv.includes('--saida-dir') && (!SAIDA_DIR_TXT || SAIDA_DIR_TXT.startsWith('--'))) {
+  console.error('A opção --saida-dir precisa de uma pasta. Ex.: --saida-dir videos');
+  process.exit(1);
+}
+const SAIDA_DIR = SAIDA_DIR_TXT ? resolve(process.cwd(), SAIDA_DIR_TXT) : null;
+
+// No modo de 2 arquivos a tela decide os cortes pelo áudio: sem trilha de áudio
+// não há o que detectar.
+if (DOIS) {
+  const audio = rodar(FFPROBE, [
+    '-v',
+    'error',
+    '-select_streams',
+    'a:0',
+    '-show_entries',
+    'stream=codec_type',
+    '-of',
+    'csv=p=0',
+    TELA,
+  ]);
+  if (audio.stdout.trim() !== 'audio') {
+    console.error(`A tela não tem áudio (${TELA}). No modo de 2 arquivos o áudio da tela decide os cortes.`);
+    process.exit(1);
+  }
+}
 
 const LIMIAR = Number(opcao('limiar', -30)); // dB: abaixo disso é considerado silêncio
 const PAUSA = Number(opcao('pausa', 0.8)); // s: só pausas maiores que isso contam
@@ -283,14 +334,15 @@ if (!DURACAO) {
 // começam juntos e duram o mesmo tempo. Não bloqueia (o Matheus pode querer
 // ver o resultado mesmo assim), mas avisa alto se a duração não bater.
 if (MULTI) {
-  for (const [nome, arquivo] of [['tela', TELA], ['câmera', CAMERA]]) {
+  const conferir = DOIS ? [['câmera', CAMERA]] : [['tela', TELA], ['câmera', CAMERA]];
+  for (const [nome, arquivo] of conferir) {
     const dur = duracaoDe(arquivo);
     const diferenca = Math.abs(dur - DURACAO);
     if (diferenca > 1) {
       console.warn(
-        `\n⚠ ATENÇÃO: duração de ${nome} (${segParaTempo(dur)}) difere da do câmera+mic ` +
+        `\n⚠ ATENÇÃO: duração de ${nome} (${segParaTempo(dur)}) difere da do ${DOIS ? 'tela' : 'câmera+mic'} ` +
           `(${segParaTempo(DURACAO)}) em ${diferenca.toFixed(2)}s. Os cortes podem sair ` +
-          `dessincronizados. Confira se os 3 arquivos são da mesma gravação.\n`,
+          `dessincronizados. Confira se os ${DOIS ? 2 : 3} arquivos são da mesma gravação.\n`,
       );
     }
   }
@@ -329,7 +381,7 @@ if (MULTI) {
   for (const [nome, arquivo] of [
     ['tela', TELA],
     ['câmera', CAMERA],
-    ['câmera+mic', CAMERA_MIC],
+    ...(CAMERA_MIC ? [['câmera+mic', CAMERA_MIC]] : []),
   ]) {
     const res = resolucaoDe(arquivo);
     console.log(`  ${nome}: ${res.width}x${res.height} (${formatoDe(res)})`);
@@ -503,30 +555,52 @@ if (ordem !== finais) {
 
 // ---------------------------------------------------------------- JSON
 
-const jsonPath = ARQUIVO_BASE.replace(/\.[^.]+$/, '') + '.cortes.json';
-writeFileSync(
-  jsonPath,
-  JSON.stringify(
-    {
-      tipoSessao: MULTI ? 'multi_layer' : 'single_file',
-      ...(MULTI ? {arquivos: {tela: TELA, camera: CAMERA, cameraMic: CAMERA_MIC}} : {arquivo: entrada}),
-      duracaoOriginal: DURACAO,
-      duracaoFinal: somar(ordem),
-      parametros: {
-        limiar: LIMIAR,
-        pausa: PAUSA,
-        margem: MARGEM,
-        minimo: MINIMO,
-        gancho: GANCHOS.map((g) => g.texto),
-        modoGancho: GANCHOS.length > 0 ? (COPIAR ? 'copiar' : 'mover') : null,
-      },
-      silencios,
-      trechos: ordem,
+// Base das saídas (sem extensão): ao lado de ARQUIVO_BASE ou, com --saida-dir,
+// dentro dela com o mesmo nome base.
+const baseSemExtensao = ARQUIVO_BASE.replace(/\.[^.]+$/, '');
+const prefixoSaida = SAIDA_DIR ? join(SAIDA_DIR, basename(baseSemExtensao)) : baseSemExtensao;
+const jsonPath = prefixoSaida + '.cortes.json';
+if (SAIDA_DIR) mkdirSync(SAIDA_DIR, {recursive: true});
+
+const jsonTexto = JSON.stringify(
+  {
+    tipoSessao: DOIS ? 'two_files' : MULTI ? 'multi_layer' : 'single_file',
+    ...(DOIS
+      ? {arquivos: {tela: TELA, camera: CAMERA}}
+      : MULTI
+        ? {arquivos: {tela: TELA, camera: CAMERA, cameraMic: CAMERA_MIC}}
+        : {arquivo: entrada}),
+    duracaoOriginal: DURACAO,
+    duracaoFinal: somar(ordem),
+    parametros: {
+      limiar: LIMIAR,
+      pausa: PAUSA,
+      margem: MARGEM,
+      minimo: MINIMO,
+      gancho: GANCHOS.map((g) => g.texto),
+      modoGancho: GANCHOS.length > 0 ? (COPIAR ? 'copiar' : 'mover') : null,
+      // Nesta fase o script não desloca a câmera; o 0 só deixa isso rastreável.
+      ...(DOIS ? {deslocamentoCamera: 0} : {}),
     },
-    null,
-    2,
-  ),
+    silencios,
+    trechos: ordem,
+  },
+  null,
+  2,
 );
+
+// Modo de 2 arquivos e --saida-dir são os caminhos novos: nada de sobrescrever
+// um .cortes.json diferente sem o Matheus saber (um igual é regravado igual, o
+// que permite rodar a análise e depois a mesma linha com --gerar). Os modos
+// antigos, sem --saida-dir, continuam sobrescrevendo como sempre.
+if ((DOIS || SAIDA_DIR) && existsSync(jsonPath) && readFileSync(jsonPath, 'utf8') !== jsonTexto) {
+  console.error(
+    `\nJá existe um .cortes.json DIFERENTE em ${jsonPath}.\n` +
+      'Não vou sobrescrever. Mude a pasta com --saida-dir, ou apague/renomeie esse arquivo você mesmo e rode de novo.',
+  );
+  process.exit(1);
+}
+writeFileSync(jsonPath, jsonTexto);
 console.log(`\nLista salva em: ${jsonPath}`);
 
 if (!GERAR) {
@@ -617,8 +691,7 @@ const gerarSaidaCortada = ({arquivoEntrada, comAudio, caminhoSaida, rotulo}) => 
 };
 
 // Versiona a saída: nunca sobrescreve um vídeo já exportado.
-const baseSemExtensao = ARQUIVO_BASE.replace(/\.[^.]+$/, '');
-const pasta = dirname(ARQUIVO_BASE);
+const pasta = SAIDA_DIR ?? dirname(ARQUIVO_BASE);
 const contarMaxVersao = (regex) => {
   const usados = readdirSync(pasta)
     .map((f) => f.match(regex))
@@ -627,7 +700,66 @@ const contarMaxVersao = (regex) => {
   return usados.length ? Math.max(...usados) : 0;
 };
 
-if (MULTI) {
+// Só no modo de 2 arquivos. Aviso (não erro): duração do vídeo das duas saídas
+// diferindo mais de 1 frame, ou fps diferente entre tela e câmera. Cada pedaço
+// é cortado em segundos, então fps diferentes podem fazer a diferença crescer
+// a cada junção.
+const infoVideo = (arquivo) => {
+  const r = rodar(FFPROBE, [
+    '-v',
+    'error',
+    '-select_streams',
+    'v:0',
+    '-show_entries',
+    'stream=r_frame_rate,duration',
+    '-of',
+    'csv=p=0',
+    arquivo,
+  ]);
+  const [taxa, duracao] = r.stdout.trim().split(',');
+  const [num, den] = String(taxa).split('/').map(Number);
+  return {fps: den ? num / den : Number(num), duracao: Number(duracao)};
+};
+
+const avisarDiferencas = (saidaTela, saidaCamera) => {
+  const t = infoVideo(saidaTela);
+  const c = infoVideo(saidaCamera);
+  if (t.fps && c.fps && Math.abs(t.fps - c.fps) > 0.01) {
+    console.warn(
+      `\n⚠ ATENÇÃO: a tela está a ${t.fps.toFixed(2)} fps e a câmera a ${c.fps.toFixed(2)} fps. ` +
+        'Cada trecho é cortado em segundos, então os dois arquivos podem sair com tamanhos ' +
+        'diferentes e dessincronizar aos poucos. Grave os dois com o mesmo fps.\n',
+    );
+  }
+  const umFrame = 1 / (t.fps || 30);
+  const diferenca = Math.abs(t.duracao - c.duracao);
+  if (Number.isFinite(diferenca) && diferenca > umFrame + 1e-6) {
+    console.warn(
+      `\n⚠ ATENÇÃO: a duração do vídeo da tela cortada (${t.duracao.toFixed(3)}s) e a da câmera ` +
+        `cortada (${c.duracao.toFixed(3)}s) diferem em ${diferenca.toFixed(3)}s, mais de 1 frame ` +
+        `(${umFrame.toFixed(3)}s). Os dois arquivos podem estar dessincronizados.\n`,
+    );
+  }
+};
+
+if (DOIS) {
+  // Os 2 arquivos da mesma rodada compartilham o número de versão.
+  const versao =
+    Math.max(
+      contarMaxVersao(/-tela-cortado-v(\d+)\.mp4$/),
+      contarMaxVersao(/-camera-cortado-v(\d+)\.mp4$/),
+    ) + 1;
+
+  const saidaTela = `${prefixoSaida}-tela-cortado-v${versao}.mp4`;
+  const saidaCamera = `${prefixoSaida}-camera-cortado-v${versao}.mp4`;
+
+  // A tela sai COM áudio (é onde está a voz); a câmera sem. Mesma `ordem`.
+  gerarSaidaCortada({arquivoEntrada: TELA, comAudio: true, caminhoSaida: saidaTela, rotulo: 'tela'});
+  gerarSaidaCortada({arquivoEntrada: CAMERA, comAudio: false, caminhoSaida: saidaCamera, rotulo: 'câmera'});
+
+  avisarDiferencas(saidaTela, saidaCamera);
+  console.log(`\nPronto, 2 arquivos cortados com os mesmos trechos:\n  ${saidaTela}\n  ${saidaCamera}\n`);
+} else if (MULTI) {
   // Os 3 arquivos da mesma rodada compartilham o número de versão, pra ficar
   // claro que pertencem juntos.
   const versao =
@@ -637,9 +769,9 @@ if (MULTI) {
       contarMaxVersao(/-camera-mic-cortado-v(\d+)\.mp4$/),
     ) + 1;
 
-  const saidaTela = `${baseSemExtensao}-tela-cortado-v${versao}.mp4`;
-  const saidaCamera = `${baseSemExtensao}-camera-cortado-v${versao}.mp4`;
-  const saidaCameraMic = `${baseSemExtensao}-camera-mic-cortado-v${versao}.mp4`;
+  const saidaTela = `${prefixoSaida}-tela-cortado-v${versao}.mp4`;
+  const saidaCamera = `${prefixoSaida}-camera-cortado-v${versao}.mp4`;
+  const saidaCameraMic = `${prefixoSaida}-camera-mic-cortado-v${versao}.mp4`;
 
   gerarSaidaCortada({arquivoEntrada: TELA, comAudio: false, caminhoSaida: saidaTela, rotulo: 'tela'});
   gerarSaidaCortada({arquivoEntrada: CAMERA, comAudio: false, caminhoSaida: saidaCamera, rotulo: 'câmera'});
@@ -661,7 +793,7 @@ if (MULTI) {
     .filter(Boolean)
     .map((m) => Number(m[1]));
   const versao = (usados.length ? Math.max(...usados) : 0) + 1;
-  const final = `${baseSemExtensao}-cortado-v${versao}.mp4`;
+  const final = `${prefixoSaida}-cortado-v${versao}.mp4`;
   gerarSaidaCortada({arquivoEntrada: entrada, comAudio: true, caminhoSaida: final, rotulo: 'vídeo'});
   console.log('');
 }
