@@ -101,10 +101,9 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
     (`src/PlanoComposicao.tsx:29-49`), então o plano em JSON não consegue usá-lo.
     `PlanoComposicao` só renderiza **um** vídeo (`src/PlanoComposicao.tsx:114`).
     Não existe teste lado a lado de corte seco contra transição. O teste de sincronia dos
-    arquivos do OBS com palma, que é pré-requisito do Formato A, ainda não foi feito
-    (`ARQUITETURA.md:243-245`, `docs/criterios-fechamento.md:88`). **A palma é decisão pendente
-    do Matheus:** ele disse tê-la dispensado em 07/10 e 09/10, mas isso **não está registrado**
-    nos docs (busca por "palma" em `ARQUITETURA.md` e `docs/`).
+    arquivos do OBS com palma não foi feito. **A palma foi dispensada pelo Matheus em
+    11/10/2026** (não é mais pré-requisito do Formato A, `ARQUITETURA.md:243-245`).
+    **Decisão de método pendente:** alinhar tela e câmera sem palma (a definir).
   - Os testes usam a "tela" provisória (`teste2-tela.mp4`, com erros de leitura).
   - **Lacuna para ligar ao plano (apurada em 11/10/2026, só leitura):**
     - `PlanoComposicao` renderiza um vídeo só (`videoSrc`, `src/PlanoComposicao.tsx:114`) e o
@@ -129,8 +128,8 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
     (`scripts/validar-plano.mjs`, checagem 10); `scripts/testar-validador.mjs`: **25 de 25**
     casos OK; 0 erros em `planos/teste-camera.plano.json` e em `planos/0926.plano.json`. O
     validador **não prova o visual** (câmera cobrir o rosto, sincronia): é conferência no Studio.
-  - **Continua SEM prova:** Studio (sem confirmação registrada de que o Matheus conferiu o
-    `PlanoCameraTeste`; o commit foi emendado para não afirmar isso); sincronia tela/câmera;
+  - **PlanoCameraTeste: câmera visto e aprovado pelo Matheus em 11/10/2026, no Studio.**
+  - **Continua SEM prova:** sincronia tela/câmera;
     render; o JR na câmera (a câmera de teste é a sala vazia); a câmera **não recomeçar a cada
     trecho** (desenho com uma instância fixa, não medido); `deslocamentoCamera` (efeito **não
     implementado**, só aceito no tipo).
@@ -371,7 +370,7 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
 5. **T10 — screencast legível em vertical.** É o conteúdo principal do canal, mas exige
    decisão de projeto (de onde vem o cursor) antes de qualquer código.
 6. **T13 — troca de foco tela/câmera.** Já tem a peça (`CamadaVideo`), falta ligar ao plano e
-   fazer o teste de sincronia com palma (pré-requisito da Etapa 3).
+   fazer o teste de sincronia (palma dispensada em 11/10/2026; método sem palma a definir).
 7. **T17 — decidir o alvo de volume**, antes de T16 e T18: sem alvo não há como medir a mistura.
 8. **T16 e T18 — música e efeito sonoro.** Dependem de baixar os arquivos e de o render
    funcionar.
@@ -398,7 +397,7 @@ bloqueado, `ARQUITETURA.md:46`):
 **Dependem de outra coisa que ainda não existe (não é Whisper nem render):**
 - **T10 e T11:** de onde vem a posição do cursor (não existe dado).
 - **T12:** pesquisa das medidas da interface de cada plataforma.
-- **T13:** teste de sincronia dos arquivos do OBS com palma (`ARQUITETURA.md:243-245`) e ligar
+- **T13:** teste de sincronia dos arquivos do OBS, sem palma (dispensada em 11/10/2026; método a definir) e ligar
   `CamadaVideo` ao `CATALOGO`.
 - **T16 e T18:** baixar a música e o efeito (`docs/criterios-fechamento.md:93`).
 - **T17:** decisão do Matheus sobre o alvo de volume.

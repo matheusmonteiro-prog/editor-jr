@@ -240,9 +240,9 @@ não um erro de configuração do Matheus.
    palma visível e audível) pra medir o offset exato por correlação, em vez de
    inferir por timestamp de arquivo (que é só um proxy, não prova frame-exato).
 
-**Escolhido como próximo passo: a alternativa 3.** Continua sendo pré-requisito
-da Etapa 3 (a parte de composição/Remotion) antes de construir a lógica de
-camadas visuais em cima da sincronia entre os arquivos.
+**Escolhido como próximo passo: a alternativa 3. Dispensada pelo Matheus em 11/10/2026**
+(deixou de ser pré-requisito do Formato A). **Decisão de método pendente:** alinhar tela e
+câmera sem palma (a definir).
 
 **Variação de entrada (1b), ainda PENDENTE:** algumas sessões podem vir com só
 **2 arquivos** em vez de 3 (ex.: só câmera+mic e tela, sem o arquivo de câmera
@@ -568,7 +568,7 @@ para os detalhes e a decisão pendente.
   o plano já tem a lista `"camera"` (commit `e570119`, Fase 1) e o validador a confere (Fase 2,
   sem commit ainda), mas **sem prova** de Studio, sincronia tela/câmera, render, do JR na
   câmera e do `deslocamentoCamera` (efeito **não implementado**); `CamadaVideo` continua fora do
-  `CATALOGO` (a câmera usa lista própria); a palma é **decisão pendente do Matheus**; o commit `d7c0ce9`
+  `CATALOGO` (a câmera usa lista própria); a palma foi **dispensada pelo Matheus em 11/10/2026** (alinhar tela e câmera sem palma: decisão de método pendente); o commit `d7c0ce9`
   (`scale`/`translate` no `TesteControleCamadas`) foi **arrasto no Studio confirmado pelo
   Matheus em 11/10; revertido em `b42ae1f`**; o corte com tela + câmera (opção A ou B, de
   10/10) **não foi decidido**.

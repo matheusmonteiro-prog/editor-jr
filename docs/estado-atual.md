@@ -116,9 +116,8 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   passou de 8 para **25 de 25 casos OK** (17 fixtures novas em `planos/testes/`, `camera-*`,
   `aviso-camera-*` e `valido-camera`). `planos/teste-camera.plano.json` e `planos/0926.plano.json`:
   0 erro, 0 aviso.
+- **PlanoCameraTeste: câmera visto e aprovado pelo Matheus em 11/10/2026, no Studio.**
 - **Etapa 3, câmera no plano, SEM prova (registrado em 11/10/2026):**
-  - **Studio:** não há confirmação registrada de que o Matheus conferiu a composição
-    `PlanoCameraTeste` (a mensagem do commit `e570119` foi emendada para não afirmar isso).
   - **Sincronia** tela/câmera, **render**, o **JR na câmera** (a câmera de teste é a sala vazia)
     e a câmera **não recomeçar a cada trecho** (o desenho usa uma instância fixa; não foi medido).
   - **`deslocamentoCamera`:** só aceito no tipo, **efeito não implementado**.
@@ -158,9 +157,9 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   Matheus em 11/10; revertido em `b42ae1f`** (o `d7c0ce9` continua no histórico;
   `ARQUITETURA.md:258` e `:753-754` mandam não arrastar). Foge da regra de nada de tamanho fixo
   em pixel.
-- Etapa 3 — **palma: decisão pendente do Matheus.** `ARQUITETURA.md:243-245` e
-  `docs/criterios-fechamento.md:88` a listam como pré-requisito do Formato A; o Matheus disse
-  tê-la dispensado em 07/10 e 09/10, e isso não está registrado nos docs.
+- Etapa 3 — **palma dispensada pelo Matheus em 11/10/2026** (deixou de ser pré-requisito do
+  Formato A, `ARQUITETURA.md:243-245`). **Decisão de método pendente:** alinhar tela e câmera
+  sem palma (a definir). `docs/criterios-fechamento.md:88` ainda a lista: não editado nesta rodada.
 - Etapa 3 — **propostas de 10/10, ainda NÃO decididas** (cortes com tela + câmera):
   - **Opção A:** o `cortar-silencio.mjs` ganha um modo de 2 arquivos, e a tela com áudio decide
     os cortes.
