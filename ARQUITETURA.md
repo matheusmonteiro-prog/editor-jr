@@ -193,8 +193,9 @@ formato livre — o que torna o sintoma ainda mais enganoso.
   redimensionar (ver Etapa 3 e Etapa 6, item de várias saídas, que inclui o formato de tela de
   cada saída). Ainda **não implementado**: como o plano de edição distingue "automático" de
   "forçado" (o campo `"orientacao"` da seção 7 já existe; esta regra não cria campo novo).
-  **Estado no código (12/10/2026):** o campo `"orientacao"` do plano é só tipo
-  (`src/PlanoComposicao.tsx`) e nada o lê; o tamanho das composições é fixo no `src/Root.tsx`.
+  **Estado no código (Fase 1, commit `ccfd5ed`):** nas composições novas `PlanoAutomatico` e
+  `PlanoAutomaticoHorizontal` o campo `"orientacao"` do plano manda o tamanho (ver "Orientação"
+  nas pendências da Etapa 3); nas demais composições o tamanho continua fixo no `src/Root.tsx`.
 - **Posicionamento automático por visão (IA olhando o frame):** fora da v1.
 
 ## 3a. Formatos de entrada de vídeo (sessões de gravação)
@@ -604,10 +605,17 @@ para os detalhes e a decisão pendente.
   código desde o commit `6b83f36`).
 - **`ArrobaInstagram`, `LogoAnimada`, música e efeito sonoro: não existem em `src/`;
   `public/music`, `public/sfx` e `public/brand` estão vazias (12/10/2026).**
-- **Orientação (12/10/2026):** no código o campo `"orientacao"` do plano é só tipo
-  (`src/PlanoComposicao.tsx`) e nada o lê; o tamanho das composições é fixo no `src/Root.tsx`. A
-  detecção existe só no `scripts/preparar-video.mjs` (grava na ficha). O formato novo **não foi
-  decidido**.
+- **Orientação, Fase 1 (commit `ccfd5ed`):** o campo `"orientacao"` do plano manda o tamanho via
+  `calculateMetadata` (`src/utils/tamanhoDoPlano.ts`, `src/Root.tsx`): `"vertical"` → 1080×1920,
+  `"horizontal"` → 1920×1080; outro valor dá aviso no console e vale o `width`/`height` literal da
+  composição. O `--width`/`--height` da linha de comando ganha do plano (lido no código do Remotion
+  4.0.527, não executado). Composições novas, na pasta Testes: `PlanoAutomatico` e
+  `PlanoAutomaticoHorizontal`; as 5 antigas não mudaram (só adições no `Root.tsx`). A ficha
+  `.preparo.json` **não é lida** e **não existe** o valor `"automatico"`. **Não provado:** render;
+  vídeo real com o JR; o que a tela faz com proporção diferente do plano (esticar ou barras, sem
+  `objectFit`); se o Studio recalcula ao editar props. Multi-camada (qual arquivo define a
+  orientação) segue indefinido. Risco que já existia: `videos/` é ignorada pelo Git e o
+  `Root.tsx` importa `videos/0926.cortes.json`, então um clone novo não compila.
 
 ### Etapa 4 — Legendas automáticas
 - Transcrição local e gratuita (verificar a ferramenta oficial do Remotion para legendas / Whisper)

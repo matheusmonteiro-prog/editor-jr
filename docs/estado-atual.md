@@ -216,6 +216,23 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
     render; deriva com fps diferentes (60 contra 30); o aviso de duração nunca disparou; a diferença
     de 1 quadro pode acumular com mais cortes reais; qual binário do ffmpeg o script usou (Remotion
     ou PATH) não foi confirmado. "Voz" vem do nível de áudio e das pausas, não de alguém ter ouvido.
+- **Etapa 3 (critério 3.3), orientação automática, Fase 1 (commit `ccfd5ed`):**
+  - **Feito:** o campo `orientacao` do plano manda o tamanho via `calculateMetadata`
+    (`src/utils/tamanhoDoPlano.ts`, `src/Root.tsx`): `"vertical"` 1080×1920, `"horizontal"`
+    1920×1080; outro valor dá aviso no console e vale o literal da composição. O
+    `--width`/`--height` da linha de comando ganha do plano (lido no código do Remotion 4.0.527,
+    não executado). Composições novas na pasta Testes: `PlanoAutomatico` (vertical, 0926 +
+    câmera) e `PlanoAutomaticoHorizontal` (plano inline, `teste2-camera.mp4`, literal 1080×1920 de
+    propósito). As 5 composições antigas **não mudaram** (só adições no `Root.tsx`).
+  - **Prova:** teste de 6 casos (`scripts/teste-tamanho-do-plano.mjs`), `tsc` 0 erros, validador
+    27/27, `planos/0926.plano.json` e `planos/teste-camera.plano.json` com 0 erros.
+  - **Não é lido:** a ficha `.preparo.json`. **Não existe:** o valor `"automatico"`.
+  - **O que o Matheus viu:** ainda nada; a conferência no Studio está pendente.
+  - **NÃO provado:** render; vídeo real com o JR; o que a tela faz com proporção diferente do
+    plano (esticar ou barras, sem `objectFit`); se o Studio recalcula ao editar props;
+    multi-camada (qual arquivo define a orientação) segue indefinido.
+  - **Risco que já existia:** `videos/` é ignorada pelo Git e o `Root.tsx` importa
+    `videos/0926.cortes.json`, então um clone novo não compila.
 
 - `AvisoCVM`: código completo, registrado; visto pelo Matheus em 07/10/2026
   (gostou; ajustes previstos depois). Texto continua provisório e o texto oficial
