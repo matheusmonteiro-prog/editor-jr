@@ -29,6 +29,8 @@ export const camadaVideoSchema = z.object({
   // "cobrir" = objectFit cover, "conter" = contain. Sem ajuste: como antes
   // (nenhum objectFit), pra não mudar os testes que já usam a camada.
   ajuste: z.enum(["cobrir", "conter"]).optional(),
+  // Pula esses frames do começo do arquivo (trimBefore do Remotion). Sem ele: como antes.
+  pularFrames: z.number().int().min(0).optional(),
 });
 
 // z.input: as props com .default() podem ser omitidas ao usar o componente.
@@ -48,6 +50,7 @@ export const CamadaVideo: React.FC<Props> = ({
   framesEntrada = 0,
   framesSaida = 0,
   ajuste = undefined,
+  pularFrames = undefined,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, durationInFrames } = useVideoConfig();
@@ -70,6 +73,7 @@ export const CamadaVideo: React.FC<Props> = ({
       src={staticFile(src)}
       volume={volume}
       muted={mudo}
+      trimBefore={pularFrames || undefined}
       style={{
         width: "100%",
         height: "100%",
@@ -91,7 +95,7 @@ export const CamadaVideo: React.FC<Props> = ({
     >
       {/* Loop fica só em volta do vídeo: caixa e opacidade seguem o frame da composição */}
       {repetirFrames !== undefined ? (
-        <Loop durationInFrames={repetirFrames} layout="none">
+        <Loop durationInFrames={Math.max(1, repetirFrames - (pularFrames ?? 0))} layout="none">
           {video}
         </Loop>
       ) : (

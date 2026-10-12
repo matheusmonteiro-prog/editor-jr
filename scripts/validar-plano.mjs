@@ -811,8 +811,8 @@ const inteiroNaoNegativo = (v) => Number.isInteger(v) && v >= 0;
 if (dados.deslocamentoCamera !== undefined) {
   if (typeof dados.deslocamentoCamera !== 'number' || !Number.isFinite(dados.deslocamentoCamera)) {
     erro('geral', `camera: deslocamentoCamera deve ser número em segundos (veio ${JSON.stringify(dados.deslocamentoCamera)})`);
-  } else if (dados.deslocamentoCamera !== 0) {
-    aviso('geral', `camera: deslocamentoCamera=${dados.deslocamentoCamera} — efeito ainda não implementado, o valor é ignorado`);
+  } else if (Math.abs(dados.deslocamentoCamera) > 5) {
+    aviso('geral', `camera: deslocamentoCamera=${dados.deslocamentoCamera} s — valor grande, confira`);
   }
 }
 

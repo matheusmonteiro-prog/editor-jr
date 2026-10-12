@@ -190,11 +190,25 @@ const casos = [
     trechoEsperado: 'camera: termina em 0:13, mas o vídeo original só tem 0:10',
   },
   {
-    nome: 'deslocamentoCamera diferente de 0 vira AVISO',
+    nome: 'deslocamentoCamera 0.5 (positivo, |valor| <= 5) passa limpo',
     arquivo: fixture('aviso-camera-deslocamento.plano.json'),
     args: [],
     esperaFalha: false,
-    trechoEsperado: 'efeito ainda não implementado',
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'deslocamentoCamera -0.5 (negativo, |valor| <= 5) passa limpo',
+    arquivo: fixture('valido-camera-deslocamento.plano.json'),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'deslocamentoCamera com |valor| > 5 vira AVISO',
+    arquivo: fixture('aviso-camera-deslocamento-grande.plano.json'),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'valor grande, confira',
   },
   {
     nome: 'chave desconhecida em trecho de câmera vira AVISO',

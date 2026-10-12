@@ -86,8 +86,8 @@ export type Plano = {
   orientacao: string;
   elementos: ElementoPlano[];
   camera?: TrechoCamera[];
-  // Atraso da câmera em relação à tela, em segundos (padrão 0). Reservado:
-  // o efeito vem numa fase seguinte; por enquanto é ignorado.
+  // Atraso da câmera em relação à tela, em segundos (padrão 0). Positivo = câmera
+  // atrasada (o arquivo toca de mais à frente); negativo = câmera adiantada (espera).
   deslocamentoCamera?: number;
 };
 
@@ -136,7 +136,9 @@ const CameraDoPlano: React.FC<{
   repetirFrames?: number;
   trechos: TrechoCamera[];
   paraFrameCortado: (segundoOriginal: number) => number;
-}> = ({ src, repetirFrames, trechos, paraFrameCortado }) => {
+  pularFrames?: number; // câmera atrasada: o arquivo toca de mais à frente
+  esperaFrames?: number; // câmera adiantada: o arquivo só entra na timeline depois disso
+}> = ({ src, repetirFrames, trechos, paraFrameCortado, pularFrames = 0, esperaFrames = 0 }) => {
   const frame = useCurrentFrame();
   const janelas = useMemo(
     () =>
@@ -160,19 +162,23 @@ const CameraDoPlano: React.FC<{
     opacidade = Math.min(fadeIn, fadeOut);
   }
 
+  // Sequence layout="none" com from=0 não muda nada no DOM (deslocamento 0 = como antes).
   return (
-    <CamadaVideo
-      src={src}
-      mudo
-      volume={0}
-      repetirFrames={repetirFrames}
-      x={caixa.x ?? 0.5}
-      y={caixa.y ?? 0.5}
-      largura={caixa.largura ?? 1}
-      altura={caixa.altura ?? 1}
-      ajuste={caixa.ajuste === "conter" ? "conter" : "cobrir"}
-      opacidade={opacidade}
-    />
+    <Sequence from={esperaFrames} layout="none">
+      <CamadaVideo
+        src={src}
+        mudo
+        volume={0}
+        repetirFrames={repetirFrames}
+        x={caixa.x ?? 0.5}
+        y={caixa.y ?? 0.5}
+        largura={caixa.largura ?? 1}
+        altura={caixa.altura ?? 1}
+        ajuste={caixa.ajuste === "conter" ? "conter" : "cobrir"}
+        opacidade={opacidade}
+        pularFrames={pularFrames > 0 ? pularFrames : undefined}
+      />
+    </Sequence>
   );
 };
 
@@ -189,6 +195,12 @@ export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
     [cortes, fps],
   );
 
+  // deslocamentoCamera (s): >0 câmera atrasada -> pula frames do arquivo;
+  // <0 câmera adiantada -> o arquivo espera na timeline. Nunca frame negativo.
+  const deslocamento = Number.isFinite(plano.deslocamentoCamera) ? (plano.deslocamentoCamera as number) : 0;
+  const pularFrames = deslocamento > 0 ? Math.round(deslocamento * fps) : 0;
+  const esperaFrames = deslocamento < 0 ? Math.round(-deslocamento * fps) : 0;
+
   return (
     <>
       {/* Tela (vídeo base). Caixa do tamanho da composição: com vídeo do mesmo
@@ -203,6 +215,8 @@ export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
             repetirFrames={cameraRepetirFrames}
             trechos={plano.camera}
             paraFrameCortado={paraFrameCortado}
+            pularFrames={pularFrames}
+            esperaFrames={esperaFrames}
           />
         </Sequence>
       ) : null}
