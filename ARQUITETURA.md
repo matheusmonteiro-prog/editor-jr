@@ -193,6 +193,8 @@ formato livre — o que torna o sintoma ainda mais enganoso.
   redimensionar (ver Etapa 3 e Etapa 6, item de várias saídas, que inclui o formato de tela de
   cada saída). Ainda **não implementado**: como o plano de edição distingue "automático" de
   "forçado" (o campo `"orientacao"` da seção 7 já existe; esta regra não cria campo novo).
+  **Estado no código (12/10/2026):** o campo `"orientacao"` do plano é só tipo
+  (`src/PlanoComposicao.tsx`) e nada o lê; o tamanho das composições é fixo no `src/Root.tsx`.
 - **Posicionamento automático por visão (IA olhando o frame):** fora da v1.
 
 ## 3a. Formatos de entrada de vídeo (sessões de gravação)
@@ -593,12 +595,19 @@ para os detalhes e a decisão pendente.
   ver seção 3a); alguns vídeos já gravados em vertical (Shorts/Reels) como referência.
 - **Pendências (11/10/2026, ver `docs/estado-atual.md` e `docs/testes-editor.md`, T13):**
   o plano já tem a lista `"camera"` (commit `e570119`, Fase 1) e o validador a confere (Fase 2,
-  sem commit ainda), mas **sem prova** de Studio, sincronia tela/câmera, render, do JR na
+  commit `a048f7e`), mas **sem prova** de Studio, sincronia tela/câmera, render, do JR na
   câmera e do `deslocamentoCamera` (efeito **implementado** no commit `1cc8211`, provado só na conta de frames, não visto no Studio); `CamadaVideo` continua fora do
   `CATALOGO` (a câmera usa lista própria); a palma foi **dispensada pelo Matheus em 11/10/2026** (alinhar tela e câmera sem palma: decisão de método pendente); o commit `d7c0ce9`
   (`scale`/`translate` no `TesteControleCamadas`) foi **arrasto no Studio confirmado pelo
   Matheus em 11/10; revertido em `b42ae1f`**; o corte com tela + câmera (opção A ou B, de
-  10/10) **não foi decidido**.
+  10/10) **não foi decidido** (o modo de 2 arquivos do `cortar-silencio.mjs`, opção A, existe no
+  código desde o commit `6b83f36`).
+- **`ArrobaInstagram`, `LogoAnimada`, música e efeito sonoro: não existem em `src/`;
+  `public/music`, `public/sfx` e `public/brand` estão vazias (12/10/2026).**
+- **Orientação (12/10/2026):** no código o campo `"orientacao"` do plano é só tipo
+  (`src/PlanoComposicao.tsx`) e nada o lê; o tamanho das composições é fixo no `src/Root.tsx`. A
+  detecção existe só no `scripts/preparar-video.mjs` (grava na ficha). O formato novo **não foi
+  decidido**.
 
 ### Etapa 4 — Legendas automáticas
 - Transcrição local e gratuita (verificar a ferramenta oficial do Remotion para legendas / Whisper)

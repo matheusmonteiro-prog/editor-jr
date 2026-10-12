@@ -85,9 +85,9 @@ A etapa fecha quando **todos** os itens abaixo estiverem cumpridos.
 
 | # | Critério | Tipo | Situação hoje (segundo os docs) |
 |---|---|---|---|
-| 3.1 | **Formato A (multi-camada)**: tela por baixo, câmera por cima só nos trechos que o prompt definir. Pré-requisito: o teste de sincronia dos 3 arquivos do OBS. A palma foi dispensada pelo Matheus em 11/10/2026; alinhamento sem palma pendente. | [M] gravar o teste; depois [C] montar | Teste de sincronia ainda não gravado. |
-| 3.2 | **Vídeo base + camadas por cima** (componentes de fundo transparente) sobre vídeo real. | [C]; [M] ver no Studio | Já existem composições de teste; nada confirmado pelo Matheus sobre vídeo real. |
-| 3.3 | **Formato vertical/horizontal automático, com opção de forçar pelo prompt** (decisão de 05/10/2026). | [C] | Decidido, não implementado. |
+| 3.1 | **Formato A (multi-camada)**: tela por baixo, câmera por cima só nos trechos que o prompt definir. Pré-requisito: o teste de sincronia dos 3 arquivos do OBS. A palma foi dispensada pelo Matheus em 11/10/2026; alinhamento sem palma pendente. | [M] gravar o teste; depois [C] montar | Teste de sincronia ainda não gravado. **Feito até aqui:** lista `camera` no plano; validador 27/27; `deslocamentoCamera` com efeito; modo de 2 arquivos no `cortar-silencio.mjs` (`--tela` + `--camera`); a câmera do `PlanoCameraTeste` **vista e aprovada pelo Matheus no Studio em 11/10/2026** (a câmera de teste é a sala vazia); a palma foi dispensada por ele em 11/10/2026. **PENDENTE:** par real com o JR na câmera; sincronia medida; método de alinhar sem palma; render com a câmera. |
+| 3.2 | **Vídeo base + camadas por cima** (componentes de fundo transparente) sobre vídeo real. | [C]; [M] ver no Studio | Já existem composições de teste. O render do `PlanoComposicao0926` com o 0926 real foi **visto e aprovado pelo Matheus em 09/10/2026** (`0926-real-v1.mp4`, a partir da cópia reduzida 1080×1920; ver 6.4 e 6.5). |
+| 3.3 | **Formato vertical/horizontal automático, com opção de forçar pelo prompt** (decisão de 05/10/2026). | [C] | Decidido (05/10/2026). **Parcial:** a detecção de orientação existe em `scripts/preparar-video.mjs` e grava na ficha; falta o `Root.tsx` usá-la (o tamanho das composições ainda é escrito à mão). No código o campo `orientacao` do plano é só tipo (`PlanoComposicao.tsx`) e nada o lê. A escolha automática/forçada pelo prompt **não está implementada**, e o formato novo não foi decidido. |
 | 3.4 | **`ArrobaInstagram` fixo.** | [M] mandar o @; depois [C] | Não construído. |
 | 3.5 | **`AvisoCVM` entra só quando o roteiro pedir**, com texto oficial. | [M] texto oficial e tempo em tela; conferência no vídeo final | Código pronto com texto provisório. Visto pelo Matheus em 07/10/2026 (gostou; ajustes previstos depois). Texto oficial da CVM e tempo em tela seguem pendentes. |
 | 3.6 | **Música de fundo e efeito sonoro sincronizado a um elemento visual.** | [M] baixar música e efeito; depois [C] | Arquivos ainda não baixados. |
@@ -95,12 +95,17 @@ A etapa fecha quando **todos** os itens abaixo estiverem cumpridos.
 | 3.8 | **Loop de verificação pós-render** (`scripts/folha-contato.mjs`) rodando com o `cortes.json` real. | [M] (mesma dependência de 6.3 e 6.4) | Ver 6.4. |
 | 3.9 | **Vídeos verticais de referência** (Shorts/Reels), pré-requisito da etapa. | [M] | Matheus ainda vai trazer. |
 
+`ArrobaInstagram`, `LogoAnimada`, música e efeito sonoro: não existem em `src/`; `public/music`,
+`public/sfx` e `public/brand` estão vazias (12/10/2026).
+
 ---
 
 ## Se algum item de uma etapa ficar parado por causa de outra
 
 O `CLAUDE.md` pede registrar no `docs/estado-atual.md` a que chat/etapa voltar. Os itens 6.3,
-6.4 e 3.8 dependem de uma coisa só: o `0926.cortes.json` real, que está no computador de casa.
+6.4 e 3.8 dependem de uma coisa só: o `0926.cortes.json` real (1.167 bytes), que já está no WSL e
+no Windows do trabalho (6.3, conferido em 09/10/2026) e neste PC de casa (tamanho conferido em
+12/10/2026).
 
 ## Quando todos os critérios de uma etapa forem cumpridos
 
