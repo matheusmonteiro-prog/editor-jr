@@ -27,7 +27,8 @@ REGRAS DO FORMATO (não inventar nada fora disso):
    ("vertical" ou "horizontal") e "elementos" (lista). Existe também um campo
    OPCIONAL, "saidas" (lista de objetos, cada um com "orientacao"), mas ele só
    está PREVISTO e AINDA NÃO É USADO por nenhum código: não preencha, a menos
-   que eu peça. Sem ele, vale 1 saída.
+   que eu peça. Sem ele, vale 1 saída. Existe ainda a lista OPCIONAL "camera"
+   (regra 11), separada de "elementos".
 
 2. Cada item de "elementos" tem: "id" (texto único, curto, sem espaço),
    "componente" (nome exato do catálogo — ver lista abaixo), "descricao"
@@ -76,6 +77,25 @@ REGRAS DO FORMATO (não inventar nada fora disso):
    que o componente usa o texto padrão, que é PROVISÓRIO (eu e o JR conferimos
    o texto antes de publicar qualquer vídeo).
 
+11. CÂMERA: só peça câmera se o roteiro pedir. A câmera NÃO é um componente do
+   catálogo: vai numa lista própria "camera", no topo do plano, ao lado de
+   "elementos" (não dentro dela). Cada trecho tem só estes campos: "id" (texto
+   único), "inicio" ("m:ss" da gravação ORIGINAL), "duracao" (segundos, > 0),
+   "x" e "y" (centro da caixa, de 0 a 1), "largura" e "altura" (de 0.05 a 1),
+   "ajuste" ("cobrir" ou "conter"), "framesEntrada" e "framesSaida" (inteiros
+   >= 0). Tudo é fração da largura/altura da tela, nunca pixel. NÃO use "texto",
+   "posicao", "slot" nem "ilustrativo" em trecho de câmera.
+   Formatos prontos (use estes valores):
+   - câmera cheia: x 0.5, y 0.5, largura 1, altura 1
+   - janelinha no canto inferior direito: x 0.82, y 0.86, largura 0.3, altura 0.17
+   - câmera em cima: x 0.5, y 0.25, largura 1, altura 0.5
+   Fora dos trechos da lista aparece só a tela. Trechos NÃO se sobrepõem (o
+   validador dá erro). NUNCA preencha "deslocamentoCamera": quem mede o atraso
+   é o Matheus, e o efeito ainda não foi implementado. A janelinha não pode
+   cobrir o rosto do JR nem texto importante da tela, e o validador NÃO confere
+   isso: é conferência minha no Studio. Zoom e tela/câmera meio a meio (cada
+   um com moldura) NÃO existem como componente: me avise, não invente.
+
 COMPONENTES DISPONÍVEIS (nome exato — use só estes) e suas PROPS OBRIGATÓRIAS
 (as que não aparecem aqui têm valor padrão e são opcionais):
 
@@ -89,6 +109,8 @@ isso automaticamente — mas eu vou rodar ele também, então já adianta):
   (número onde é número, texto onde é texto, true/false onde é booleano)
 - nenhum "inicio" é negativo ou cai depois do fim da gravação
 - nenhum "componente"/"props" ficou "a confirmar"
+- se houver "camera": ids únicos, "inicio" em "m:ss", "duracao" > 0, valores
+  dentro das faixas e nenhum trecho sobreposto a outro
 
 CONFIRA O PLANO COM O VALIDADOR E CORRIJA ANTES DE ENTREGAR: rode
 `node scripts/validar-plano.mjs caminho/do/plano.json` (dentro do projeto
@@ -157,6 +179,53 @@ props têm valor padrão, o `"props"` pode ir vazio:
   contar a mesma história; se mudar um, mude o outro.
 - Se outro elemento de `"posicao": "base"` aparecer ao mesmo tempo com o mesmo `"slot"`, o
   validador dá AVISO (não erro).
+
+---
+
+## Como pedir a câmera no roteiro
+
+Fonte: `scripts/validar-plano.mjs` (checagem 10), tipo `TrechoCamera` em
+`src/PlanoComposicao.tsx` e `planos/teste-camera.plano.json`. A lista é **opcional**: sem
+ela o plano funciona como antes. O caminho do arquivo da câmera **não vai no plano**: vem de
+`src/Root.tsx` (prop `cameraSrc` da composição).
+
+```json
+{
+  "video": "0926",
+  "orientacao": "vertical",
+  "camera": [
+    { "id": "cam-cheia", "inicio": "0:00", "duracao": 4,
+      "x": 0.5, "y": 0.5, "largura": 1, "altura": 1, "ajuste": "cobrir",
+      "framesEntrada": 0, "framesSaida": 10 },
+    { "id": "cam-janelinha", "inicio": "0:20", "duracao": 8,
+      "x": 0.82, "y": 0.86, "largura": 0.3, "altura": 0.17, "ajuste": "cobrir",
+      "framesEntrada": 15, "framesSaida": 15 }
+  ],
+  "elementos": [ ... ]
+}
+```
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| `id` | texto | obrigatório, único entre os trechos de câmera |
+| `inicio` | `"m:ss"` | obrigatório, no tempo do **original** |
+| `duracao` | segundos | obrigatório, > 0 |
+| `x`, `y` | 0 a 1 | centro da caixa; padrão 0.5 |
+| `largura`, `altura` | 0.05 a 1 | fração da largura/altura; padrão 1 |
+| `ajuste` | `"cobrir"` ou `"conter"` | padrão `"cobrir"` |
+| `framesEntrada`, `framesSaida` | inteiro >= 0 | fade; padrão 0 |
+
+- **Erros do validador:** `camera` que não é lista; trecho sem `id`, `inicio` ou `duracao`;
+  `id` repetido; `inicio` fora de `m:ss`; `duracao` <= 0; `x`/`y`/`largura`/`altura` fora da
+  faixa; `ajuste` inválido; `framesEntrada`/`framesSaida` negativo ou não inteiro; trechos que se
+  sobrepõem (no tempo do original); trecho que passa do fim do vídeo, **só quando o validador
+  conhece a duração** (`--duracao` ou `videos/<video>.cortes.json`).
+- **Avisos:** `deslocamentoCamera` diferente de 0 ("efeito ainda não implementado") e campo
+  desconhecido dentro de um trecho.
+- **Fora do alcance do validador:** a janelinha cobrir o rosto do JR ou texto da tela, a
+  sincronia entre tela e câmera e o aspecto visual. Isso é conferência no Studio.
+- **O que não existe:** zoom e tela/câmera meio a meio **não são componente**; hoje só existem
+  como teste em `src/testes/`.
 
 ---
 

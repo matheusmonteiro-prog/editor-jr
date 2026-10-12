@@ -104,6 +104,36 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   commit; o Matheus ainda não conferiu o resultado.** O teste do script não foi rodado ao
   escrever este registro.
 
+- **Etapa 3, câmera no plano, Fase 1 (11/10/2026, commit `e570119`):** 4 arquivos:
+  `src/PlanoComposicao.tsx` (lista `"camera"` no plano, `cameraSrc`, uma instância fixa de câmera
+  pela composição inteira, início e fim de cada trecho pelo `tempoCortado.ts`),
+  `src/components/v2/CamadaVideo.tsx` (prop `ajuste`, sem padrão em JS de propósito),
+  `src/Root.tsx` (composição `PlanoCameraTeste`, 1080×1920, 30 fps, 1137 quadros, na pasta
+  Testes) e `planos/teste-camera.plano.json` (4 trechos de câmera). `npx tsc --noEmit` rodado
+  antes do commit: exit 0, 0 erros.
+- **Etapa 3, câmera no plano, Fase 2 (11/10/2026, SEM commit ainda):** `scripts/validar-plano.mjs`
+  ganhou a checagem 10 (lista `"camera"` e `deslocamentoCamera`); `scripts/testar-validador.mjs`
+  passou de 8 para **25 de 25 casos OK** (17 fixtures novas em `planos/testes/`, `camera-*`,
+  `aviso-camera-*` e `valido-camera`). `planos/teste-camera.plano.json` e `planos/0926.plano.json`:
+  0 erro, 0 aviso.
+- **Etapa 3, câmera no plano, SEM prova (registrado em 11/10/2026):**
+  - **Studio:** não há confirmação registrada de que o Matheus conferiu a composição
+    `PlanoCameraTeste` (a mensagem do commit `e570119` foi emendada para não afirmar isso).
+  - **Sincronia** tela/câmera, **render**, o **JR na câmera** (a câmera de teste é a sala vazia)
+    e a câmera **não recomeçar a cada trecho** (o desenho usa uma instância fixa; não foi medido).
+  - **`deslocamentoCamera`:** só aceito no tipo, **efeito não implementado**.
+  - A tela passou a ficar dentro de um `AbsoluteFill` com 100% de largura e altura em todas as
+    composições do `PlanoComposicao`; o resultado visual do `PlanoComposicao0926` **não foi
+    conferido** no Studio depois dessa mudança (dedução pelo CSS).
+- **Etapa 3, câmera no plano, limites conhecidos:** o `cortar-silencio.mjs` ainda exige os 3
+  arquivos (`--tela`, `--camera`, `--camera-mic`; modo de 2 arquivos **não existe**); a checagem
+  "trecho passa do fim do vídeo" só funciona se o validador conhece a duração (`--duracao` ou
+  `videos/<video>.cortes.json`); `framesEntrada` e `framesSaida` não têm limite de máximo.
+- **Atenção no PC do trabalho:** depois do `npm install`, os 29 erros do `tsc` em
+  `src/testes/CasaExplicativa.tsx` podem voltar: os pacotes 3D (`three`, `@react-three/fiber`,
+  `@remotion/three`, `@types/three`) estão só no `package.json` da `testes-ideias`; aqui estão em
+  `node_modules` por terem sido instalados lá em 11/10. **Inferência, não testada no trabalho.**
+
 ## Falta
 
 - Etapa 3: **não testados** — render do Remotion com as cópias leves do par de 25/09 e com a
@@ -114,10 +144,10 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 - Etapa 3: **sincronia tela/câmera** (a alternativa 3 de `ARQUITETURA.md`, seção 3a) segue sem
   resultado registrado.
 - Etapa 3 — **lacuna: ligar tela + câmera ao plano** (apurado em 11/10/2026, só leitura; detalhe
-  em `docs/testes-editor.md`, T13): `CamadaVideo` não está no `CATALOGO`; `PlanoComposicao.tsx`
-  renderiza um vídeo só (`videoSrc`); o plano não tem campo de câmera; falta o deslocamento de
-  sincronia (**inferência, não testada:** a câmera dentro de uma `Sequence` começaria no frame 0
-  do arquivo). Zoom e tela/câmera meio a meio só existem como teste (`src/testes/`, e a cena 1
+  em `docs/testes-editor.md`, T13). **Fases 1 e 2 feitas (ver acima):** o plano tem a lista
+  `"camera"` e o validador a confere. **Continua em aberto:** `CamadaVideo` fora do `CATALOGO`
+  (a câmera usa lista própria); o efeito do `deslocamentoCamera` (**inferência, não testada:** a
+  câmera começaria no frame 0 do arquivo, então falta deslocar para sincronizar). Zoom e tela/câmera meio a meio só existem como teste (`src/testes/`, e a cena 1
   do `TesteControleCamadas`). Cerca de 5 arquivos pelo modelo do commit `5c605ab` (AvisoCVM),
   mais um segundo vídeo no plano e o deslocamento de sincronia (estimativa, não medida).
 - Etapa 3 — `TesteControleCamadas`: aberto no Studio pelo Matheus, em casa, em 11/10/2026; ele

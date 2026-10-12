@@ -565,8 +565,10 @@ para os detalhes e a decisão pendente.
   gravar um teste curto (1-2 min) no OBS e conferir a sincronia dos 3 arquivos (Formato A,
   ver seção 3a); alguns vídeos já gravados em vertical (Shorts/Reels) como referência.
 - **Pendências (11/10/2026, ver `docs/estado-atual.md` e `docs/testes-editor.md`, T13):**
-  `CamadaVideo` ainda não está no `CATALOGO` e o plano não tem campo de câmera nem
-  deslocamento de sincronia; a palma é **decisão pendente do Matheus**; o commit `d7c0ce9`
+  o plano já tem a lista `"camera"` (commit `e570119`, Fase 1) e o validador a confere (Fase 2,
+  sem commit ainda), mas **sem prova** de Studio, sincronia tela/câmera, render, do JR na
+  câmera e do `deslocamentoCamera` (efeito **não implementado**); `CamadaVideo` continua fora do
+  `CATALOGO` (a câmera usa lista própria); a palma é **decisão pendente do Matheus**; o commit `d7c0ce9`
   (`scale`/`translate` no `TesteControleCamadas`) foi **arrasto no Studio confirmado pelo
   Matheus em 11/10; revertido em `b42ae1f`**; o corte com tela + câmera (opção A ou B, de
   10/10) **não foi decidido**.
@@ -611,6 +613,12 @@ reais do 0926 foram levados ao PC do trabalho e o render foi feito no WSL. Pend�
   "video": "...",
   "orientacao": "vertical|horizontal",
   "saidas": [{ "orientacao": "vertical|horizontal" }],
+  "deslocamentoCamera": 0,
+  "camera": [
+    { "id": "...", "inicio": "m:ss", "duracao": 0,
+      "x": 0.5, "y": 0.5, "largura": 1, "altura": 1, "ajuste": "cobrir|conter",
+      "framesEntrada": 0, "framesSaida": 0 }
+  ],
   "elementos": [
     {
       "id": "...",
@@ -632,6 +640,25 @@ reais do 0926 foram levados ao PC do trabalho e o render foi feito no WSL. Pend�
   cada um com `"orientacao"` (`"vertical"` ou `"horizontal"`). Sem o campo, vale **1 saída**, e
   um plano antigo continua válido. **Nenhum código lê esse campo ainda** (`validar-plano.mjs` e
   `PlanoComposicao.tsx` o ignoram). Exemplo: `planos/testes/saidas-previsto.plano.json`.
+- **`"camera"` e `"deslocamentoCamera"` — opcionais (Etapa 3, Fase 1 e 2, 11/10/2026):**
+  `"camera"` é uma lista própria de trechos, **separada de `"elementos"`** (a câmera não é
+  componente do `CATALOGO`: não tem `texto`, `posicao`, `slot` nem `ilustrativo`). Campos do
+  trecho: `id`, `inicio` (`"m:ss"` do original), `duracao` (segundos), `x`, `y` (centro, 0 a 1),
+  `largura`, `altura` (0.05 a 1), `ajuste` (`"cobrir"` ou `"conter"`), `framesEntrada`,
+  `framesSaida`. Sem a lista, o plano funciona como antes (`planos/0926.plano.json` não mudou).
+  `"deslocamentoCamera"` (segundos, padrão 0) é **só aceito no tipo e avisado pelo validador**:
+  **o efeito não está implementado**. O **caminho do arquivo da câmera não vai no plano**: vem de
+  `src/Root.tsx`, na prop `cameraSrc` da composição (como o `videoSrc`). Código:
+  `src/PlanoComposicao.tsx` (tipo `TrechoCamera`, `CameraDoPlano`, uma instância fixa de
+  `CamadaVideo` pela composição inteira); validação: `scripts/validar-plano.mjs`, checagem 10;
+  exemplo: `planos/teste-camera.plano.json`.
+- **Decisão sobre o escopo (Matheus):** esta seção do formato do plano é da Etapa 6, cumprida em
+  09/10/2026; mudar o formato vai além da Etapa 3, e foi **decisão do Matheus em 11/10, relato verbal**, fazer a
+  mudança dentro do trabalho da Etapa 3.
+- **Exceção registrada:** a prop `ajuste` do `CamadaVideo` **não tem padrão em JS**, de propósito:
+  sem `ajuste`, o vídeo fica como antes (nenhum `objectFit`), para não mudar o
+  `TesteControleCamadas` nem o `TesteTelaCamera`. Quem passa `ajuste` é o `PlanoComposicao`
+  (`"cobrir"` por padrão).
 - **`"inicio"` sempre se refere ao vídeo original** (a gravação, antes de
   cortar), igual à regra já usada pelo `--gancho` — a conversão pro tempo do
   vídeo já cortado é feita a partir do `.cortes.json` (ver Etapa 2).

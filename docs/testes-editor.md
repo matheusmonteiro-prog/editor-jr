@@ -119,6 +119,26 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
       `docs/catalogo-componentes.md`, `docs/estado-atual.md`, `src/PlanoComposicao.tsx`). Para o
       plano controlar tela + câmera de verdade falta ainda **um segundo vídeo no plano** e o
       **deslocamento de sincronia**.
+  - **Câmera no plano, Fase 1 (commit `e570119`, 11/10/2026):** o plano ganhou a lista
+    `"camera"` (campos: `id`, `inicio`, `duracao`, `x`, `y`, `largura`, `altura`, `ajuste`,
+    `framesEntrada`, `framesSaida`) e `deslocamentoCamera` no topo. O caminho do arquivo vem do
+    `Root.tsx` (`cameraSrc`), não do plano. Composição de teste `PlanoCameraTeste` (1080×1920,
+    30 fps) com `0926-cortado-v1.mp4` como tela e `teste2-camera.mp4` (sala vazia) como câmera,
+    4 trechos (`planos/teste-camera.plano.json`). `tsc --noEmit`: exit 0, 0 erros.
+  - **Câmera no plano, Fase 2 (11/10/2026, sem commit ainda):** o validador confere a lista
+    (`scripts/validar-plano.mjs`, checagem 10); `scripts/testar-validador.mjs`: **25 de 25**
+    casos OK; 0 erros em `planos/teste-camera.plano.json` e em `planos/0926.plano.json`. O
+    validador **não prova o visual** (câmera cobrir o rosto, sincronia): é conferência no Studio.
+  - **Continua SEM prova:** Studio (sem confirmação registrada de que o Matheus conferiu o
+    `PlanoCameraTeste`; o commit foi emendado para não afirmar isso); sincronia tela/câmera;
+    render; o JR na câmera (a câmera de teste é a sala vazia); a câmera **não recomeçar a cada
+    trecho** (desenho com uma instância fixa, não medido); `deslocamentoCamera` (efeito **não
+    implementado**, só aceito no tipo).
+  - **Limites:** o `cortar-silencio.mjs` ainda exige os 3 arquivos (modo de 2 arquivos não
+    existe); a checagem "passa do fim do vídeo" depende de `--duracao` ou
+    `videos/<video>.cortes.json`; `framesEntrada` e `framesSaida` não têm máximo; no trabalho,
+    após `npm install`, os 29 erros do `CasaExplicativa.tsx` podem voltar no `tsc` (pacotes 3D só
+    no `package.json` da `testes-ideias`; **inferência, não testada lá**).
   - **`TesteControleCamadas` (11/10/2026):** o Matheus abriu no Studio, em casa, e disse que
     funcionou. A tela era provisória (`teste2-tela.mp4`, com erros de leitura), sem sincronia
     medida e sem render.
