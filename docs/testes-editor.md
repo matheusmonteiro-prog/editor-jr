@@ -227,6 +227,22 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
     ao escrever este registro.
   - **Ainda não testado:** um vídeo real cortado com `--gancho` passando pelo `PlanoComposicao`
     e visto no Studio (o `0926.cortes.json` real tem `gancho: []`).
+  - **Resultado dos testes (11/10/2026, PC de casa):**
+    - `node scripts/teste-tempo-cortado.mjs` (do commit `a055886`) rodou: `OK (20 casos)`, saída 0.
+      Os 20 casos são escritos à mão (gancho movido 12, `--copiar` 7, depois do último trecho 1),
+      com tempos inventados. **Nenhum usa o `videos/0926.cortes.json` real.**
+    - O Node mostrou o aviso `MODULE_TYPELESS_PACKAGE_JSON` ao importar
+      `src/utils/tempoCortado.ts`. Não é erro. A correção possível seria `"type": "module"` no
+      `package.json`, **não feita**.
+    - Conferência com o 0926 real, por script temporário fora do projeto (já apagado, então não
+      dá para repetir): 45 tempos do original (início, meio e fim de cada trecho e de cada
+      silêncio, mais 0, 5, 12,5, 30, 60 e 500 s) deram o mesmo frame que a conta direta.
+      **45 de 45 iguais**; último frame 1137 = `duracaoFinal` × 30.
+    - **O que isso não prova:** o 0926 não tem gancho (`parametros.gancho` vazio,
+      `modoGancho` null), então o gancho e o `--copiar` em vídeo real continuam sem prova. Também
+      não prova que o frame cai no momento certo da fala (isso só se vê no Studio).
+    - **Sincronia tela/câmera não medida:** o Matheus não gravou o par novo, e ele dispensou a
+      palma em 11/10. O método de alinhamento sem palma segue pendente.
 
 ---
 

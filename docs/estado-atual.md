@@ -103,6 +103,13 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   20 casos) e `docs/testes-editor.md` (novo, 355 linhas). **Corrigido em `a055886` segundo o
   commit; o Matheus ainda não conferiu o resultado.** O teste do script não foi rodado ao
   escrever este registro.
+- **Gancho, resultado dos testes (11/10/2026, PC de casa, só documentação):**
+  `node scripts/teste-tempo-cortado.mjs` deu `OK (20 casos)`, saída 0, com casos escritos à mão
+  (não usam o `0926.cortes.json` real). Conferência com o 0926 real: 45 de 45 tempos iguais à
+  conta direta (script temporário, já apagado). **Não prova gancho nem `--copiar` em vídeo real**
+  (o 0926 não tem gancho) e não prova o frame certo da fala (falta ver no Studio). Aviso
+  `MODULE_TYPELESS_PACKAGE_JSON` do Node: não é erro; `"type": "module"` no `package.json` não
+  foi feito. Detalhes em `docs/testes-editor.md`, T15.
 
 - **Etapa 3, câmera no plano, Fase 1 (11/10/2026, commit `e570119`):** 4 arquivos:
   `src/PlanoComposicao.tsx` (lista `"camera"` no plano, `cameraSrc`, uma instância fixa de câmera
