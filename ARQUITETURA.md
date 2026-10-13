@@ -356,11 +356,10 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   elipse geométrica perfeita) que se traça em volta de uma região da tela pra destacar algo,
   fica visível e some. Chapado, sem blur, cores da marca, tudo em fração via `useVideoConfig()`.
   Implementado, não confirmado pelo Matheus (registrado em doc em 01/10/2026).
-- `AvisoCVM` (`src/components/v2/`) — **código pronto, texto provisório, visto pelo Matheus
+- `AvisoCVM` (`src/components/v2/`) — **código pronto, conteúdo vem do pedido (texto padrão só de reserva), visto pelo Matheus
   em 07/10/2026 (gostou; ajustes previstos depois)**. O texto **completo** do aviso vai na descrição do vídeo,
   não dentro dele (ver seção 4; decisão por observação de mercado, não confirmada
-  juridicamente). Ainda **em aberto**: o texto oficial e se há tempo mínimo em tela (ver
-  `docs/perguntas-pendentes.md`).
+  juridicamente). **Decisão do Matheus (13/10/2026): não precisa de texto oficial.** O conteúdo é uma transcrição curta e/ou um emoji que passa de um canto para o outro; vem do prompt, só quando ele pedir; ajustes no componente só quando ele pedir. Critério 3.5 fechado por decisão, sem prova visual. Tempo mínimo em tela: não foi tratado nessa decisão e segue em aberto (ver `docs/perguntas-pendentes.md`).
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
@@ -604,8 +603,7 @@ para os detalhes e a decisão pendente.
   10/10) **não foi decidido** (o modo de 2 arquivos do `cortar-silencio.mjs`, opção A, existe no
   código desde o commit `6b83f36`).
 - **`LogoAnimada`: não existe em `src/`.** `ArrobaInstagram` e a lista `audio` (Fase 1 do áudio)
-  existem desde o commit `36fff8d`. `public/music`, `public/sfx` e `public/brand` seguem vazias
-  (12/10/2026); `public/music/` e `public/sfx/` estão no `.gitignore`.
+  existem desde o commit `36fff8d`. `public/music` e `public/sfx` têm hoje sons de teste e uma música real **neste PC, fora do Git** (13/10/2026); `public/brand` segue vazia (12/10/2026); `public/music/` e `public/sfx/` estão no `.gitignore`.
 - **Orientação, Fase 1 (commit `ccfd5ed`):** o campo `"orientacao"` do plano manda o tamanho via
   `calculateMetadata` (`src/utils/tamanhoDoPlano.ts`, `src/Root.tsx`): `"vertical"` → 1080×1920,
   `"horizontal"` → 1920×1080; outro valor dá aviso no console e vale o `width`/`height` literal da
@@ -635,7 +633,7 @@ reais do 0926 foram levados ao PC do trabalho e o render foi feito no WSL. Pend�
   de 09/10 só passou porque o `videoSrc` foi trocado por `--props` para a cópia reduzida 1080×1920;
   **um render sem `--props` falharia** (o original falha no Remotion deste ambiente, causa exata
   não confirmada).
-- Texto oficial do `AvisoCVM` e tempo em tela: pendentes (o texto atual é provisório).
+- AvisoCVM: texto oficial **não é necessário** (decisão do Matheus em 13/10/2026; o conteúdo vem do pedido). Tempo em tela: não tratado nessa decisão, segue em aberto.
 - Vídeo em resolução real (2160×3872): fica para a Etapa 8.
 - 6b: só se o Matheus mandar.
 

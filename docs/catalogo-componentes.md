@@ -473,18 +473,16 @@ semi-transparente, fixa no canto inferior esquerdo, dentro da área segura
 entrada e saída via `interpolate()`. Mesma composição funciona em vertical e
 horizontal — tudo em fração de `width`/`height` via `useVideoConfig()`, sem
 variante separada. Sem blur, sem ícone, sem borda.
-**Texto padrão PROVISÓRIO** ("Conteúdo informativo. Não constitui recomendação
-ou indicação de investimento."): texto provisório, a definir pelo Matheus/JR
-antes de publicar qualquer vídeo. A prop `texto` do plano de edição
+**Texto padrão só de reserva** ("Conteúdo informativo. Não constitui recomendação
+ou indicação de investimento."): o conteúdo vem do pedido do Matheus (decisão de 13/10/2026: transcrição curta e/ou emoji; sem texto oficial). A prop `texto` do plano de edição
 sobrescreve o padrão. Registrado em `src/Composition.tsx` (Studio) e no
 `CATALOGO` de `src/PlanoComposicao.tsx`.
 **Status:** feito; **visto pelo Matheus em 07/10/2026 (gostou; ajustes previstos
-depois)**. Texto e tempo em tela provisórios, a definir pelo Matheus/JR antes de
-publicar qualquer vídeo (ver `docs/perguntas-pendentes.md`).
+depois)**. Texto padrão só de reserva; conteúdo do pedido (decisão de 13/10/2026, sem texto oficial). Tempo em tela: não tratado nessa decisão (ver `docs/perguntas-pendentes.md`).
 
 | Prop | Tipo (zod) | Opcional | Valor padrão |
 |---|---|---|---|
-| `texto` | `string` | não (tem `.default()`) | texto provisório acima |
+| `texto` | `string` | não (tem `.default()`) | texto padrão de reserva acima |
 | `tamanhoFonte` (fração da largura) | `number` (min 0.005, max 0.1) | não (tem `.default()`) | `0.024` |
 | `margemVertical` (fração da altura) | `number` (0 a 0.3) | não (tem `.default()`) | `0.05` |
 | `margemHorizontal` (fração da largura) | `number` (0 a 0.3) | não (tem `.default()`) | `0.04` |

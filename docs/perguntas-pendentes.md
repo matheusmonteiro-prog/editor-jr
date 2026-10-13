@@ -4,14 +4,14 @@ Perguntas que não são técnicas — são decisão de conteúdo jurídico, esco
 ferramenta/biblioteca ou formato de dados — registradas aqui em vez de
 respondidas por conta própria.
 
-## AvisoCVM — texto oficial e tempo mínimo em tela (02/10/2026)
+## AvisoCVM — texto oficial (decidido em 13/10/2026) e tempo mínimo em tela (02/10/2026)
 
 Criei o componente `AvisoCVM` (`src/components/v2/AvisoCVM.tsx`) com o texto
 vindo só da prop `texto` (nunca fixo no código — ver `ARQUITETURA.md` seção
 4, que já diz que o aviso completo vai na descrição do vídeo, não dentro
 dele). Duas perguntas em aberto:
 
-### 1. Qual é o texto oficial do aviso CVM?
+### 1. Texto oficial do aviso CVM: DECIDIDO em 13/10/2026, não é necessário
 
 **O que é:** o texto que aparece **dentro do vídeo** (resumido ou discreto) quando o roteiro
 pede "aviso CVM". Segundo o `ARQUITETURA.md` (seção 4), a versão completa vai na descrição do
@@ -20,14 +20,10 @@ vídeo — é observação de mercado, **NÃO CONFIRMADO juridicamente**.
 **Exemplo (inventado só para ilustrar, não é texto oficial):** dentro do vídeo aparece uma
 frase curta, e o texto completo fica na descrição do vídeo.
 
-**Resposta possível:**
-- **"Conteúdo informativo"** — só uma frase curta fica visível 5 segundos.
-- **Sem aviso no vídeo** — deixa só na descrição, e o AvisoCVM nunca entra no roteiro.
-- **Outro texto** — define qual.
+**Decisão do Matheus (13/10/2026):** o AvisoCVM não precisa de texto oficial. O conteúdo é uma transcrição curta e/ou um emoji que passa de um canto para o outro; vem do prompt, só quando ele pedir; ajustes no componente só quando ele pedir. Fechado por decisão, não provado: ninguém viu o emoji nem a transcrição. Nenhum texto jurídico ou oficial foi inventado.
 
 **Como funciona em código:** hoje o componente nasce com "Conteúdo informativo. Não constitui
-recomendação ou indicação de investimento." como padrão provisório. Quando você escolher o
-texto oficial, ele entra na prop `texto` do plano de edição, e a IA não escreve esse texto.
+recomendação ou indicação de investimento." como padrão provisório. O conteúdo que você pedir entra na prop `texto` do plano de edição, e a IA não escreve esse texto.
 
 ### 2. Existe exigência de tempo mínimo em tela?
 

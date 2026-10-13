@@ -112,7 +112,7 @@ REGRAS DO FORMATO (não inventar nada fora disso):
    plano; o som começa junto com ele). "arquivo" é o caminho dentro de
    public/ (ex.: "music/nome.mp3", "sfx/nome.wav"), sem espaço nem acento.
    Use SÓ nomes de arquivo que eu informar no roteiro: NUNCA invente arquivo,
-   música ou efeito. O validador ainda NÃO confere a lista "audio".
+   música ou efeito. O validador confere a lista "audio" (checagem 11): arquivo inexistente em public/ é ERRO.
 
 COMPONENTES DISPONÍVEIS (nome exato — use só estes) e suas PROPS OBRIGATÓRIAS
 (as que não aparecem aqui têm valor padrão e são opcionais):
@@ -190,10 +190,11 @@ props têm valor padrão, o `"props"` pode ir vazio:
 }
 ```
 
-- O **texto padrão é PROVISÓRIO** ("Conteúdo informativo. Não constitui recomendação ou
-  indicação de investimento."). O Matheus/JR confere o texto antes de publicar qualquer vídeo.
-  Se o texto oficial mudar, ele entra na prop `"texto"` dentro de `"props"`, só por decisão
-  deles — a IA não escreve o texto do aviso.
+- O **texto padrão é só reserva** ("Conteúdo informativo. Não constitui recomendação ou
+  indicação de investimento."). **Decisão do Matheus (13/10/2026):** o conteúdo do AvisoCVM vem do
+  pedido dele (transcrição curta e/ou emoji que passa de um canto para o outro), só quando ele pedir;
+  ajustes no componente só quando ele pedir. Não há texto oficial a aguardar. A IA não escreve o
+  conteúdo do aviso.
 - `"duracao"` (segundos) e `"duracaoFrames"` (em `"props"`, padrão 150 = 5 s a 30 fps) devem
   contar a mesma história; se mudar um, mude o outro.
 - Se outro elemento de `"posicao": "base"` aparecer ao mesmo tempo com o mesmo `"slot"`, o

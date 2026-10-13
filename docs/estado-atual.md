@@ -34,7 +34,7 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   "Componentes prontos" no `ARQUITETURA.md` seção 6; componente novo
   `AvisoCVM` (`src/components/v2/AvisoCVM.tsx`) criado, registrado em
   `src/Composition.tsx`, no `CATALOGO` de `src/PlanoComposicao.tsx` e em
-  `docs/catalogo-componentes.md`. AvisoCVM: com texto provisório, prop
+  `docs/catalogo-componentes.md`. AvisoCVM: conteúdo vem do pedido (texto padrão só de reserva), prop
   `corCard` separada, canto inferior esquerdo (visto pelo Matheus em 07/10/2026:
   gostou; ajustes previstos depois; commits `40cf3ba` e `34bccc8`).
 - `Seta` redesenhada (05/10/2026): curva única, espessura variável, ponta em V;
@@ -235,8 +235,7 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
     `videos/0926.cortes.json`, então um clone novo não compila.
 
 - `AvisoCVM`: código completo, registrado; visto pelo Matheus em 07/10/2026
-  (gostou; ajustes previstos depois). Texto continua provisório e o texto oficial
-  da CVM segue pendente. O item 6.2 de `docs/criterios-fechamento.md` está cumprido.
+  (gostou; ajustes previstos depois). Texto oficial não é necessário: decisão do Matheus em 13/10/2026 (fechado por decisão, não provado). Tempo mínimo em tela segue em aberto. O item 6.2 de `docs/criterios-fechamento.md` está cumprido.
 - `LogoAnimada`: não construído (lista "A construir" do ARQUITETURA.md seção 6).
 - **Etapa 3, 12/10/2026, commit `36fff8d`:**
   - **`ArrobaInstagram` (3.4):** existe em `src/components/v2/ArrobaInstagram.tsx`, registrado no
@@ -247,15 +246,15 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
     e efeito com `Html5Audio` de `remotion`; música com volume provisório (0,03 com a faixa real, em 13/10); efeito no frame do
     elemento ou do `inicio`, pelo `tempoCortado.ts`; composição `PlanoAudioTeste`; áudio fora do Git
     (`public/music/` e `public/sfx/` no `.gitignore`). Commit autorizado pelo Matheus em 12/10/2026; não visto nem ouvido na hora.
-    **NÃO PROVADO:** som real; encaixe com a voz do JR; render completo; licença de música alguma (não registrada). **O validador ainda não confere a lista `audio` (Fase 2
-    pendente).** Arquivo ausente com `loop` pode travar o render (leitura de código, não testado).
+    **NÃO PROVADO:** som real; encaixe com a voz do JR; render completo; licença de música alguma (não registrada). **O validador confere a lista `audio` (checagem 11, commit `4c11e1f`).** Ele não prova som, volume nem licença. Arquivo ausente com `loop` pode travar o render (leitura de código, não testado).
   - **`deslocamentoCamera`:** tem efeito desde o commit `1cc8211`; provado só na conta de frames,
     **sem prova visual**.
 - **Etapa 3, 13/10/2026 (renders curtos no PC do trabalho; commit `ccfb44a` e um de docs):**
   - **Câmera no plano (3.1), visto:** `PlanoCameraTeste`, quadros 640-699 (60 quadros), 1080×1920, SAR 1:1, `--props` só com o `videoSrc` da cópia leve. A janelinha da câmera e o `BarrasDuelo` apareceram por cima da tela, sem esticar; ECANCELED = 0; o `--props` **mesclou** com os `defaultProps`. O Matheus viu o mp4 e disse que está ok. **NÃO PROVADO:** sincronia, o JR na câmera, o render completo.
   - **Orientação automática (3.3), 3 renders de 30 quadros:** (A) `PlanoAutomaticoHorizontal` sem `--width`/`--height` saiu 1920×1080; (B) o mesmo com `--width 1080 --height 1920` saiu 1080×1920 (a linha de comando ganha do plano); (C) `PlanoAutomatico` com a cópia leve saiu 1080×1920. Conferido com ffprobe; quadros olhados pelo Claude Code. **O Matheus não confirmou ter aberto esses arquivos.** **NÃO PROVADO:** render completo, JR, ficha `.preparo.json` (não é lida). **Risco:** `scripts/preparar-video.mjs` imprime `--width` e `--height` nos comandos; se contradisserem o plano, o comando vence em silêncio.
   - **Áudio (3.6), `PlanoAudioTeste` (quadros 600-719):** com o efeito em volume 1, a subida ficou 13,0 dB acima da voz na média; em 0,3, ficou 4,3 dB (pico +1,5 dB). O Matheus ouviu: volume 1 estava alto; testou 3 durações do som (0,35, 0,5 e 0,7 s; o arquivo atual é de 0,5 s) e disse que deu certo. O som é **sintético** (ffmpeg). **A música de fundo** (tom de 110 Hz, volume 0,2; substituída no mesmo dia pela faixa real, ver abaixo) **não foi confirmada**: a medição não prova que ela toca, e o Matheus não disse se ouviu. Volume 0,3 é **provisório** até o som real. **NÃO PROVADO:** som real; inteligibilidade da voz com música real; render completo; licença de música alguma. Os arquivos de teste estão em `public/music/` e `public/sfx/`, **fora do Git**.
-  - **Música real (3.6), 13/10/2026:** `public/music/musica-teste.mp3` (mp3, estéreo, 48 kHz, 178,8 s, média -13,0 dB, -11,2 LUFS), em volume 0,03 (calculado para ficar ~12 a 13 dB abaixo da voz). Dois renders de 4 s (quadros 0-119 e 600-719) saíram em 1080×1920, 120 quadros, sem ECANCELED nem aviso de áudio ausente. Aprovado pelo Matheus em 13/10/2026, sem registro de que ele ouviu cada arquivo. **LICENÇA NÃO REGISTRADA:** nome da faixa, link e licença ainda não informados; a faixa veio do Pixabay (informado pelo Matheus), o que não substitui o registro. Fora do Git: em casa ou num clone novo, o `PlanoAudioTeste` não acha a música (no Studio vira aviso; com `loop` o render pode travar até o timeout, leitura de código, não testado). **NÃO PROVADO:** volume em vídeo inteiro; inteligibilidade com música em vídeo completo; música com outro espectro; sincronia por frame; o efeito por `inicio` 0:20. O validador ainda não confere a lista `audio` (Fase 2 obrigatória).
+  - **Música real (3.6), 13/10/2026:** `public/music/musica-teste.mp3` (mp3, estéreo, 48 kHz, 178,8 s, média -13,0 dB, -11,2 LUFS), em volume 0,03 (calculado para ficar ~12 a 13 dB abaixo da voz). Dois renders de 4 s (quadros 0-119 e 600-719) saíram em 1080×1920, 120 quadros, sem ECANCELED nem aviso de áudio ausente. Aprovado pelo Matheus em 13/10/2026, sem registro de que ele ouviu cada arquivo. **LICENÇA NÃO REGISTRADA:** nome da faixa, link e licença ainda não informados; a faixa veio do Pixabay (informado pelo Matheus), o que não substitui o registro. Fora do Git: em casa ou num clone novo, o `PlanoAudioTeste` não acha a música (no Studio vira aviso; com `loop` o render pode travar até o timeout, leitura de código, não testado). **NÃO PROVADO:** volume em vídeo inteiro; inteligibilidade com música em vídeo completo; música com outro espectro; sincronia por frame; o efeito por `inicio` 0:20. O validador confere a lista `audio` desde o commit `4c11e1f` (checagem 11).
+  - **Áudio, Fase 2 (validador, checagem 11), 13/10/2026, commit `4c11e1f`:** o `validar-plano.mjs` confere a lista `audio`: `id`, `tipo` (música ou efeito), `arquivo` (existe em `public/`, sem espaço nem acento, sem sair de `public/`), `volume` de 0 a 1, `framesEntrada`/`framesSaida` inteiros >= 0, e efeito com `inicio` **ou** `elemento` (que existe em `elementos`). Avisos: extensão fora de .mp3/.wav/.m4a/.ogg/.aac, mais de uma música, volume de música maior que 0,5. Opção `--public <pasta>` (usada pelos testes). `testar-validador.mjs`: 52/52 casos OK. **Não prova** som, volume de ouvido nem licença. Em outro PC, `planos/teste-audio.plano.json` dá ERRO enquanto `music/musica-teste.mp3` e `sfx/teste-bipe.wav` não estiverem em `public/` (arquivos fora do Git): é o comportamento esperado.
   - **Código de saída 1:** todos os renders curtos de hoje saíram com código 1 mesmo com o arquivo gerado e o log limpo. Causa provável: o `explorer.exe` no fim do `~/render.sh`; **não isolada**. Conferir sempre o arquivo, não só o código.
 - `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem
   `--dry-run` ele executa o render de verdade (`scripts/render-final.mjs`, linha 90). Se já
@@ -313,8 +312,7 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 ## Perguntas pendentes
 
 Ver `docs/perguntas-pendentes.md` — decisões do Matheus, não técnicas:
-1. Texto oficial do aviso CVM (prop `texto` do `AvisoCVM`) e se há exigência
-   de tempo mínimo em tela.
+1. Se há exigência de tempo mínimo em tela para o `AvisoCVM` (o texto oficial não é mais pendência: decisão de 13/10/2026).
 2. Envio automático pro Google Drive (Etapa 8): autorização de conta e
    escolha de conector/API.
 3. Campo `"fps"` do plano: formalizar ou remover.

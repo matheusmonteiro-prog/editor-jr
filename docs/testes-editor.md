@@ -278,7 +278,7 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
 - **Status apurado (13/10/2026): Fase 1 EXISTE, SEM ducking.**
   - Existe: lista `audio` no topo do plano (`src/PlanoComposicao.tsx`, tipo `ItemAudio`), tocada com `Html5Audio` de `remotion`; música em **volume fixo baixo** (0,2 no plano de teste), com fade de entrada e saída.
   - **Não existe:** ducking dinâmico. A música não cai durante a fala; o volume é o mesmo o tempo todo.
-  - O validador (`scripts/validar-plano.mjs`) **ainda não confere** a lista `audio` (Fase 2 pendente).
+  - O validador (`scripts/validar-plano.mjs`) **confere** a lista `audio` (checagem 11, commit `4c11e1f`); não prova som, volume nem licença.
   - O critério T16 espera ducking. **Precisa de decisão do Matheus:** aceitar volume fixo baixo ou pedir ducking.
   - Música real: `public/music/musica-teste.mp3` existe neste PC, fora do Git (13/10/2026), em volume fixo 0,03. Licença não registrada. Continua **sem ducking**; a decisão segue com o Matheus.
 
