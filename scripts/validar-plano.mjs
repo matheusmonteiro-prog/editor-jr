@@ -359,16 +359,28 @@ if (dados.orientacao !== 'vertical' && dados.orientacao !== 'horizontal') {
 
 // ---------------------------------------------------------------- tempo
 
-// "m:ss" → segundos. Formato inválido ou segundos >= 60 é falha da checagem 1
-// (retorna null), não uma exceção solta.
+// "m:ss" ou "m:ss.d" (UM dígito decimal) → segundos. Formato inválido ou
+// segundos >= 60 é falha da checagem 1 (retorna null), não uma exceção solta.
+// Mesma regra do paraSegundos de src/PlanoComposicao.tsx.
 const paraSegundos = (txt) => {
   if (typeof txt !== 'string') return null;
-  const m = txt.match(/^(\d+):(\d{1,2})$/);
+  const m = txt.match(/^(\d+):(\d{1,2})(?:\.(\d))?$/);
   if (!m) return null;
   const minutos = Number(m[1]);
   const segundos = Number(m[2]);
   if (segundos >= 60) return null;
-  return minutos * 60 + segundos;
+  return minutos * 60 + segundos + (m[3] === undefined ? 0 : Number(m[3]) / 10);
+};
+
+// Por que um tempo foi rejeitado (pra mensagem de erro dizer o que consertar).
+const motivoTempoInvalido = (txt) => {
+  if (typeof txt !== 'string') return 'o tempo precisa ser texto';
+  if (txt.trim().startsWith('-')) return 'tempo negativo não vale';
+  if (txt.includes(',')) return 'vírgula não vale: use ponto no décimo (ex. "0:05.4")';
+  if (/\.\d{2,}/.test(txt)) return 'só UM dígito depois do ponto (ex. "0:05.4", não "0:05.45")';
+  const m = txt.match(/^\d+:(\d+)/);
+  if (m && Number(m[1]) >= 60) return 'os segundos precisam ser menores que 60';
+  return 'confira o formato';
 };
 
 const formatarTempo = (seg) => {
@@ -429,11 +441,15 @@ const checagem1 = (el) => {
   else if (typeof el.texto !== 'string' || el.texto.trim() === '')
     problemas.push(`texto deve ser string não vazia (veio ${JSON.stringify(el.texto)})`);
 
-  if (el.inicio === undefined)
-    problemas.push('inicio ausente — use o formato m:ss referente ao vídeo ORIGINAL, ex. "1:05"');
-  else if (paraSegundos(el.inicio) === null)
+  if (el.inicio === undefined) {
+    // naPalavra é um atalho que um script converte em "inicio" ANTES da validação;
+    // se chegou aqui sem "inicio", a conversão não rodou.
+    if (el.naPalavra !== undefined)
+      problemas.push('naPalavra ainda não resolvido: rode scripts/resolver-plano.mjs antes');
+    else problemas.push('inicio ausente — use o formato m:ss referente ao vídeo ORIGINAL, ex. "1:05"');
+  } else if (paraSegundos(el.inicio) === null)
     problemas.push(
-      `inicio deve estar no formato m:ss, com segundos < 60, e não pode ser negativo (veio ${JSON.stringify(el.inicio)}) — ex. "1:05"`,
+      `inicio deve estar no formato m:ss ou m:ss.d (um dígito decimal, segundos < 60, sem negativo) — ${motivoTempoInvalido(el.inicio)} (veio ${JSON.stringify(el.inicio)}) — ex. "1:05" ou "1:05.4"`,
     );
 
   if (el.duracao === undefined) problemas.push('duracao ausente — informe a duração em segundos (número > 0)');
@@ -850,7 +866,7 @@ if (dados.camera !== undefined) {
 
       const inicioCam = t.inicio === undefined ? null : paraSegundos(t.inicio);
       if (t.inicio !== undefined && inicioCam === null)
-        erro(rotulo, `camera: inicio deve estar no formato m:ss, com segundos < 60 (veio ${JSON.stringify(t.inicio)})`);
+        erro(rotulo, `camera: inicio deve estar no formato m:ss ou m:ss.d (um dígito decimal, segundos < 60) — ${motivoTempoInvalido(t.inicio)} (veio ${JSON.stringify(t.inicio)})`);
 
       if (t.duracao !== undefined && !(typeof t.duracao === 'number' && Number.isFinite(t.duracao) && t.duracao > 0))
         erro(rotulo, `camera: duracao deve ser número > 0 (veio ${JSON.stringify(t.duracao)})`);
@@ -985,7 +1001,7 @@ if (dados.audio !== undefined) {
         if (temInicio) {
           const seg = paraSegundos(a.inicio);
           if (seg === null)
-            erro(rotulo, `audio: inicio deve estar no formato m:ss, com segundos < 60 (veio ${JSON.stringify(a.inicio)})`);
+            erro(rotulo, `audio: inicio deve estar no formato m:ss ou m:ss.d (um dígito decimal, segundos < 60) — ${motivoTempoInvalido(a.inicio)} (veio ${JSON.stringify(a.inicio)})`);
           else if (duracaoMax !== null && seg > duracaoMax)
             erro(rotulo, `audio: inicio em ${formatarTempo(seg)} passa do fim do vídeo original (${formatarTempo(duracaoMax)}) — adiante o efeito`);
         }

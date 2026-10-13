@@ -11,7 +11,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,6 +32,17 @@ for (const arq of ['music/musica.mp3', 'music/outra.mp3', 'music/faixa.flac', 's
   writeFileSync(path.join(PUBLIC_TESTE, arq), '');
 }
 const ARGS_AUDIO = ['--public', PUBLIC_TESTE];
+
+// Planos derivados do valido.plano.json, gravados na pasta temporária acima (sem
+// fixture nova em disco): só o 1º elemento muda.
+const baseValida = JSON.parse(readFileSync(fixture('valido.plano.json'), 'utf8'));
+const planoTemporario = (nome, alterar) => {
+  const plano = structuredClone(baseValida);
+  alterar(plano.elementos[0]);
+  const caminho = path.join(PUBLIC_TESTE, nome);
+  writeFileSync(caminho, JSON.stringify(plano, null, 2));
+  return caminho;
+};
 
 // Cada caso: arquivo da fixture, args extras pro validador, se espera que o
 // validador termine com erro (exit code 1) ou não, e um trecho que tem que
@@ -406,6 +417,50 @@ const casos = [
     args: ARGS_AUDIO,
     esperaFalha: false,
     trechoEsperado: 'música alta, confira',
+  },
+  // ---- tempo com décimo ("m:ss.d") e naPalavra
+  {
+    nome: 'inicio "0:05.4" (um décimo) passa limpo',
+    arquivo: fixture('valido-decimal.plano.json'),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'inicio "0:05.45" (dois dígitos decimais) é ERRO',
+    arquivo: fixture('invalido-decimal-dois-digitos.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'só UM dígito depois do ponto',
+  },
+  {
+    nome: 'inicio com vírgula ("0:05,4") é ERRO',
+    arquivo: planoTemporario('inicio-virgula.plano.json', (el) => {
+      el.inicio = '0:05,4';
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'vírgula não vale',
+  },
+  {
+    nome: 'inicio negativo ("-0:05") é ERRO',
+    arquivo: planoTemporario('inicio-negativo.plano.json', (el) => {
+      el.inicio = '-0:05';
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'tempo negativo não vale',
+  },
+  {
+    nome: 'naPalavra sem inicio é ERRO (ainda não resolvido)',
+    arquivo: planoTemporario('na-palavra-sem-inicio.plano.json', (el) => {
+      delete el.inicio;
+      el.naPalavra = 'taxa';
+      el.ocorrencia = 1;
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'naPalavra ainda não resolvido: rode scripts/resolver-plano.mjs antes',
   },
 ];
 

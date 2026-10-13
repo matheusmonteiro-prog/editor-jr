@@ -118,9 +118,16 @@ export type PlanoComposicaoProps = {
   cameraRepetirFrames?: number; // só pra arquivo de teste mais curto que o vídeo
 };
 
+// "m:ss" ou "m:ss.d" (UM dígito decimal) → segundos. Mesma regra do
+// scripts/validar-plano.mjs: um plano que passou no validador não cai no erro.
 const paraSegundos = (tempo: string): number => {
-  const [minutos, segundos] = tempo.split(":").map(Number);
-  return minutos * 60 + segundos;
+  const m = /^(\d+):(\d{1,2})(?:\.(\d))?$/.exec(tempo);
+  if (!m || Number(m[2]) >= 60) {
+    throw new Error(
+      `Tempo inválido ${JSON.stringify(tempo)}: use "m:ss" ou "m:ss.d" (um dígito depois do ponto, sem vírgula, sem negativo, segundos < 60)`,
+    );
+  }
+  return Number(m[1]) * 60 + Number(m[2]) + (m[3] === undefined ? 0 : Number(m[3]) / 10);
 };
 
 const renderizarComponente = (
