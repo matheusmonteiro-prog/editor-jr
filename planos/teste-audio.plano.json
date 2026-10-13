@@ -4,8 +4,8 @@
   "fps": 30,
   "audio": [
     { "id": "musica-teste", "tipo": "musica", "arquivo": "music/teste-tom.wav", "volume": 0.2, "framesEntrada": 30, "framesSaida": 30, "loop": true },
-    { "id": "efeito-no-elemento", "tipo": "efeito", "arquivo": "sfx/teste-bipe.wav", "volume": 1, "elemento": "em-vez-da-poupanca" },
-    { "id": "efeito-no-tempo", "tipo": "efeito", "arquivo": "sfx/teste-bipe.wav", "volume": 1, "inicio": "0:20" }
+    { "id": "efeito-no-elemento", "tipo": "efeito", "arquivo": "sfx/teste-bipe.wav", "volume": 0.3, "elemento": "em-vez-da-poupanca" },
+    { "id": "efeito-no-tempo", "tipo": "efeito", "arquivo": "sfx/teste-bipe.wav", "volume": 0.3, "inicio": "0:20" }
   ],
   "elementos": [
     {
