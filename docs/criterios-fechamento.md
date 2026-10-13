@@ -4,8 +4,8 @@
 (a) a (e) abaixo foram passadas por ele em 07/10/2026 e estão incorporadas; o AvisoCVM (e) foi
 visto por ele em 07/10/2026. A Etapa 3 está fechada em **3a (código)** desde 13/10/2026; **3b (material real)** fica para validar na prática nas primeiras gravações reais (decisão do Matheus em 13/10/2026).
 
-Por que existe: o `CLAUDE.md` exige um critério de fechamento escrito por etapa. Hoje as
-Etapa 3 concluída em 3a (13/10/2026); Etapa 6 com a 6a cumprida (09/10/2026); Etapa 4 em rascunho no `ARQUITETURA.md`.
+Por que existe: o `CLAUDE.md` exige um critério de fechamento escrito por etapa. Hoje:
+Etapa 3 concluída em 3a (13/10/2026); Etapa 6 com a 6a cumprida (09/10/2026); Etapa 4 com critério em rascunho (seção ao final deste arquivo).
 
 Como ler: cada item vem de uma tarefa que já está no `ARQUITETURA.md` (seção 7, Etapas 3 e 6),
 exceto onde está escrito o contrário. Marcas:
