@@ -36,6 +36,10 @@ import {
   circuloDestaqueSchema,
 } from "./components/v2/CirculoDestaque";
 import { AvisoCVM, avisoCVMSchema } from "./components/v2/AvisoCVM";
+import {
+  ArrobaInstagram,
+  arrobaInstagramSchema,
+} from "./components/v2/ArrobaInstagram";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -478,6 +482,28 @@ export const MyComposition = () => {
           corTexto: "#F5F0E6",
           corCard: "rgba(15, 42, 29, 0.78)",
           mostrarFundo: true,
+          duracaoFrames: 150,
+          framesEntrada: 15,
+          framesSaida: 15,
+        }}
+      />
+      {/* PROVISÓRIO: @ de teste, não é o @ real; nenhum plano usa este valor. */}
+      <Composition
+        id="ArrobaInstagram"
+        component={ArrobaInstagram}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={arrobaInstagramSchema}
+        defaultProps={{
+          usuario: "arroba_provisorio",
+          posicao: "superior-esquerdo",
+          tamanhoFonte: 0.03,
+          margem: 0.04,
+          corTexto: "#F5F0E6",
+          corCard: "#0F2A1D",
+          corDestaque: "#EFAF20",
           duracaoFrames: 150,
           framesEntrada: 15,
           framesSaida: 15,

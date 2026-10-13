@@ -18,6 +18,7 @@ import { CamadaVideo } from "./components/v2/CamadaVideo";
 import plano0926 from "../planos/0926.plano.json";
 import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
 import planoTesteCamera from "../planos/teste-camera.plano.json";
+import planoTesteAudio from "../planos/teste-audio.plano.json";
 import cortes0926 from "../videos/0926.cortes.json";
 import type { CalculateMetadataFunction } from "remotion";
 import type { PlanoComposicaoProps } from "./PlanoComposicao";
@@ -227,6 +228,22 @@ export const RemotionRoot: React.FC = () => {
             cortes: cortes0926,
             cameraSrc: "videos/teste2-camera.mp4",
             cameraRepetirFrames: 211,
+          }}
+        />
+        {/* Áudio (Etapa 3, 3.6, fase 1): igual ao PlanoCameraTeste, sem câmera, com a lista
+            "audio" de planos/teste-audio.plano.json. Os arquivos de teste ficam em
+            public/music e public/sfx só durante o teste (pastas fora do Git). */}
+        <Composition
+          id="PlanoAudioTeste"
+          component={PlanoComposicao}
+          durationInFrames={DURACAO_FRAMES_0926}
+          fps={FPS_0926}
+          width={1080}
+          height={1920}
+          defaultProps={{
+            videoSrc: "videos/0926-cortado-v1.mp4",
+            plano: planoTesteAudio,
+            cortes: cortes0926,
           }}
         />
         {/* Tamanho vindo do plano (vertical): igual ao PlanoCameraTeste, abre em 1080x1920. */}

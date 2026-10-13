@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import {
   AbsoluteFill,
+  Html5Audio,
   interpolate,
   OffthreadVideo,
   Sequence,
@@ -28,6 +29,7 @@ import { CirculoDestaque } from "./components/v2/CirculoDestaque";
 import { Spotlight } from "./components/v2/Spotlight";
 import { Contador } from "./components/v2/Contador";
 import { AvisoCVM } from "./components/v2/AvisoCVM";
+import { ArrobaInstagram } from "./components/v2/ArrobaInstagram";
 import { criarParaFrameCortado, type TrechoCortado } from "./utils/tempoCortado";
 
 // Lê um plano de edição (formato de planos/0926.plano.json) e monta a
@@ -55,6 +57,7 @@ const CATALOGO: Record<string, React.ComponentType<any>> = {
   Spotlight,
   Contador,
   AvisoCVM,
+  ArrobaInstagram,
 };
 
 type ElementoPlano = {
@@ -81,10 +84,26 @@ type TrechoCamera = {
   framesSaida?: number;
 };
 
+// Item da lista "audio" do plano (fora de "elementos"). Música: toca o vídeo todo,
+// com fade de entrada e saída. Efeito: começa em "inicio" ("m:ss" do vídeo ORIGINAL)
+// ou no mesmo frame de um elemento ("elemento" = id). "arquivo" é relativo a public/.
+type ItemAudio = {
+  id: string;
+  tipo: string; // "musica" ou "efeito" (string porque o JSON importado não guarda o literal)
+  arquivo: string;
+  volume?: number; // 0 a 1
+  framesEntrada?: number; // só música
+  framesSaida?: number; // só música
+  loop?: boolean; // só música
+  inicio?: string; // só efeito
+  elemento?: string; // só efeito
+};
+
 export type Plano = {
   video: string;
   orientacao: string;
   elementos: ElementoPlano[];
+  audio?: ItemAudio[];
   camera?: TrechoCamera[];
   // Atraso da câmera em relação à tela, em segundos (padrão 0). Positivo = câmera
   // atrasada (o arquivo toca de mais à frente); negativo = câmera adiantada (espera).
@@ -182,6 +201,84 @@ const CameraDoPlano: React.FC<{
   );
 };
 
+// PROVISÓRIO: decidir de ouvido (o alvo de volume do projeto ainda não existe).
+const VOLUME_MUSICA_PADRAO = 0.2;
+const VOLUME_EFEITO_PADRAO = 1;
+
+// Aviso uma vez só: o componente re-renderiza a cada quadro.
+const avisosDados = new Set<string>();
+const avisarUmaVez = (mensagem: string) => {
+  if (avisosDados.has(mensagem)) return;
+  avisosDados.add(mensagem);
+  console.warn(mensagem);
+};
+
+// Lista "audio" do plano. Arquivo ausente ou ilegível NÃO derruba o render por conta
+// daqui: o erro do <Html5Audio> vira só um aviso no console (o validador é quem
+// confere se o arquivo existe).
+const AudioDoPlano: React.FC<{
+  itens: ItemAudio[];
+  elementos: ElementoPlano[];
+  paraFrameCortado: (segundoOriginal: number) => number;
+}> = ({ itens, elementos, paraFrameCortado }) => {
+  const { durationInFrames } = useVideoConfig();
+  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+
+  return (
+    <>
+      {itens.map((item) => {
+        const aoErrar = (erro: Error) => avisarUmaVez(`audio "${item.id}": ${erro.message}`);
+
+        if (item.tipo === "musica") {
+          const base = item.volume ?? VOLUME_MUSICA_PADRAO;
+          const entrada = item.framesEntrada ?? 0;
+          const saida = item.framesSaida ?? 0;
+          // frame = quadro da composição (Sequence em 0; "extend" segue contando no loop).
+          const volume = (frame: number) => {
+            const fadeIn = entrada > 0 ? interpolate(frame, [0, entrada], [0, 1], clamp) : 1;
+            const fadeOut =
+              saida > 0 ? interpolate(frame, [durationInFrames - saida, durationInFrames], [1, 0], clamp) : 1;
+            return base * Math.min(fadeIn, fadeOut);
+          };
+          return (
+            <Sequence key={item.id} name={`audio-${item.id}`} from={0}>
+              <Html5Audio
+                src={staticFile(item.arquivo)}
+                volume={volume}
+                loop={item.loop === true}
+                loopVolumeCurveBehavior="extend"
+                onError={aoErrar}
+              />
+            </Sequence>
+          );
+        }
+
+        if (item.tipo === "efeito") {
+          const alvo = item.elemento !== undefined ? elementos.find((e) => e.id === item.elemento) : undefined;
+          const inicio = alvo ? alvo.inicio : item.inicio;
+          if (inicio === undefined) {
+            avisarUmaVez(`audio "${item.id}": efeito sem "inicio" e sem "elemento" válido; ignorado.`);
+            return null;
+          }
+          const from = paraFrameCortado(paraSegundos(inicio));
+          return (
+            <Sequence key={item.id} name={`audio-${item.id}`} from={from}>
+              <Html5Audio
+                src={staticFile(item.arquivo)}
+                volume={item.volume ?? VOLUME_EFEITO_PADRAO}
+                onError={aoErrar}
+              />
+            </Sequence>
+          );
+        }
+
+        avisarUmaVez(`audio "${item.id}": tipo "${item.tipo}" desconhecido (use "musica" ou "efeito"); ignorado.`);
+        return null;
+      })}
+    </>
+  );
+};
+
 export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
   videoSrc,
   plano,
@@ -229,6 +326,9 @@ export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
           </Sequence>
         );
       })}
+      {plano.audio && plano.audio.length > 0 ? (
+        <AudioDoPlano itens={plano.audio} elementos={plano.elementos} paraFrameCortado={paraFrameCortado} />
+      ) : null}
     </>
   );
 };
