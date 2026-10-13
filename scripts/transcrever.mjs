@@ -22,12 +22,21 @@
  *   node scripts/transcrever.mjs --video videos/teste-jr.mp4
  *   node scripts/transcrever.mjs --video videos/teste-jr.mp4 --modelo base --idioma pt
  *   node scripts/transcrever.mjs --video videos/teste-jr.mp4 --refazer
+ *   node scripts/transcrever.mjs --video videos/teste-jr.mp4 --so-texto
+ *
+ * Além do .palavras.json, grava videos/<nome>.palavras.txt: uma linha por trecho, "m:ss texto",
+ * com m:ss = startMs da primeira palavra do trecho (tempo do vídeo ORIGINAL). Serve para ler a
+ * transcrição de forma compacta. O trecho quebra com 12 palavras, ou na pontuação final (. ? !)
+ * com 5 palavras ou mais, ou numa pausa de 700 ms ou mais entre duas palavras.
  *
  * Opções:
  *   --video CAMINHO  vídeo original (obrigatório)
  *   --modelo NOME    modelo do Whisper (padrão small; precisa existir em modelFolder)
  *   --idioma COD     idioma falado (padrão pt)
- *   --refazer        regrava videos/<nome>.palavras.json mesmo que já exista (sem isso, para)
+ *   --refazer        regrava o .palavras.json e o .palavras.txt mesmo que já existam
+ *                    (sem isso, o script para em vez de sobrescrever)
+ *   --so-texto       NÃO roda o Whisper: lê o .palavras.json que já existe e gera só o
+ *                    .palavras.txt (precisa de --refazer se o .txt já existir)
  *
  * Aviso conhecido e inofensivo do pacote: "input file not found 'true'" (ele passa
  * ['--split-on-word', true]). Aqui a saída do whisper.cpp fica silenciosa, então ele não aparece;
@@ -55,6 +64,10 @@ const MODELOS_ACEITOS = [
   'tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en',
   'medium', 'medium.en', 'large-v1', 'large-v2', 'large-v3', 'large-v3-turbo',
 ];
+// Regras de quebra de linha do .palavras.txt
+const MAX_PALAVRAS_POR_LINHA = 12;
+const MIN_PALAVRAS_PARA_QUEBRAR_NA_PONTUACAO = 5;
+const PAUSA_QUEBRA_MS = 700;
 const PASTA_AUDIO = join(RAIZ, 'out');
 const PASTA_SAIDA = join(RAIZ, 'videos');
 const ARQUIVO_CONFIG = join(RAIZ, 'config.local.json');
@@ -99,14 +112,15 @@ const versaoMaiorOuIgual = (a, b) => {
 // ---------------------------------------------------------------- argumentos
 
 const FLAGS_COM_VALOR = ['--video', '--modelo', '--idioma'];
-const FLAGS_BOOLEANAS = ['--refazer'];
+const FLAGS_BOOLEANAS = ['--refazer', '--so-texto'];
 
 const lerArgumentos = (argv) => {
-  const opcoes = {video: null, modelo: MODELO_PADRAO, idioma: IDIOMA_PADRAO, refazer: false};
+  const opcoes = {video: null, modelo: MODELO_PADRAO, idioma: IDIOMA_PADRAO, refazer: false, soTexto: false};
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (FLAGS_BOOLEANAS.includes(a)) {
-      opcoes.refazer = true;
+      if (a === '--refazer') opcoes.refazer = true;
+      else opcoes.soTexto = true;
     } else if (FLAGS_COM_VALOR.includes(a)) {
       const valor = argv[++i];
       if (valor === undefined || valor.startsWith('--')) throw new ErroUso(`A opção ${a} precisa de um valor.`);
@@ -206,20 +220,83 @@ const duracaoDoAudioMs = (wav) => {
   return s * 1000;
 };
 
+// ---------------------------------------------------------------- texto compacto (.palavras.txt)
+
+// "m:ss" do tempo em ms (tempo do vídeo ORIGINAL). Minutos não têm limite (65 min -> "65:00").
+const formatarTempo = (ms) => {
+  const s = Math.floor(ms / 1000);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+
+// Junta as palavras em trechos. Usa só text, startMs e endMs.
+// Quebra o trecho quando: chega a MAX_PALAVRAS_POR_LINHA palavras; ou a palavra termina em
+// . ? ! e o trecho já tem MIN_PALAVRAS_PARA_QUEBRAR_NA_PONTUACAO ou mais; ou a pausa até a
+// próxima palavra (startMs da próxima - endMs desta) é de PAUSA_QUEBRA_MS ou mais.
+const montarTrechos = (captions) => {
+  const palavras = captions.filter((c) => typeof c.text === 'string' && c.text.trim() !== '');
+  const trechos = [];
+  let atual = [];
+  const fechar = () => {
+    if (atual.length === 0) return;
+    const texto = atual.map((p) => p.text).join('').replace(/\s+/g, ' ').trim();
+    trechos.push({startMs: atual[0].startMs, texto});
+    atual = [];
+  };
+  palavras.forEach((p, i) => {
+    atual.push(p);
+    const proxima = palavras[i + 1];
+    const termina = /[.?!]$/.test(p.text.trim());
+    const pausa = proxima ? proxima.startMs - p.endMs : 0;
+    if (
+      atual.length >= MAX_PALAVRAS_POR_LINHA ||
+      (termina && atual.length >= MIN_PALAVRAS_PARA_QUEBRAR_NA_PONTUACAO) ||
+      (proxima && pausa >= PAUSA_QUEBRA_MS)
+    ) {
+      fechar();
+    }
+  });
+  fechar();
+  return trechos;
+};
+
+const gravarTexto = (captions, caminho) => {
+  const trechos = montarTrechos(captions);
+  mkdirSync(dirname(caminho), {recursive: true});
+  writeFileSync(caminho, trechos.map((t) => `${formatarTempo(t.startMs)} ${t.texto}`).join('\n') + '\n');
+  return trechos.length;
+};
+
 // ---------------------------------------------------------------- principal
 
 const main = async () => {
   const opcoes = lerArgumentos(process.argv.slice(2));
+  const nome = basename(opcoes.video, extname(opcoes.video));
+  const saida = join(PASTA_SAIDA, `${nome}.palavras.json`);
+  const saidaTexto = join(PASTA_SAIDA, `${nome}.palavras.txt`);
+
+  // Modo --so-texto: não roda o Whisper, não precisa de config nem de ffmpeg.
+  if (opcoes.soTexto) {
+    if (!existsSync(saida)) {
+      throw new ErroUso(`Não existe ${paraRelativo(saida)}. Rode sem --so-texto para transcrever primeiro.`);
+    }
+    if (existsSync(saidaTexto) && !opcoes.refazer) {
+      throw new ErroUso(`Já existe ${paraRelativo(saidaTexto)}. Para regravar só o texto, use --so-texto --refazer.`);
+    }
+    const captions = JSON.parse(readFileSync(saida, 'utf8'));
+    const linhas = gravarTexto(captions, saidaTexto);
+    console.log(`Texto gravado: ${linhas} linhas -> ${paraRelativo(saidaTexto)} (a partir de ${paraRelativo(saida)}; Whisper não rodou)`);
+    return;
+  }
+
   const config = lerConfig();
   conferirWhisper(config, opcoes.modelo);
   exigirBinario('ffmpeg');
   exigirBinario('ffprobe');
 
-  const nome = basename(opcoes.video, extname(opcoes.video));
-  const saida = join(PASTA_SAIDA, `${nome}.palavras.json`);
-  if (existsSync(saida) && !opcoes.refazer) {
+  const existentes = [saida, saidaTexto].filter((c) => existsSync(c));
+  if (existentes.length > 0 && !opcoes.refazer) {
     throw new ErroUso(
-      `Já existe ${paraRelativo(saida)}. Transcreve-se uma vez por vídeo; ` +
+      `Já existe ${existentes.map(paraRelativo).join(' e ')}. Transcreve-se uma vez por vídeo; ` +
         'para refazer de propósito, rode de novo com --refazer.',
     );
   }
@@ -260,10 +337,12 @@ const main = async () => {
   const {captions} = toCaptions({whisperCppOutput: resultado});
   mkdirSync(PASTA_SAIDA, {recursive: true});
   writeFileSync(saida, JSON.stringify(captions, null, 2) + '\n');
+  const linhas = gravarTexto(captions, saidaTexto);
 
   const ultima = captions[captions.length - 1];
   console.log(`\nFeito em ${segundos.toFixed(1)} s (${(segundos / (duracaoMs / 1000)).toFixed(2)}x a duração do áudio).`);
   console.log(`Palavras: ${captions.length} -> ${paraRelativo(saida)}`);
+  console.log(`Texto:    ${linhas} linhas -> ${paraRelativo(saidaTexto)}`);
   if (ultima) {
     const passou = ultima.endMs > duracaoMs;
     console.log(
