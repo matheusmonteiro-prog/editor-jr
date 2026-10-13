@@ -1,11 +1,11 @@
-# Critérios de fechamento — Etapas 3 e 6
+# Critérios de fechamento — Etapas 3, 4 e 6
 
 **Estado: aprovado pelo Matheus em 07/10/2026; Etapa 6 (6a) cumprida em 09/10/2026.** As decisões
 (a) a (e) abaixo foram passadas por ele em 07/10/2026 e estão incorporadas; o AvisoCVM (e) foi
 visto por ele em 07/10/2026. A Etapa 3 está fechada em **3a (código)** desde 13/10/2026; **3b (material real)** fica para validar na prática nas primeiras gravações reais (decisão do Matheus em 13/10/2026).
 
 Por que existe: o `CLAUDE.md` exige um critério de fechamento escrito por etapa. Hoje as
-Etapas 3 e 6 estão "em andamento" no `ARQUITETURA.md`.
+Etapa 3 concluída em 3a (13/10/2026); Etapa 6 com a 6a cumprida (09/10/2026); Etapa 4 em rascunho no `ARQUITETURA.md`.
 
 Como ler: cada item vem de uma tarefa que já está no `ARQUITETURA.md` (seção 7, Etapas 3 e 6),
 exceto onde está escrito o contrário. Marcas:
@@ -112,3 +112,37 @@ no Windows do trabalho (6.3, conferido em 09/10/2026) e neste PC de casa (tamanh
 
 Avisar o Matheus na hora e deixar pronto um resumo de continuação para o chat da próxima
 etapa (regra do `CLAUDE.md`).
+
+---
+
+## Etapa 4 — Legendas automáticas (RASCUNHO, a aprovar pelo Matheus)
+
+Escrito em 13/10/2026 a partir de `docs/etapa4-notas.md` (testes de 08/10/2026 e decisões do
+Matheus). Nada abaixo foi aprovado ainda. Mesmas marcas da Etapa 3: **[M]** depende do Matheus;
+**[E]** depende de outra etapa; **[C]** só código.
+
+Divisão como na Etapa 3: **4a (código)** e **4b (material real)**. A etapa só fecha quando todos
+os itens estiverem provados e o Matheus aprovar; este rascunho não marca nenhum.
+
+### 4a — Código
+
+| # | Critério | Tipo | Situação hoje (segundo os docs) |
+|---|---|---|---|
+| 4.1 | **Um comando gera, de um áudio, o JSON de palavras com tempo** (`Caption`: `text`, `startMs`, `endMs`, `timestampMs`, `confidence`). O modelo fica **fora do Git** e o caminho vem de configuração. **Prova:** rodar no `teste-jr.mp4` e mostrar o JSON. | [C] | Não feito no projeto. Só existe o teste isolado de 08/10/2026 em `C:\whisper-teste` (fora do `editor-jr`), com os modelos `base` e `small`. Nenhum script do projeto gera transcrição. |
+| 4.2 | **O tempo da transcrição é o do vídeo ORIGINAL; o editor converte para o tempo cortado.** **Prova:** teste automático com cortes e gancho. | [C] | Não feito. A regra "tempo sempre do original" já está escrita (`ARQUITETURA.md`, seção 3); a conversão existe para `inicio` do plano (`src/utils/tempoCortado.ts`), mas não foi aplicada às palavras da transcrição. |
+| 4.3 | **`naPalavra` + `ocorrencia` vira o `inicio` do elemento**, inclusive palavra repetida. **Prova:** casos no `testar-validador`. | [C]; depende de 4.1 | Não feito. Nenhum código lê `naPalavra` (nota de 01/10/2026 no `ARQUITETURA.md`, Etapa 6). |
+| 4.4 | **Correção por glossário** (ex.: "eipô" vira "Apple") **sem mudar o tempo da palavra.** **Alcance: A DEFINIR pelo Matheus** (o que corrige, por vídeo ou geral, quem mantém a lista). | [M] definir o alcance; depois [C] | Decidido só o princípio (erros do Whisper corrigidos automaticamente, com correção personalizável por ele). Alcance em aberto. Há uma proposta, **não confirmada**, de "nunca limpar a fala do JR" (`docs/etapa4-notas.md`, seção c2), que precisa ser conciliada com este item. |
+| 4.5 | **`LegendaAnimada`:** contorno chapado escuro, sem blur; destaque por lista de palavras do plano, na cor de ênfase da marca (`#0F2A1D`, `#F5F0E6` ou `#EFAF20`, escolhida por vídeo); tamanhos em fração; vertical e horizontal; rosto do JR livre; **cor do texto A DEFINIR (branco ou creme `#F5F0E6`)**. **Prova:** `tsc` limpo; o Matheus vê no vídeo final. | [C]; [M] cor do texto e ver no vídeo final; [E] fonte final (Etapa 5) | Não existe em `src/`. Está em "A construir" no `ARQUITETURA.md`. Fonte provisória: Inter (decisão do Matheus, 08/10/2026). Campo para a lista de palavras em destaque no plano: ainda não definido. |
+| 4.6 | **Sem pedido no plano, nenhuma transcrição roda e nenhuma legenda aparece.** | [C] | Não feito. Decisão do Matheus (08/10/2026): a legenda só entra quando o plano pedir. Prova (proposta do revisor, a aprovar): rodar o validador num plano sem legenda e conferir que nenhum JSON de transcrição é criado. |
+
+### 4b — Material real
+
+Mesma ideia da 3b: só se prova com gravações reais, na prática.
+
+| # | Critério | Tipo | Situação hoje (segundo os docs) |
+|---|---|---|---|
+| 4b.1 | **Vídeo de 10 a 20 min** transcrito, com o tempo medido. | [M] | Não feito. A medição foi só em 2:42 (`small`: 138,1 s sem prompt, 121,6 s com prompt, na CPU do PC do trabalho). |
+| 4b.2 | **Termos financeiros reais** (Selic, Tesouro, CDB, IPCA etc.) conferidos no texto. | [M] | Não feito. No teste de 08/10/2026 nenhum desses termos apareceu, e não se sabe se o vídeo de teste os dizia. |
+| 4b.3 | **Teste do `--prompt` com áudio gravado** que cite esses termos. | [M] | Não feito. O `--prompt` foi aceito sem erro, mas o efeito sobre termos financeiros não está confirmado. |
+| 4b.4 | **Se roda em casa.** | [M] | Não confirmado. Em casa o Controle inteligente de aplicativos pode bloquear o `main.exe`; o teste de 08/10/2026 foi só no PC do trabalho. |
+| 4b.5 | **Uso de GPU.** | [M] | Não confirmado. O PC do trabalho só tem vídeo Intel; não há prova de uso de GPU. |
