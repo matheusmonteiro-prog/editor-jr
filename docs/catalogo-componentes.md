@@ -495,3 +495,32 @@ publicar qualquer vídeo (ver `docs/perguntas-pendentes.md`).
 | `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
 | `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `15` |
 | `framesSaida` | `number` (min 1) | não (tem `.default()`) | `15` |
+
+### ArrobaInstagram (v2)
+**Arquivo:** `src/components/v2/ArrobaInstagram.tsx`
+**O que faz:** mostra o @ do Instagram num card chapado num dos 4 cantos, com um
+filete fino na cor de destaque embaixo. Fade de entrada e saída via `interpolate()`.
+O texto é "@" + `usuario` (com `trim`, tirando um "@" inicial se vier). Tudo em
+fração de `width`/`height` via `useVideoConfig()`, sem variante horizontal. Sem blur,
+sem logo nem ícone do Instagram. Só entra quando o roteiro pedir (decisão do Matheus
+em 12/10/2026); o `usuario` vem do pedido a cada vez e nunca fica no código.
+Registrado em `src/Composition.tsx` (Studio, com `usuario` PROVISÓRIO
+`"arroba_provisorio"`, que nenhum plano usa) e no `CATALOGO` de
+`src/PlanoComposicao.tsx` (commit `36fff8d`).
+**Status:** implementado; aprovado pelo Matheus em 12/10/2026 **sem ver no Studio**;
+não renderizado. Canto padrão (superior esquerdo) provisório: a zona segura das
+plataformas não foi medida.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `usuario` | `string` (min 1) | **não** (obrigatória, sem padrão) | nenhum |
+| `posicao` | `enum` (`superior-esquerdo`, `superior-direito`, `inferior-esquerdo`, `inferior-direito`) | não (tem `.default()`) | `"superior-esquerdo"` |
+| `tamanhoFonte` | `number` (0.01 a 0.2, fração da largura) | não (tem `.default()`) | `0.03` |
+| `margem` | `number` (0 a 0.3, fração) | não (tem `.default()`) | `0.04` |
+| `corTexto` | `zColor()` | não (tem `.default()`) | `"#F5F0E6"` |
+| `corCard` | `zColor()` | não (tem `.default()`) | `"#0F2A1D"` |
+| `corDestaque` (o filete) | `zColor()` | não (tem `.default()`) | `"#EFAF20"` |
+| `corFundo` | `zColor()` | sim (`.optional()`) | `"transparent"` na desestruturação |
+| `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
+| `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `15` |
+| `framesSaida` | `number` (min 1) | não (tem `.default()`) | `15` |

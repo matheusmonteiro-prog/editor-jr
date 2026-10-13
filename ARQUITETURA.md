@@ -364,7 +364,7 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
-- `ArrobaInstagram` (fixo no canto) · `LogoAnimada` (intro/outro)
+- `ArrobaInstagram`: **construído** (commit `36fff8d`), **não é fixo**: só entra quando o roteiro pedir (ver item 3.4 em `docs/criterios-fechamento.md`) · `LogoAnimada` (intro/outro)
 - `LegendaAnimada` — legenda automática com estilo padrão e destaque para
   frases-chave (Etapa 4)
 
@@ -572,7 +572,7 @@ para os detalhes e a decisão pendente.
 - Vídeo base + camadas por cima (componentes com fundo transparente)
 - Detecção automática de vertical/horizontal, com opção de forçar o formato pelo prompt
   (ver seção 3, decisão de 05/10/2026)
-- `ArrobaInstagram` fixo; `AvisoCVM` **não é fixo**: entra só quando o roteiro pedir
+- `ArrobaInstagram` **não é fixo** (decisão do Matheus em 12/10/2026): entra só quando o roteiro pedir, com o @ vindo do pedido; `AvisoCVM` também entra só quando o roteiro pedir
   (ver `docs/prompt-roteiro.md`)
 - Música de fundo e efeito sonoro sincronizado a um elemento visual
 - **Teste de tempo de renderização** com vídeo longo (10–20 min) no computador do Matheus
@@ -603,8 +603,9 @@ para os detalhes e a decisão pendente.
   Matheus em 11/10; revertido em `b42ae1f`**; o corte com tela + câmera (opção A ou B, de
   10/10) **não foi decidido** (o modo de 2 arquivos do `cortar-silencio.mjs`, opção A, existe no
   código desde o commit `6b83f36`).
-- **`ArrobaInstagram`, `LogoAnimada`, música e efeito sonoro: não existem em `src/`;
-  `public/music`, `public/sfx` e `public/brand` estão vazias (12/10/2026).**
+- **`LogoAnimada`: não existe em `src/`.** `ArrobaInstagram` e a lista `audio` (Fase 1 do áudio)
+  existem desde o commit `36fff8d`. `public/music`, `public/sfx` e `public/brand` seguem vazias
+  (12/10/2026); `public/music/` e `public/sfx/` estão no `.gitignore`.
 - **Orientação, Fase 1 (commit `ccfd5ed`):** o campo `"orientacao"` do plano manda o tamanho via
   `calculateMetadata` (`src/utils/tamanhoDoPlano.ts`, `src/Root.tsx`): `"vertical"` → 1080×1920,
   `"horizontal"` → 1920×1080; outro valor dá aviso no console e vale o `width`/`height` literal da
@@ -832,7 +833,7 @@ no Remotion (ex.: via `OffthreadVideo`) sem conversão.
   painel.
 - **Studio reescreve o código ao arrastar elementos na timeline/canvas**
   (drift); evitar arrastar durante testes e rodar `git status` depois.
-- **Backlog:** `LegendaAnimada`, `ArrobaInstagram`, `LogoAnimada`, Whisper por palavra, B-roll, passada da
+- **Backlog:** `LegendaAnimada`, `LogoAnimada`, Whisper por palavra, B-roll, passada da
   marca (Etapa 5).
 
 ## 9. Pendências do Matheus (fora do código)

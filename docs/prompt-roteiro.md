@@ -91,10 +91,28 @@ REGRAS DO FORMATO (não inventar nada fora disso):
    - câmera em cima: x 0.5, y 0.25, largura 1, altura 0.5
    Fora dos trechos da lista aparece só a tela. Trechos NÃO se sobrepõem (o
    validador dá erro). NUNCA preencha "deslocamentoCamera": quem mede o atraso
-   é o Matheus, e o efeito ainda não foi implementado. A janelinha não pode
+   é o Matheus (o efeito existe desde o commit `1cc8211`). A janelinha não pode
    cobrir o rosto do JR nem texto importante da tela, e o validador NÃO confere
    isso: é conferência minha no Studio. Zoom e tela/câmera meio a meio (cada
    um com moldura) NÃO existem como componente: me avise, não invente.
+
+12. ARROBA DO INSTAGRAM: o componente "ArrobaInstagram" só entra no plano se
+   o roteiro pedir. O @ vem SEMPRE do meu pedido: copie em "props"."usuario"
+   exatamente o que eu escrevi (com ou sem "@"). NUNCA invente um @. Se eu
+   pedir o arroba mas não informar o @, deixe o elemento de fora e me avise.
+   Ele não é fixo nem fica o vídeo todo: use "inicio" e "duracao" como nos
+   outros elementos. Sem logo nem ícone do Instagram.
+
+13. ÁUDIO: só peça áudio se o roteiro pedir. O áudio NÃO é componente do
+   catálogo: vai numa lista própria "audio", no topo do plano, ao lado de
+   "elementos" (não dentro dela). Música: "id", "tipo": "musica", "arquivo",
+   "volume" (0 a 1), "framesEntrada", "framesSaida", "loop" (true/false).
+   Efeito sonoro: "id", "tipo": "efeito", "arquivo", "volume", e "inicio"
+   ("m:ss" da gravação ORIGINAL) OU "elemento" (o "id" de um elemento do
+   plano; o som começa junto com ele). "arquivo" é o caminho dentro de
+   public/ (ex.: "music/nome.mp3", "sfx/nome.wav"), sem espaço nem acento.
+   Use SÓ nomes de arquivo que eu informar no roteiro: NUNCA invente arquivo,
+   música ou efeito. O validador ainda NÃO confere a lista "audio".
 
 COMPONENTES DISPONÍVEIS (nome exato — use só estes) e suas PROPS OBRIGATÓRIAS
 (as que não aparecem aqui têm valor padrão e são opcionais):
@@ -124,7 +142,7 @@ AVISOs você pode comentar comigo, mas ERROs têm que estar zerados.
 
 Gerado em 01/10/2026 lendo o AST dos schemas Zod reais (mesma técnica usada por
 `scripts/validar-plano.mjs`) e o `CATALOGO` real de `src/PlanoComposicao.tsx` — são os únicos
-19 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
+20 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026 e o `ArrobaInstagram` em 12/10/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
 no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada uma).
 
 | Componente | Props obrigatórias |
@@ -148,6 +166,7 @@ no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada um
 | `Spotlight` | nenhuma (todas têm padrão) |
 | `Contador` | `valorInicial`, `valorFinal` |
 | `AvisoCVM` | nenhuma (todas têm padrão) |
+| `ArrobaInstagram` | `usuario` |
 
 Pra detalhe completo de cada prop (tipo, opcional ou não, valor padrão), ver
 `docs/catalogo-componentes.md`.
@@ -220,7 +239,7 @@ ela o plano funciona como antes. O caminho do arquivo da câmera **não vai no p
   faixa; `ajuste` inválido; `framesEntrada`/`framesSaida` negativo ou não inteiro; trechos que se
   sobrepõem (no tempo do original); trecho que passa do fim do vídeo, **só quando o validador
   conhece a duração** (`--duracao` ou `videos/<video>.cortes.json`).
-- **Avisos:** `deslocamentoCamera` diferente de 0 ("efeito ainda não implementado") e campo
+- **Avisos:** `deslocamentoCamera` com valor absoluto acima de 5 s e campo
   desconhecido dentro de um trecho.
 - **Fora do alcance do validador:** a janelinha cobrir o rosto do JR ou texto da tela, a
   sincronia entre tela e câmera e o aspecto visual. Isso é conferência no Studio.

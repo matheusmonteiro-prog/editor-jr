@@ -237,8 +237,21 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 - `AvisoCVM`: código completo, registrado; visto pelo Matheus em 07/10/2026
   (gostou; ajustes previstos depois). Texto continua provisório e o texto oficial
   da CVM segue pendente. O item 6.2 de `docs/criterios-fechamento.md` está cumprido.
-- `ArrobaInstagram`, `LogoAnimada`: não construídos (lista "A construir" do
-  ARQUITETURA.md seção 6).
+- `LogoAnimada`: não construído (lista "A construir" do ARQUITETURA.md seção 6).
+- **Etapa 3, 12/10/2026, commit `36fff8d`:**
+  - **`ArrobaInstagram` (3.4):** existe em `src/components/v2/ArrobaInstagram.tsx`, registrado no
+    `CATALOGO` e em `src/Composition.tsx`. Só aparece quando o roteiro pedir, com o @ vindo do pedido
+    (decisão do Matheus); canto padrão superior esquerdo, provisório (zona segura não medida).
+    Aprovado pelo Matheus **sem ver no Studio**; não renderizado.
+  - **Áudio, Fase 1 (3.6):** lista `audio` no topo do plano (opcional, fora de `elementos`); música
+    e efeito com `Html5Audio` de `remotion`; música com volume provisório 0,2; efeito no frame do
+    elemento ou do `inicio`, pelo `tempoCortado.ts`; composição `PlanoAudioTeste`; áudio fora do Git
+    (`public/music/` e `public/sfx/` no `.gitignore`). Aprovado pelo Matheus **sem ouvir**.
+    **NÃO PROVADO:** ninguém ouviu; música real; encaixe com a voz do JR; render com áudio (só no
+    trabalho); licença de música alguma. **O validador ainda não confere a lista `audio` (Fase 2
+    pendente).** Arquivo ausente com `loop` pode travar o render (leitura de código, não testado).
+  - **`deslocamentoCamera`:** tem efeito desde o commit `1cc8211`; provado só na conta de frames,
+    **sem prova visual**.
 - `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem
   `--dry-run` ele executa o render de verdade (`scripts/render-final.mjs`, linha 90). Se já
   foi executado de verdade alguma vez: **NÃO CONFIRMADO**.
