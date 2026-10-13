@@ -6,10 +6,7 @@ rodados nesta sessão (sem renderizar, sem abrir o Studio). Reflete a branch
 
 ## Etapa atual
 
-`ARQUITETURA.md` (seção "Status") marca duas etapas **em andamento** ao
-mesmo tempo:
-- **Etapa 3 — Montagem sobre vídeo real**
-- **Etapa 6 — Leitor de prompt**
+`ARQUITETURA.md` (seção "Status") marca a **Etapa 6** em andamento. A **Etapa 3** está fechada em **3a (código)** desde 13/10/2026; **3b (material real)** fica para validar na prática nas primeiras gravações reais.
 
 Etapas 0–2 estão `[x]` (concluídas). Etapas 4, 5, 7, 8 estão `[ ]`, sem
 marca de "em andamento".
@@ -255,6 +252,7 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   - **Áudio (3.6), `PlanoAudioTeste` (quadros 600-719):** com o efeito em volume 1, a subida ficou 13,0 dB acima da voz na média; em 0,3, ficou 4,3 dB (pico +1,5 dB). O Matheus ouviu: volume 1 estava alto; testou 3 durações do som (0,35, 0,5 e 0,7 s; o arquivo atual é de 0,5 s) e disse que deu certo. O som é **sintético** (ffmpeg). **A música de fundo** (tom de 110 Hz, volume 0,2; substituída no mesmo dia pela faixa real, ver abaixo) **não foi confirmada**: a medição não prova que ela toca, e o Matheus não disse se ouviu. Volume 0,3 é **provisório** até o som real. **NÃO PROVADO:** som real; inteligibilidade da voz com música real; render completo; licença de música alguma. Os arquivos de teste estão em `public/music/` e `public/sfx/`, **fora do Git**.
   - **Música real (3.6), 13/10/2026:** `public/music/musica-teste.mp3` (mp3, estéreo, 48 kHz, 178,8 s, média -13,0 dB, -11,2 LUFS), em volume 0,03 (calculado para ficar ~12 a 13 dB abaixo da voz). Dois renders de 4 s (quadros 0-119 e 600-719) saíram em 1080×1920, 120 quadros, sem ECANCELED nem aviso de áudio ausente. Aprovado pelo Matheus em 13/10/2026, sem registro de que ele ouviu cada arquivo. **LICENÇA NÃO REGISTRADA:** nome da faixa, link e licença ainda não informados; a faixa veio do Pixabay (informado pelo Matheus), o que não substitui o registro. Fora do Git: em casa ou num clone novo, o `PlanoAudioTeste` não acha a música (no Studio vira aviso; com `loop` o render pode travar até o timeout, leitura de código, não testado). **NÃO PROVADO:** volume em vídeo inteiro; inteligibilidade com música em vídeo completo; música com outro espectro; sincronia por frame; o efeito por `inicio` 0:20. O validador confere a lista `audio` desde o commit `4c11e1f` (checagem 11).
   - **Áudio, Fase 2 (validador, checagem 11), 13/10/2026, commit `4c11e1f`:** o `validar-plano.mjs` confere a lista `audio`: `id`, `tipo` (música ou efeito), `arquivo` (existe em `public/`, sem espaço nem acento, sem sair de `public/`), `volume` de 0 a 1, `framesEntrada`/`framesSaida` inteiros >= 0, e efeito com `inicio` **ou** `elemento` (que existe em `elementos`). Avisos: extensão fora de .mp3/.wav/.m4a/.ogg/.aac, mais de uma música, volume de música maior que 0,5. Opção `--public <pasta>` (usada pelos testes). `testar-validador.mjs`: 52/52 casos OK. **Não prova** som, volume de ouvido nem licença. Em outro PC, `planos/teste-audio.plano.json` dá ERRO enquanto `music/musica-teste.mp3` e `sfx/teste-bipe.wav` não estiverem em `public/` (arquivos fora do Git): é o comportamento esperado.
+  - **Render completo do `PlanoCameraTeste` (37 s, 1137 quadros):** renderizado; o Matheus ainda não assistiu.
   - **Código de saída 1:** todos os renders curtos de hoje saíram com código 1 mesmo com o arquivo gerado e o log limpo. Causa provável: o `explorer.exe` no fim do `~/render.sh`; **não isolada**. Conferir sempre o arquivo, não só o código.
 - `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem
   `--dry-run` ele executa o render de verdade (`scripts/render-final.mjs`, linha 90). Se já
@@ -308,6 +306,21 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   branch já foi trazido pro `main` por outro commit (`f3af6b9`, "Traz
   CallToAction completo de wip-trabalho-0930") — os 3 commits continuam
   listados como exclusivos porque não houve `git merge` entre as branches.
+
+## Protocolo da primeira gravação real
+
+Proposta, escrita a partir do uso real dos scripts (`scripts/preparar-video.mjs`, `scripts/cortar-silencio.mjs` e `scripts/validar-plano.mjs`). **Revisar na primeira gravação.** Não testada com gravação real.
+
+1. Gravar no OBS a **tela limpa** (sem o JR na janelinha) e a **câmera em arquivo separado**, os dois a **30 fps**.
+2. Preparar as cópias leves com `node scripts/preparar-video.mjs --tela <tela> --camera <camera>` (acrescentar `--camera-mic <arquivo>` só se houver o terceiro arquivo). Flags reais: `--altura-max` (padrão 1920), `--crf`, `--saida-dir`, `--dry-run`.
+3. Cortar no modo de 2 arquivos: `node scripts/cortar-silencio.mjs --gerar --tela <tela> --camera <camera>`. O áudio da tela decide os cortes e a câmera recebe os mesmos. **Não sei ainda** se a entrada deve ser o original ou a cópia leve: decidir na primeira gravação.
+4. Começar com `"deslocamentoCamera": 0` no plano. Se a câmera estiver atrasada ou adiantada, ajustar de olho em passos pequenos: positivo = câmera atrasada (o arquivo toca de mais à frente); negativo = câmera adiantada (espera).
+5. Conferir o fps: no modo de 2 arquivos o `cortar-silencio.mjs` avisa com "⚠ ATENÇÃO" se tela e câmera tiverem fps diferente, ou se as durações diferirem em mais de 1 quadro. Se avisar, regravar com o mesmo fps antes de seguir.
+6. Renderizar com `--props` apontando para a cópia leve (ex.: `--props='{"videoSrc":"videos/<nome>-leve-v1.mp4"}'`) e **conferir o arquivo gerado** (tamanho, quadros, áudio), não só o código de saída.
+7. Problemas já conhecidos:
+   - mais de ~2 junções de corte podem acumular 1 quadro de diferença entre tela e câmera (risco apontado no planejamento; não medido);
+   - o render pode sair com código 1 por causa do `explorer.exe` no fim do `~/render.sh` (causa provável, não isolada); conferir o arquivo;
+   - o vídeo original 2160×3872 não renderiza no WSL (ECANCELED): usar a cópia leve.
 
 ## Perguntas pendentes
 

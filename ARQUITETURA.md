@@ -7,7 +7,7 @@
   - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
   - [x] 2b — Redução de ruído e equalização da voz (aprovado em 23/09/2026, amostra A/B)
   - [x] Gancho (reordenar trechos), incluindo teaser com múltiplos trechos — testado e aprovado (23/09/2026)
-- [ ] Etapa 3 — Montagem sobre vídeo real (em andamento)
+- [x] Etapa 3 — Montagem sobre vídeo real (fechada em 3a, código, em 13/10/2026; 3b, material real, a validar na prática nas primeiras gravações reais)
 - [ ] Etapa 4 — Legendas automáticas
 - [ ] Etapa 5 — Identidade visual
 - [x] Etapa 6 — Leitor de prompt (6a cumprida em 09/10/2026, critérios 6.1 a 6.6 de `docs/criterios-fechamento.md`; 6b só se o Matheus mandar; pendências na seção 7, Etapa 6)
