@@ -1,0 +1,8 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "audio": [
+    { "volume": 0.1 }
+  ],
+  "elementos": []
+}

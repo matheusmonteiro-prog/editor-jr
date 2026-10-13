@@ -1,0 +1,6 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "audio": {"id":"m","arquivo":"music/musica.mp3"},
+  "elementos": []
+}

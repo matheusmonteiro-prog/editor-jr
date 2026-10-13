@@ -11,6 +11,8 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,6 +21,17 @@ const VALIDADOR = path.join(RAIZ, 'scripts', 'validar-plano.mjs');
 const PASTA_FIXTURES = path.join(RAIZ, 'planos', 'testes');
 
 const fixture = (nome) => path.join(PASTA_FIXTURES, nome);
+
+// As fixtures de áudio apontam pra uma pasta public/ FALSA, criada aqui (arquivos
+// vazios) e apagada no fim: public/music e public/sfx não vão pro Git, então o teste
+// não pode depender do que existe ou não numa máquina. O validador recebe essa pasta
+// por --public.
+const PUBLIC_TESTE = mkdtempSync(path.join(os.tmpdir(), 'validador-audio-'));
+for (const arq of ['music/musica.mp3', 'music/outra.mp3', 'music/faixa.flac', 'sfx/efeito.wav']) {
+  mkdirSync(path.dirname(path.join(PUBLIC_TESTE, arq)), { recursive: true });
+  writeFileSync(path.join(PUBLIC_TESTE, arq), '');
+}
+const ARGS_AUDIO = ['--public', PUBLIC_TESTE];
 
 // Cada caso: arquivo da fixture, args extras pro validador, se espera que o
 // validador termine com erro (exit code 1) ou não, e um trecho que tem que
@@ -217,6 +230,183 @@ const casos = [
     esperaFalha: false,
     trechoEsperado: 'campo "zoom" não existe em um trecho de câmera',
   },
+  // Lista "audio" (opcional). Sem ela, nada muda: os casos acima continuam valendo.
+  // Os arquivos citados nas fixtures existem só na pasta public/ falsa de ARGS_AUDIO.
+  {
+    nome: 'audio válido passa limpo (música, efeito por elemento e por inicio)',
+    arquivo: fixture('valido-audio.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'audio que não é lista',
+    arquivo: fixture('audio-nao-lista.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: deve ser uma lista (array)',
+  },
+  {
+    nome: 'item de audio sem id/tipo/arquivo',
+    arquivo: fixture('audio-item-sem-campo.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: id ausente; tipo ausente; arquivo ausente',
+  },
+  {
+    nome: 'id de audio repetido',
+    arquivo: fixture('audio-id-repetido.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: id repetido "m"',
+  },
+  {
+    nome: 'tipo de audio que não é musica nem efeito',
+    arquivo: fixture('audio-tipo-invalido.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: tipo deve ser "musica" ou "efeito"',
+  },
+  {
+    nome: 'arquivo de audio que não existe em public/',
+    arquivo: fixture('audio-arquivo-inexistente.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'não existe em public/',
+  },
+  {
+    nome: 'arquivo de audio com espaço',
+    arquivo: fixture('audio-arquivo-com-espaco.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'sem espaço nem acento',
+  },
+  {
+    nome: 'arquivo de audio com acento',
+    arquivo: fixture('audio-arquivo-com-acento.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'sem espaço nem acento',
+  },
+  {
+    nome: 'arquivo de audio que tenta sair de public/ (..)',
+    arquivo: fixture('audio-arquivo-sai-de-public.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: arquivo não pode sair de public/',
+  },
+  {
+    nome: 'arquivo de audio com caminho absoluto',
+    arquivo: fixture('audio-arquivo-absoluto.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: arquivo deve ser relativo a public/',
+  },
+  {
+    nome: 'volume de audio fora de 0 a 1',
+    arquivo: fixture('audio-volume-fora-da-faixa.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: volume deve ser número entre 0 e 1',
+  },
+  {
+    nome: 'volume de audio que não é número',
+    arquivo: fixture('audio-volume-nao-numero.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: volume deve ser número entre 0 e 1',
+  },
+  {
+    nome: 'framesEntrada de música negativo',
+    arquivo: fixture('audio-frames-negativos.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: framesEntrada deve ser inteiro >= 0',
+  },
+  {
+    nome: 'framesSaida de música não inteiro',
+    arquivo: fixture('audio-frames-nao-inteiros.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: framesSaida deve ser inteiro >= 0',
+  },
+  {
+    nome: 'loop de música que não é booleano',
+    arquivo: fixture('audio-loop-nao-booleano.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: loop deve ser true ou false',
+  },
+  {
+    nome: 'efeito com inicio E elemento',
+    arquivo: fixture('audio-efeito-inicio-e-elemento.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: efeito com "inicio" e "elemento" ao mesmo tempo',
+  },
+  {
+    nome: 'efeito sem inicio nem elemento',
+    arquivo: fixture('audio-efeito-sem-inicio-nem-elemento.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: efeito precisa de "inicio" ou "elemento"',
+  },
+  {
+    nome: 'inicio de efeito fora do m:ss',
+    arquivo: fixture('audio-inicio-invalido.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: inicio deve estar no formato m:ss',
+  },
+  {
+    nome: 'inicio de efeito além do fim do vídeo (com --duracao)',
+    arquivo: fixture('audio-inicio-passa-do-fim.plano.json'),
+    args: [...ARGS_AUDIO, '--duracao', '10'],
+    esperaFalha: true,
+    trechoEsperado: 'audio: inicio em 0:13 passa do fim do vídeo original (0:10)',
+  },
+  {
+    nome: 'elemento de efeito que não existe na lista elementos',
+    arquivo: fixture('audio-elemento-inexistente.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: true,
+    trechoEsperado: 'audio: elemento "nao-existe" não existe na lista "elementos"',
+  },
+  {
+    nome: 'chave desconhecida em item de audio vira AVISO',
+    arquivo: fixture('aviso-audio-chave-desconhecida.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: false,
+    trechoEsperado: 'campo "fade" não existe em um item de áudio',
+  },
+  {
+    nome: 'campo de música dentro de efeito vira AVISO',
+    arquivo: fixture('aviso-audio-campo-de-outro-tipo.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: false,
+    trechoEsperado: 'campo "loop" não existe em um item de áudio do tipo "efeito"',
+  },
+  {
+    nome: 'extensão de audio fora da lista vira AVISO',
+    arquivo: fixture('aviso-audio-extensao.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: false,
+    trechoEsperado: 'extensão ".flac"',
+  },
+  {
+    nome: 'mais de uma música vira AVISO',
+    arquivo: fixture('aviso-audio-duas-musicas.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: false,
+    trechoEsperado: 'tocam todas ao mesmo tempo',
+  },
+  {
+    nome: 'volume de música > 0.5 vira AVISO',
+    arquivo: fixture('aviso-audio-musica-alta.plano.json'),
+    args: ARGS_AUDIO,
+    esperaFalha: false,
+    trechoEsperado: 'música alta, confira',
+  },
 ];
 
 let falhas = 0;
@@ -256,4 +446,5 @@ for (const caso of casos) {
 }
 
 console.log(`\n${casos.length - falhas}/${casos.length} casos OK`);
+rmSync(PUBLIC_TESTE, { recursive: true, force: true }); // só a pasta temporária criada acima
 process.exit(falhas > 0 ? 1 : 0);

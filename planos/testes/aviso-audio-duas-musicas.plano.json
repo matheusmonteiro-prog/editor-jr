@@ -1,0 +1,9 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "audio": [
+    { "id": "m", "tipo": "musica", "arquivo": "music/musica.mp3", "volume": 0.1, "framesEntrada": 30, "framesSaida": 30, "loop": true },
+    { "id": "m2", "tipo": "musica", "arquivo": "music/outra.mp3", "volume": 0.1, "framesEntrada": 30, "framesSaida": 30, "loop": true }
+  ],
+  "elementos": []
+}

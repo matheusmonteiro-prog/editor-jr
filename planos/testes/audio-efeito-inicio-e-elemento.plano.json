@@ -1,0 +1,26 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "audio": [
+    { "id": "e", "tipo": "efeito", "arquivo": "sfx/efeito.wav", "volume": 0.3, "inicio": "0:05", "elemento": "check-1" }
+  ],
+  "elementos": [
+    {
+      "id": "check-1",
+      "componente": "Checkmark",
+      "descricao": "check de teste, primeiro critério",
+      "texto": "Primeiro critério atendido",
+      "inicio": "0:02",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": 300, "y": 300, "tamanho": 120,
+        "cor": "#F5F0E6", "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 60
+      }
+    }
+  ]
+}

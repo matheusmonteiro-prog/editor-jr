@@ -11,9 +11,12 @@
  *
  * Sem --duracao, a checagem 5 (elemento terminando depois do fim do vídeo)
  * é pulada, com um aviso no topo da saída.
+ *
+ * Checagem 11 (lista "audio"): o arquivo é procurado em public/ do projeto. Com
+ * --public <pasta>, procura em outra pasta (usado só pelos testes).
  */
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -44,6 +47,11 @@ if (duracaoTxt !== null) {
     process.exit(1);
   }
 }
+
+// Pasta public/ onde a checagem 11 procura os arquivos da lista "audio". Padrão: a
+// public/ do projeto (pasta pai de scripts/, como o resto do validador).
+const publicTxt = opcao('public');
+const PASTA_PUBLIC = typeof publicTxt === 'string' ? path.resolve(publicTxt) : path.join(RAIZ, 'public');
 
 // ---------------------------------------------------------------- catálogo de componentes (via AST)
 
@@ -891,6 +899,116 @@ if (dados.camera !== undefined) {
           `camera: trechos se sobrepõem (${formatarTempo(a.inicioSeg)}-${formatarTempo(a.fimSeg)} x ${formatarTempo(b.inicioSeg)}-${formatarTempo(b.fimSeg)}) — a câmera só pode estar em um trecho por vez`,
         );
     }
+  }
+}
+
+// 11. lista "audio" (opcional). Música (volume fixo) e efeito (ligado a um elemento
+// ou a um "inicio"). Não usa texto/posicao/slot e não entra no respiro nem na colisão.
+// O validador confere a FORMA e se o arquivo existe em public/. NÃO prova que o som
+// toca, nem que a voz continua clara: isso é ouvir o render.
+const CHAVES_AUDIO = {
+  musica: ['id', 'tipo', 'arquivo', 'volume', 'framesEntrada', 'framesSaida', 'loop'],
+  efeito: ['id', 'tipo', 'arquivo', 'volume', 'inicio', 'elemento'],
+};
+const EXTENSOES_AUDIO = ['.mp3', '.wav', '.m4a', '.ogg', '.aac'];
+const VOLUME_MUSICA_ALTO = 0.5;
+
+if (dados.audio !== undefined) {
+  if (!Array.isArray(dados.audio)) {
+    erro('geral', `audio: deve ser uma lista (array) de itens (veio ${JSON.stringify(dados.audio)})`);
+  } else {
+    const idsAudio = new Map();
+    const musicas = [];
+    const idsElementos = new Set(elementos.map((e) => e.original.id).filter((id) => typeof id === 'string'));
+    dados.audio.forEach((a, i) => {
+      const rotulo = typeof a?.id === 'string' && a.id.trim() !== '' ? `audio:${a.id}` : `audio #${i + 1}`;
+      if (!a || typeof a !== 'object' || Array.isArray(a)) {
+        erro(rotulo, 'audio: cada item deve ser um objeto');
+        return;
+      }
+      const problemas = [];
+      if (a.id === undefined) problemas.push('id ausente');
+      else if (typeof a.id !== 'string' || a.id.trim() === '') problemas.push('id deve ser texto não vazio');
+      if (a.tipo === undefined) problemas.push('tipo ausente');
+      if (a.arquivo === undefined) problemas.push('arquivo ausente');
+      else if (typeof a.arquivo !== 'string' || a.arquivo.trim() === '') problemas.push('arquivo deve ser texto não vazio');
+      if (problemas.length > 0) erro(rotulo, `audio: ${problemas.join('; ')}`);
+
+      if (typeof a.id === 'string' && a.id.trim() !== '') {
+        if (!idsAudio.has(a.id)) idsAudio.set(a.id, []);
+        idsAudio.get(a.id).push(rotulo);
+      }
+
+      const tipoOk = a.tipo === 'musica' || a.tipo === 'efeito';
+      if (a.tipo !== undefined && !tipoOk)
+        erro(rotulo, `audio: tipo deve ser "musica" ou "efeito" (veio ${JSON.stringify(a.tipo)})`);
+
+      if (typeof a.arquivo === 'string' && a.arquivo.trim() !== '') {
+        const arq = a.arquivo;
+        if (/^([A-Za-z]:|[\\/])/.test(arq)) {
+          erro(rotulo, `audio: arquivo deve ser relativo a public/, sem caminho absoluto (veio ${JSON.stringify(arq)})`);
+        } else if (arq.split(/[\\/]/).includes('..')) {
+          erro(rotulo, `audio: arquivo não pode sair de public/ (".." não vale; veio ${JSON.stringify(arq)})`);
+        } else if (!/^[A-Za-z0-9._\-\/]+$/.test(arq)) {
+          erro(rotulo, `audio: arquivo só pode ter A-Z a-z 0-9 . _ - / (sem espaço nem acento; veio ${JSON.stringify(arq)})`);
+        } else {
+          if (!existsSync(path.join(PASTA_PUBLIC, arq)))
+            erro(rotulo, `audio: arquivo ${JSON.stringify(arq)} não existe em public/ (procurei em ${path.join(PASTA_PUBLIC, arq)})`);
+          const ext = path.extname(arq).toLowerCase();
+          if (!EXTENSOES_AUDIO.includes(ext))
+            aviso(rotulo, `audio: extensão "${ext || '(nenhuma)'}" fora de ${EXTENSOES_AUDIO.join(', ')} — confira se o Remotion toca esse formato`);
+        }
+      }
+
+      if (a.volume !== undefined && !numeroNaFaixa(a.volume, 0, 1))
+        erro(rotulo, `audio: volume deve ser número entre 0 e 1 (veio ${JSON.stringify(a.volume)})`);
+
+      if (a.tipo === 'musica') {
+        for (const campo of ['framesEntrada', 'framesSaida']) {
+          if (a[campo] !== undefined && !inteiroNaoNegativo(a[campo]))
+            erro(rotulo, `audio: ${campo} deve ser inteiro >= 0 (veio ${JSON.stringify(a[campo])})`);
+        }
+        if (a.loop !== undefined && typeof a.loop !== 'boolean')
+          erro(rotulo, `audio: loop deve ser true ou false (veio ${JSON.stringify(a.loop)})`);
+        musicas.push({ label: rotulo, id: a.id });
+        if (numeroNaFaixa(a.volume, 0, 1) && a.volume > VOLUME_MUSICA_ALTO)
+          aviso(rotulo, `audio: volume ${a.volume} da música é maior que ${VOLUME_MUSICA_ALTO} — música alta, confira`);
+      }
+
+      if (a.tipo === 'efeito') {
+        const temInicio = a.inicio !== undefined;
+        const temElemento = a.elemento !== undefined;
+        if (temInicio && temElemento)
+          erro(rotulo, 'audio: efeito com "inicio" e "elemento" ao mesmo tempo — use só um dos dois');
+        else if (!temInicio && !temElemento)
+          erro(rotulo, 'audio: efeito precisa de "inicio" ou "elemento" (exatamente um dos dois)');
+        if (temInicio) {
+          const seg = paraSegundos(a.inicio);
+          if (seg === null)
+            erro(rotulo, `audio: inicio deve estar no formato m:ss, com segundos < 60 (veio ${JSON.stringify(a.inicio)})`);
+          else if (duracaoMax !== null && seg > duracaoMax)
+            erro(rotulo, `audio: inicio em ${formatarTempo(seg)} passa do fim do vídeo original (${formatarTempo(duracaoMax)}) — adiante o efeito`);
+        }
+        if (temElemento && !(typeof a.elemento === 'string' && idsElementos.has(a.elemento)))
+          erro(rotulo, `audio: elemento ${JSON.stringify(a.elemento)} não existe na lista "elementos" do plano`);
+      }
+
+      const permitidas = tipoOk ? CHAVES_AUDIO[a.tipo] : [...new Set([...CHAVES_AUDIO.musica, ...CHAVES_AUDIO.efeito])];
+      for (const chave of Object.keys(a)) {
+        if (!permitidas.includes(chave))
+          aviso(rotulo, `audio: campo "${chave}" não existe em um item de áudio${tipoOk ? ` do tipo "${a.tipo}"` : ''} (campos: ${permitidas.join(', ')})`);
+      }
+    });
+
+    for (const [id, labels] of idsAudio) {
+      if (labels.length > 1) erro(labels.join(','), `audio: id repetido "${id}" — escolha um id diferente para cada item`);
+    }
+
+    if (musicas.length > 1)
+      aviso(
+        musicas.map((m) => m.label).join(','),
+        `audio: ${musicas.length} músicas na lista — tocam todas ao mesmo tempo; confira se é isso mesmo`,
+      );
   }
 }
 

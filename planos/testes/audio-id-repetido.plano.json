@@ -1,0 +1,9 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "audio": [
+    { "id": "m", "tipo": "musica", "arquivo": "music/musica.mp3", "volume": 0.1, "framesEntrada": 30, "framesSaida": 30, "loop": true },
+    { "id": "m", "tipo": "efeito", "arquivo": "sfx/efeito.wav", "volume": 0.3, "inicio": "0:05" }
+  ],
+  "elementos": []
+}

@@ -1,0 +1,8 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "audio": [
+    { "id": "e", "tipo": "efeito", "arquivo": "sfx/efeito.wav" }
+  ],
+  "elementos": []
+}

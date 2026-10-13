@@ -1,0 +1,28 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "audio": [
+    { "id": "m", "tipo": "musica", "arquivo": "music/musica.mp3", "volume": 0.1, "framesEntrada": 30, "framesSaida": 30, "loop": true },
+    { "id": "efeito-no-check", "tipo": "efeito", "arquivo": "sfx/efeito.wav", "volume": 0.3, "elemento": "check-1" },
+    { "id": "efeito-no-tempo", "tipo": "efeito", "arquivo": "sfx/efeito.wav", "volume": 0.3, "inicio": "0:05" }
+  ],
+  "elementos": [
+    {
+      "id": "check-1",
+      "componente": "Checkmark",
+      "descricao": "check de teste, primeiro critério",
+      "texto": "Primeiro critério atendido",
+      "inicio": "0:02",
+      "duracao": 2,
+      "posicao": "topo",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "x": 300, "y": 300, "tamanho": 120,
+        "cor": "#F5F0E6", "corFundo": "#0F2A1D",
+        "mostrarFundo": true, "duracaoFrames": 60
+      }
+    }
+  ]
+}
