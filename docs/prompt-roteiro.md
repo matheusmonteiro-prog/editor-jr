@@ -249,6 +249,22 @@ ela o plano funciona como antes. O caminho do arquivo da câmera **não vai no p
 
 ---
 
+## inicio com décimos e naPalavra
+
+Fonte: `scripts/validar-plano.mjs` (checagem 1), `src/PlanoComposicao.tsx` (`paraSegundos`) e
+`scripts/resolver-plano.mjs`. Nada aqui muda as regras acima.
+
+- **`inicio` aceita `"m:ss"` e `"m:ss.d"`** (UM dígito decimal, segundos < 60): `"0:05"` e
+  `"0:05.4"` valem. `"0:05.45"` (dois dígitos), `"0:05,4"` (vírgula) e tempo negativo dão erro.
+- **`naPalavra` + `ocorrencia` é opcional.** Em vez de `inicio`, o elemento pode apontar uma
+  palavra da fala (`"naPalavra": "juros"`) e qual vez ela aparece (`"ocorrencia": 2`, contando a
+  partir de 1; padrão 1). Só vale **depois** que `scripts/resolver-plano.mjs` gerar o plano
+  resolvido: o validador dá ERRO em elemento com `naPalavra` e sem `inicio`. Um elemento não pode
+  ter `naPalavra` e `inicio` ao mesmo tempo.
+- **Status: ainda não testado com vídeo real. Por padrão, use `inicio`.**
+
+---
+
 ## Exemplo real (plano aprovado no Studio)
 
 `planos/0926.plano.json` é um plano real, já validado e aprovado no Remotion Studio

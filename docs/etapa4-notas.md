@@ -84,3 +84,33 @@ Inclui avaliações e dúvidas. Nada daqui é fato.
 12. Modelos `medium` e `large`: não testados.
 13. Se o pacote exige a mesma versão do Remotion (4.0.527); foi instalado nessa versão e funcionou, mas a doc não afirma a exigência.
 14. Sobre a versão do binário: não vi o número da versão escrito no executável; usei `1.6.0` no `whisperCppVersion`.
+
+## e) O que foi construído (13/10)
+
+Só o que existe no repositório (commits na `noite-etapa6`). Nada abaixo foi visto pelo Matheus
+com material real.
+
+- **`scripts/transcrever.mjs`** (`3225095`, `b1e9c45`): gera o `.palavras.json` bruto
+  (`Caption[]`) e o `.palavras.txt` compacto, já corrigido pelo glossário; opções `--refazer` e
+  `--so-texto`.
+- **`scripts/palavras.mjs`** (`fc033db`): funções puras `normalizar`, `aplicarGlossario` e
+  `acharPalavra`; teste `scripts/teste-palavras.mjs` (60 casos).
+- **`glossario.json`** (`7810029`): hoje com **1 par de exemplo** ("eipô" -> "Apple"). Só o
+  `.palavras.txt` sai corrigido; o `.palavras.json` fica bruto. Teste `scripts/teste-glossario.mjs`
+  (33 casos).
+- **`scripts/resolver-plano.mjs`** (`f81de5a`): troca `naPalavra` + `ocorrencia` por `inicio`
+  (`"m:ss.d"`, arredondado para baixo ao décimo). Teste `scripts/teste-resolver-plano.mjs`
+  (48 casos, incluindo a conversão para o tempo cortado com gancho).
+- **Formato `m:ss.d`** (`e7faac7`): `inicio` aceita um dígito decimal no validador e no
+  `PlanoComposicao.tsx`; `naPalavra` sem `inicio` vira erro no validador (`testar-validador`,
+  57 casos).
+
+**O que NÃO foi provado:**
+
+- O resolvedor com uma **transcrição real**: nenhum `.palavras.json` real passou por ele
+  (`videos/teste-jr.palavras.json` não existe neste PC) e nenhum plano real tem `naPalavra`.
+- A **gravação da linha de comando** do resolvedor (`planos/<nome>.resolvido.json` e a trava do
+  `--refazer`): só a função pura e as mensagens de erro foram testadas.
+- **Render ou Studio com tempo decimal:** a `paraSegundos` do `PlanoComposicao.tsx` só foi
+  compilada, nunca executada num render.
+- Nada chama o resolvedor automaticamente; o plano precisa ser resolvido à mão antes do validador.

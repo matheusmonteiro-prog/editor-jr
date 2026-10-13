@@ -722,12 +722,14 @@ reais do 0926 foram levados ao PC do trabalho e o render foi feito no WSL. Pend�
   Matheus mandar (decisão de 07/10/2026).
 
 **Nota (01/10/2026), sem alterar o formato decidido acima:** `"naPalavra"`
-(com `"ocorrencia"`) é um atalho futuro para `"inicio"` — em vez de digitar
+(com `"ocorrencia"`) é um atalho para `"inicio"` — em vez de digitar
 `"m:ss"` à mão, aponta a palavra e qual ocorrência dela no vídeo. Um script
 converte `naPalavra`+`ocorrencia` em `"inicio"` **antes** da validação
 (`scripts/validar-plano.mjs`), usando a transcrição palavra-por-palavra da
-Etapa 4. Depende da Etapa 4 (Whisper) existir primeiro — ainda não
-implementado, e o formato acima continua sendo o único decidido por ora.
+Etapa 4. Depende da Etapa 4 (Whisper) existir primeiro. **Atualização de
+13/10/2026: resolvedor implementado** (`scripts/resolver-plano.mjs`, commit
+`f81de5a`); falta rodar com transcrição real; nada chama o resolvedor
+automaticamente. O formato acima continua sendo o único decidido por ora.
 
 **Regras de conteúdo (registradas antes do schema, para valer quando ele for
 criado):**
