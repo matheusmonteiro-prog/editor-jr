@@ -6,7 +6,7 @@ rodados nesta sessão (sem renderizar, sem abrir o Studio). Reflete a branch
 
 ## Etapa atual
 
-`ARQUITETURA.md` (seção "Status") marca a **Etapa 6** em andamento. A **Etapa 3** está fechada em **3a (código)** desde 13/10/2026; **3b (material real)** fica para validar na prática nas primeiras gravações reais.
+`ARQUITETURA.md` (seção "Status") marca a **Etapa 3** como concluída em **3a (código)** (13/10/2026; **3b (material real)** fica para validar na prática nas primeiras gravações reais) e a **Etapa 6** como `[x]` (6a cumprida em 09/10/2026).
 
 Etapas 0–2 estão `[x]` (concluídas). Etapas 4, 5, 7, 8 estão `[ ]`, sem
 marca de "em andamento".

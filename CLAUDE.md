@@ -54,7 +54,7 @@ Matheus é iniciante em programação, Git e Remotion. Explique em português do
 Sem espaço. Ex.: `selic-setembro.png`, `dinheiro-tim.mp3`.
 
 ## Protocolo de etapas
-- Etapas: 0 a 8, conforme o `ARQUITETURA.md`. Hoje: Etapa 6 (6a) cumprida em 09/10/2026; Etapa 3 em andamento.
+- Etapas: 0 a 8, conforme o `ARQUITETURA.md`. Hoje: Etapa 6 (6a) cumprida em 09/10/2026; Etapa 3 concluída em 3a (13/10/2026; 3b a validar no material real).
 - Cada etapa precisa de critério de fechamento escrito. Se faltar,
   proponha antes de dar a etapa como fechada.
 - Quando todos os critérios de uma etapa forem cumpridos, avise o Matheus
