@@ -242,16 +242,21 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   - **`ArrobaInstagram` (3.4):** existe em `src/components/v2/ArrobaInstagram.tsx`, registrado no
     `CATALOGO` e em `src/Composition.tsx`. Só aparece quando o roteiro pedir, com o @ vindo do pedido
     (decisão do Matheus); canto padrão superior esquerdo, provisório (zona segura não medida).
-    Aprovado pelo Matheus **sem ver no Studio**; não renderizado.
+    Commit autorizado pelo Matheus em 12/10/2026; não visto nem ouvido na hora; não renderizado.
   - **Áudio, Fase 1 (3.6):** lista `audio` no topo do plano (opcional, fora de `elementos`); música
     e efeito com `Html5Audio` de `remotion`; música com volume provisório 0,2; efeito no frame do
     elemento ou do `inicio`, pelo `tempoCortado.ts`; composição `PlanoAudioTeste`; áudio fora do Git
-    (`public/music/` e `public/sfx/` no `.gitignore`). Aprovado pelo Matheus **sem ouvir**.
-    **NÃO PROVADO:** ninguém ouviu; música real; encaixe com a voz do JR; render com áudio (só no
+    (`public/music/` e `public/sfx/` no `.gitignore`). Commit autorizado pelo Matheus em 12/10/2026; não visto nem ouvido na hora.
+    **NÃO PROVADO:** som real; música real; encaixe com a voz do JR; render com áudio (só no
     trabalho); licença de música alguma. **O validador ainda não confere a lista `audio` (Fase 2
     pendente).** Arquivo ausente com `loop` pode travar o render (leitura de código, não testado).
   - **`deslocamentoCamera`:** tem efeito desde o commit `1cc8211`; provado só na conta de frames,
     **sem prova visual**.
+- **Etapa 3, 13/10/2026 (renders curtos no PC do trabalho; commit `ccfb44a` e um de docs):**
+  - **Câmera no plano (3.1), visto:** `PlanoCameraTeste`, quadros 640-699 (60 quadros), 1080×1920, SAR 1:1, `--props` só com o `videoSrc` da cópia leve. A janelinha da câmera e o `BarrasDuelo` apareceram por cima da tela, sem esticar; ECANCELED = 0; o `--props` **mesclou** com os `defaultProps`. O Matheus viu o mp4 e disse que está ok. **NÃO PROVADO:** sincronia, o JR na câmera, o render completo.
+  - **Orientação automática (3.3), 3 renders de 30 quadros:** (A) `PlanoAutomaticoHorizontal` sem `--width`/`--height` saiu 1920×1080; (B) o mesmo com `--width 1080 --height 1920` saiu 1080×1920 (a linha de comando ganha do plano); (C) `PlanoAutomatico` com a cópia leve saiu 1080×1920. Conferido com ffprobe; quadros olhados pelo Claude Code. **O Matheus não confirmou ter aberto esses arquivos.** **NÃO PROVADO:** render completo, JR, ficha `.preparo.json` (não é lida). **Risco:** `scripts/preparar-video.mjs` imprime `--width` e `--height` nos comandos; se contradisserem o plano, o comando vence em silêncio.
+  - **Áudio (3.6), `PlanoAudioTeste` (quadros 600-719):** com o efeito em volume 1, a subida ficou 13,0 dB acima da voz na média; em 0,3, ficou 4,3 dB (pico +1,5 dB). O Matheus ouviu: volume 1 estava alto; testou 3 durações do som (0,35, 0,5 e 0,7 s; o arquivo atual é de 0,5 s) e disse que deu certo. O som é **sintético** (ffmpeg). **A música de fundo** (tom de 110 Hz, volume 0,2) **não foi confirmada**: a medição não prova que ela toca, e o Matheus não disse se ouviu. Volume 0,3 é **provisório** até o som real. **NÃO PROVADO:** som real; inteligibilidade da voz com música real; render completo; licença de música alguma. Os arquivos de teste estão em `public/music/` e `public/sfx/`, **fora do Git**.
+  - **Código de saída 1:** todos os renders curtos de hoje saíram com código 1 mesmo com o arquivo gerado e o log limpo. Causa provável: o `explorer.exe` no fim do `~/render.sh`; **não isolada**. Conferir sempre o arquivo, não só o código.
 - `scripts/render-final.mjs`: monta o comando de render. Com `--dry-run` só imprime; sem
   `--dry-run` ele executa o render de verdade (`scripts/render-final.mjs`, linha 90). Se já
   foi executado de verdade alguma vez: **NÃO CONFIRMADO**.

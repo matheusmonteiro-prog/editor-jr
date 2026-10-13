@@ -275,14 +275,12 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
 - **Como validar:** ouvir (fora do VS Code) um trecho com fala e um sem. Olhar: no começo e no
   fim a música sobe e desce sem estalo? Durante a fala a música cai o suficiente para a voz
   ficar clara? Ela volta quando o JR para?
-- **Status apurado: NÃO EXISTE.**
-  - Não há `<Audio>` nem componente de áudio em `src/` (busca em todo `src/`, fora de testes).
-  - As pastas `public/music` e `public/sfx` existem e estão **vazias**. O critério 3.6 diz
-    "Arquivos ainda não baixados" (`docs/criterios-fechamento.md:93`).
-  - Música e efeito sonoro estão previstos na Etapa 3 (`ARQUITETURA.md:547`). O formato do
-    prompt de exemplo (`[2:30] som: dinheiro-tim`, `ARQUITETURA.md:177`) é "ilustrativo, a
-    definir".
-  - Ducking em si não aparece em lugar nenhum do projeto.
+- **Status apurado (13/10/2026): Fase 1 EXISTE, SEM ducking.**
+  - Existe: lista `audio` no topo do plano (`src/PlanoComposicao.tsx`, tipo `ItemAudio`), tocada com `Html5Audio` de `remotion`; música em **volume fixo baixo** (0,2 no plano de teste), com fade de entrada e saída.
+  - **Não existe:** ducking dinâmico. A música não cai durante a fala; o volume é o mesmo o tempo todo.
+  - O validador (`scripts/validar-plano.mjs`) **ainda não confere** a lista `audio` (Fase 2 pendente).
+  - O critério T16 espera ducking. **Precisa de decisão do Matheus:** aceitar volume fixo baixo ou pedir ducking.
+  - Música real: não baixada. `public/music/` só tem o tom de teste, sintético e ignorado pelo Git.
 
 ### T17 — Volume final
 - **O que é:** o volume do vídeo final fica num nível consistente entre vídeos e sem pico que
@@ -311,12 +309,11 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
 - **Como validar:** renderizar um elemento com efeito sonoro e olhar a onda do áudio junto
   com o frame: o pico do som cai no frame em que a animação "bate"? A diferença tem que ser
   menor que 1 frame (33 ms a 30 fps).
-- **Status apurado: NÃO EXISTE.**
-  - O tipo de elemento do plano não tem campo de áudio (`src/PlanoComposicao.tsx:51-58`:
-    `id`, `componente`, `inicio`, `duracao`, `duracaoFrames`, `props`).
-  - Sem arquivo de efeito baixado (`docs/criterios-fechamento.md:93`) e sem componente.
-  - O áudio final só se confere no render ou no VLC, nunca na pré-visualização do VS Code
-    (`ARQUITETURA.md:166-170`).
+- **Status apurado (13/10/2026): Fase 1 EXISTE; sincronia por frame NÃO medida.**
+  - Existe: o efeito começa no frame do elemento (`elemento`) ou no `inicio` (pelo `tempoCortado.ts`). Fica na lista `audio` do topo do plano, não dentro de `elementos`.
+  - Medido só o **nível** (render curto de 4 s, `PlanoAudioTeste`): a subida do teste de 0,5 s com volume 0,3 ficou 2,0 dB acima da voz na média, no trecho em que aparece. Isso é nível, não sincronia.
+  - **Não provado:** que o pico do som cai no frame da animação (com diferença menor que 1 frame). Exige comparar a onda com o frame do render.
+  - O efeito de teste é sintético (feito com ffmpeg); o som real ainda não foi baixado.
 
 ---
 
