@@ -280,7 +280,7 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
   - **Não existe:** ducking dinâmico. A música não cai durante a fala; o volume é o mesmo o tempo todo.
   - O validador (`scripts/validar-plano.mjs`) **ainda não confere** a lista `audio` (Fase 2 pendente).
   - O critério T16 espera ducking. **Precisa de decisão do Matheus:** aceitar volume fixo baixo ou pedir ducking.
-  - Música real: não baixada. `public/music/` só tem o tom de teste, sintético e ignorado pelo Git.
+  - Música real: `public/music/musica-teste.mp3` existe neste PC, fora do Git (13/10/2026), em volume fixo 0,03. Licença não registrada. Continua **sem ducking**; a decisão segue com o Matheus.
 
 ### T17 — Volume final
 - **O que é:** o volume do vídeo final fica num nível consistente entre vídeos e sem pico que
@@ -405,8 +405,7 @@ visto o resultado no Studio (ou no vídeo final). Hoje nenhum item abaixo está 
 6. **T13 — troca de foco tela/câmera.** Já tem a peça (`CamadaVideo`), falta ligar ao plano e
    fazer o teste de sincronia (palma dispensada em 11/10/2026; método sem palma a definir).
 7. **T17 — decidir o alvo de volume**, antes de T16 e T18: sem alvo não há como medir a mistura.
-8. **T16 e T18 — música e efeito sonoro.** Dependem de baixar os arquivos e de o render
-   funcionar.
+8. **T16 e T18 — música e efeito sonoro.** Os arquivos de teste e a música real já existem neste PC, fora do Git (13/10/2026); falta o render funcionar em outro PC e, no T16, a decisão de ducking.
 9. **T21 — determinismo**, **T22 — banding** e **T20 — render longo.** Ficam para o fim porque
    precisam do render completo; o T20 é o mais pesado (15 minutos).
 10. **T11 — destaque de cursor e clique**, depois do T10: usa a mesma fonte de posição do
@@ -432,5 +431,5 @@ bloqueado, `ARQUITETURA.md:46`):
 - **T12:** pesquisa das medidas da interface de cada plataforma.
 - **T13:** teste de sincronia dos arquivos do OBS, sem palma (dispensada em 11/10/2026; método a definir) e ligar
   `CamadaVideo` ao `CATALOGO`.
-- **T16 e T18:** baixar a música e o efeito (`docs/criterios-fechamento.md:93`).
+- **T16 e T18:** a música real já existe neste PC (fora do Git); efeito final e licença registrada ainda não (`docs/criterios-fechamento.md:93`).
 - **T17:** decisão do Matheus sobre o alvo de volume.
