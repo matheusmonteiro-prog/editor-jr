@@ -1,0 +1,279 @@
+#!/usr/bin/env node
+/**
+ * transcrever.mjs — transcreve o áudio de um vídeo ORIGINAL com o Whisper local e grava as
+ * palavras com tempo (Caption[]) em videos/<nome>.palavras.json. Critério 4.1 da Etapa 4.
+ *
+ * O que faz:
+ *   1. extrai o áudio para WAV 16 kHz, 16 bits, mono, em out/ (a pasta está no .gitignore);
+ *   2. roda o whisper.cpp (pacote oficial @remotion/install-whisper-cpp) com tempo por palavra;
+ *   3. converte com toCaptions() e grava SÓ a lista de palavras em videos/<nome>.palavras.json
+ *      (a pasta videos/ está no .gitignore).
+ *
+ * Os tempos são os do vídeo ORIGINAL (a gravação, antes de cortar), em milissegundos. A conversão
+ * para o tempo do vídeo cortado é outro passo (critério 4.2).
+ *
+ * Não instala nada e não baixa nada: o whisper.cpp e o modelo já têm que existir. Os caminhos
+ * vêm de config.local.json (fora do Git; modelo em config.exemplo.json). Nenhum caminho fixo aqui.
+ *
+ * Usa o ffmpeg e o ffprobe COMPLETOS do PATH do sistema. Nunca os do Remotion.
+ * (Linux/WSL: sudo apt install ffmpeg · Windows: winget install Gyan.FFmpeg)
+ *
+ * Uso:
+ *   node scripts/transcrever.mjs --video videos/teste-jr.mp4
+ *   node scripts/transcrever.mjs --video videos/teste-jr.mp4 --modelo base --idioma pt
+ *   node scripts/transcrever.mjs --video videos/teste-jr.mp4 --refazer
+ *
+ * Opções:
+ *   --video CAMINHO  vídeo original (obrigatório)
+ *   --modelo NOME    modelo do Whisper (padrão small; precisa existir em modelFolder)
+ *   --idioma COD     idioma falado (padrão pt)
+ *   --refazer        regrava videos/<nome>.palavras.json mesmo que já exista (sem isso, para)
+ *
+ * Aviso conhecido e inofensivo do pacote: "input file not found 'true'" (ele passa
+ * ['--split-on-word', true]). Aqui a saída do whisper.cpp fica silenciosa, então ele não aparece;
+ * se aparecer em outro uso, não é erro.
+ *
+ * Saída: 0 = ok · 1 = erro.
+ */
+
+import {spawnSync} from 'node:child_process';
+import {existsSync, mkdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
+import {basename, dirname, extname, isAbsolute, join, relative, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {toCaptions, transcribe} from '@remotion/install-whisper-cpp';
+
+const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+// ---------------------------------------------------------------- constantes (ajustáveis)
+
+const MODELO_PADRAO = 'small';
+const IDIOMA_PADRAO = 'pt';
+// Versão do whisper.cpp testada no Windows (08/10/2026). Pode ser trocada em config.local.json
+// (chave whisperCppVersion). No Windows o pacote só tem binário até a 1.6.0.
+const VERSAO_WHISPER_PADRAO = '1.6.0';
+const MODELOS_ACEITOS = [
+  'tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en',
+  'medium', 'medium.en', 'large-v1', 'large-v2', 'large-v3', 'large-v3-turbo',
+];
+const PASTA_AUDIO = join(RAIZ, 'out');
+const PASTA_SAIDA = join(RAIZ, 'videos');
+const ARQUIVO_CONFIG = join(RAIZ, 'config.local.json');
+
+// ---------------------------------------------------------------- utilidades
+
+class ErroUso extends Error {}
+
+const rodar = (bin, args, opcoes = {}) => {
+  const r = spawnSync(bin, args, {encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, ...opcoes});
+  if (r.error) throw new Error(`Não consegui rodar "${bin}": ${r.error.message}`);
+  return r;
+};
+
+// Só o ffmpeg/ffprobe do PATH. Se não estiverem lá, para — não cai pro do Remotion.
+const exigirBinario = (nome) => {
+  const r = spawnSync(nome, ['-version'], {encoding: 'utf8', timeout: 10000});
+  if (r.error || r.status !== 0) {
+    throw new ErroUso(
+      `Não achei "${nome}" no PATH do sistema.\n` +
+        'Este script usa o FFmpeg completo (nunca o do Remotion).\n' +
+        'Linux/WSL: sudo apt install ffmpeg · Windows: winget install Gyan.FFmpeg',
+    );
+  }
+};
+
+const paraRelativo = (caminho) => {
+  const rel = relative(RAIZ, caminho);
+  return rel.startsWith('..') || isAbsolute(rel) ? caminho : rel.split('\\').join('/');
+};
+
+// "1.6.0" >= "1.7.4"? Só números; o suficiente para escolher o nome do executável.
+const versaoMaiorOuIgual = (a, b) => {
+  const pa = a.split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = b.split('.').map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) > (pb[i] ?? 0);
+  }
+  return true;
+};
+
+// ---------------------------------------------------------------- argumentos
+
+const FLAGS_COM_VALOR = ['--video', '--modelo', '--idioma'];
+const FLAGS_BOOLEANAS = ['--refazer'];
+
+const lerArgumentos = (argv) => {
+  const opcoes = {video: null, modelo: MODELO_PADRAO, idioma: IDIOMA_PADRAO, refazer: false};
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (FLAGS_BOOLEANAS.includes(a)) {
+      opcoes.refazer = true;
+    } else if (FLAGS_COM_VALOR.includes(a)) {
+      const valor = argv[++i];
+      if (valor === undefined || valor.startsWith('--')) throw new ErroUso(`A opção ${a} precisa de um valor.`);
+      if (a === '--video') opcoes.video = resolve(process.cwd(), valor);
+      else if (a === '--modelo') opcoes.modelo = valor;
+      else opcoes.idioma = valor;
+    } else {
+      throw new ErroUso(`Argumento desconhecido: ${a}. Veja o topo do script.`);
+    }
+  }
+  if (!opcoes.video) throw new ErroUso('Passe o vídeo original: --video caminho/do/video.mp4');
+  if (!existsSync(opcoes.video)) throw new ErroUso(`Vídeo não encontrado: ${opcoes.video}`);
+  if (!MODELOS_ACEITOS.includes(opcoes.modelo)) {
+    throw new ErroUso(`--modelo "${opcoes.modelo}" não é aceito. Use um destes: ${MODELOS_ACEITOS.join(', ')}.`);
+  }
+  return opcoes;
+};
+
+// ---------------------------------------------------------------- configuração
+
+const lerConfig = () => {
+  if (!existsSync(ARQUIVO_CONFIG)) {
+    throw new ErroUso(
+      'Falta o arquivo config.local.json na raiz do projeto.\n' +
+        '  1. Copie config.exemplo.json para config.local.json.\n' +
+        '  2. Preencha "whisperPath" (pasta onde está o whisper.cpp, com o main.exe) e\n' +
+        '     "modelFolder" (pasta onde está o arquivo ggml-<modelo>.bin, ex.: ggml-small.bin).\n' +
+        '  3. "whisperCppVersion" é opcional (padrão ' + VERSAO_WHISPER_PADRAO + ').\n' +
+        'O config.local.json fica fora do Git (cada PC tem o seu).',
+    );
+  }
+  let bruto;
+  try {
+    bruto = JSON.parse(readFileSync(ARQUIVO_CONFIG, 'utf8'));
+  } catch (e) {
+    throw new ErroUso(`config.local.json não é um JSON válido: ${e.message}`);
+  }
+  for (const chave of ['whisperPath', 'modelFolder']) {
+    if (typeof bruto[chave] !== 'string' || bruto[chave].trim() === '') {
+      throw new ErroUso(`Em config.local.json a chave "${chave}" está vazia. Preencha com o caminho da pasta.`);
+    }
+  }
+  const whisperPath = resolve(RAIZ, bruto.whisperPath);
+  const modelFolder = resolve(RAIZ, bruto.modelFolder);
+  const versao = typeof bruto.whisperCppVersion === 'string' && bruto.whisperCppVersion.trim() !== ''
+    ? bruto.whisperCppVersion.trim()
+    : VERSAO_WHISPER_PADRAO;
+  return {whisperPath, modelFolder, versao};
+};
+
+const conferirWhisper = ({whisperPath, modelFolder, versao}, modelo) => {
+  if (!existsSync(whisperPath)) throw new ErroUso(`whisperPath não existe: ${whisperPath}`);
+  // Mesmo nome de executável que o pacote usa: main(.exe) até a 1.7.3; whisper-cli depois.
+  const novo = versaoMaiorOuIgual(versao, '1.7.4');
+  const exe = novo
+    ? join(whisperPath, 'build', 'bin', process.platform === 'win32' ? 'whisper-cli.exe' : 'whisper-cli')
+    : join(whisperPath, process.platform === 'win32' ? 'main.exe' : 'main');
+  if (!existsSync(exe)) {
+    throw new ErroUso(`Não achei o executável do whisper.cpp ${versao} em ${exe}. Este script não instala nada.`);
+  }
+  const arquivoModelo = join(modelFolder, `ggml-${modelo}.bin`);
+  if (!existsSync(arquivoModelo)) {
+    throw new ErroUso(`Não achei o modelo "${modelo}" em ${arquivoModelo}. Este script não baixa modelo.`);
+  }
+};
+
+// ---------------------------------------------------------------- áudio
+
+// Nunca sobrescreve: se já existe um WAV do mesmo vídeo, reaproveita quando é mais novo que o
+// vídeo; se o vídeo mudou depois, grava ao lado com versão (-v2, -v3...).
+const caminhoWav = (nome, versao) => join(PASTA_AUDIO, `${nome}.16k${versao === 1 ? '' : `-v${versao}`}.wav`);
+
+const prepararAudio = (video, nome) => {
+  mkdirSync(PASTA_AUDIO, {recursive: true});
+  const mtimeVideo = statSync(video).mtimeMs;
+  let versao = 1;
+  for (; existsSync(caminhoWav(nome, versao)); versao++) {
+    if (statSync(caminhoWav(nome, versao)).mtimeMs >= mtimeVideo) {
+      return {wav: caminhoWav(nome, versao), reaproveitado: true};
+    }
+  }
+  const wav = caminhoWav(nome, versao);
+  const r = rodar('ffmpeg', [
+    '-hide_banner', '-loglevel', 'error', '-n',
+    '-i', video,
+    '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le',
+    wav,
+  ]);
+  if (r.status !== 0) throw new Error(`ffmpeg falhou ao extrair o áudio (código ${r.status}):\n${r.stderr}`);
+  return {wav, reaproveitado: false};
+};
+
+const duracaoDoAudioMs = (wav) => {
+  const r = rodar('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', wav]);
+  const s = Number(String(r.stdout).trim());
+  if (r.status !== 0 || !Number.isFinite(s)) throw new Error(`ffprobe não leu a duração de ${wav}.`);
+  return s * 1000;
+};
+
+// ---------------------------------------------------------------- principal
+
+const main = async () => {
+  const opcoes = lerArgumentos(process.argv.slice(2));
+  const config = lerConfig();
+  conferirWhisper(config, opcoes.modelo);
+  exigirBinario('ffmpeg');
+  exigirBinario('ffprobe');
+
+  const nome = basename(opcoes.video, extname(opcoes.video));
+  const saida = join(PASTA_SAIDA, `${nome}.palavras.json`);
+  if (existsSync(saida) && !opcoes.refazer) {
+    throw new ErroUso(
+      `Já existe ${paraRelativo(saida)}. Transcreve-se uma vez por vídeo; ` +
+        'para refazer de propósito, rode de novo com --refazer.',
+    );
+  }
+  if (opcoes.modelo.endsWith('.en') && opcoes.idioma !== 'en') {
+    console.log(`AVISO: o modelo "${opcoes.modelo}" é só em inglês, mas o idioma é "${opcoes.idioma}".`);
+  }
+
+  console.log('== Transcrevendo ==');
+  console.log(`vídeo:  ${paraRelativo(opcoes.video)}`);
+  console.log(`modelo: ${opcoes.modelo} · idioma: ${opcoes.idioma} · whisper.cpp ${config.versao}`);
+
+  const {wav, reaproveitado} = prepararAudio(opcoes.video, nome);
+  const duracaoMs = duracaoDoAudioMs(wav);
+  console.log(
+    `áudio:  ${paraRelativo(wav)} (${reaproveitado ? 'já existia, reaproveitado' : 'extraído agora'}; ` +
+      `${(duracaoMs / 1000).toFixed(1)} s)`,
+  );
+  console.log('Rodando o Whisper (leva em torno de 1x a duração do áudio na CPU)...');
+
+  // O pacote grava um tmp.json na pasta de trabalho; com ela em out/, ele não cai na raiz.
+  mkdirSync(PASTA_AUDIO, {recursive: true});
+  process.chdir(PASTA_AUDIO);
+
+  const inicio = Date.now();
+  const resultado = await transcribe({
+    inputPath: wav,
+    whisperPath: config.whisperPath,
+    whisperCppVersion: config.versao,
+    model: opcoes.modelo,
+    modelFolder: config.modelFolder,
+    language: opcoes.idioma,
+    tokenLevelTimestamps: true,
+    splitOnWord: true,
+    printOutput: false,
+  });
+  const segundos = (Date.now() - inicio) / 1000;
+
+  const {captions} = toCaptions({whisperCppOutput: resultado});
+  mkdirSync(PASTA_SAIDA, {recursive: true});
+  writeFileSync(saida, JSON.stringify(captions, null, 2) + '\n');
+
+  const ultima = captions[captions.length - 1];
+  console.log(`\nFeito em ${segundos.toFixed(1)} s (${(segundos / (duracaoMs / 1000)).toFixed(2)}x a duração do áudio).`);
+  console.log(`Palavras: ${captions.length} -> ${paraRelativo(saida)}`);
+  if (ultima) {
+    const passou = ultima.endMs > duracaoMs;
+    console.log(
+      `Última: "${ultima.text.trim()}" endMs=${ultima.endMs} · áudio=${Math.round(duracaoMs)} ms · ` +
+        (passou ? `AVISO: passa do áudio em ${Math.round(ultima.endMs - duracaoMs)} ms` : 'não passa do áudio'),
+    );
+  }
+};
+
+main().catch((e) => {
+  console.error(`\nERRO: ${e.message}`);
+  process.exit(1);
+});

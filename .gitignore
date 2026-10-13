@@ -25,6 +25,10 @@ videos/
 # Configuração local de permissões do Claude Code, específica da máquina.
 .claude/settings.local.json
 
+# Configuração local (caminhos do whisper.cpp e do modelo; cada PC tem o seu).
+# O modelo para copiar é config.exemplo.json.
+config.local.json
+
 # Áudio fora do Git (licença de cada faixa; ver ARQUITETURA.md)
 public/music/
 public/sfx/
