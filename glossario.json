@@ -1,0 +1,6 @@
+{
+  "_comentario": "EXEMPLO: o par abaixo (\"eipô\" -> \"Apple\") é só um exemplo do formato, não uma regra do Matheus. Troque pelos erros reais que o Whisper faz. Cada par é { \"como o Whisper escreveu\": \"como deve ficar\" }. Maiúscula, acento e pontuação nas pontas não importam na chave. Troca palavra por palavra e não muda o tempo de nada. Só o .palavras.txt sai corrigido; o .palavras.json fica bruto.",
+  "pares": {
+    "eipô": "Apple"
+  }
+}

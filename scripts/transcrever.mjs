@@ -29,6 +29,12 @@
  * transcrição de forma compacta. O trecho quebra com 12 palavras, ou na pontuação final (. ? !)
  * com 5 palavras ou mais, ou numa pausa de 700 ms ou mais entre duas palavras.
  *
+ * Glossário (correção do texto): se existir, o .palavras.txt sai com as palavras corrigidas por
+ * ele. O .palavras.json fica BRUTO (como o Whisper escreveu) e nenhum tempo muda. O arquivo é
+ * glossario.json na raiz do projeto, ou o caminho da chave opcional "glossario" do
+ * config.local.json. Formato: {"_comentario": "...", "pares": {"errado": "certo"}}. Se o arquivo
+ * não existir, o script avisa e segue sem glossário.
+ *
  * Opções:
  *   --video CAMINHO  vídeo original (obrigatório)
  *   --modelo NOME    modelo do Whisper (padrão small; precisa existir em modelFolder)
@@ -36,7 +42,8 @@
  *   --refazer        regrava o .palavras.json e o .palavras.txt mesmo que já existam
  *                    (sem isso, o script para em vez de sobrescrever)
  *   --so-texto       NÃO roda o Whisper: lê o .palavras.json que já existe e gera só o
- *                    .palavras.txt (precisa de --refazer se o .txt já existir)
+ *                    .palavras.txt, já com o glossário aplicado (precisa de --refazer se o
+ *                    .txt já existir)
  *
  * Aviso conhecido e inofensivo do pacote: "input file not found 'true'" (ele passa
  * ['--split-on-word', true]). Aqui a saída do whisper.cpp fica silenciosa, então ele não aparece;
@@ -48,8 +55,9 @@
 import {spawnSync} from 'node:child_process';
 import {existsSync, mkdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
 import {basename, dirname, extname, isAbsolute, join, relative, resolve} from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 import {toCaptions, transcribe} from '@remotion/install-whisper-cpp';
+import {aplicarGlossario, ErroPalavras} from './palavras.mjs';
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -71,6 +79,7 @@ const PAUSA_QUEBRA_MS = 700;
 const PASTA_AUDIO = join(RAIZ, 'out');
 const PASTA_SAIDA = join(RAIZ, 'videos');
 const ARQUIVO_CONFIG = join(RAIZ, 'config.local.json');
+const GLOSSARIO_PADRAO = join(RAIZ, 'glossario.json');
 
 // ---------------------------------------------------------------- utilidades
 
@@ -232,7 +241,7 @@ const formatarTempo = (ms) => {
 // Quebra o trecho quando: chega a MAX_PALAVRAS_POR_LINHA palavras; ou a palavra termina em
 // . ? ! e o trecho já tem MIN_PALAVRAS_PARA_QUEBRAR_NA_PONTUACAO ou mais; ou a pausa até a
 // próxima palavra (startMs da próxima - endMs desta) é de PAUSA_QUEBRA_MS ou mais.
-const montarTrechos = (captions) => {
+export const montarTrechos = (captions) => {
   const palavras = captions.filter((c) => typeof c.text === 'string' && c.text.trim() !== '');
   const trechos = [];
   let atual = [];
@@ -259,11 +268,89 @@ const montarTrechos = (captions) => {
   return trechos;
 };
 
-const gravarTexto = (captions, caminho) => {
+// O conteúdo do .palavras.txt: uma linha "m:ss texto" por trecho. Recebe as palavras que vão
+// para o texto (já corrigidas pelo glossário, se houver).
+export const textoCompacto = (captions) => {
   const trechos = montarTrechos(captions);
+  return {linhas: trechos.length, texto: trechos.map((t) => `${formatarTempo(t.startMs)} ${t.texto}`).join('\n') + '\n'};
+};
+
+const gravarTexto = (captions, caminho) => {
+  const {linhas, texto} = textoCompacto(captions);
   mkdirSync(dirname(caminho), {recursive: true});
-  writeFileSync(caminho, trechos.map((t) => `${formatarTempo(t.startMs)} ${t.texto}`).join('\n') + '\n');
-  return trechos.length;
+  writeFileSync(caminho, texto);
+  return linhas;
+};
+
+// ---------------------------------------------------------------- glossário
+
+// Onde está o glossário: chave opcional "glossario" do config.local.json (relativa à raiz do
+// projeto, ou absoluta) ou, sem ela, glossario.json na raiz. Não exige config.local.json.
+const caminhoDoGlossario = () => {
+  if (!existsSync(ARQUIVO_CONFIG)) return GLOSSARIO_PADRAO;
+  let bruto;
+  try {
+    bruto = JSON.parse(readFileSync(ARQUIVO_CONFIG, 'utf8'));
+  } catch (e) {
+    throw new ErroUso(`config.local.json não é um JSON válido: ${e.message}`);
+  }
+  const valor = bruto.glossario;
+  if (valor === undefined || valor === null || valor === '') return GLOSSARIO_PADRAO;
+  if (typeof valor !== 'string') {
+    throw new ErroUso('Em config.local.json a chave "glossario" deve ser o caminho do arquivo (texto).');
+  }
+  return resolve(RAIZ, valor.trim());
+};
+
+// Lê os pares {"errado": "certo"} de um glossario.json. Devolve null se o arquivo não existe
+// (quem chama avisa e segue sem glossário). Arquivo que existe mas está errado PARA o script,
+// em vez de ser ignorado em silêncio.
+export const lerGlossario = (caminho) => {
+  if (!existsSync(caminho)) return null;
+  let bruto;
+  try {
+    bruto = JSON.parse(readFileSync(caminho, 'utf8'));
+  } catch (e) {
+    throw new ErroUso(`O glossário ${paraRelativo(caminho)} não é um JSON válido: ${e.message}`);
+  }
+  const pares = bruto?.pares;
+  if (pares === null || typeof pares !== 'object' || Array.isArray(pares)) {
+    throw new ErroUso(
+      `O glossário ${paraRelativo(caminho)} precisa ter { "pares": { "errado": "certo" } } ` +
+        '(o campo "_comentario" é opcional).',
+    );
+  }
+  return pares;
+};
+
+// Aplica os pares sem alterar a lista bruta. Devolve a lista corrigida e quantas palavras
+// tiveram o texto trocado. Tempos e confiança nunca mudam (garantido por aplicarGlossario).
+export const corrigirPalavras = (captions, pares) => {
+  let corrigidas;
+  try {
+    corrigidas = aplicarGlossario(captions, pares);
+  } catch (e) {
+    if (e instanceof ErroPalavras) throw new ErroUso(`Glossário inválido: ${e.message}`);
+    throw e;
+  }
+  const trocadas = corrigidas.filter((p, i) => p.text !== captions[i].text).length;
+  return {palavras: corrigidas, trocadas};
+};
+
+// Passo do script: acha o glossário, avisa se não existir e devolve as palavras para o .txt.
+const palavrasParaTexto = (captions) => {
+  const caminho = caminhoDoGlossario();
+  const pares = lerGlossario(caminho);
+  if (pares === null) {
+    console.log(`AVISO: glossário não encontrado em ${paraRelativo(caminho)}; o .txt sai sem correção.`);
+    return captions;
+  }
+  const {palavras, trocadas} = corrigirPalavras(captions, pares);
+  console.log(
+    `Glossário: ${Object.keys(pares).length} par(es) em ${paraRelativo(caminho)}; ` +
+      `${trocadas} palavra(s) corrigida(s) no .txt (o .json fica bruto).`,
+  );
+  return palavras;
 };
 
 // ---------------------------------------------------------------- principal
@@ -283,7 +370,7 @@ const main = async () => {
       throw new ErroUso(`Já existe ${paraRelativo(saidaTexto)}. Para regravar só o texto, use --so-texto --refazer.`);
     }
     const captions = JSON.parse(readFileSync(saida, 'utf8'));
-    const linhas = gravarTexto(captions, saidaTexto);
+    const linhas = gravarTexto(palavrasParaTexto(captions), saidaTexto);
     console.log(`Texto gravado: ${linhas} linhas -> ${paraRelativo(saidaTexto)} (a partir de ${paraRelativo(saida)}; Whisper não rodou)`);
     return;
   }
@@ -336,8 +423,8 @@ const main = async () => {
 
   const {captions} = toCaptions({whisperCppOutput: resultado});
   mkdirSync(PASTA_SAIDA, {recursive: true});
-  writeFileSync(saida, JSON.stringify(captions, null, 2) + '\n');
-  const linhas = gravarTexto(captions, saidaTexto);
+  writeFileSync(saida, JSON.stringify(captions, null, 2) + '\n'); // bruto: o glossário não entra aqui
+  const linhas = gravarTexto(palavrasParaTexto(captions), saidaTexto);
 
   const ultima = captions[captions.length - 1];
   console.log(`\nFeito em ${segundos.toFixed(1)} s (${(segundos / (duracaoMs / 1000)).toFixed(2)}x a duração do áudio).`);
@@ -352,7 +439,12 @@ const main = async () => {
   }
 };
 
-main().catch((e) => {
-  console.error(`\nERRO: ${e.message}`);
-  process.exit(1);
-});
+// Só roda quando o arquivo é executado direto (node scripts/transcrever.mjs ...). Quando é
+// importado (pelo scripts/teste-glossario.mjs), só entrega as funções exportadas.
+const executadoDireto = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+if (executadoDireto) {
+  main().catch((e) => {
+    console.error(`\nERRO: ${e.message}`);
+    process.exit(1);
+  });
+}
