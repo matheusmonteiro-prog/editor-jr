@@ -5,12 +5,12 @@
 // A lista de palavras, o glossário e o plano estão escritos AQUI DENTRO, para o teste rodar em
 // qualquer PC sem arquivo de vídeo nem transcrição. Nada é gravado em planos/: o plano resolvido
 // que passa pelo validador vai para uma pasta temporária, apagada no fim.
-import {execFileSync} from 'node:child_process';
-import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {execFileSync, spawnSync} from 'node:child_process';
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {resolverPlano, formatarInicio, ErroResolver} from './resolver-plano.mjs';
+import {resolverPlano, formatarInicio, montarCaminhoSaida, ErroResolver} from './resolver-plano.mjs';
 import {criarParaFrameCortado} from '../src/utils/tempoCortado.ts';
 
 const RAIZ = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -262,6 +262,85 @@ erro('glossário inválido', () => resolverPlano({elementos: []}, PALAVRAS, ['a'
     igual('validador: 0 erro(s), 0 aviso(s)', depois.saida.includes('Resumo: 0 erro(s), 0 aviso(s)'), true);
   } finally {
     rmSync(pasta, {recursive: true, force: true});
+  }
+}
+
+// ---- linha de comando com --saida, numa pasta temporária do sistema (nada vai pra planos/)
+{
+  const RESOLVER = path.join(RAIZ, 'scripts', 'resolver-plano.mjs');
+  const base = mkdtempSync(path.join(os.tmpdir(), 'resolver-cli-'));
+  try {
+    const nomePlano = `cli-teste-${process.pid}`;
+    const arquivoPlano = path.join(base, `${nomePlano}.plano.json`);
+    const arquivoPalavras = path.join(base, 'palavras.json');
+    const arquivoGlossario = path.join(base, 'glossario.json');
+    const pastaSaida = path.join(base, 'saida');
+    mkdirSync(pastaSaida);
+    writeFileSync(arquivoPlano, JSON.stringify({video: 'x', elementos: [elemento('cli-1', {naPalavra: 'juro', ocorrencia: 2})]}));
+    writeFileSync(arquivoPalavras, JSON.stringify(PALAVRAS));
+    writeFileSync(arquivoGlossario, JSON.stringify({pares: PARES}));
+    const resultado = path.join(pastaSaida, `${nomePlano}.resolvido.json`);
+    const foraDeSaida = path.join(RAIZ, 'planos', `${nomePlano}.resolvido.json`);
+    const basicos = ['--plano', arquivoPlano, '--palavras', arquivoPalavras, '--glossario', arquivoGlossario];
+
+    const cli = (...extra) => {
+      const r = spawnSync(process.execPath, [RESOLVER, ...basicos, ...extra], {cwd: RAIZ, encoding: 'utf8'});
+      return {codigo: r.status, saida: (r.stdout ?? '') + (r.stderr ?? '')};
+    };
+
+    // 1. grava com --saida
+    const a = cli('--saida', pastaSaida);
+    igual('CLI --saida: exit 0', a.codigo, 0);
+    igual('CLI --saida: arquivo gravado na pasta', existsSync(resultado), true);
+    igual('CLI --saida: nada gravado em planos/', existsSync(foraDeSaida), false);
+    const gravado = JSON.parse(readFileSync(resultado, 'utf8'));
+    igual('CLI --saida: inicio resolvido', gravado.elementos[0].inicio, '0:05.4');
+    igual('CLI --saida: naPalavra e ocorrencia saíram', ['naPalavra' in gravado.elementos[0], 'ocorrencia' in gravado.elementos[0]], [false, false]);
+    igual('CLI --saida: a saída diz o que gravou', a.saida.includes('1 elemento(s) resolvido(s)'), true);
+
+    // 2. não sobrescreve sem --refazer (um texto-marca no arquivo prova que ele não foi tocado)
+    writeFileSync(resultado, 'MARCA');
+    const b = cli('--saida', pastaSaida);
+    igual('CLI sem --refazer: exit 1', b.codigo, 1);
+    igual('CLI sem --refazer: mensagem', b.saida.includes('Já existe') && b.saida.includes('--refazer'), true);
+    igual('CLI sem --refazer: arquivo intocado', readFileSync(resultado, 'utf8'), 'MARCA');
+
+    // 3. sobrescreve com --refazer
+    const c = cli('--saida', pastaSaida, '--refazer');
+    igual('CLI --refazer: exit 0', c.codigo, 0);
+    igual('CLI --refazer: arquivo regravado', JSON.parse(readFileSync(resultado, 'utf8')).elementos[0].inicio, '0:05.4');
+
+    // 4. pasta inexistente dá erro e exit 1, e a pasta não é criada
+    const inexistente = path.join(base, 'nao-existe');
+    const d = cli('--saida', inexistente);
+    igual('CLI pasta inexistente: exit 1', d.codigo, 1);
+    igual('CLI pasta inexistente: mensagem clara', d.saida.includes('A pasta de --saida não existe'), true);
+    igual('CLI pasta inexistente: não foi criada', existsSync(inexistente), false);
+
+    // 5. --saida apontando para um arquivo
+    const e = cli('--saida', arquivoPalavras);
+    igual('CLI --saida é arquivo: exit 1', e.codigo, 1);
+    igual('CLI --saida é arquivo: mensagem', e.saida.includes('não é uma pasta'), true);
+
+    // 6. --saida sem valor
+    const f = cli('--saida');
+    igual('CLI --saida sem valor: exit 1', f.codigo, 1);
+
+    // 7. sem --saida o caminho continua planos/ (só o caminho montado, nada gravado lá)
+    igual(
+      'caminho sem --saida: planos/<nome>.resolvido.json',
+      path.resolve(montarCaminhoSaida(path.join('qualquer', 'pasta', '0926.plano.json'))),
+      path.resolve(RAIZ, 'planos', '0926.resolvido.json'),
+    );
+    igual('caminho sem ".plano" no nome', path.basename(montarCaminhoSaida('x/y.json')), 'y.resolvido.json');
+    igual(
+      'caminho com --saida: dentro da pasta',
+      path.resolve(montarCaminhoSaida('x/0926.plano.json', pastaSaida)),
+      path.resolve(pastaSaida, '0926.resolvido.json'),
+    );
+    igual('nada foi gravado em planos/ pelos testes da CLI', existsSync(foraDeSaida), false);
+  } finally {
+    rmSync(base, {recursive: true, force: true});
   }
 }
 

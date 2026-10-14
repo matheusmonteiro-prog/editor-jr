@@ -16,13 +16,16 @@
  *   node scripts/resolver-plano.mjs --plano planos/0926.plano.json --palavras videos/0926.palavras.json
  *   node scripts/resolver-plano.mjs --plano ... --palavras ... --glossario meu-glossario.json
  *   node scripts/resolver-plano.mjs --plano ... --palavras ... --refazer
+ *   node scripts/resolver-plano.mjs --plano ... --palavras ... --saida minha-pasta
  *
  *   --plano CAMINHO     plano de entrada (obrigatório)
  *   --palavras CAMINHO  videos/<nome>.palavras.json, o Caption[] bruto do Whisper (obrigatório)
  *   --glossario CAMINHO glossário (opcional; padrão: glossario.json na raiz do projeto, se existir)
+ *   --saida PASTA       grava nessa pasta em vez de planos/ (a pasta tem de existir)
  *   --refazer           permite sobrescrever o arquivo de saída
  *
- * Saída: planos/<nome>.resolvido.json (<nome> = nome do plano sem ".json" nem ".plano").
+ * Saída: planos/<nome>.resolvido.json (<nome> = nome do plano sem ".json" nem ".plano"), ou
+ * <PASTA>/<nome>.resolvido.json com --saida.
  * O plano de entrada nunca é alterado. Sem --refazer, não sobrescreve um arquivo existente.
  *
  * Regras:
@@ -33,7 +36,7 @@
  * - Todos os erros saem juntos, cada um com o id do elemento.
  */
 
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
 import {basename, dirname, extname, isAbsolute, join, relative, resolve} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {aplicarGlossario, acharPalavra, ErroPalavras} from './palavras.mjs';
@@ -144,9 +147,19 @@ const paraRelativo = (caminho) => {
   return rel.startsWith('..') || isAbsolute(rel) ? caminho : rel.split('\\').join('/');
 };
 
+/**
+ * Caminho do arquivo de saída. Sem `pastaSaida`, é planos/<nome>.resolvido.json na raiz do
+ * projeto; com `pastaSaida` (opção --saida), é <pastaSaida>/<nome>.resolvido.json. Só monta o
+ * caminho: não lê nem grava nada.
+ */
+export const montarCaminhoSaida = (caminhoDoPlano, pastaSaida) => {
+  const nome = basename(caminhoDoPlano, extname(caminhoDoPlano)).replace(/\.plano$/, '');
+  return join(pastaSaida ?? join(RAIZ, 'planos'), `${nome}.resolvido.json`);
+};
+
 const lerArgumentos = (argv) => {
   const opcoes = {refazer: false};
-  const comValor = {'--plano': 'plano', '--palavras': 'palavras', '--glossario': 'glossario'};
+  const comValor = {'--plano': 'plano', '--palavras': 'palavras', '--glossario': 'glossario', '--saida': 'saida'};
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--refazer') opcoes.refazer = true;
@@ -192,12 +205,19 @@ const carregarGlossario = (explicito) => {
 
 const main = () => {
   const opcoes = lerArgumentos(process.argv.slice(2));
+  if (opcoes.saida) {
+    if (!existsSync(opcoes.saida)) {
+      throw new ErroUso(`A pasta de --saida não existe: ${paraRelativo(opcoes.saida)} (crie a pasta antes).`);
+    }
+    if (!statSync(opcoes.saida).isDirectory()) {
+      throw new ErroUso(`O caminho de --saida não é uma pasta: ${paraRelativo(opcoes.saida)}`);
+    }
+  }
   const plano = lerJson(opcoes.plano, 'o plano');
   const palavras = lerJson(opcoes.palavras, 'a transcrição');
   const {pares, origem} = carregarGlossario(opcoes.glossario);
 
-  const nome = basename(opcoes.plano, extname(opcoes.plano)).replace(/\.plano$/, '');
-  const saida = join(RAIZ, 'planos', `${nome}.resolvido.json`);
+  const saida = montarCaminhoSaida(opcoes.plano, opcoes.saida);
   if (existsSync(saida) && !opcoes.refazer) {
     throw new ErroUso(
       `Já existe ${paraRelativo(saida)}. Para sobrescrever de propósito, rode de novo com --refazer.`,
@@ -206,7 +226,7 @@ const main = () => {
 
   const resolvido = resolverPlano(plano, palavras, pares);
 
-  mkdirSync(dirname(saida), {recursive: true});
+  if (!opcoes.saida) mkdirSync(dirname(saida), {recursive: true}); // só o planos/ padrão é criado
   writeFileSync(saida, JSON.stringify(resolvido, null, 2) + '\n', 'utf8');
 
   const feitos = plano.elementos
