@@ -265,6 +265,174 @@ erro('glossário inválido', () => resolverPlano({elementos: []}, PALAVRAS, ['a'
   }
 }
 
+// ---- legendaPalavras / destaques -> props.palavrasMs (etapa B3 do 4.5)
+{
+  const leg = (id, extra = {}) => ({
+    ...elemento(id),
+    componente: 'LegendaAnimada',
+    inicio: '0:01.0',
+    duracao: 5,
+    props: {tamanhoFonte: 0.07},
+    ...extra,
+  });
+  const resolverLeg = (el, palavras = PALAVRAS, pares = PARES) =>
+    resolverPlano({video: 'x', elementos: [el]}, palavras, pares).elementos[0];
+
+  // intervalo com 3 palavras (juro 1000, cai. 1500, O 2200; o 2º juro, 5450, fica de fora)
+  const tres = resolverLeg(leg('l1', {legendaPalavras: {de: '0:01.0', ate: '0:05.4'}}));
+  igual('legenda: 3 palavras no intervalo', tres.props.palavrasMs, [
+    {texto: 'juro', inicioMs: 1000, fimMs: 1500},
+    {texto: 'cai.', inicioMs: 1500, fimMs: 2200},
+    {texto: 'O', inicioMs: 2200, fimMs: 2400},
+  ]);
+  igual('legenda: texto sem espaço nas pontas', tres.props.palavrasMs.every((w) => w.texto === w.texto.trim()), true);
+  igual('legenda: legendaPalavras removido', 'legendaPalavras' in tres, false);
+  igual('legenda: destaques removido', 'destaques' in tres, false);
+  igual('legenda: outras props mantidas', tres.props.tamanhoFonte, 0.07);
+  igual('legenda: inicio do elemento mantido', tres.inicio, '0:01.0');
+
+  // glossário aplicado antes: "eipô" sai como "Apple"
+  igual(
+    'legenda: glossário aplicado',
+    resolverLeg(leg('l2', {legendaPalavras: {de: '0:12.0', ate: '0:13.0'}})).props.palavrasMs,
+    [{texto: 'Apple', inicioMs: 12300, fimMs: 12800}],
+  );
+  igual(
+    'legenda: sem glossário fica a palavra bruta',
+    resolverLeg(leg('l2b', {legendaPalavras: {de: '0:12.0', ate: '0:13.0'}}), PALAVRAS, {}).props.palavrasMs[0].texto,
+    'eipô',
+  );
+
+  // destaque com acento e maiúscula (e pontuação do "cai."); só as coincidentes ganham destaque: true
+  igual(
+    'legenda: destaques normalizados (JURO, Caí)',
+    resolverLeg(leg('l3', {legendaPalavras: {de: '0:01.0', ate: '0:05.4'}, destaques: ['JURO', 'Caí']})).props.palavrasMs.map((w) => w.destaque),
+    [true, true, undefined],
+  );
+  igual(
+    'legenda: destaque pela forma corrigida pelo glossário (APPLE)',
+    resolverLeg(leg('l3b', {legendaPalavras: {de: '0:12.0', ate: '0:13.0'}, destaques: ['APPLE']})).props.palavrasMs[0].destaque,
+    true,
+  );
+  igual(
+    'legenda: destaques vazio não marca ninguém',
+    resolverLeg(leg('l3c', {legendaPalavras: {de: '0:01.0', ate: '0:02.0'}, destaques: []})).props.palavrasMs.some((w) => 'destaque' in w),
+    false,
+  );
+
+  // limites inclusivos: startMs 1000 (juro) e 1500 (cai.) entram com de=1,0 e ate=1,5
+  igual(
+    'legenda: limites inclusivos nos dois lados',
+    resolverLeg(leg('l4', {legendaPalavras: {de: '0:01.0', ate: '0:01.5'}})).props.palavrasMs.map((w) => w.inicioMs),
+    [1000, 1500],
+  );
+  igual(
+    'legenda: ate 0:01.4 deixa cai. (1500) de fora',
+    resolverLeg(leg('l4b', {legendaPalavras: {de: '0:01.0', ate: '0:01.4'}})).props.palavrasMs.map((w) => w.inicioMs),
+    [1000],
+  );
+  igual(
+    'legenda: de 0:01.1 deixa juro (1000) de fora',
+    resolverLeg(leg('l4c', {legendaPalavras: {de: '0:01.1', ate: '0:02.0'}})).props.palavrasMs.map((w) => w.inicioMs),
+    [1500],
+  );
+  igual(
+    'legenda: "m:ss" sem décimo também vale',
+    resolverLeg(leg('l4d', {legendaPalavras: {de: '0:01', ate: '0:02'}})).props.palavrasMs.map((w) => w.inicioMs),
+    [1000, 1500],
+  );
+
+  // endMs < startMs usa startMs; texto vazio é descartado
+  igual(
+    'legenda: endMs < startMs vira startMs; texto vazio some',
+    resolverLeg(leg('l5', {legendaPalavras: {de: '0:00.0', ate: '0:03.0'}}), [p(' x', 1000, 500), p('  ', 2000, 2100), p(' y', 2500, 2600)], {}).props.palavrasMs,
+    [{texto: 'x', inicioMs: 1000, fimMs: 1000}, {texto: 'y', inicioMs: 2500, fimMs: 2600}],
+  );
+
+  // componente em lista: palavrasMs vai em props.LegendaAnimada
+  {
+    const lista = resolverLeg({
+      ...leg('l6'),
+      componente: ['LegendaDiscreta', 'LegendaAnimada'],
+      props: {LegendaDiscreta: {texto: 'oi'}, LegendaAnimada: {tamanhoFonte: 0.05}},
+      legendaPalavras: {de: '0:12.0', ate: '0:13.0'},
+    });
+    igual('legenda: componente em lista', lista.props.LegendaAnimada.palavrasMs[0].texto, 'Apple');
+    igual('legenda: lista mantém as outras props', [lista.props.LegendaDiscreta, lista.props.LegendaAnimada.tamanhoFonte], [{texto: 'oi'}, 0.05]);
+  }
+
+  // convive com naPalavra no mesmo elemento
+  {
+    const duplo = resolverLeg(leg('l7', {inicio: undefined, naPalavra: 'juro', ocorrencia: 2, legendaPalavras: {de: '0:05.0', ate: '0:07.0'}}));
+    igual('legenda: naPalavra + legendaPalavras', [duplo.inicio, duplo.props.palavrasMs.length, 'naPalavra' in duplo], ['0:05.4', 2, false]);
+  }
+
+  // erros, sempre com o id
+  erro(
+    'legenda: em componente que não é LegendaAnimada',
+    () => resolverLeg(elemento('e1', {legendaPalavras: {de: '0:01.0', ate: '0:02.0'}})),
+    '[e1]',
+    'só vale em componente LegendaAnimada',
+  );
+  erro('legenda: "de" mal formado', () => resolverLeg(leg('e2', {legendaPalavras: {de: 'abc', ate: '0:02.0'}})), '[e2]', 'de mal formado');
+  erro('legenda: "ate" mal formado (segundos 61)', () => resolverLeg(leg('e3', {legendaPalavras: {de: '0:01.0', ate: '0:61.0'}})), '[e3]', 'ate mal formado');
+  erro('legenda: "de" ausente', () => resolverLeg(leg('e3b', {legendaPalavras: {ate: '0:02.0'}})), '[e3b]', 'de mal formado');
+  erro('legenda: ate igual a de', () => resolverLeg(leg('e4', {legendaPalavras: {de: '0:02.0', ate: '0:02.0'}})), '[e4]', 'precisa ser depois');
+  erro('legenda: ate antes de de', () => resolverLeg(leg('e4b', {legendaPalavras: {de: '0:03.0', ate: '0:02.0'}})), '[e4b]', 'precisa ser depois');
+  erro('legenda: nenhuma palavra no intervalo', () => resolverLeg(leg('e5', {legendaPalavras: {de: '0:20.0', ate: '0:25.0'}})), '[e5]', 'nenhuma palavra entre 0:20.0 e 0:25.0');
+  erro(
+    'legenda: legendaPalavras E props.palavrasMs',
+    () => resolverLeg(leg('e6', {legendaPalavras: {de: '0:01.0', ate: '0:02.0'}, props: {palavrasMs: [{texto: 'a', inicioMs: 0, fimMs: 1}]}})),
+    '[e6]',
+    'props.palavrasMs',
+  );
+  erro('legenda: destaques sem legendaPalavras', () => resolverLeg(leg('e7', {destaques: ['juro']})), '[e7]', '"destaques" sem "legendaPalavras"');
+  erro('legenda: destaques inválido', () => resolverLeg(leg('e8', {legendaPalavras: {de: '0:01.0', ate: '0:02.0'}, destaques: 'juro'})), '[e8]', 'lista de palavras');
+  erro('legenda: legendaPalavras não é objeto', () => resolverLeg(leg('e9', {legendaPalavras: '0:01.0'})), '[e9]', '"legendaPalavras" precisa ser');
+  erro(
+    'legenda: erros de elementos diferentes saem juntos',
+    () => resolverPlano({video: 'x', elementos: [leg('f1', {legendaPalavras: {de: 'x', ate: '0:02.0'}}), leg('f2', {legendaPalavras: {de: '0:20.0', ate: '0:25.0'}})]}, PALAVRAS, PARES),
+    '2 elemento(s)',
+    '[f1]',
+    '[f2]',
+  );
+
+  // entrada não alterada; saída não compartilha objetos com a entrada
+  {
+    const original = {
+      video: 'x',
+      elementos: [leg('n1', {legendaPalavras: {de: '0:01.0', ate: '0:05.4'}, destaques: ['juro']})],
+    };
+    const antes = JSON.stringify(original);
+    const pal = JSON.stringify(PALAVRAS);
+    const r = resolverPlano(original, PALAVRAS, PARES);
+    igual('legenda: plano de entrada não foi alterado', JSON.stringify(original), antes);
+    igual('legenda: palavras de entrada não foram alteradas', JSON.stringify(PALAVRAS), pal);
+    igual('legenda: props da saída é outro objeto', r.elementos[0].props === original.elementos[0].props, false);
+    igual('legenda: entrada ainda sem palavrasMs', 'palavrasMs' in original.elementos[0].props, false);
+  }
+
+  // o plano resolvido (com palavrasMs) no validador: só mostramos o resultado, sem exigir
+  // um veredito aqui (o que o validador faz com palavrasMs é informação, ver relatório).
+  {
+    const pasta = mkdtempSync(path.join(os.tmpdir(), 'resolver-legenda-'));
+    try {
+      const arquivo = path.join(pasta, 'legenda.plano.json');
+      const plano = {
+        video: 'fixture',
+        orientacao: 'vertical',
+        elementos: [leg('v-leg', {legendaPalavras: {de: '0:01.0', ate: '0:05.4'}, destaques: ['juro']})],
+      };
+      writeFileSync(arquivo, JSON.stringify(resolverPlano(plano, PALAVRAS, PARES), null, 2));
+      const r = spawnSync(process.execPath, [VALIDADOR, arquivo], {cwd: RAIZ, encoding: 'utf8'});
+      if (process.env.MOSTRAR_VALIDADOR) console.log((r.stdout ?? '') + (r.stderr ?? ''));
+      igual('legenda: validador roda sem travar (exit 0 ou 1)', [0, 1].includes(r.status), true);
+    } finally {
+      rmSync(pasta, {recursive: true, force: true});
+    }
+  }
+}
+
 // ---- linha de comando com --saida, numa pasta temporária do sistema (nada vai pra planos/)
 {
   const RESOLVER = path.join(RAIZ, 'scripts', 'resolver-plano.mjs');
@@ -325,6 +493,33 @@ erro('glossário inválido', () => resolverPlano({elementos: []}, PALAVRAS, ['a'
     // 6. --saida sem valor
     const f = cli('--saida');
     igual('CLI --saida sem valor: exit 1', f.codigo, 1);
+
+    // 6b. legendaPalavras pela CLI: grava props.palavrasMs e diz quantas palavras
+    {
+      const nomeLeg = `cli-legenda-${process.pid}`;
+      const planoLeg = path.join(base, `${nomeLeg}.plano.json`);
+      writeFileSync(
+        planoLeg,
+        JSON.stringify({
+          video: 'x',
+          elementos: [
+            {id: 'cli-leg', componente: 'LegendaAnimada', inicio: '0:01.0', duracao: 5, props: {}, legendaPalavras: {de: '0:01.0', ate: '0:05.4'}, destaques: ['juro']},
+          ],
+        }),
+      );
+      const g = spawnSync(
+        process.execPath,
+        [RESOLVER, '--plano', planoLeg, '--palavras', arquivoPalavras, '--glossario', arquivoGlossario, '--saida', pastaSaida],
+        {cwd: RAIZ, encoding: 'utf8'},
+      );
+      const saidaLeg = (g.stdout ?? '') + (g.stderr ?? '');
+      igual('CLI legenda: exit 0', g.status, 0);
+      const el = JSON.parse(readFileSync(path.join(pastaSaida, `${nomeLeg}.resolvido.json`), 'utf8')).elementos[0];
+      igual('CLI legenda: palavrasMs gravado (3 palavras, juro em destaque)', [el.props.palavrasMs.length, el.props.palavrasMs[0]], [3, {texto: 'juro', inicioMs: 1000, fimMs: 1500, destaque: true}]);
+      igual('CLI legenda: legendaPalavras e destaques saíram', ['legendaPalavras' in el, 'destaques' in el], [false, false]);
+      igual('CLI legenda: a saída conta as palavras', saidaLeg.includes('3 palavra(s)'), true);
+      igual('CLI legenda: plano de entrada não foi alterado', JSON.parse(readFileSync(planoLeg, 'utf8')).elementos[0].legendaPalavras, {de: '0:01.0', ate: '0:05.4'});
+    }
 
     // 7. sem --saida o caminho continua planos/ (só o caminho montado, nada gravado lá)
     igual(

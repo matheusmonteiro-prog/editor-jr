@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
- * resolver-plano.mjs — converte "naPalavra" (+ "ocorrencia") em "inicio" num plano de edição.
- * Passo 3b da Etapa 4 (critério 4.3). Roda ANTES do validador: o validador não entende
- * naPalavra e dá erro se ele chegar sem "inicio" (scripts/validar-plano.mjs).
+ * resolver-plano.mjs — converte "naPalavra" (+ "ocorrencia") em "inicio" num plano de edição
+ * e "legendaPalavras" (+ "destaques") em props.palavrasMs.
+ * Passo 3b da Etapa 4 (critério 4.3) e etapa B3 do 4.5. Roda ANTES do validador: o validador
+ * não entende naPalavra e dá erro se ele chegar sem "inicio" (scripts/validar-plano.mjs).
  *
  * Em vez de digitar o tempo à mão, o plano aponta a palavra e qual vez ela aparece:
  *   { "id": "juro", "naPalavra": "juros", "ocorrencia": 2, ... }
@@ -33,13 +34,20 @@
  * - O glossário é aplicado ANTES de procurar: "naPalavra" casa com o texto já corrigido.
  * - ocorrencia omitida vale 1. naPalavra e ocorrencia saem do elemento resolvido.
  * - Elemento com naPalavra E inicio é erro (o script não adivinha qual vale).
+ * - LegendaAnimada com "legendaPalavras": { "de": "m:ss.d", "ate": "m:ss.d" } (tempo do ORIGINAL):
+ *   as palavras (já com o glossário) cujo startMs cai em [de, ate], limites INCLUSIVOS, viram
+ *   props.palavrasMs = [{ texto, inicioMs, fimMs, destaque? }]. texto sem espaço nas pontas;
+ *   fimMs = endMs (se endMs < startMs, vale startMs). "destaques": ["poupança", ...] marca
+ *   destaque true nas palavras de mesma forma normalizada (sem acento/maiúscula/pontuação).
+ *   legendaPalavras e destaques saem do elemento resolvido. Vale também com componente em lista
+ *   (["LegendaAnimada", ...]): palavrasMs vai em props.LegendaAnimada.
  * - Todos os erros saem juntos, cada um com o id do elemento.
  */
 
 import {existsSync, mkdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
 import {basename, dirname, extname, isAbsolute, join, relative, resolve} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {aplicarGlossario, acharPalavra, ErroPalavras} from './palavras.mjs';
+import {aplicarGlossario, acharPalavra, normalizar, ErroPalavras} from './palavras.mjs';
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const GLOSSARIO_PADRAO = join(RAIZ, 'glossario.json');
@@ -66,9 +74,103 @@ export const formatarInicio = (ms) => {
   return `${minutos}:${String(segundos).padStart(2, '0')}.${resto % 10}`;
 };
 
+// "m:ss" ou "m:ss.d" (UM dígito decimal) -> ms. Mesma regra do validador. null se mal formado.
+const tempoParaMs = (tempo) => {
+  if (typeof tempo !== 'string') return null;
+  const m = /^(\d+):(\d{1,2})(?:\.(\d))?$/.exec(tempo);
+  if (!m || Number(m[2]) >= 60) return null;
+  return (Number(m[1]) * 60 + Number(m[2])) * 1000 + (m[3] === undefined ? 0 : Number(m[3]) * 100);
+};
+
+/**
+ * Trata "legendaPalavras"/"destaques" de UM elemento. Devolve o elemento novo (sem as duas
+ * chaves, com props.palavrasMs) ou, havendo problema, empurra para `problemas` e devolve `el`.
+ */
+const resolverLegenda = (el, id, corrigidas, problemas) => {
+  const erros = [];
+  const L = el.legendaPalavras;
+
+  // Onde fica props.palavrasMs: props (componente único) ou props.LegendaAnimada (lista).
+  const ehUnico = el.componente === 'LegendaAnimada';
+  const ehLista = Array.isArray(el.componente) && el.componente.includes('LegendaAnimada');
+  if (!ehUnico && !ehLista) {
+    erros.push(`"legendaPalavras" só vale em componente LegendaAnimada (este é ${JSON.stringify(el.componente)}).`);
+  }
+
+  let deMs = null;
+  let ateMs = null;
+  if (L === null || typeof L !== 'object' || Array.isArray(L)) {
+    erros.push('"legendaPalavras" precisa ser { "de": "m:ss.d", "ate": "m:ss.d" }.');
+  } else {
+    deMs = tempoParaMs(L.de);
+    ateMs = tempoParaMs(L.ate);
+    if (deMs === null) erros.push(`legendaPalavras.de mal formado (${JSON.stringify(L.de)}): use "m:ss" ou "m:ss.d".`);
+    if (ateMs === null) erros.push(`legendaPalavras.ate mal formado (${JSON.stringify(L.ate)}): use "m:ss" ou "m:ss.d".`);
+    if (deMs !== null && ateMs !== null && ateMs <= deMs) {
+      erros.push(`legendaPalavras.ate (${L.ate}) precisa ser depois de "de" (${L.de}).`);
+    }
+  }
+
+  let alvos = new Set();
+  const D = el.destaques;
+  if (D !== undefined) {
+    if (!Array.isArray(D) || D.some((d) => typeof d !== 'string' || normalizar(d) === '')) {
+      erros.push('"destaques" precisa ser uma lista de palavras (textos não vazios).');
+    } else {
+      alvos = new Set(D.map(normalizar));
+    }
+  }
+
+  let propsAlvo = null; // objeto onde palavrasMs entra
+  if (ehUnico || ehLista) {
+    const props = el.props === undefined ? {} : el.props;
+    const ehObjeto = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
+    propsAlvo = ehUnico ? props : (props?.LegendaAnimada ?? {});
+    if (!ehObjeto(props) || !ehObjeto(propsAlvo)) {
+      erros.push(`"props" precisa ser um objeto para receber palavrasMs (veio ${JSON.stringify(el.props)}).`);
+      propsAlvo = null;
+    } else if (propsAlvo.palavrasMs !== undefined) {
+      erros.push('tem "legendaPalavras" E props.palavrasMs ao mesmo tempo — deixe só um dos dois.');
+    }
+  }
+
+  const lista = [];
+  if (erros.length === 0) {
+    for (const w of corrigidas) {
+      if (typeof w?.startMs !== 'number' || !Number.isFinite(w.startMs)) continue;
+      if (w.startMs < deMs || w.startMs > ateMs) continue;
+      const texto = typeof w.text === 'string' ? w.text.trim() : '';
+      if (texto === '') continue;
+      const fimMs = typeof w.endMs === 'number' && w.endMs >= w.startMs ? w.endMs : w.startMs;
+      const item = {texto, inicioMs: w.startMs, fimMs};
+      if (alvos.has(normalizar(texto))) item.destaque = true;
+      lista.push(item);
+    }
+    if (lista.length === 0) erros.push(`nenhuma palavra entre ${L.de} e ${L.ate} na transcrição.`);
+  }
+
+  if (erros.length > 0) {
+    for (const e of erros) problemas.push(`[${id}] ${e}`);
+    return el;
+  }
+
+  const resolvido = {};
+  for (const [chave, valor] of Object.entries(el)) {
+    if (chave === 'legendaPalavras' || chave === 'destaques') continue;
+    resolvido[chave] = valor;
+  }
+  if (ehUnico) {
+    resolvido.props = {...propsAlvo, palavrasMs: lista};
+  } else {
+    resolvido.props = {...el.props, LegendaAnimada: {...propsAlvo, palavrasMs: lista}};
+  }
+  return resolvido;
+};
+
 /**
  * Devolve uma CÓPIA do plano em que cada elemento com "naPalavra" ganhou "inicio" e perdeu
- * "naPalavra" e "ocorrencia". Elementos sem naPalavra ficam idênticos. `palavras` é o Caption[]
+ * "naPalavra" e "ocorrencia", e cada elemento com "legendaPalavras" ganhou props.palavrasMs
+ * (perdendo "legendaPalavras" e "destaques"). Os demais ficam idênticos. `palavras` é o Caption[]
  * bruto; `pares` é o glossário { "errada": "certa" } (pode ser null/undefined).
  * Lança ErroResolver (com .problemas) se algum elemento não puder ser resolvido.
  */
@@ -89,10 +191,7 @@ export const resolverPlano = (plano, palavras, pares) => {
   const copia = structuredClone(plano);
   const problemas = [];
 
-  copia.elementos = copia.elementos.map((el, i) => {
-    if (el === null || typeof el !== 'object' || el.naPalavra === undefined) return el;
-    const id = typeof el.id === 'string' && el.id.trim() !== '' ? el.id : `el-${i + 1}`;
-
+  const resolverNaPalavra = (el, id) => {
     if (el.inicio !== undefined) {
       problemas.push(`[${id}] tem "naPalavra" e "inicio" ao mesmo tempo — deixe só um dos dois.`);
       return el;
@@ -127,6 +226,26 @@ export const resolverPlano = (plano, palavras, pares) => {
       else if (chave !== 'ocorrencia') resolvido[chave] = valor;
     }
     return resolvido;
+  };
+
+  copia.elementos = copia.elementos.map((el, i) => {
+    if (el === null || typeof el !== 'object') return el;
+    const temNaPalavra = el.naPalavra !== undefined;
+    // "destaques" sozinho também entra: sem "legendaPalavras" não tem o que destacar.
+    const temLegenda = el.legendaPalavras !== undefined || el.destaques !== undefined;
+    if (!temNaPalavra && !temLegenda) return el;
+    const id = typeof el.id === 'string' && el.id.trim() !== '' ? el.id : `el-${i + 1}`;
+
+    let atual = el;
+    if (temNaPalavra) atual = resolverNaPalavra(atual, id);
+    if (temLegenda) {
+      if (atual.legendaPalavras === undefined) {
+        problemas.push(`[${id}] tem "destaques" sem "legendaPalavras" — não há o que destacar.`);
+      } else {
+        atual = resolverLegenda(atual, id, corrigidas, problemas);
+      }
+    }
+    return atual;
   });
 
   if (problemas.length > 0) {
@@ -232,13 +351,21 @@ const main = () => {
   const feitos = plano.elementos
     .map((el, i) => ({el, novo: resolvido.elementos[i]}))
     .filter(({el}) => el?.naPalavra !== undefined);
+  const legendas = plano.elementos
+    .map((el, i) => ({el, novo: resolvido.elementos[i]}))
+    .filter(({el}) => el?.legendaPalavras !== undefined);
   console.log(`Plano: ${paraRelativo(opcoes.plano)}`);
   console.log(`Palavras: ${paraRelativo(opcoes.palavras)} (${palavras.length} palavras)`);
   console.log(origem ? `Glossário: ${Object.keys(pares).length} par(es) em ${paraRelativo(origem)}` : 'Glossário: nenhum');
   for (const {el, novo} of feitos) {
     console.log(`  ${novo.id ?? '(sem id)'}: "${el.naPalavra}" (${el.ocorrencia ?? 1}ª) -> inicio ${novo.inicio}`);
   }
+  for (const {el, novo} of legendas) {
+    const lista = Array.isArray(novo.componente) ? novo.props.LegendaAnimada.palavrasMs : novo.props.palavrasMs;
+    console.log(`  ${novo.id ?? '(sem id)'}: legendaPalavras ${el.legendaPalavras.de}–${el.legendaPalavras.ate} -> ${lista.length} palavra(s)`);
+  }
   console.log(`${feitos.length} elemento(s) resolvido(s). Gravado: ${paraRelativo(saida)}`);
+  if (legendas.length > 0) console.log(`${legendas.length} legenda(s) com palavrasMs gravada(s).`);
 };
 
 // Só roda quando o arquivo é executado direto; importado (pelo teste), só entrega as funções.
