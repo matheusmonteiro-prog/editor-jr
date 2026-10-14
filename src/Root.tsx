@@ -15,6 +15,10 @@ import "./index.css";
 import { MyComposition } from "./Composition";
 import { PlanoComposicao } from "./PlanoComposicao";
 import { CamadaVideo } from "./components/v2/CamadaVideo";
+import {
+  JurosCompostosLab,
+  jurosCompostosLabSchema,
+} from "./components/laboratorio/JurosCompostosLab"; // LABORATÓRIO (teste)
 import plano0926 from "../planos/0926.plano.json";
 import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
 import planoTesteCamera from "../planos/teste-camera.plano.json";
@@ -140,6 +144,33 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <MyComposition />
+      {/* LABORATÓRIO (teste): apagar este bloco e o import lá em cima para desfazer */}
+      <Composition
+        id="LabJurosCompostos"
+        component={JurosCompostosLab}
+        durationInFrames={180}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={jurosCompostosLabSchema}
+        defaultProps={{
+          corFundo: "#0F2A1D",
+          corMoeda: "#EFAF20",
+          corSimbolo: "#0F2A1D",
+          corTexto: "#F5F0E6",
+          titulo: "Juros compostos",
+          fraseFinal: "o dinheiro trabalha sozinho",
+          palavraDestaque: "sozinho",
+          mostrarAno: true,
+          frameInicio: 30,
+          passoFrames: 15,
+          frameFrase: 122,
+          tamanhoMoeda: 0.12,
+          tamanhoTitulo: 0.085,
+          tamanhoFrase: 0.066,
+          centroY: 0.5,
+        }}
+      />
       <Folder name="Testes">
         <Composition
           id="naruto"
