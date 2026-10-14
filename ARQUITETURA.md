@@ -624,7 +624,7 @@ para os detalhes e a decisão pendente.
 - Estilo padrão + destaque para frases-chave
 - **Pré-requisitos:** uma fonte (provisória até a etapa 5).
 - **Critério 4.5 (`LegendaAnimada`), commits na `noite-etapa6` (13 e 14/10/2026).** A etapa
-  continua `[ ]` (aberta): código pronto, visual aprovado em casa só com palavras de teste; falta
+  4a fechada em 14/10/2026; 4b (glossário, gravações reais) pendente: código pronto, visual aprovado em casa só com palavras de teste; falta
   ver com palavras reais e com o rosto do JR livre. Como pedir no plano: `docs/prompt-roteiro.md`,
   "Como pedir a `LegendaAnimada`".
   - `3670cc3` (etapa A): componente `LegendaAnimada` e tela de teste `TesteLegendaAnimada` no
