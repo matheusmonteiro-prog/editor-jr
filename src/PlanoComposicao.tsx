@@ -32,6 +32,7 @@ import { AvisoCVM } from "./components/v2/AvisoCVM";
 import { ArrobaInstagram } from "./components/v2/ArrobaInstagram";
 import { LegendaAnimada } from "./components/v2/LegendaAnimada";
 import { criarParaFrameCortado, type TrechoCortado } from "./utils/tempoCortado";
+import { converterPalavrasMs } from "./utils/legenda";
 
 // Lê um plano de edição (formato de planos/0926.plano.json) e monta a
 // composição: vídeo de fundo + uma <Sequence> por elemento, com o(s)
@@ -135,6 +136,8 @@ const paraSegundos = (tempo: string): number => {
 const renderizarComponente = (
   componente: ElementoPlano["componente"],
   props: ElementoPlano["props"],
+  from: number, // `from` do Sequence, em frames do vídeo cortado
+  paraFrameCortado: (segundoOriginal: number) => number,
 ): React.ReactNode => {
   if (typeof componente !== "string" && !Array.isArray(componente)) return null;
   if (props === "a confirmar" || componente === "a confirmar") return null;
@@ -150,6 +153,11 @@ const renderizarComponente = (
         const propsDoComponente = Array.isArray(componente)
           ? (props as Record<string, any>)[nome]
           : props;
+        // LegendaAnimada: palavrasMs (ms do ORIGINAL) viram `palavras` (frames do cortado).
+        if (nome === "LegendaAnimada" && Array.isArray(propsDoComponente?.palavrasMs) && propsDoComponente.palavrasMs.length > 0) {
+          const palavras = converterPalavrasMs(propsDoComponente.palavrasMs, { fromFrames: from, paraFrameCortado });
+          return <Componente key={nome} {...propsDoComponente} palavras={palavras} />;
+        }
         return <Componente key={nome} {...propsDoComponente} />;
       })}
     </>
@@ -331,7 +339,7 @@ export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
         const durationInFrames = el.duracaoFrames ?? Math.round(el.duracao * fps);
         return (
           <Sequence key={el.id} name={el.id} from={from} durationInFrames={durationInFrames}>
-            {renderizarComponente(el.componente, el.props)}
+            {renderizarComponente(el.componente, el.props, from, paraFrameCortado)}
           </Sequence>
         );
       })}

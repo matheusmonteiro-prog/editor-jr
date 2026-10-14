@@ -21,8 +21,18 @@ const palavraSchema = z.object({
   destaque: z.boolean().default(false),
 });
 
+// Palavra da transcrição, em ms do vídeo ORIGINAL. O componente IGNORA este campo: quem
+// converte para `palavras` (frames) é o PlanoComposicao, que conhece os cortes.
+const palavraMsSchema = z.object({
+  texto: z.string(),
+  inicioMs: z.number().min(0),
+  fimMs: z.number().min(0),
+  destaque: z.boolean().optional(),
+});
+
 export const legendaAnimadaSchema = z.object({
-  palavras: z.array(palavraSchema),
+  palavras: z.array(palavraSchema).default([]),
+  palavrasMs: z.array(palavraMsSchema).optional(),
   // corTexto e corDestaque saem da paleta da marca por decisão do Matheus (14/10/2026);
   // o plano pode voltar às cores da marca (#F5F0E6 e #EFAF20) pelas props.
   corTexto: zColor().default("#FFFDF7"),
@@ -42,16 +52,19 @@ type Palavra = z.input<typeof palavraSchema>; // destaque pode faltar (padrão f
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
-// Junta palavras consecutivas em frases: fecha a frase ao chegar em `maxPalavras`
-// ou quando a pausa até a próxima palavra for >= `pausaFrames`.
+// Junta palavras consecutivas em frases: fecha a frase ao chegar em `maxPalavras`,
+// quando a palavra termina em . ? ou !, ou quando a pausa até a próxima for >= `pausaFrames`.
 const agruparEmFrases = (palavras: Palavra[], maxPalavras: number, pausaFrames: number): Palavra[][] => {
-  const ordenadas = [...palavras].sort((a, b) => a.inicioFrames - b.inicioFrames);
+  const ordenadas = palavras
+    .map((p) => ({ ...p, texto: p.texto.trim() })) // sem espaço nas pontas
+    .sort((a, b) => a.inicioFrames - b.inicioFrames);
   const frases: Palavra[][] = [];
   for (const p of ordenadas) {
     const atual = frases[frases.length - 1];
     const ultima = atual?.[atual.length - 1];
     const pausou = ultima !== undefined && p.inicioFrames - ultima.fimFrames >= pausaFrames;
-    if (!atual || atual.length >= maxPalavras || pausou) frases.push([p]);
+    const terminou = ultima !== undefined && /[.?!]$/.test(ultima.texto);
+    if (!atual || atual.length >= maxPalavras || pausou || terminou) frases.push([p]);
     else atual.push(p);
   }
   return frases;

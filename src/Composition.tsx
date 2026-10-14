@@ -40,6 +40,10 @@ import {
   ArrobaInstagram,
   arrobaInstagramSchema,
 } from "./components/v2/ArrobaInstagram";
+import {
+  LegendaAnimada,
+  legendaAnimadaSchema,
+} from "./components/v2/LegendaAnimada";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -507,6 +511,35 @@ export const MyComposition = () => {
           duracaoFrames: 150,
           framesEntrada: 15,
           framesSaida: 15,
+        }}
+      />
+      <Composition
+        id="LegendaAnimada"
+        component={LegendaAnimada}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={legendaAnimadaSchema}
+        defaultProps={{
+          palavras: [
+            { texto: "Comprar", inicioFrames: 0, fimFrames: 14, destaque: false },
+            { texto: "empresas", inicioFrames: 14, fimFrames: 30, destaque: false },
+            { texto: "boas", inicioFrames: 30, fimFrames: 48, destaque: true },
+            { texto: "pelo", inicioFrames: 48, fimFrames: 60, destaque: false },
+            { texto: "preço", inicioFrames: 60, fimFrames: 76, destaque: false },
+            { texto: "certo.", inicioFrames: 76, fimFrames: 100, destaque: true },
+          ],
+          corTexto: "#FFFDF7",
+          corDestaque: "#FFB800",
+          corContorno: "#0F2A1D",
+          tamanhoFonte: 0.07,
+          posicaoX: 0.5,
+          posicaoY: 0.78,
+          larguraMaxima: 0.9,
+          maiusculas: true,
+          maxPalavrasPorFrase: 4,
+          pausaQuebraMs: 700,
         }}
       />
     </Folder>
