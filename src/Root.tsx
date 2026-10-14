@@ -22,6 +22,7 @@ import plano0926 from "../planos/0926.plano.json";
 import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
 import planoTesteCamera from "../planos/teste-camera.plano.json";
 import planoTesteAudio from "../planos/teste-audio.plano.json";
+import planoLegendaTeste0926 from "../planos/teste-legenda-0926.resolvido.json";
 import cortes0926 from "../videos/0926.cortes.json";
 import type { CalculateMetadataFunction } from "remotion";
 import type { PlanoComposicaoProps } from "./PlanoComposicao";
@@ -205,6 +206,19 @@ export const RemotionRoot: React.FC = () => {
           defaultProps={{
             videoSrc: "videos/0926-cortado-v1.mp4",
             plano: plano0926,
+            cortes: cortes0926,
+          }}
+        />
+        <Composition
+          id="PlanoLegendaTeste0926"
+          component={PlanoComposicao}
+          durationInFrames={DURACAO_FRAMES_0926}
+          fps={FPS_0926}
+          width={2160}
+          height={3872}
+          defaultProps={{
+            videoSrc: "videos/0926-cortado-v1.mp4",
+            plano: planoLegendaTeste0926,
             cortes: cortes0926,
           }}
         />
