@@ -57,3 +57,13 @@ export function criarParaFrameCortado(
     return Math.round((inicioCortado[anterior] + (t.fim - t.inicio)) * fps);
   };
 }
+
+// Irmã de criarParaFrameCortado: diz se um tempo (s do ORIGINAL) caiu DENTRO de um trecho
+// mantido (true) ou num silêncio cortado / antes do começo / depois do fim (false).
+// Mesma regra de borda (inicio e fim inclusos) e mesma leitura de gancho: o pedaço do
+// gancho é um trecho como os outros, então o tempo dentro dele conta como dentro (com
+// --copiar, o lugar original também é um trecho). Não depende da ordem do array.
+export function criarEstaDentroDeTrecho(trechos: TrechoCortado[]) {
+  return (segundoOriginal: number): boolean =>
+    trechos.some((t) => segundoOriginal >= t.inicio && segundoOriginal <= t.fim);
+}
