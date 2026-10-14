@@ -1,4 +1,4 @@
-# Estado atual — editor-jr (02/10 a 07/10/2026)
+# Estado atual — editor-jr (02/10 a 14/10/2026)
 
 Gerado a partir do `ARQUITETURA.md`, do `git log`/`git branch -a` e de testes
 rodados nesta sessão (sem renderizar, sem abrir o Studio). Reflete a branch
@@ -142,6 +142,24 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   `src/testes/CasaExplicativa.tsx` podem voltar: os pacotes 3D (`three`, `@react-three/fiber`,
   `@remotion/three`, `@types/three`) estão só no `package.json` da `testes-ideias`; aqui estão em
   `node_modules` por terem sido instalados lá em 11/10. **Inferência, não testada no trabalho.**
+- **Etapa 4, critério 4.5 (`LegendaAnimada`), commits de 13 e 14/10/2026 na `noite-etapa6`** (só
+  locais até o push). A Etapa 4 continua `[ ]` (aberta): código pronto, visual aprovado em casa
+  só com palavras de teste; falta ver com palavras reais e com o rosto do JR livre.
+  - `3670cc3` (etapa A): componente `LegendaAnimada` e tela de teste `TesteLegendaAnimada` no
+    `src/Root.tsx`; visual aprovado pelo Matheus em casa só com palavras de teste.
+  - `d19f181` (B1): `criarEstaDentroDeTrecho` em `src/utils/tempoCortado.ts` diz se um tempo do
+    original caiu num trecho mantido ou num silêncio cortado.
+  - `eb9613f` (B2): `src/utils/legenda.ts` converte palavras em ms do original para frames do vídeo
+    cortado; a `LegendaAnimada` aceita `palavrasMs`, o `PlanoComposicao` faz a conversão e a
+    composição `LegendaAnimada` foi registrada no Studio.
+  - `114954d` (B3): o `resolver-plano.mjs` grava `props.palavrasMs` a partir de `legendaPalavras`
+    e `destaques` do elemento.
+  - `41c13b0` (B3b): o resolvedor preenche `inicio` e `duracao` que faltarem e avisa destaque sem
+    acerto e `inicio` depois do `de`.
+  - `1ae285e` (B4): o `validar-plano.mjs` confere a `LegendaAnimada` (legenda não resolvida, sem
+    palavras, `palavrasMs` mal formada e aviso de duração).
+  - `bc97c6e` (B3c): a `duracao` preenchida pelo resolvedor vai até o fim da última palavra,
+    arredondada para cima ao décimo.
 
 ## Falta
 
@@ -264,8 +282,8 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   em 09/10/2026.
 - Etapa 8 (envio automático pro Google Drive): não implementada, depende de
   autorização de conta e escolha de conector pelo Matheus.
-- `naPalavra`/`ocorrencia` (Etapa 6): não implementado, depende da Etapa 4
-  (Whisper) decidir o formato de saída primeiro.
+- `naPalavra`/`ocorrencia` (Etapa 6): resolvedor implementado (`scripts/resolver-plano.mjs`); roda
+  antes do validador e depende da transcrição por palavra (`videos/<nome>.palavras.json`) da Etapa 4.
 
 ## Branches
 

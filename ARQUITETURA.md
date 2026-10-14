@@ -360,12 +360,15 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   em 07/10/2026 (gostou; ajustes previstos depois)**. O texto **completo** do aviso vai na descrição do vídeo,
   não dentro dele (ver seção 4; decisão por observação de mercado, não confirmada
   juridicamente). **Decisão do Matheus (13/10/2026): não precisa de texto oficial.** O conteúdo é uma transcrição curta e/ou um emoji que passa de um canto para o outro; vem do prompt, só quando ele pedir; ajustes no componente só quando ele pedir. Critério 3.5 fechado por decisão, sem prova visual. Tempo mínimo em tela: não foi tratado nessa decisão e segue em aberto (ver `docs/perguntas-pendentes.md`).
+- `LegendaAnimada` (`src/components/v2/LegendaAnimada.tsx`) — legenda por frase, palavra a palavra, com
+  contorno chapado e destaque de palavras do plano (Etapa 4, critério 4.5). **O componente existe**; a
+  conversão para frames (`src/utils/legenda.ts`), o resolvedor e o validador também. Visual aprovado
+  pelo Matheus em casa só com palavras de teste; ainda não visto com palavras reais. Detalhe em
+  `docs/catalogo-componentes.md` e `docs/prompt-roteiro.md`.
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
 **A construir:**
 - `ArrobaInstagram`: **construído** (commit `36fff8d`), **não é fixo**: só entra quando o roteiro pedir (ver item 3.4 em `docs/criterios-fechamento.md`) · `LogoAnimada` (intro/outro)
-- `LegendaAnimada` — legenda automática com estilo padrão e destaque para
-  frases-chave (Etapa 4)
 
 **Padrão de organização no Studio (desde 25/09/2026):**
 - Cada composição do catálogo fica dentro de `<Folder name="Catalogo">`, em `Composition.tsx`.
@@ -620,6 +623,25 @@ para os detalhes e a decisão pendente.
 - Transcrição local e gratuita (verificar a ferramenta oficial do Remotion para legendas / Whisper)
 - Estilo padrão + destaque para frases-chave
 - **Pré-requisitos:** uma fonte (provisória até a etapa 5).
+- **Critério 4.5 (`LegendaAnimada`), commits na `noite-etapa6` (13 e 14/10/2026).** A etapa
+  continua `[ ]` (aberta): código pronto, visual aprovado em casa só com palavras de teste; falta
+  ver com palavras reais e com o rosto do JR livre. Como pedir no plano: `docs/prompt-roteiro.md`,
+  "Como pedir a `LegendaAnimada`".
+  - `3670cc3` (etapa A): componente `LegendaAnimada` e tela de teste `TesteLegendaAnimada` no
+    `src/Root.tsx`; visual aprovado pelo Matheus em casa só com palavras de teste.
+  - `d19f181` (B1): `criarEstaDentroDeTrecho` em `src/utils/tempoCortado.ts` diz se um tempo do
+    original caiu num trecho mantido ou num silêncio cortado.
+  - `eb9613f` (B2): `src/utils/legenda.ts` converte palavras em ms do original para frames do vídeo
+    cortado; a `LegendaAnimada` aceita `palavrasMs`, o `PlanoComposicao` faz a conversão e a
+    composição `LegendaAnimada` foi registrada no Studio.
+  - `114954d` (B3): o `resolver-plano.mjs` grava `props.palavrasMs` a partir de `legendaPalavras`
+    e `destaques` do elemento.
+  - `41c13b0` (B3b): o resolvedor preenche `inicio` e `duracao` que faltarem e avisa destaque sem
+    acerto e `inicio` depois do `de`.
+  - `1ae285e` (B4): o `validar-plano.mjs` confere a `LegendaAnimada` (legenda não resolvida, sem
+    palavras, `palavrasMs` mal formada e aviso de duração).
+  - `bc97c6e` (B3c): a `duracao` preenchida pelo resolvedor vai até o fim da última palavra,
+    arredondada para cima ao décimo.
 
 ### Etapa 5 — Identidade visual
 - Aplicar paleta e fontes do Emparelhamento como padrão fixo do projeto

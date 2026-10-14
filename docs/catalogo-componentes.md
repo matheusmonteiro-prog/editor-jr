@@ -522,3 +522,40 @@ plataformas não foi medida.
 | `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
 | `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `15` |
 | `framesSaida` | `number` (min 1) | não (tem `.default()`) | `15` |
+
+### LegendaAnimada (v2)
+**Arquivo:** `src/components/v2/LegendaAnimada.tsx`
+**O que faz:** legenda por frase: mostra uma frase por vez, palavra a palavra, cada palavra
+entrando com `spring()` (sobe, cresce e aparece). A frase fecha ao chegar em
+`maxPalavrasPorFrase`, quando a palavra termina em `.`, `?` ou `!`, ou quando a pausa até a
+próxima palavra é `>= pausaQuebraMs`. Contorno chapado (`-webkit-text-stroke`), sem blur e sem
+sombra; tudo em fração de `width`/`height`. Fonte provisória: Inter 800 (decisão do Matheus,
+08/10/2026). Espaço nas pontas de cada palavra é tirado antes de desenhar.
+**De onde vêm as palavras:** `palavras` já em FRAMES do vídeo cortado, relativos ao início da
+`Sequence`. No plano, o elemento usa `legendaPalavras` (e `destaques`); o
+`scripts/resolver-plano.mjs` grava `palavrasMs` (ms do vídeo ORIGINAL) e o
+`src/PlanoComposicao.tsx` converte `palavrasMs` em `palavras` (`src/utils/legenda.ts`). O
+componente em si **ignora** `palavrasMs`. Ver `docs/prompt-roteiro.md`, "Como pedir a
+`LegendaAnimada`".
+**Nota das cores:** `corTexto` (`#FFFDF7`) e `corDestaque` (`#FFB800`) saem da paleta da marca
+**só na legenda**, por decisão do Matheus (14/10/2026); o plano pode voltar às cores da marca
+(`#F5F0E6` e `#EFAF20`) pelas props.
+Registrado em `src/Composition.tsx` (Studio, palavras de exemplo), no `CATALOGO` de
+`src/PlanoComposicao.tsx` e na tela de teste `TesteLegendaAnimada` (`src/Root.tsx`).
+**Status:** código pronto; visual aprovado pelo Matheus em casa só com palavras de teste; **ainda
+não visto no Studio com palavras reais** nem com o rosto do JR.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `palavras` | `array` de `{ texto: string, inicioFrames: number (min 0), fimFrames: number (min 0), destaque: boolean (padrão false) }` | não (tem `.default()`) | `[]` |
+| `palavrasMs` | `array` de `{ texto: string, inicioMs: number (min 0), fimMs: number (min 0), destaque?: boolean }` | sim (`.optional()`) | nenhum (gravado pelo resolvedor; o componente ignora) |
+| `corTexto` | `zColor()` | não (tem `.default()`) | `"#FFFDF7"` |
+| `corDestaque` | `zColor()` | não (tem `.default()`) | `"#FFB800"` |
+| `corContorno` | `zColor()` | não (tem `.default()`) | `"#0F2A1D"` |
+| `tamanhoFonte` (fração da largura) | `number` (0.01 a 0.3) | não (tem `.default()`) | `0.07` |
+| `posicaoX` (centro do bloco, fração da largura) | `number` (0 a 1) | não (tem `.default()`) | `0.5` |
+| `posicaoY` (centro da frase, fração da altura) | `number` (0 a 1) | não (tem `.default()`) | `0.78` |
+| `larguraMaxima` (fração da largura) | `number` (0.1 a 1) | não (tem `.default()`) | `0.9` |
+| `maiusculas` | `boolean` | não (tem `.default()`) | `true` |
+| `maxPalavrasPorFrase` | `number` (1 a 12) | não (tem `.default()`) | `4` |
+| `pausaQuebraMs` | `number` (min 0) | não (tem `.default()`) | `700` |

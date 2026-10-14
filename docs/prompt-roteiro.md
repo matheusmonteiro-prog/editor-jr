@@ -142,7 +142,7 @@ AVISOs você pode comentar comigo, mas ERROs têm que estar zerados.
 
 Gerado em 01/10/2026 lendo o AST dos schemas Zod reais (mesma técnica usada por
 `scripts/validar-plano.mjs`) e o `CATALOGO` real de `src/PlanoComposicao.tsx` — são os únicos
-20 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026 e o `ArrobaInstagram` em 12/10/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
+21 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026, o `ArrobaInstagram` em 12/10/2026 e a `LegendaAnimada` em 14/10/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
 no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada uma).
 
 | Componente | Props obrigatórias |
@@ -167,6 +167,7 @@ no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada um
 | `Contador` | `valorInicial`, `valorFinal` |
 | `AvisoCVM` | nenhuma (todas têm padrão) |
 | `ArrobaInstagram` | `usuario` |
+| `LegendaAnimada` | nenhuma no schema (todas têm padrão), mas o validador exige palavras: use `legendaPalavras` no elemento (ver "Como pedir a `LegendaAnimada`") |
 
 Pra detalhe completo de cada prop (tipo, opcional ou não, valor padrão), ver
 `docs/catalogo-componentes.md`.
@@ -199,6 +200,82 @@ props têm valor padrão, o `"props"` pode ir vazio:
   contar a mesma história; se mudar um, mude o outro.
 - Se outro elemento de `"posicao": "base"` aparecer ao mesmo tempo com o mesmo `"slot"`, o
   validador dá AVISO (não erro).
+
+### Como pedir a `LegendaAnimada`
+
+Fonte: schema de `src/components/v2/LegendaAnimada.tsx`, cabeçalho de
+`scripts/resolver-plano.mjs` e checagem 9b de `scripts/validar-plano.mjs`. Nada aqui muda as
+regras acima.
+
+**Status: ainda não visto no Studio com palavras reais; usar só quando o roteiro pedir legenda.**
+
+- **Só quando o roteiro pedir legenda** (ex.: "legenda de 0:16 a 0:24"). Nunca por iniciativa
+  da IA.
+- **Formato do elemento:** `"legendaPalavras": { "de": ..., "ate": ... }` (tempo do
+  **ORIGINAL**, `"m:ss"` ou `"m:ss.d"`) e `"destaques"` ficam no **NÍVEL DO ELEMENTO**, ao lado
+  de `"id"` e `"componente"`, **não** dentro de `"props"`. `"inicio"` e `"duracao"` podem
+  faltar: o resolvedor preenche (`inicio` = `de`; `duracao` vai até o fim da última palavra,
+  arredondada para cima ao décimo). Se o elemento trouxer `inicio`, `duracao` ou
+  `duracaoFrames`, o valor dele é mantido. **Nunca escreva `"palavrasMs"` à mão:** quem grava é
+  o resolvedor.
+
+  ```json
+  {
+    "id": "legenda-poupanca",
+    "componente": "LegendaAnimada",
+    "descricao": "legenda animada da fala sobre guardar dinheiro",
+    "texto": "ganha um tanto por mês e quer guardar um pouco de dinheiro",
+    "posicao": "base", "slot": 1,
+    "ilustrativo": false, "tempo_estimado": false,
+    "legendaPalavras": { "de": "0:16.0", "ate": "0:24.0" },
+    "destaques": ["poupança"],
+    "props": { "posicaoY": 0.78 }
+  }
+  ```
+
+- **Texto das palavras:** vem do `videos/<nome>.palavras.txt` (já com o glossário aplicado),
+  não de transcrição digitada. O resolvedor pega as palavras cujo início cai entre `de` e
+  `ate` (os dois limites contam). **Destaque só de palavra que o JR falou** nesse trecho; a
+  comparação ignora acento, maiúscula e pontuação. Destaque que não aparece no trecho vira AVISO
+  do resolvedor.
+- **Fluxo:**
+  1. plano em `planos/<nome>.plano.json`;
+  2. `node scripts/resolver-plano.mjs --plano planos/<nome>.plano.json --palavras videos/<nome>.palavras.json`
+     (grava `planos/<nome>.resolvido.json`);
+  3. `node scripts/validar-plano.mjs planos/<nome>.resolvido.json`.
+
+  O validador dá ERRO se `legendaPalavras` ou `destaques` ainda estiverem no elemento
+  ("legenda ainda não resolvida: rode scripts/resolver-plano.mjs antes") ou se a legenda não tiver
+  palavras. Dá AVISO se a última palavra terminar depois do fim do elemento.
+- **Pedido vago:** sem tempo (`de`/`ate`) ou sem dizer quais falas, **PERGUNTAR**. Sem tamanho
+  ou posição, **usar o padrão e DIZER qual usou**.
+- **Palavras para números** (ponto de partida, a calibrar no Studio). Só **0.07** (tamanho),
+  **0.78** (altura) e **0.50** (horizontal) são os padrões reais do schema; os outros valores são
+  sugestão, ainda não vistos. Limites do schema: `tamanhoFonte` de 0.01 a 0.3 (fração da largura); `posicaoX` e
+  `posicaoY` de 0 a 1 (centro da frase, fração da largura/altura).
+
+  | Pedido | Prop | Valor |
+  |---|---|---|
+  | pequeno | `tamanhoFonte` | 0.05 |
+  | normal | `tamanhoFonte` | **0.07 (padrão real)** |
+  | grande | `tamanhoFonte` | 0.09 |
+  | enorme | `tamanhoFonte` | 0.11 |
+  | em cima | `posicaoY` | 0.15 |
+  | no meio | `posicaoY` | 0.50 (**avisar: cobre o rosto do JR**) |
+  | embaixo | `posicaoY` | **0.78 (padrão real)** |
+  | bem embaixo | `posicaoY` | 0.88 |
+  | esquerda | `posicaoX` | 0.25 |
+  | centro | `posicaoX` | **0.50 (padrão real)** |
+  | direita | `posicaoX` | 0.75 |
+
+  Perto da borda o bloco encolhe para não sair do quadro: com `posicaoX` 0.25 ou 0.75, a frase
+  ocupa no máximo metade da largura e quebra em mais linhas.
+- **Cores e caixa alta:** `maiusculas` (padrão `true`), `corTexto` `#FFFDF7` e `corDestaque`
+  `#FFB800` saem da paleta da marca **só na legenda**, por decisão do Matheus (14/10/2026). O
+  plano pode voltar às cores da marca pelas props (`"corTexto": "#F5F0E6"`,
+  `"corDestaque": "#EFAF20"`). O contorno (`corContorno`) é `#0F2A1D`.
+- `"posicao"` e `"slot"` do elemento continuam obrigatórios (regra 2); servem para o aviso de
+  colisão do validador, não movem a legenda. Quem move a legenda é `posicaoX`/`posicaoY`.
 
 ---
 
