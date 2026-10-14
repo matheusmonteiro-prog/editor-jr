@@ -114,3 +114,26 @@ com material real.
 - **Render ou Studio com tempo decimal:** a `paraSegundos` do `PlanoComposicao.tsx` só foi
   compilada, nunca executada num render.
 - Nada chama o resolvedor automaticamente; o plano precisa ser resolvido à mão antes do validador.
+
+### Prova de 13/10, PC de casa
+
+- O executável do **whisper.cpp 1.6.0** e o modelo **`small`** rodaram **sem bloqueio do Windows**.
+- O `transcrever.mjs` gerou o `.palavras.json` (111 palavras) e o `.palavras.txt` (12 linhas) do
+  `0926`, e o conteúdo é idêntico ao do teste manual feito fora do projeto (texto, `startMs` e
+  `endMs` das 111 palavras).
+- **A velocidade varia:** 148,9 s na 1ª rodada e 81,9 s na 2ª, na mesma máquina (causa
+  **desconhecida**). No trabalho, a medição foi de 0,85x o tempo do áudio.
+- **Uso da GPU: não confirmado.**
+- Depois disso, o resolvedor (`scripts/resolver-plano.mjs`, commit `4791ca3`) também rodou com o
+  `0926.palavras.json` real de casa, em 3 elementos de teste, com a saída fora de `planos/`. Isso
+  atualiza o primeiro item de "O que NÃO foi provado" acima; o plano de teste e a transcrição
+  usados nessa rodada estão fora do Git.
+
+**O que NÃO é reproduzível por quem clonar o projeto** (fica fora do Git ou depende da máquina):
+
+- `config.local.json` (caminhos do whisper.cpp e do modelo; cada PC tem o seu);
+- os **modelos** (`ggml-*.bin`, centenas de MB) e o **executável** do whisper.cpp;
+- os **vídeos** e os `.palavras.json` / `.palavras.txt` (a pasta `videos/` é ignorada).
+
+**Glossário:** um arquivo geral só para palavras que não existem ou nomes, e um por vídeo para
+palavras ambíguas (**proposta do revisor, a aprovar**); o glossário troca só palavra por palavra.
