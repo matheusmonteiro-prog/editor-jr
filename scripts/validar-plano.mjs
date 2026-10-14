@@ -421,8 +421,27 @@ const validarComponenteOuProps = (valor) => {
   return { ok: true, aConfirmar: false };
 };
 
+// Elemento que usa o componente LegendaAnimada (sozinho ou numa lista de componentes).
+const ehLegendaAnimada = (componente) =>
+  componente === 'LegendaAnimada' || (Array.isArray(componente) && componente.includes('LegendaAnimada'));
+
+// Onde ficam as props da LegendaAnimada: em "props" (componente único) ou em
+// props.LegendaAnimada (lista). null quando não dá para saber (props ausente/errado).
+const propsDaLegenda = (el) => {
+  const props = el.props;
+  if (props === null || typeof props !== 'object' || Array.isArray(props)) return null;
+  if (!Array.isArray(el.componente)) return props;
+  const interno = props.LegendaAnimada;
+  return interno !== null && typeof interno === 'object' && !Array.isArray(interno) ? interno : null;
+};
+
 const checagem1 = (el) => {
   const problemas = [];
+  // legendaPalavras/destaques são atalhos que o resolvedor converte em props.palavrasMs
+  // (e preenche inicio/duracao) ANTES da validação; se ainda estão aqui, a conversão não rodou.
+  const legendaPendente =
+    ehLegendaAnimada(el.componente) && (el.legendaPalavras !== undefined || el.destaques !== undefined);
+  if (legendaPendente) problemas.push('legenda ainda não resolvida: rode scripts/resolver-plano.mjs antes');
 
   if (el.id === undefined) problemas.push('id ausente — adicione uma string única, ex. "criterio-1"');
   else if (typeof el.id !== 'string' || el.id.trim() === '')
@@ -446,13 +465,19 @@ const checagem1 = (el) => {
     // se chegou aqui sem "inicio", a conversão não rodou.
     if (el.naPalavra !== undefined)
       problemas.push('naPalavra ainda não resolvido: rode scripts/resolver-plano.mjs antes');
-    else problemas.push('inicio ausente — use o formato m:ss referente ao vídeo ORIGINAL, ex. "1:05"');
+    else if (legendaPendente) {
+      // já avisado acima: o resolvedor grava inicio = "de".
+    } else problemas.push('inicio ausente — use o formato m:ss referente ao vídeo ORIGINAL, ex. "1:05"');
   } else if (paraSegundos(el.inicio) === null)
     problemas.push(
       `inicio deve estar no formato m:ss ou m:ss.d (um dígito decimal, segundos < 60, sem negativo) — ${motivoTempoInvalido(el.inicio)} (veio ${JSON.stringify(el.inicio)}) — ex. "1:05" ou "1:05.4"`,
     );
 
-  if (el.duracao === undefined) problemas.push('duracao ausente — informe a duração em segundos (número > 0)');
+  if (el.duracao === undefined) {
+    // Com legenda pendente (e sem duracaoFrames) o resolvedor grava duracao = ate - de.
+    if (!(legendaPendente && el.duracaoFrames === undefined))
+      problemas.push('duracao ausente — informe a duração em segundos (número > 0)');
+  }
   else if (typeof el.duracao !== 'number' || !Number.isFinite(el.duracao) || el.duracao <= 0)
     problemas.push(`duracao deve ser número > 0 (veio ${JSON.stringify(el.duracao)})`);
 
@@ -822,6 +847,71 @@ for (const el of elementos) {
     }
   } else if (typeof componente === 'string') {
     checarPropsDeUmComponente(componente, props, el.label);
+  }
+}
+
+// 9b. LegendaAnimada: palavras presentes e bem formadas (palavrasMs em ms do vídeo ORIGINAL;
+// props.palavras em frames). Legenda ainda não resolvida já é erro na checagem 1; aqui só
+// não repetimos a reclamação de "sem palavras" nesse caso.
+{
+  const numeroNaoNegativo = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+  for (const el of elementos) {
+    const o = el.original;
+    if (!ehLegendaAnimada(o.componente)) continue;
+    const props = propsDaLegenda(o);
+    if (props === null) continue; // props ausente/"a confirmar": já coberto pela checagem 1
+
+    const pendente = o.legendaPalavras !== undefined || o.destaques !== undefined;
+    const ms = props.palavrasMs;
+    const msEhLista = Array.isArray(ms);
+    const frames = Array.isArray(props.palavras) ? props.palavras : [];
+
+    if (ms !== undefined && !msEhLista) {
+      erro(el.label, `legenda: palavrasMs deve ser uma lista de { texto, inicioMs, fimMs } (veio ${JSON.stringify(ms)})`);
+    } else if (!pendente && frames.length === 0 && (!msEhLista || ms.length === 0)) {
+      erro(
+        el.label,
+        'legenda: a legenda não tem palavras — preencha props.palavrasMs (ms do vídeo original) ou props.palavras ' +
+          '(frames), ou use "legendaPalavras" e rode scripts/resolver-plano.mjs',
+      );
+    }
+
+    if (msEhLista) {
+      const problemasItens = [];
+      let maiorFimMs = null;
+      ms.forEach((p, i) => {
+        if (p === null || typeof p !== 'object' || Array.isArray(p)) {
+          problemasItens.push(`palavrasMs[${i}] deve ser um objeto { texto, inicioMs, fimMs }`);
+          return;
+        }
+        if (typeof p.texto !== 'string' || p.texto.trim() === '') {
+          problemasItens.push(`palavrasMs[${i}].texto deve ser texto não vazio (veio ${JSON.stringify(p.texto)})`);
+        }
+        if (!numeroNaoNegativo(p.inicioMs)) {
+          problemasItens.push(`palavrasMs[${i}].inicioMs deve ser número >= 0 (veio ${JSON.stringify(p.inicioMs)})`);
+        }
+        if (!numeroNaoNegativo(p.fimMs)) {
+          problemasItens.push(`palavrasMs[${i}].fimMs deve ser número >= 0 (veio ${JSON.stringify(p.fimMs)})`);
+        } else if (maiorFimMs === null || p.fimMs > maiorFimMs) {
+          maiorFimMs = p.fimMs;
+        }
+      });
+      if (problemasItens.length > 0) erro(el.label, `legenda: ${problemasItens.join('; ')}`);
+
+      // Aviso: a última palavra termina depois do fim do elemento (inicio + duracao).
+      // Elemento com duracaoFrames não entra (a duração real vem dos frames).
+      const duracaoOk = typeof o.duracao === 'number' && Number.isFinite(o.duracao) && o.duracao > 0;
+      if (maiorFimMs !== null && el.inicioSeg !== null && duracaoOk && o.duracaoFrames === undefined) {
+        const excessoMs = Math.round(maiorFimMs - (el.inicioSeg + o.duracao) * 1000);
+        if (excessoMs > 0) {
+          aviso(
+            el.label,
+            `legenda: a última palavra termina ${excessoMs} ms depois do fim do elemento ` +
+              `(inicio ${o.inicio} + duracao ${o.duracao}s) — a legenda será cortada; aumente "duracao" ou encurte o intervalo`,
+          );
+        }
+      }
+    }
   }
 }
 

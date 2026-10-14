@@ -1,0 +1,39 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "legenda-1",
+      "componente": "LegendaAnimada",
+      "descricao": "legenda de teste",
+      "texto": "Juro cai",
+      "inicio": "0:02",
+      "duracao": 3,
+      "posicao": "base",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "props": {
+        "tamanhoFonte": 0.07,
+        "palavrasMs": [
+          {
+            "texto": "juro",
+            "inicioMs": 2000,
+            "fimMs": 2500,
+            "destaque": true
+          },
+          {
+            "texto": "cai.",
+            "inicioMs": 2500,
+            "fimMs": 3200
+          },
+          {
+            "texto": "sobe",
+            "inicioMs": 3300,
+            "fimMs": 4200
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -44,6 +44,20 @@ const planoTemporario = (nome, alterar) => {
   return caminho;
 };
 
+// Palavras (ms do vídeo ORIGINAL) que cabem em inicio 0:02 + duracao 3 s (2000 a 5000 ms).
+const PALAVRAS_MS_OK = [
+  {texto: 'juro', inicioMs: 2000, fimMs: 2500},
+  {texto: 'cai.', inicioMs: 2500, fimMs: 3200},
+];
+// Faz o elemento do plano temporário virar uma LegendaAnimada válida em 0:02, 3 s.
+const legendaBase = (el, props) => {
+  el.componente = 'LegendaAnimada';
+  el.texto = 'Juro cai';
+  el.inicio = '0:02';
+  el.duracao = 3;
+  el.props = props;
+};
+
 // Cada caso: arquivo da fixture, args extras pro validador, se espera que o
 // validador termine com erro (exit code 1) ou não, e um trecho que tem que
 // aparecer na saída (prova de que foi o motivo certo, não qualquer erro).
@@ -462,6 +476,146 @@ const casos = [
     esperaFalha: true,
     trechoEsperado: 'naPalavra ainda não resolvido: rode scripts/resolver-plano.mjs antes',
   },
+
+  // ---- LegendaAnimada (4.5, etapa B4). Planos derivados do valido.plano.json: o 1º elemento
+  // vira LegendaAnimada em 0:02, duração 3 s (termina em 5000 ms; o check-2 começa em 0:06).
+  {
+    nome: 'legenda: fixture válida com palavrasMs passa limpa',
+    arquivo: fixture('valido-legenda-palavrasms.plano.json'),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'legenda: fixture sem nenhuma palavra é ERRO',
+    arquivo: fixture('invalido-legenda-sem-palavras.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'a legenda não tem palavras',
+  },
+  {
+    nome: 'legenda: fixture com legendaPalavras não resolvida é ERRO',
+    arquivo: fixture('invalido-legenda-nao-resolvida.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'legenda ainda não resolvida: rode scripts/resolver-plano.mjs antes',
+    trechoProibido: 'inicio ausente',
+  },
+  {
+    nome: 'legenda: legendaPalavras sem inicio dá a mensagem da legenda (não "inicio ausente")',
+    arquivo: planoTemporario('legenda-pendente-sem-inicio.plano.json', (el) => {
+      legendaBase(el, {palavrasMs: PALAVRAS_MS_OK});
+      delete el.inicio;
+      delete el.duracao;
+      el.legendaPalavras = {de: '0:02.0', ate: '0:04.0'};
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'legenda ainda não resolvida',
+    trechoProibido: 'duracao ausente',
+  },
+  {
+    nome: 'legenda: destaques sozinho (com inicio e duracao) também é ERRO não resolvido',
+    arquivo: planoTemporario('legenda-destaques-sozinho.plano.json', (el) => {
+      legendaBase(el, {palavrasMs: PALAVRAS_MS_OK});
+      el.destaques = ['juro'];
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'legenda ainda não resolvida: rode scripts/resolver-plano.mjs antes',
+  },
+  {
+    nome: 'legenda: palavras e palavrasMs vazias é ERRO',
+    arquivo: planoTemporario('legenda-vazias.plano.json', (el) => {
+      legendaBase(el, {palavras: [], palavrasMs: []});
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'a legenda não tem palavras',
+  },
+  {
+    nome: 'legenda: só props.palavras (frames) passa limpa',
+    arquivo: planoTemporario('legenda-so-palavras.plano.json', (el) => {
+      legendaBase(el, {palavras: [{texto: 'juro', inicioFrames: 0, fimFrames: 20}]});
+    }),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'legenda: palavras e palavrasMs juntos passam (sem erro)',
+    arquivo: planoTemporario('legenda-ambas.plano.json', (el) => {
+      legendaBase(el, {palavras: [{texto: 'juro', inicioFrames: 0, fimFrames: 20}], palavrasMs: PALAVRAS_MS_OK});
+    }),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'legenda: palavrasMs que não é lista é ERRO',
+    arquivo: planoTemporario('legenda-ms-nao-lista.plano.json', (el) => {
+      legendaBase(el, {palavrasMs: 'juro cai'});
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'palavrasMs deve ser uma lista',
+  },
+  {
+    nome: 'legenda: inicioMs negativo é ERRO',
+    arquivo: planoTemporario('legenda-inicioms-negativo.plano.json', (el) => {
+      legendaBase(el, {palavrasMs: [PALAVRAS_MS_OK[0], {texto: 'cai.', inicioMs: -1, fimMs: 3000}]});
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'palavrasMs[1].inicioMs deve ser número >= 0',
+  },
+  {
+    nome: 'legenda: fimMs que não é número é ERRO',
+    arquivo: planoTemporario('legenda-fimms-texto.plano.json', (el) => {
+      legendaBase(el, {palavrasMs: [{texto: 'juro', inicioMs: 2000, fimMs: '2500'}]});
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'palavrasMs[0].fimMs deve ser número >= 0',
+  },
+  {
+    nome: 'legenda: texto vazio em palavrasMs é ERRO',
+    arquivo: planoTemporario('legenda-texto-vazio.plano.json', (el) => {
+      legendaBase(el, {palavrasMs: [{texto: '  ', inicioMs: 2000, fimMs: 2500}]});
+    }),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'palavrasMs[0].texto deve ser texto não vazio',
+  },
+  {
+    nome: 'legenda: palavra passando do fim do elemento é AVISO (600 ms)',
+    arquivo: planoTemporario('legenda-passa-do-fim.plano.json', (el) => {
+      // inicio 0:02 + duracao 3 = 5000 ms; a última palavra termina em 5600 ms.
+      legendaBase(el, {palavrasMs: [PALAVRAS_MS_OK[0], {texto: 'cai.', inicioMs: 3000, fimMs: 5600}]});
+    }),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'a última palavra termina 600 ms depois do fim do elemento',
+  },
+  {
+    nome: 'legenda: palavra que cabe no elemento não avisa',
+    arquivo: planoTemporario('legenda-cabe.plano.json', (el) => {
+      legendaBase(el, {palavrasMs: [PALAVRAS_MS_OK[0], {texto: 'cai.', inicioMs: 3000, fimMs: 5000}]});
+    }),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'legenda: com duracaoFrames não avisa, mesmo passando do fim',
+    arquivo: planoTemporario('legenda-duracao-frames.plano.json', (el) => {
+      legendaBase(el, {palavrasMs: [PALAVRAS_MS_OK[0], {texto: 'cai.', inicioMs: 3000, fimMs: 9000}]});
+      el.duracaoFrames = 300;
+    }),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
 ];
 
 let falhas = 0;
@@ -483,8 +637,10 @@ for (const caso of casos) {
 
   const falhouComoEsperado = caso.esperaFalha ? codigo !== 0 : codigo === 0;
   const trechoPresente = saida.includes(caso.trechoEsperado);
+  // trechoProibido (opcional): texto que NÃO pode aparecer (ex.: a mensagem de "inicio ausente").
+  const trechoProibidoPresente = caso.trechoProibido !== undefined && saida.includes(caso.trechoProibido);
 
-  if (falhouComoEsperado && trechoPresente) {
+  if (falhouComoEsperado && trechoPresente && !trechoProibidoPresente) {
     console.log(`OK   ${caso.nome}`);
   } else {
     falhas++;
@@ -494,6 +650,9 @@ for (const caso of casos) {
     }
     if (!trechoPresente) {
       console.log(`     não achei o trecho esperado: ${JSON.stringify(caso.trechoEsperado)}`);
+    }
+    if (trechoProibidoPresente) {
+      console.log(`     apareceu o trecho proibido: ${JSON.stringify(caso.trechoProibido)}`);
     }
     console.log('     --- saída completa ---');
     console.log(saida.split('\n').map((l) => `     ${l}`).join('\n'));
