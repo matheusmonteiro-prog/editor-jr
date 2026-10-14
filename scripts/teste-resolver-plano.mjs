@@ -433,6 +433,83 @@ erro('glossário inválido', () => resolverPlano({elementos: []}, PALAVRAS, ['a'
   }
 }
 
+// ---- B3b: legenda preenche inicio e duracao; avisos opcionais
+{
+  // Elemento SEM inicio e SEM duracao (só o que o autor precisa escrever).
+  const semTempo = (id, extra = {}) => {
+    const base = elemento(id);
+    delete base.duracao;
+    return {...base, componente: 'LegendaAnimada', props: {tamanhoFonte: 0.07}, ...extra};
+  };
+  const resolverB = (el, opcoes) => resolverPlano({video: 'x', elementos: [el]}, PALAVRAS, PARES, opcoes).elementos[0];
+  const L = {de: '0:01.0', ate: '0:05.4'};
+
+  // preenche inicio = de e duracao = ate - de (segundos)
+  const pre = resolverB(semTempo('t1', {legendaPalavras: L}));
+  igual('B3b: inicio = de', pre.inicio, '0:01.0');
+  igual('B3b: duracao = ate - de (4,4 s)', pre.duracao, 4.4);
+  igual('B3b: duracao é número', typeof pre.duracao, 'number');
+  igual('B3b: sem duracaoFrames criado', 'duracaoFrames' in pre, false);
+
+  // mantém o que o elemento trouxe
+  const mant = resolverB(semTempo('t2', {legendaPalavras: L, inicio: '0:00.5', duracao: 9}));
+  igual('B3b: mantém inicio do elemento', mant.inicio, '0:00.5');
+  igual('B3b: mantém duracao do elemento', mant.duracao, 9);
+
+  // só inicio trazido: duracao ainda é preenchida; só duracao trazida: inicio ainda é preenchido
+  igual('B3b: só inicio trazido -> duracao preenchida', resolverB(semTempo('t2b', {legendaPalavras: L, inicio: '0:00.5'})).duracao, 4.4);
+  igual('B3b: só duracao trazida -> inicio preenchido', resolverB(semTempo('t2c', {legendaPalavras: L, duracao: 3})).inicio, '0:01.0');
+
+  // duracaoFrames impede duracao (e é mantido)
+  const df = resolverB(semTempo('t3', {legendaPalavras: L, duracaoFrames: 120}));
+  igual('B3b: duracaoFrames impede duracao', ['duracao' in df, df.duracaoFrames], [false, 120]);
+  igual('B3b: duracaoFrames não impede inicio', df.inicio, '0:01.0');
+
+  // inicio vindo de naPalavra também conta como "trouxe inicio"
+  const comNa = resolverB(semTempo('t3b', {naPalavra: 'juro', ocorrencia: 2, legendaPalavras: {de: '0:05.0', ate: '0:07.0'}}));
+  igual('B3b: inicio de naPalavra mantido, duracao preenchida', [comNa.inicio, comNa.duracao], ['0:05.4', 2]);
+
+  // avisos
+  const avisos = [];
+  const avisar = (a) => avisos.push(a);
+  resolverB(semTempo('t4', {legendaPalavras: L, destaques: ['juro', 'dólar', 'Caí']}), {avisar});
+  igual('B3b: aviso só do destaque sem acerto', avisos.length, 1);
+  igual('B3b: aviso cita id, destaque e intervalo', ['[t4]', '"dólar"', '0:01.0', '0:05.4'].every((t) => avisos[0].includes(t)), true);
+
+  avisos.length = 0;
+  resolverB(semTempo('t5', {legendaPalavras: L, inicio: '0:02.0'}), {avisar});
+  igual('B3b: aviso de inicio depois do de', avisos.length, 1);
+  igual('B3b: aviso cita id e os dois tempos', ['[t5]', '0:02.0', '0:01.0'].every((t) => avisos[0].includes(t)), true);
+
+  avisos.length = 0;
+  resolverB(semTempo('t6', {legendaPalavras: L, inicio: '0:01.0'}), {avisar});
+  resolverB(semTempo('t6b', {legendaPalavras: L, inicio: '0:00.5'}), {avisar});
+  resolverB(semTempo('t6c', {legendaPalavras: L, destaques: ['juro']}), {avisar});
+  igual('B3b: sem aviso quando inicio <= de e destaques casam', avisos, []);
+
+  // sem o parâmetro opcional nada muda: mesmo resultado, sem erro
+  const el7 = semTempo('t7', {legendaPalavras: L, destaques: ['dólar'], inicio: '0:03.0'});
+  const sem = resolverPlano({video: 'x', elementos: [el7]}, PALAVRAS, PARES);
+  const com = resolverPlano({video: 'x', elementos: [el7]}, PALAVRAS, PARES, {avisar: () => {}});
+  const vazio = resolverPlano({video: 'x', elementos: [el7]}, PALAVRAS, PARES, {});
+  igual('B3b: com e sem avisar devolvem o mesmo plano', [JSON.stringify(sem), JSON.stringify(vazio)], [JSON.stringify(com), JSON.stringify(com)]);
+
+  // erro continua erro (e não emite aviso)
+  avisos.length = 0;
+  erro('B3b: erro continua sendo erro com avisar', () => resolverB(semTempo('t8', {legendaPalavras: {de: '0:20.0', ate: '0:25.0'}, destaques: ['x']}), {avisar}), '[t8]', 'nenhuma palavra');
+  igual('B3b: erro não emite aviso', avisos, []);
+
+  // entrada não alterada
+  {
+    const original = {video: 'x', elementos: [semTempo('t9', {legendaPalavras: L, destaques: ['dólar'], inicio: '0:02.0'})]};
+    const antes = JSON.stringify(original);
+    const r = resolverPlano(original, PALAVRAS, PARES, {avisar});
+    igual('B3b: plano de entrada não foi alterado', JSON.stringify(original), antes);
+    igual('B3b: entrada sem duracao continua sem', 'duracao' in original.elementos[0], false);
+    igual('B3b: saída recebeu duracao', r.elementos[0].duracao, 4.4);
+  }
+}
+
 // ---- linha de comando com --saida, numa pasta temporária do sistema (nada vai pra planos/)
 {
   const RESOLVER = path.join(RAIZ, 'scripts', 'resolver-plano.mjs');
@@ -519,6 +596,35 @@ erro('glossário inválido', () => resolverPlano({elementos: []}, PALAVRAS, ['a'
       igual('CLI legenda: legendaPalavras e destaques saíram', ['legendaPalavras' in el, 'destaques' in el], [false, false]);
       igual('CLI legenda: a saída conta as palavras', saidaLeg.includes('3 palavra(s)'), true);
       igual('CLI legenda: plano de entrada não foi alterado', JSON.parse(readFileSync(planoLeg, 'utf8')).elementos[0].legendaPalavras, {de: '0:01.0', ate: '0:05.4'});
+    }
+
+    // 6c. B3b pela CLI: elemento sem inicio e sem duracao + avisos impressos
+    {
+      const nomeB = `cli-legenda-b3b-${process.pid}`;
+      const planoB = path.join(base, `${nomeB}.plano.json`);
+      writeFileSync(
+        planoB,
+        JSON.stringify({
+          video: 'x',
+          elementos: [
+            {id: 'b-sem-tempo', componente: 'LegendaAnimada', props: {}, legendaPalavras: {de: '0:01.0', ate: '0:05.4'}, destaques: ['dólar']},
+            {id: 'b-tarde', componente: 'LegendaAnimada', inicio: '0:02.0', duracao: 3, props: {}, legendaPalavras: {de: '0:01.0', ate: '0:05.4'}},
+          ],
+        }),
+      );
+      const h = spawnSync(
+        process.execPath,
+        [RESOLVER, '--plano', planoB, '--palavras', arquivoPalavras, '--glossario', arquivoGlossario, '--saida', pastaSaida],
+        {cwd: RAIZ, encoding: 'utf8'},
+      );
+      const saidaB = (h.stdout ?? '') + (h.stderr ?? '');
+      igual('CLI B3b: exit 0', h.status, 0);
+      const els = JSON.parse(readFileSync(path.join(pastaSaida, `${nomeB}.resolvido.json`), 'utf8')).elementos;
+      igual('CLI B3b: inicio e duracao preenchidos', [els[0].inicio, els[0].duracao], ['0:01.0', 4.4]);
+      igual('CLI B3b: valores do elemento mantidos', [els[1].inicio, els[1].duracao], ['0:02.0', 3]);
+      igual('CLI B3b: aviso do destaque impresso', saidaB.includes('AVISO: [b-sem-tempo] destaque "dólar"'), true);
+      igual('CLI B3b: aviso do inicio tardio impresso', saidaB.includes('AVISO: [b-tarde]') && saidaB.includes('depois do "de"'), true);
+      igual('CLI B3b: aviso não vai para o arquivo', JSON.stringify(els).includes('AVISO'), false);
     }
 
     // 7. sem --saida o caminho continua planos/ (só o caminho montado, nada gravado lá)

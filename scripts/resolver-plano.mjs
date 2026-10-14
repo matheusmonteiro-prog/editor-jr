@@ -39,7 +39,12 @@
  *   props.palavrasMs = [{ texto, inicioMs, fimMs, destaque? }]. texto sem espaço nas pontas;
  *   fimMs = endMs (se endMs < startMs, vale startMs). "destaques": ["poupança", ...] marca
  *   destaque true nas palavras de mesma forma normalizada (sem acento/maiúscula/pontuação).
- *   legendaPalavras e destaques saem do elemento resolvido. Vale também com componente em lista
+ *   legendaPalavras e destaques saem do elemento resolvido. Se faltar "inicio", grava inicio = "de";
+ *   se faltar "duracao" E "duracaoFrames", grava duracao = ate - de (segundos). Valor que o elemento
+ *   já trouxe é mantido.
+ * - Avisos (não são erro; não mudam o plano devolvido): destaque que não casa com nenhuma palavra
+ *   do trecho, e "inicio" do elemento depois do "de" (palavras antes dele ficam sem legenda).
+ *   resolverPlano(plano, palavras, pares, { avisar }) chama avisar(mensagem) para cada um. Vale também com componente em lista
  *   (["LegendaAnimada", ...]): palavrasMs vai em props.LegendaAnimada.
  * - Todos os erros saem juntos, cada um com o id do elemento.
  */
@@ -86,7 +91,7 @@ const tempoParaMs = (tempo) => {
  * Trata "legendaPalavras"/"destaques" de UM elemento. Devolve o elemento novo (sem as duas
  * chaves, com props.palavrasMs) ou, havendo problema, empurra para `problemas` e devolve `el`.
  */
-const resolverLegenda = (el, id, corrigidas, problemas) => {
+const resolverLegenda = (el, id, corrigidas, problemas, avisar) => {
   const erros = [];
   const L = el.legendaPalavras;
 
@@ -154,10 +159,29 @@ const resolverLegenda = (el, id, corrigidas, problemas) => {
     return el;
   }
 
+  // Avisos: destaque sem acerto no trecho; elemento que entra depois do "de".
+  const usados = new Set(lista.map((w) => normalizar(w.texto)));
+  for (const d of Array.isArray(D) ? D : []) {
+    if (!usados.has(normalizar(d))) {
+      avisar(`[${id}] destaque "${d.trim()}" não casa com nenhuma palavra entre ${L.de} e ${L.ate}.`);
+    }
+  }
+  const inicioMs = tempoParaMs(el.inicio);
+  if (inicioMs !== null && inicioMs > deMs) {
+    avisar(
+      `[${id}] "inicio" (${el.inicio}) é depois do "de" da legenda (${L.de}): as palavras antes dele ficam sem legenda.`,
+    );
+  }
+
   const resolvido = {};
   for (const [chave, valor] of Object.entries(el)) {
     if (chave === 'legendaPalavras' || chave === 'destaques') continue;
     resolvido[chave] = valor;
+  }
+  // Só preenche o que faltou; o que o elemento trouxe é mantido.
+  if (resolvido.inicio === undefined) resolvido.inicio = L.de;
+  if (resolvido.duracao === undefined && resolvido.duracaoFrames === undefined) {
+    resolvido.duracao = (ateMs - deMs) / 1000;
   }
   if (ehUnico) {
     resolvido.props = {...propsAlvo, palavrasMs: lista};
@@ -173,8 +197,11 @@ const resolverLegenda = (el, id, corrigidas, problemas) => {
  * (perdendo "legendaPalavras" e "destaques"). Os demais ficam idênticos. `palavras` é o Caption[]
  * bruto; `pares` é o glossário { "errada": "certa" } (pode ser null/undefined).
  * Lança ErroResolver (com .problemas) se algum elemento não puder ser resolvido.
+ * `opcoes.avisar` (opcional) recebe cada aviso (texto, com o id do elemento); sem ele, avisos
+ * são ignorados. Não muda o plano devolvido.
  */
-export const resolverPlano = (plano, palavras, pares) => {
+export const resolverPlano = (plano, palavras, pares, opcoes = {}) => {
+  const avisar = typeof opcoes?.avisar === 'function' ? opcoes.avisar : () => {};
   if (plano === null || typeof plano !== 'object' || !Array.isArray(plano.elementos)) {
     throw new ErroResolver('O plano precisa ser um objeto com a lista "elementos".');
   }
@@ -242,7 +269,7 @@ export const resolverPlano = (plano, palavras, pares) => {
       if (atual.legendaPalavras === undefined) {
         problemas.push(`[${id}] tem "destaques" sem "legendaPalavras" — não há o que destacar.`);
       } else {
-        atual = resolverLegenda(atual, id, corrigidas, problemas);
+        atual = resolverLegenda(atual, id, corrigidas, problemas, avisar);
       }
     }
     return atual;
@@ -343,7 +370,8 @@ const main = () => {
     );
   }
 
-  const resolvido = resolverPlano(plano, palavras, pares);
+  const avisos = [];
+  const resolvido = resolverPlano(plano, palavras, pares, {avisar: (a) => avisos.push(a)});
 
   if (!opcoes.saida) mkdirSync(dirname(saida), {recursive: true}); // só o planos/ padrão é criado
   writeFileSync(saida, JSON.stringify(resolvido, null, 2) + '\n', 'utf8');
@@ -366,6 +394,7 @@ const main = () => {
   }
   console.log(`${feitos.length} elemento(s) resolvido(s). Gravado: ${paraRelativo(saida)}`);
   if (legendas.length > 0) console.log(`${legendas.length} legenda(s) com palavrasMs gravada(s).`);
+  for (const a of avisos) console.log(`AVISO: ${a}`);
 };
 
 // Só roda quando o arquivo é executado direto; importado (pelo teste), só entrega as funções.
