@@ -4,6 +4,8 @@ import {
   Easing,
   Folder,
   interpolate,
+  OffthreadVideo,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -15,6 +17,7 @@ import "./index.css";
 import { MyComposition } from "./Composition";
 import { PlanoComposicao } from "./PlanoComposicao";
 import { CamadaVideo } from "./components/v2/CamadaVideo";
+import { LegendaAnimada } from "./components/v2/LegendaAnimada";
 import plano0926 from "../planos/0926.plano.json";
 import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
 import planoTesteCamera from "../planos/teste-camera.plano.json";
@@ -135,6 +138,25 @@ const calcularTamanhoDoPlano: CalculateMetadataFunction<PlanoComposicaoProps> = 
   }
   return {};
 };
+
+// Tela de teste da LegendaAnimada (Etapa 4, 4.5, etapa A): palavras fixas, em frames (30 fps),
+// sobre o 0926 cortado. 7 palavras: a frase fecha em 4 palavras, então saem 2 frases.
+const PALAVRAS_TESTE_LEGENDA = [
+  { texto: "A", inicioFrames: 10, fimFrames: 18, destaque: false },
+  { texto: "Selic", inicioFrames: 18, fimFrames: 38, destaque: false },
+  { texto: "subiu", inicioFrames: 38, fimFrames: 60, destaque: false },
+  { texto: "e", inicioFrames: 60, fimFrames: 68, destaque: false },
+  { texto: "o", inicioFrames: 68, fimFrames: 76, destaque: false },
+  { texto: "CDB", inicioFrames: 76, fimFrames: 100, destaque: true },
+  { texto: "rendeu", inicioFrames: 100, fimFrames: 125, destaque: false },
+];
+
+const TesteLegendaAnimada: React.FC = () => (
+  <AbsoluteFill>
+    <OffthreadVideo src={staticFile("videos/0926-cortado-v1.mp4")} muted style={{ width: "100%", height: "100%" }} />
+    <LegendaAnimada palavras={PALAVRAS_TESTE_LEGENDA} />
+  </AbsoluteFill>
+);
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -278,6 +300,14 @@ export const RemotionRoot: React.FC = () => {
             plano: { video: "teste2-camera", orientacao: "horizontal", elementos: [] },
             cortes: { trechos: [{ inicio: 0, fim: 7.03 }] },
           }}
+        />
+        <Composition
+          id="TesteLegendaAnimada"
+          component={TesteLegendaAnimada}
+          durationInFrames={150}
+          fps={30}
+          width={1080}
+          height={1920}
         />
       </Folder>
     </>

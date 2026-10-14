@@ -30,6 +30,7 @@ import { Spotlight } from "./components/v2/Spotlight";
 import { Contador } from "./components/v2/Contador";
 import { AvisoCVM } from "./components/v2/AvisoCVM";
 import { ArrobaInstagram } from "./components/v2/ArrobaInstagram";
+import { LegendaAnimada } from "./components/v2/LegendaAnimada";
 import { criarParaFrameCortado, type TrechoCortado } from "./utils/tempoCortado";
 
 // Lê um plano de edição (formato de planos/0926.plano.json) e monta a
@@ -58,6 +59,7 @@ const CATALOGO: Record<string, React.ComponentType<any>> = {
   Contador,
   AvisoCVM,
   ArrobaInstagram,
+  LegendaAnimada,
 };
 
 type ElementoPlano = {
