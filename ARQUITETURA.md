@@ -8,7 +8,7 @@
   - [x] 2b — Redução de ruído e equalização da voz (aprovado em 23/09/2026, amostra A/B)
   - [x] Gancho (reordenar trechos), incluindo teaser com múltiplos trechos — testado e aprovado (23/09/2026)
 - [x] Etapa 3 — Montagem sobre vídeo real (concluída em 3a (código) em 13/10/2026; 3b (material real: par com o JR, sincronia, vídeo de 10 a 20 min, vídeos de referência) a validar nas primeiras gravações reais)
-- [ ] Etapa 4 — Legendas automáticas
+- [x] Etapa 4 — Legendas automáticas (4a fechada em 14/10/2026; 4b (glossário, gravações reais) pendente)
 - [ ] Etapa 5 — Identidade visual
 - [x] Etapa 6 — Leitor de prompt (6a cumprida em 09/10/2026, critérios 6.1 a 6.6 de `docs/criterios-fechamento.md`; 6b só se o Matheus mandar; pendências na seção 7, Etapa 6)
 - [ ] Etapa 7 — Interface própria
