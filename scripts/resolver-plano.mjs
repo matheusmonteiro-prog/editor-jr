@@ -40,8 +40,9 @@
  *   fimMs = endMs (se endMs < startMs, vale startMs). "destaques": ["poupança", ...] marca
  *   destaque true nas palavras de mesma forma normalizada (sem acento/maiúscula/pontuação).
  *   legendaPalavras e destaques saem do elemento resolvido. Se faltar "inicio", grava inicio = "de";
- *   se faltar "duracao" E "duracaoFrames", grava duracao = ate - de (segundos). Valor que o elemento
- *   já trouxe é mantido.
+ *   se faltar "duracao" E "duracaoFrames", grava duracao = max(ate, maior fimMs das palavras / 1000)
+ *   - de, em segundos, arredondada PARA CIMA ao décimo (a legenda não some antes da última palavra
+ *   terminar). Valor que o elemento já trouxe é mantido.
  * - Avisos (não são erro; não mudam o plano devolvido): destaque que não casa com nenhuma palavra
  *   do trecho, e "inicio" do elemento depois do "de" (palavras antes dele ficam sem legenda).
  *   resolverPlano(plano, palavras, pares, { avisar }) chama avisar(mensagem) para cada um. Vale também com componente em lista
@@ -181,7 +182,9 @@ const resolverLegenda = (el, id, corrigidas, problemas, avisar) => {
   // Só preenche o que faltou; o que o elemento trouxe é mantido.
   if (resolvido.inicio === undefined) resolvido.inicio = L.de;
   if (resolvido.duracao === undefined && resolvido.duracaoFrames === undefined) {
-    resolvido.duracao = (ateMs - deMs) / 1000;
+    // Até o fim da última palavra, se ela passar do "ate"; décimos de segundo, para cima.
+    const maiorFimMs = Math.max(ateMs, ...lista.map((w) => w.fimMs));
+    resolvido.duracao = Math.ceil((maiorFimMs - deMs) / 100) / 10;
   }
   if (ehUnico) {
     resolvido.props = {...propsAlvo, palavrasMs: lista};

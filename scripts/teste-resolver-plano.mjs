@@ -510,6 +510,98 @@ erro('glossário inválido', () => resolverPlano({elementos: []}, PALAVRAS, ['a'
   }
 }
 
+// ---- B3c: duracao cobre o fim da última palavra (arredondada para cima ao décimo)
+{
+  const semTempo = (id, extra = {}) => {
+    const base = elemento(id);
+    delete base.duracao;
+    return {...base, componente: 'LegendaAnimada', props: {tamanhoFonte: 0.07}, ...extra};
+  };
+  const resolverC = (el, palavras, pares = {}) =>
+    resolverPlano({video: 'x', elementos: [el]}, palavras, pares).elementos[0];
+
+  // palavra termina ANTES do ate: duracao = ate - de
+  igual(
+    'B3c: fim antes do ate -> duracao = ate - de (4,4)',
+    resolverC(semTempo('c1', {legendaPalavras: {de: '0:01.0', ate: '0:05.4'}}), PALAVRAS).duracao,
+    4.4,
+  );
+
+  // palavra termina DEPOIS do ate: cobre o fim (6500 - 5000 = 1,5 s; 'sobe' começa em 6000 = ate)
+  igual(
+    'B3c: fim depois do ate -> duracao cobre o fim (1,5)',
+    resolverC(semTempo('c2', {legendaPalavras: {de: '0:05.0', ate: '0:06.0'}}), PALAVRAS).duracao,
+    1.5,
+  );
+
+  // arredonda PARA CIMA: fim em 5460 ms, de 1000 -> 4,46 s vira 4,5
+  igual(
+    'B3c: arredonda para cima ao décimo (4,46 -> 4,5)',
+    resolverC(semTempo('c3', {legendaPalavras: {de: '0:01.0', ate: '0:03.0'}}), [p(' x', 1000, 5460)]).duracao,
+    4.5,
+  );
+  igual(
+    'B3c: 1 ms a mais já sobe um décimo (4,001 -> 4,1)',
+    resolverC(semTempo('c3b', {legendaPalavras: {de: '0:01.0', ate: '0:03.0'}}), [p(' x', 1000, 5001)]).duracao,
+    4.1,
+  );
+
+  // fim exatamente no ate: duracao = ate - de (sem subir)
+  igual(
+    'B3c: fim exatamente no ate -> 2',
+    resolverC(semTempo('c4', {legendaPalavras: {de: '0:01.0', ate: '0:03.0'}}), [p(' x', 1000, 3000)]).duracao,
+    2,
+  );
+
+  // duracao e duracaoFrames do elemento são mantidos, mesmo com a palavra passando do ate
+  igual(
+    'B3c: duracao do elemento mantida',
+    resolverC(semTempo('c5', {legendaPalavras: {de: '0:01.0', ate: '0:03.0'}, duracao: 3}), [p(' x', 1000, 5460)]).duracao,
+    3,
+  );
+  {
+    const df = resolverC(semTempo('c5b', {legendaPalavras: {de: '0:01.0', ate: '0:03.0'}, duracaoFrames: 90}), [p(' x', 1000, 5460)]);
+    igual('B3c: duracaoFrames mantido e sem duracao criada', [df.duracaoFrames, 'duracao' in df], [90, false]);
+  }
+
+  // entrada não alterada
+  {
+    const original = {video: 'x', elementos: [semTempo('c6', {legendaPalavras: {de: '0:01.0', ate: '0:03.0'}})]};
+    const antes = JSON.stringify(original);
+    const palavras = [p(' x', 1000, 5460)];
+    const antesPal = JSON.stringify(palavras);
+    const r = resolverPlano(original, palavras, {});
+    igual('B3c: plano de entrada não foi alterado', JSON.stringify(original), antes);
+    igual('B3c: palavras de entrada não foram alteradas', JSON.stringify(palavras), antesPal);
+    igual('B3c: saída recebeu a duracao', r.elementos[0].duracao, 4.5);
+  }
+
+  // o plano resolvido não dá mais aviso de duração no validador (pasta temporária, apagada no fim)
+  {
+    const pasta = mkdtempSync(path.join(os.tmpdir(), 'resolver-b3c-'));
+    try {
+      const arquivo = path.join(pasta, 'legenda.plano.json');
+      // 'nada,' começa dentro do intervalo e termina 460 ms depois do ate (como no teste-jr real)
+      const palavras = [p(' um', 16090, 16580), p(' dois', 23960, 24460)];
+      const plano = {
+        video: 'fixture',
+        orientacao: 'vertical',
+        elementos: [{...semTempo('c7', {legendaPalavras: {de: '0:16.0', ate: '0:24.0'}}), componente: 'LegendaAnimada'}],
+      };
+      const resolvido = resolverPlano(plano, palavras, {});
+      igual('B3c: duracao do plano de validador = 8,5', resolvido.elementos[0].duracao, 8.5);
+      writeFileSync(arquivo, JSON.stringify(resolvido, null, 2));
+      const r = spawnSync(process.execPath, [VALIDADOR, arquivo], {cwd: RAIZ, encoding: 'utf8'});
+      const saida = (r.stdout ?? '') + (r.stderr ?? '');
+      igual('B3c: validador exit 0', r.status, 0);
+      igual('B3c: validador sem aviso de duração', saida.includes('a última palavra termina'), false);
+      igual('B3c: validador 0 erro(s), 0 aviso(s)', saida.includes('Resumo: 0 erro(s), 0 aviso(s)'), true);
+    } finally {
+      rmSync(pasta, {recursive: true, force: true});
+    }
+  }
+}
+
 // ---- linha de comando com --saida, numa pasta temporária do sistema (nada vai pra planos/)
 {
   const RESOLVER = path.join(RAIZ, 'scripts', 'resolver-plano.mjs');
