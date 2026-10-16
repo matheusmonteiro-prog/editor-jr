@@ -8,8 +8,8 @@ rodados nesta sessão (sem renderizar, sem abrir o Studio). Reflete a branch
 
 `ARQUITETURA.md` (seção "Status") marca a **Etapa 3** como concluída em **3a (código)** (13/10/2026; **3b (material real)** fica para validar na prática nas primeiras gravações reais) e a **Etapa 6** como `[x]` (6a cumprida em 09/10/2026).
 
-Etapas 0–2 estão `[x]` (concluídas). Etapas 4, 5, 7, 8 estão `[ ]`, sem
-marca de "em andamento".
+Etapas 0–2 estão `[x]` (concluídas). Etapa 4: **4a fechada em 14/10/2026, 4b aberta**
+(depende de gravações reais). Etapas 5, 7, 8 estão `[ ]`, sem marca de "em andamento".
 
 **Etapa 8:** `scripts/render-final.mjs` já existe (monta o comando de render final),
 mas a etapa segue **sem marca de andamento** no `ARQUITETURA.md`. Ter o script não
@@ -143,8 +143,9 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   `@remotion/three`, `@types/three`) estão só no `package.json` da `testes-ideias`; aqui estão em
   `node_modules` por terem sido instalados lá em 11/10. **Inferência, não testada no trabalho.**
 - **Etapa 4, critério 4.5 (`LegendaAnimada`), commits de 13 e 14/10/2026 na `noite-etapa6`** (só
-  locais até o push). A Etapa 4 continua `[ ]` (aberta): código pronto, visual aprovado em casa
-  só com palavras de teste; falta ver com palavras reais e com o rosto do JR livre.
+  locais até o push). Etapa 4: **4a fechada em 14/10/2026, 4b aberta** (depende de gravações reais):
+  código pronto, visual aprovado no Studio em 14/10 (4.5, `PlanoLegendaTeste0926`); falta ver
+  com gravações reais e com o rosto do JR livre.
   - `3670cc3` (etapa A): componente `LegendaAnimada` e tela de teste `TesteLegendaAnimada` no
     `src/Root.tsx`; visual aprovado pelo Matheus em casa só com palavras de teste.
   - `d19f181` (B1): `criarEstaDentroDeTrecho` em `src/utils/tempoCortado.ts` diz se um tempo do

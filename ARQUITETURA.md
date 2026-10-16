@@ -24,7 +24,7 @@ Se validar bem, pode virar produto no futuro. Isso é outro projeto (ver seção
 
 ## 2. Ambiente
 - Repositório: `git@github.com:matheusmonteiro-prog/editor-jr.git` — branch `main`
-- Pasta em casa: `C:\Users\conta\editor-jr`
+- Pasta em casa: `C:\Users\zerob\editor-jr`
 - Pasta no trabalho: `C:\Users\edica\editor-jr`
 - Node v24, npm 11, Remotion (template Blank, sem Tailwind)
 - Sincronização: `git pull` ao começar, commit + push ao terminar
@@ -170,6 +170,7 @@ Conferir sempre pelo Explorador de Arquivos, ou no VLC. MP3 toca no VS Code porq
 formato livre — o que torna o sintoma ainda mais enganoso.
 
 ## 3. Decisões tomadas
+- **Teste de capacidade (16/10/2026, decisão do Matheus):** tudo o que existe hoje (0926, componentes, cores) é teste de capacidade. O padrão final só vale quando o Matheus disser "esse é o padrão".
 - **Camadas:** todo elemento (gráfico, texto, imagem, som, legenda) é uma camada separada e editável. Nada queimado no vídeo antes da exportação final.
 - **Prompt diz o quê e quando.** O onde (posição/tamanho) nasce num padrão e é ajustado visualmente depois.
 - **Formato do prompt (v1):** semi-estruturado, tipo comando, lido sem IA (custo zero). Exemplo ilustrativo, a definir na etapa 6:
@@ -362,8 +363,8 @@ saem ao lado do arquivo de câmera+mic (ver Etapa 2, "Modo multi-camada").
   juridicamente). **Decisão do Matheus (13/10/2026): não precisa de texto oficial.** O conteúdo é uma transcrição curta e/ou um emoji que passa de um canto para o outro; vem do prompt, só quando ele pedir; ajustes no componente só quando ele pedir. Critério 3.5 fechado por decisão, sem prova visual. Tempo mínimo em tela: não foi tratado nessa decisão e segue em aberto (ver `docs/perguntas-pendentes.md`).
 - `LegendaAnimada` (`src/components/v2/LegendaAnimada.tsx`) — legenda por frase, palavra a palavra, com
   contorno chapado e destaque de palavras do plano (Etapa 4, critério 4.5). **O componente existe**; a
-  conversão para frames (`src/utils/legenda.ts`), o resolvedor e o validador também. Visual aprovado
-  pelo Matheus em casa só com palavras de teste; ainda não visto com palavras reais. Detalhe em
+  conversão para frames (`src/utils/legenda.ts`), o resolvedor e o validador também. Aprovada pelo Matheus no Studio em 14/10/2026
+  (critério 4.5, `PlanoLegendaTeste0926`); 4b (gravações reais) aberta. Detalhe em
   `docs/catalogo-componentes.md` e `docs/prompt-roteiro.md`.
 - (o gráfico simples "GraficoSubindo" foi descartado na etapa 1, era só teste inicial)
 
@@ -624,7 +625,7 @@ para os detalhes e a decisão pendente.
 - Estilo padrão + destaque para frases-chave
 - **Pré-requisitos:** uma fonte (provisória até a etapa 5).
 - **Critério 4.5 (`LegendaAnimada`), commits na `noite-etapa6` (13 e 14/10/2026).** A etapa
-  4a fechada em 14/10/2026; 4b (glossário, gravações reais) pendente: código pronto, visual aprovado em casa só com palavras de teste. Como pedir no plano: `docs/prompt-roteiro.md`,
+  4a fechada em 14/10/2026; 4b (glossário, gravações reais) aberta, depende de gravações reais: código pronto; `LegendaAnimada` aprovada no Studio em 14/10/2026 (4.5). Como pedir no plano: `docs/prompt-roteiro.md`,
   "Como pedir a `LegendaAnimada`".
   - `3670cc3` (etapa A): componente `LegendaAnimada` e tela de teste `TesteLegendaAnimada` no
     `src/Root.tsx`; visual aprovado pelo Matheus em casa só com palavras de teste.

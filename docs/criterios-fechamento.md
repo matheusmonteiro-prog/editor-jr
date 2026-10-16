@@ -5,7 +5,7 @@
 visto por ele em 07/10/2026. A Etapa 3 está fechada em **3a (código)** desde 13/10/2026; **3b (material real)** fica para validar na prática nas primeiras gravações reais (decisão do Matheus em 13/10/2026).
 
 Por que existe: o `CLAUDE.md` exige um critério de fechamento escrito por etapa. Hoje:
-Etapa 3 concluída em 3a (13/10/2026); Etapa 6 com a 6a cumprida (09/10/2026); Etapa 4 com critério em rascunho (seção ao final deste arquivo).
+Etapa 3 concluída em 3a (13/10/2026); Etapa 6 com a 6a cumprida (09/10/2026); Etapa 4 com 4a fechada em 14/10/2026 e 4b aberta (seção ao final deste arquivo).
 
 Como ler: cada item vem de uma tarefa que já está no `ARQUITETURA.md` (seção 7, Etapas 3 e 6),
 exceto onde está escrito o contrário. Marcas:
@@ -115,14 +115,14 @@ etapa (regra do `CLAUDE.md`).
 
 ---
 
-## Etapa 4 — Legendas automáticas (RASCUNHO, a aprovar pelo Matheus)
+## Etapa 4 — Legendas automáticas
 
 Escrito em 13/10/2026 a partir de `docs/etapa4-notas.md` (testes de 08/10/2026 e decisões do
-Matheus). Nada abaixo foi aprovado ainda. Mesmas marcas da Etapa 3: **[M]** depende do Matheus;
+Matheus). 4.1 e 4.5 foram aprovados pelo Matheus em 14/10/2026. Mesmas marcas da Etapa 3: **[M]** depende do Matheus;
 **[E]** depende de outra etapa; **[C]** só código.
 
-Divisão como na Etapa 3: **4a (código)** e **4b (material real)**. A etapa só fecha quando todos
-os itens estiverem provados e o Matheus aprovar; este rascunho não marca nenhum.
+Divisão como na Etapa 3: **4a (código)** e **4b (material real)**. **4a fechada em 14/10/2026;
+4b aberta (depende de gravações reais).**
 
 ### 4a — Código
 
