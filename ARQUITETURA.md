@@ -739,8 +739,8 @@ reais do 0926 foram levados ao PC do trabalho e o render foi feito no WSL. Pend�
 - **A composição Remotion que lê esse JSON já existe** (`src/PlanoComposicao.tsx`,
   conversão de tempo em `src/utils/tempoCortado.ts`, validação em
   `scripts/validar-plano.mjs`) e já tem um plano real registrado em doc
-  (`planos/0926.plano.json`, composição `PlanoComposicao0926`), **não confirmado
-  pelo Matheus** — 6a cumprida em 09/10/2026 (ver Status da Etapa 6). 6b (gerar componente novo via API) ainda não começou e só começa se o
+  (`planos/0926.plano.json`, composição `PlanoComposicao0926`), **aprovado
+  pelo Matheus em 09/10/2026** — 6a cumprida em 09/10/2026 (ver Status da Etapa 6). 6b (gerar componente novo via API) ainda não começou e só começa se o
   Matheus mandar (decisão de 07/10/2026).
 
 **Nota (01/10/2026), sem alterar o formato decidido acima:** `"naPalavra"`
