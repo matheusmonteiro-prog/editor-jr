@@ -21,7 +21,7 @@ quadros, 1080×1920, 37,9 s, 2 min 28 s, `--concurrency=2`, saída `0926-real-v1
 contato. A entrada foi a **cópia reduzida 1080×1920** (`0926-diag-1080.mp4`, sha256
 `e307828a…cb581c`), passada por `--props`. O original 2160×3872 (sha256 `6b57cefa…8b8bc4`) falha no
 Remotion deste ambiente (still e render); causa exata **não confirmada**. O checklist de 7 pontos
-do 6.5 **não foi conferido item a item**. 6.3 cumprido em 09/10/2026 (conteúdo do `cortes.json`
+do 6.5 foi confirmado pelo Matheus em 16/10/2026 (sem prova item a item). 6.3 cumprido em 09/10/2026 (conteúdo do `cortes.json`
 confirmado pelo render e pelo Matheus). **6a cumprida em 09/10/2026 (critérios 6.1 a 6.6)**;
 pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 
