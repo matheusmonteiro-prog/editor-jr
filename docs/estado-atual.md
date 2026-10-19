@@ -1,4 +1,4 @@
-# Estado atual — editor-jr (02/10 a 14/10/2026)
+# Estado atual — editor-jr (02/10 a 16/10/2026)
 
 Gerado a partir do `ARQUITETURA.md`, do `git log`/`git branch -a` e de testes
 rodados nesta sessão (sem renderizar, sem abrir o Studio). Reflete a branch
@@ -139,7 +139,7 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   "trecho passa do fim do vídeo" só funciona se o validador conhece a duração (`--duracao` ou
   `videos/<video>.cortes.json`); `framesEntrada` e `framesSaida` não têm limite de máximo.
 - **Atenção no PC do trabalho:** depois do `npm install`, os 29 erros do `tsc` em
-  `src/testes/CasaExplicativa.tsx` podem voltar: os pacotes 3D (`three`, `@react-three/fiber`,
+  `src/testes/CasaExplicativa.tsx` podem voltar (**o arquivo não existe neste clone**: a pasta `src/testes/` não existe e a busca por `CasaExplicativa*` não achou nada, conferido em 19/10/2026): os pacotes 3D (`three`, `@react-three/fiber`,
   `@remotion/three`, `@types/three`) estão só no `package.json` da `testes-ideias`; aqui estão em
   `node_modules` por terem sido instalados lá em 11/10. **Inferência, não testada no trabalho.**
 - **Etapa 4, critério 4.5 (`LegendaAnimada`), commits de 13 e 14/10/2026 na `noite-etapa6`** (só
@@ -175,7 +175,7 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   em `docs/testes-editor.md`, T13). **Fases 1 e 2 feitas (ver acima):** o plano tem a lista
   `"camera"` e o validador a confere. **Continua em aberto:** `CamadaVideo` fora do `CATALOGO`
   (a câmera usa lista própria); o `deslocamentoCamera` agora tem efeito (commit `1cc8211`); falta só
-  provar com um par real de gravação (tela + câmera). Zoom e tela/câmera meio a meio só existem como teste (`src/testes/`, e a cena 1
+  provar com um par real de gravação (tela + câmera). Zoom e tela/câmera meio a meio só existem como teste (arquivos `Teste*.tsx` e `Naruto.tsx` direto em `src/`, e a cena 1
   do `TesteControleCamadas`). Cerca de 5 arquivos pelo modelo do commit `5c605ab` (AvisoCVM),
   mais um segundo vídeo no plano e o deslocamento de sincronia (estimativa, não medida).
 - Etapa 3 — `TesteControleCamadas`: aberto no Studio pelo Matheus, em casa, em 11/10/2026; ele
@@ -184,17 +184,17 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 - Etapa 3 — **commit `d7c0ce9`** (`src/Root.tsx`: `scale: 1.004` e `translate: "3.8px 2.1px"` no
   `TesteControleCamadas`, mensagem "origem a confirmar"): **arrasto no Studio confirmado pelo
   Matheus em 11/10; revertido em `b42ae1f`** (o `d7c0ce9` continua no histórico;
-  `ARQUITETURA.md:258` e `:753-754` mandam não arrastar). Foge da regra de nada de tamanho fixo
+  `ARQUITETURA.md:262` e `:402` mandam não arrastar). Foge da regra de nada de tamanho fixo
   em pixel.
 - Etapa 3 — **palma dispensada pelo Matheus em 11/10/2026** (deixou de ser pré-requisito do
-  Formato A, `ARQUITETURA.md:243-245`). **Decisão de método pendente:** alinhar tela e câmera
-  sem palma (a definir). `docs/criterios-fechamento.md:88` ainda a lista: não editado nesta rodada.
+  Formato A, `ARQUITETURA.md:247-249`). **Decisão de método pendente:** alinhar tela e câmera
+  sem palma (a definir). `docs/criterios-fechamento.md:87` ainda a lista: não editado nesta rodada.
 - Etapa 3 — **propostas de 10/10, ainda NÃO decididas** (cortes com tela + câmera):
   - **Opção A:** o `cortar-silencio.mjs` ganha um modo de 2 arquivos, e a tela com áudio decide
     os cortes. **Feita no código** (Fase A, commit `6b83f36`; detalhe no bullet abaixo).
   - **Opção B:** cortar dentro do Remotion.
   - **Fatos relacionados:** o `--limpar` mexe no áudio (`highpass`, `afftdn`, `acompressor`,
-    `loudnorm`; `ARQUITETURA.md:471-474`); a cópia leve guarda o áudio original (`ARQUITETURA.md:89`).
+    `loudnorm`; `ARQUITETURA.md:477-480`); a cópia leve guarda o áudio original (`ARQUITETURA.md:89`).
 - **Etapa 3, modo de 2 arquivos no `cortar-silencio.mjs` (Fase A, commit `6b83f36`):**
   - **O que faz:** `--tela` + `--camera` (sem `--camera-mic`); o **áudio da tela decide os
     cortes**; a tela sai **com** áudio e a câmera sem; as duas recebem a mesma lista de trechos.
@@ -288,16 +288,15 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 
 ## Branches
 
-- **`main`** — branch principal. `origin/main` está em `9432337` ("marca
-  Etapas 3 e 6 como em andamento"); a cópia local do `main` neste
-  repositório está parada em `907de81`, 4 commits atrás de `origin/main`
-  (`32cef76`, `02e24d6`, `4b69d4e`, `9432337`) — precisa de `git pull` na
-  branch `main` pra atualizar.
+- **`main`** — branch principal. `main` local e `origin/main` estão ambas em `9432337` ("marca
+  Etapas 3 e 6 como em andamento"), com 0 commits de diferença (conferido em 19/10/2026 com
+  `git rev-list --count main..origin/main` e `origin/main..main`, ambos 0). Antes, a `main` local
+  estava em `907de81`, 4 commits atrás de `origin/main` (`32cef76`, `02e24d6`, `4b69d4e`, `9432337`).
 - **`noite-etapa6`** (atual) — para ver o estado, rode `git log --oneline
   origin/noite-etapa6..HEAD` (commits que ainda não foram pro GitHub). O reflog da ref remota
   (`git reflog show origin/noite-etapa6`) registra "update by push" em 02/10 e 05/10
-  (11:25 e 18:25), ou seja, houve `git push` neste computador; o autor de todos os commits é o
-  mesmo usuário do Git ("JR EDICOES"), então **NÃO CONFIRMADO quem rodou cada push**. **Seta aprovada pelo Matheus no
+  (11:25 e 18:25), ou seja, houve `git push` neste computador; os commits do histórico são de "JR EDICOES" (165)
+  e de "Matheus Monteiro" (3, os mais recentes; conferido em 19/10/2026 com `git log --format=%an`), então **NÃO CONFIRMADO quem rodou cada push**. **Seta aprovada pelo Matheus no
   Studio em 05/10/2026 e mesclada** (a branch `seta-nova` continua existindo). Inclui: move
   `CirculoDestaque`/`CallToAction` pra "prontos", `PASTA_OUT` no
   folha-contato, `docs/etapa6-lacunas.md`, validador fortalecido +
@@ -315,11 +314,13 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   além de `origin/main` (conferido em 07/10/2026 com `git rev-list --count
   origin/main..origin/teste-whisper` = 0). Último commit: `e5c0670`, "CirculoDestaque:
   componente novo", em 01/10/2026 01:16 (`git log -1 --format=%cd origin/teste-whisper`).
-- **`teste-trabalho`** — existe só local, **0 commits** além de `origin/main` (conferido em
-  07/10/2026 com `git rev-list --count origin/main..teste-trabalho` = 0). O último commit
+- **`teste-trabalho`** — hoje existe só como `origin/teste-trabalho` (não há branch local, conferido em
+  19/10/2026). Em 07/10/2026 tinha **0 commits** além de `origin/main` (conferido com
+  `git rev-list --count origin/main..teste-trabalho` = 0). O último commit
   dela, `7c27eff` ("checagem de props obrigatórias ... no validar-plano.mjs"), já está dentro
   do `origin/main`.
-- **`wip-trabalho-0930`** — existe local e remota, 3 commits além de
+- **`wip-trabalho-0930`** — hoje existe só como `origin/wip-trabalho-0930` (não há branch local,
+  conferido em 19/10/2026); quando foi escrito, existia local e remota, com 3 commits além de
   `origin/main` (`bb77b90` CallToAction valores padrão em JS, `56796e7`
   restaura PersonagemImagem, `20193cb` WIP 30/09). O `CallToAction` dessa
   branch já foi trazido pro `main` por outro commit (`f3af6b9`, "Traz
