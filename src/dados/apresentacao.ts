@@ -28,9 +28,8 @@ export type Elemento =
       prefixo: string;
       rotulo: string;
       cards: CardCheck[];
-      moedaEmFracao: number;
     }
-  | { tipo: "cards"; cards: CardCheck[]; moedaEmFracao: number }
+  | { tipo: "cards"; cards: CardCheck[] }
   | { tipo: "texto"; imagem?: string } // imagem opcional com paralaxe
   | {
       tipo: "contraste";
@@ -75,6 +74,14 @@ export type Elemento =
       fechoEmSegundos: number;
     };
 
+// Moedas 3D caindo no fundo (blocos 02, 03 e 06): entre 2 e 4 por bloco.
+export type MoedasBloco = {
+  semente: string; // fixa por bloco, para o desenho ser reproduzível
+  aleatorias: number; // moedas sorteadas (posição e tempo)
+  // Moeda extra "entre um card e outro" (1ª rodada), no momento da fala.
+  fixa?: { emFracao: number; x: number; duracao?: number };
+};
+
 export type Bloco = {
   id: string;
   pergunta?: { texto: string; audio: string };
@@ -83,6 +90,7 @@ export type Bloco = {
   // palavra/expressão em dourado.
   texto?: string;
   destaque?: string;
+  moedas?: MoedasBloco;
   // Etiqueta "1/8" ao lado da pergunta.
   contador?: string;
   // Pílula de abertura (bloco sem pergunta).
@@ -136,8 +144,10 @@ export type Cena = {
 // Sons opcionais. Só arquivos informados pelo Matheus; vazio = lugar marcado e mudo.
 export type Sons = {
   trilha?: string;
-  whoosh?: string;
-  tick?: string;
+  whoosh?: string; // troca de bloco (8 vezes)
+  tick?: string; // pílula da pergunta aparecendo
+  moeda?: string; // cada moeda que cai
+  impacto?: string; // risca do bloco 05 e os 3 cortes secos do bloco 07
 };
 
 const A = "audio/apresentacao/";
@@ -174,8 +184,8 @@ export const BLOCOS: Bloco[] = [
         { texto: "Ações e ETFs", destaque: "ETFs", emFracao: 0.42 },
         { texto: "Brasil e EUA", destaque: "EUA", emFracao: 0.68 },
       ],
-      moedaEmFracao: 0.55,
     },
+    moedas: { semente: "bloco-02", aleatorias: 2, fixa: { emFracao: 0.55, x: 0.78 } },
   },
   {
     id: "03",
@@ -188,8 +198,8 @@ export const BLOCOS: Bloco[] = [
         { texto: "Seleção de ativos", destaque: "Seleção", emFracao: 0.12 },
         { texto: "Valor intrínseco", destaque: "intrínseco", emFracao: 0.62 },
       ],
-      moedaEmFracao: 0.4,
     },
+    moedas: { semente: "bloco-03", aleatorias: 2, fixa: { emFracao: 0.4, x: 0.24, duracao: 20 } },
   },
   {
     id: "04",
@@ -228,6 +238,7 @@ export const BLOCOS: Bloco[] = [
     texto: "+400 ativos filtrados e calculados",
     destaque: "+400",
     elemento: { tipo: "contadorLista", valorFinal: 400, prefixo: "+", folgaFinalFrames: 15, passoPulso: 20 },
+    moedas: { semente: "bloco-06", aleatorias: 3 },
   },
   {
     id: "07",
@@ -394,8 +405,24 @@ export const CENAS: Cena[] = [
 ];
 
 export const SONS: Sons = {
-  // Nenhum arquivo informado ainda (19/10/2026). Os pontos ficam marcados na
-  // timeline do Studio como "SOM whoosh" e "SOM tick".
+  trilha: "audio/apresentacao/musica-fundo.mp3",
+  // Efeitos: os arquivos NÃO existem ainda (o Pixabay bloqueou o download em
+  // 20/10/2026). Os pontos já estão marcados na timeline do Studio como
+  // "SOM whoosh/tick/moeda/impacto (sem arquivo)". Para ligar, coloque o arquivo
+  // em public/audio/apresentacao/sfx/ e descomente a linha:
+  // whoosh: "audio/apresentacao/sfx/sfx-whoosh.mp3",
+  // tick: "audio/apresentacao/sfx/sfx-tick.mp3",
+  // moeda: "audio/apresentacao/sfx/sfx-moeda.mp3",
+  // impacto: "audio/apresentacao/sfx/sfx-impacto.mp3",
+};
+
+// Volumes (0 a 1). A narração toca em 1,0.
+export const VOLUMES = {
+  musica: 0.2, // blocos 00 a 07
+  musicaFinal: 0.35, // bloco 08
+  efeitos: 0.4,
+  fadeInMusicaFrames: 30,
+  fadeOutMusicaFrames: 60, // nos últimos 2 segundos
 };
 
 export const LOGO = "images/logo-jr.png";

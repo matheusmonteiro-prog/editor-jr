@@ -2,9 +2,10 @@ import React from "react";
 import { AbsoluteFill, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
 import type { CalculateMetadataFunction } from "remotion";
 import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
-import { BLOCOS, CENAS, LOGO, SONS } from "./dados/apresentacao";
+import { BLOCOS, CENAS, LOGO, SONS, VOLUMES } from "./dados/apresentacao";
 import type { Bloco } from "./dados/apresentacao";
 import { acharBloco, montarLinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
+import { planoMoedas } from "./utils/moedasApresentacao";
 import type { BlocoNoTempo, LinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
 import { COR } from "./components/apresentacao/marca";
 import { FundoCenas } from "./components/apresentacao/FundoCenas";
@@ -66,7 +67,7 @@ const MarcaSom: React.FC<{ nome: string; arquivo?: string; from: number; volume?
   nome,
   arquivo,
   from,
-  volume = 0.8,
+  volume = VOLUMES.efeitos,
 }) => (
   <Sequence name={`SOM ${nome}${arquivo ? "" : " (sem arquivo)"}`} from={from} durationInFrames={12} layout="none">
     {arquivo ? <Html5Audio src={staticFile(arquivo)} volume={volume} /> : null}
@@ -84,6 +85,11 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
 
   return (
     <AbsoluteFill>
+      {/* Moedas caindo: por cima do fundo e por trás de todo o texto (entram primeiro). */}
+      {planoMoedas(bloco.moedas, t).map((m, i) => (
+        <Moeda3D key={`moeda-${i}`} inicio={m.inicio} duracao={m.duracao} x={m.x} tamanho={m.tamanho} />
+      ))}
+
       {/* Pílula: pergunta (com contador) ou chamada de abertura. */}
       {bloco.pergunta ? (
         <PilulaPergunta texto={bloco.pergunta.texto} contador={bloco.contador} inicio={0} saida={fimElementos} />
@@ -103,7 +109,6 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
 
       {el.tipo === "contadorCards" ? (
         <>
-          <Moeda3D inicio={Math.round(resp + t.respostaFrames * el.moedaEmFracao)} x={0.78} />
           <ContadorImpacto
             valorFinal={el.valorFinal}
             prefixo={el.prefixo}
@@ -127,7 +132,6 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
 
       {el.tipo === "cards" ? (
         <>
-          <Moeda3D inicio={Math.round(resp + t.respostaFrames * el.moedaEmFracao)} duracao={20} x={0.24} />
           {el.cards.map((card, i) => (
             <CardCheckFlip
               key={card.texto}
@@ -303,6 +307,30 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
   const b01 = acharBloco(linha, "01");
   const b08 = acharBloco(linha, "08");
   const inicioVoo = b01.inicio + b01.duracao - 22;
+  // Volume da música: fade-in, 0,20 até o bloco 07, sobe para 0,35 no bloco 08, fade-out no fim.
+  const volumeMusica = (f: number) => {
+    const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+    const entrada = interpolate(f, [0, VOLUMES.fadeInMusicaFrames], [0, 1], clamp);
+    const saida = interpolate(f, [linha.total - VOLUMES.fadeOutMusicaFrames, linha.total], [1, 0], clamp);
+    const base = interpolate(f, [b08.inicio - 10, b08.inicio + 10], [VOLUMES.musica, VOLUMES.musicaFinal], clamp);
+    return base * entrada * saida;
+  };
+
+  // Pontos do efeito de impacto: a risca do bloco 05 e os 3 cortes secos do bloco 07.
+  const pontosDeImpacto: { nome: string; frame: number }[] = [];
+  BLOCOS.forEach((bloco) => {
+    const t = acharBloco(linha, bloco.id);
+    const el = bloco.elemento;
+    if (el.tipo !== "contraste") return;
+    if (el.depoisDoRisco === "recuar") {
+      // Bloco 05: quando a risca termina de cortar o "DIFÍCIL".
+      pontosDeImpacto.push({ nome: bloco.id, frame: t.inicio + t.respostaInicio + 2 + el.riscoAposFrames + el.duracaoRisco });
+    }
+    (el.frases ?? []).forEach((f, i) => {
+      pontosDeImpacto.push({ nome: `${bloco.id}.${i + 1}`, frame: t.inicio + t.respostaInicio + Math.round(f.emSegundos * 30) });
+    });
+  });
+
   const cta = BLOCOS.find((b) => b.id === "08")?.elemento;
   // O logo volta ao centro no momento definido para o bloco 08 (padrão: 4 frames depois do início).
   const inicioVolta =
@@ -368,16 +396,31 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
         );
       })}
 
-      {/* Pontos de som: whoosh na troca de cena/bloco, tick na entrada da pílula. */}
+      {/* Pontos de som. Sem arquivo em SONS, cada ponto fica só marcado na timeline (mudo). */}
+      {/* SOM: whoosh aqui, em cada troca de bloco (8 vezes), junto do wipe diagonal. */}
       {linha.blocos.slice(1).map((t) => (
         <MarcaSom key={`whoosh-${t.id}`} nome={`whoosh ${t.id}`} arquivo={SONS.whoosh} from={t.inicio - 4} />
       ))}
+      {/* SOM: tick aqui, quando a pílula entra (8 perguntas + a chamada "em breve" da abertura). */}
       {linha.blocos.map((t) => (
         <MarcaSom key={`tick-${t.id}`} nome={`tick ${t.id}`} arquivo={SONS.tick} from={t.inicio + (t.id === "00" ? 2 : 0)} />
       ))}
+      {/* SOM: moeda aqui, em cada moeda que começa a cair (blocos 02, 03 e 06). */}
+      {BLOCOS.flatMap((bloco) => {
+        const t = acharBloco(linha, bloco.id);
+        return planoMoedas(bloco.moedas, t).map((m, i) => (
+          <MarcaSom key={`moeda-${bloco.id}-${i}`} nome={`moeda ${bloco.id}.${i + 1}`} arquivo={SONS.moeda} from={t.inicio + m.inicio} />
+        ));
+      })}
+      {/* SOM: impacto aqui, na risca do bloco 05 e nos 3 cortes secos do bloco 07 (4 vezes). */}
+      {pontosDeImpacto.map((p) => (
+        <MarcaSom key={`impacto-${p.nome}`} nome={`impacto ${p.nome}`} arquivo={SONS.impacto} from={p.frame} />
+      ))}
+
+      {/* Música de fundo: do frame 0, sem loop (é mais longa que o vídeo), fade-in e fade-out. */}
       {SONS.trilha ? (
-        <Sequence name="SOM trilha">
-          <Html5Audio src={staticFile(SONS.trilha)} volume={0.15} />
+        <Sequence name="Música de fundo" from={0}>
+          <Html5Audio src={staticFile(SONS.trilha)} volume={volumeMusica} />
         </Sequence>
       ) : (
         <Sequence name="SOM trilha (sem arquivo)" durationInFrames={1} layout="none">
