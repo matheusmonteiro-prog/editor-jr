@@ -327,6 +327,8 @@ frames (`VOLUMES.subidaMusicaCtaFrames`); fade-out de 60 frames no fim mantido.
 | c) sfx-moeda em cada moeda dos blocos 02, 06 e 08 (volume 0,25) | **Aplicado** |
 | d) Música no bloco 08 em 0,12 na fala, sobe até 0,28, fade-out de 60 frames | **Aplicado** |
 
+| e) Arquivos de `public/` com extensão dupla | **Conferido, nada renomeado** (nenhum código usa esses nomes): `public/images/logo-chapeu.png.png`, `public/music/musica-fundo.mp3.mp3` (cópia da música; a que o vídeo usa é `public/audio/apresentacao/musica-fundo.mp3`, já corrigida) e `public/videos/teste-real-camera.mp4.mp4` (de testes antigos) |
+
 ### 1. Pílula "O QUE NINGUÉM TE MOSTROU ANTES"
 Logo abaixo da pílula da pergunta. Inter 600, caixa alta, texto creme #F5F0E6 sobre #0F2A1D, raio 28 px, sem
 borda, sem sombra, sem transparência, sem dourado. Entra no **início exato da fala** do `08-resposta` e fica até
