@@ -14,7 +14,7 @@ export const COR = {
 // Verde #1DD41E: RESERVADO para sinal de compra do Método JR. Não usar aqui.
 
 export const FONTE_TITULO = carregarFraunces("normal", {
-  weights: ["700"],
+  weights: ["700", "900"],
   subsets: ["latin", "latin-ext"],
 }).fontFamily;
 

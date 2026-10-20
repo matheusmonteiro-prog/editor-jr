@@ -18,6 +18,7 @@ type Props = {
   inicioVolta: number; // frame global: começa a voltar ao centro
   centro?: Pose;
   canto?: Pose;
+  centroFinal?: Pose; // onde o logo pousa na volta (padrão: o mesmo centro da entrada)
 };
 
 const CAMADAS_ESPESSURA = 6;
@@ -29,7 +30,9 @@ export const Logo3D: React.FC<Props> = ({
   inicioVolta,
   centro = { x: 0.5, y: 0.33, largura: 0.62 },
   canto = { x: 0.865, y: 0.128, largura: 0.2 },
+  centroFinal,
 }) => {
+  const fim = centroFinal ?? centro;
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
@@ -66,10 +69,10 @@ export const Logo3D: React.FC<Props> = ({
   } else {
     const p = pVolta;
     const deX = canto.x;
-    x = interpolate(p, [0, 1], [deX, centro.x]);
+    x = interpolate(p, [0, 1], [deX, fim.x]);
     const arco = Math.sin(Math.min(1, Math.max(0, p)) * Math.PI) * 0.05;
-    y = interpolate(p, [0, 1], [canto.y, centro.y]) - arco;
-    largura = interpolate(p, [0, 1], [canto.largura, centro.largura]);
+    y = interpolate(p, [0, 1], [canto.y, fim.y]) - arco;
+    largura = interpolate(p, [0, 1], [canto.largura, fim.largura]);
     anguloY = -360 * (1 - p);
   }
 

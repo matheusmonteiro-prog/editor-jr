@@ -21,6 +21,10 @@ type Props = {
   entrada?: "subir" | "escala";
   intervalo?: number; // frames entre palavras
   opacidadeMax?: number;
+  peso?: 700 | 900; // peso da Fraunces (só fonte "titulo")
+  // Pulso extra em uma palavra (ex.: NINGUÉM 1 → 1,2 → 1). emFrame = quando
+  // pulsa (padrão: logo que a palavra entra).
+  pulsoPalavra?: { palavra: string; escala: number; emFrame?: number };
 };
 
 const normalizar = (s: string) => s.toLocaleUpperCase("pt-BR").replace(/[.,:;!?]/g, "");
@@ -55,6 +59,8 @@ export const TextoKinetic: React.FC<Props> = ({
   entrada = "subir",
   intervalo = 3,
   opacidadeMax = 1,
+  peso = 700,
+  pulsoPalavra,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
@@ -77,6 +83,13 @@ export const TextoKinetic: React.FC<Props> = ({
     if (indices.has(i)) dourado.add(palavras.length);
     palavras.push(p);
   });
+  // Ordem de entrada: só as palavras contam (a quebra de linha não gasta tempo).
+  const ordem: number[] = [];
+  let contadas = 0;
+  palavras.forEach((p) => {
+    ordem.push(contadas);
+    if (p !== "\n") contadas++;
+  });
   const fontSize = width * tamanho;
   const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
@@ -93,7 +106,7 @@ export const TextoKinetic: React.FC<Props> = ({
         columnGap: fontSize * 0.34,
         rowGap: fontSize * 0.05,
         fontFamily: fonte === "titulo" ? FONTE_TITULO : FONTE_ROTULO,
-        fontWeight: fonte === "titulo" ? 700 : 600,
+        fontWeight: fonte === "titulo" ? peso : 600,
         letterSpacing: fonte === "titulo" ? ESPACO_TITULO : ESPACO_ROTULO,
         fontSize,
         lineHeight: 1.08,
@@ -105,14 +118,14 @@ export const TextoKinetic: React.FC<Props> = ({
         if (palavra === "\n") {
           return <div key={i} style={{ flexBasis: "100%", height: 0 }} />;
         }
-        const t0 = inicio + i * intervalo;
+        const t0 = inicio + ordem[i] * intervalo;
         const p = spring({ frame: frame - t0, fps, config: MOLA, durationInFrames: DURACAO_ENTRADA });
         const opEntrada = interpolate(frame - t0, [0, 5], [0, 1], clamp);
 
         let ySaida = 0;
         let opSaida = 1;
         if (saida !== undefined) {
-          const ts = saida + i * intervalo;
+          const ts = saida + ordem[i] * intervalo;
           const q = interpolate(frame - ts, [0, DURACAO_SAIDA], [0, 1], clamp);
           ySaida = -q * fontSize * 0.6;
           opSaida = 1 - q;
@@ -131,6 +144,16 @@ export const TextoKinetic: React.FC<Props> = ({
           ? interpolate(frame - tAcende, [0, 4, 9], [1, 1.15, 1], clamp)
           : 1;
 
+        const extra =
+          pulsoPalavra && normalizar(palavra) === normalizar(pulsoPalavra.palavra)
+            ? interpolate(
+                frame - (pulsoPalavra.emFrame ?? t0 + DURACAO_ENTRADA),
+                [0, 5, 12],
+                [1, pulsoPalavra.escala, 1],
+                clamp,
+              )
+            : 1;
+
         return (
           <span
             key={i}
@@ -139,7 +162,7 @@ export const TextoKinetic: React.FC<Props> = ({
               position: "relative",
               whiteSpace: "nowrap",
               opacity: opEntrada * opSaida * opacidadeMax,
-              transform: `translateY(${ySaida}px) ${transformEntrada} scale(${pulso})`,
+              transform: `translateY(${ySaida}px) ${transformEntrada} scale(${pulso * extra})`,
               transformOrigin: "50% 60%",
             }}
           >

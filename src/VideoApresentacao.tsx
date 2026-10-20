@@ -21,6 +21,8 @@ import { Particulas } from "./components/apresentacao/Particulas";
 import { WipeBloco } from "./components/apresentacao/WipeBloco";
 import { ListaRolando } from "./components/apresentacao/ListaRolando";
 import { FraseIcone } from "./components/apresentacao/FraseIcone";
+import { TextoPulso } from "./components/apresentacao/TextoPulso";
+import { LinhaDourada } from "./components/apresentacao/LinhaDourada";
 
 // Vídeo de apresentação do JR: pergunta e resposta, sem câmera.
 // Dados em src/dados/apresentacao.ts; duração calculada pelos áudios reais.
@@ -252,17 +254,43 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
         </>
       ) : null}
 
-      {el.tipo === "cartela" && bloco.texto ? (
+      {el.tipo === "cta" ? (
+        // Bloco 08: chamada final. Cada parte entra no momento da fala (tempos em segundos
+        // desde o início do áudio da resposta).
         <>
-          <TextoKinetic texto={bloco.texto} destaque={bloco.destaque} inicio={resp} top={0.56} tamanho={0.095} />
+          {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
+          <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
+          <TextoKinetic texto={el.chamada} inicio={resp} top={0.2} tamanho={0.1} peso={900} />
+          <LinhaDourada inicio={t.respostaInicio + Math.round(el.linhaDouradaEmSegundos * 30)} duracao={12} top={0.335} />
           <TextoKinetic
-            texto={el.linhaMenor}
-            inicio={resp + el.linhaMenorAposFrames}
-            top={0.655}
-            tamanho={0.04}
+            texto={el.miolo}
+            cor={COR.dourado}
+            peso={900}
+            intervalo={4}
+            inicio={t.respostaInicio + Math.round(el.mioloEmSegundos * 30)}
+            top={0.355}
+            tamanho={0.058}
+            pulsoPalavra={{
+              palavra: el.palavraExtra,
+              escala: 1.2,
+              emFrame: t.respostaInicio + Math.round(el.palavraExtraEmSegundos * 30),
+            }}
+          />
+          <TextoPulso
+            texto={el.marca}
+            cor={COR.dourado}
+            pulso={1.15}
+            brilho
+            inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * 30)}
+            top={0.675}
+            tamanho={0.11}
+          />
+          <TextoPulso
+            texto={el.fecho}
             fonte="rotulo"
-            intervalo={2}
-            opacidadeMax={0.9}
+            inicio={t.respostaInicio + Math.round(el.fechoEmSegundos * 30)}
+            top={0.77}
+            tamanho={0.045}
           />
         </>
       ) : null}
@@ -275,7 +303,10 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
   const b01 = acharBloco(linha, "01");
   const b08 = acharBloco(linha, "08");
   const inicioVoo = b01.inicio + b01.duracao - 22;
-  const inicioVolta = b08.inicio + 4;
+  const cta = BLOCOS.find((b) => b.id === "08")?.elemento;
+  // O logo volta ao centro no momento definido para o bloco 08 (padrão: 4 frames depois do início).
+  const inicioVolta =
+    cta && cta.tipo === "cta" ? b08.inicio + b08.respostaInicio + Math.round(cta.logoEmSegundos * 30) : b08.inicio + 4;
 
   return (
     <AbsoluteFill style={{ backgroundColor: COR.fundo }}>
@@ -296,7 +327,13 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
       })}
 
       <Sequence name="Logo 3D">
-        <Logo3D src={LOGO} inicioGiro={b00.inicio + 4} inicioVoo={inicioVoo} inicioVolta={inicioVolta} />
+        <Logo3D
+          src={LOGO}
+          inicioGiro={b00.inicio + 4}
+          inicioVoo={inicioVoo}
+          inicioVolta={inicioVolta}
+          centroFinal={{ x: 0.5, y: 0.565, largura: 0.36 }}
+        />
       </Sequence>
 
       {/* Wipe diagonal em cada troca de bloco, encavalado com a pílula seguinte. */}

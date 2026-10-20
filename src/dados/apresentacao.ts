@@ -57,7 +57,23 @@ export type Elemento =
       folgaFinalFrames: number; // o contador para tantos frames antes do narrador terminar
       passoPulso: number; // pulsa a cada N números
     }
-  | { tipo: "cartela"; linhaMenor: string; linhaMenorAposFrames: number };
+  | {
+      // Bloco 08 (rodada 2): chamada final em partes, cada uma no seu momento da fala.
+      // Tempos em SEGUNDOS desde o início do áudio da resposta (pausas do
+      // narrador medidas com silencedetect; se o áudio for regerado, conferir).
+      tipo: "cta";
+      chamada: string; // "Siga este canal." (kinetic, branco, grande)
+      linhaDouradaEmSegundos: number; // linha dourada atravessa a tela
+      miolo: string; // "\n" = quebra de linha (kinetic, dourado, mais lento)
+      mioloEmSegundos: number;
+      palavraExtra: string; // palavra do miolo com pulso extra (1 → 1,2 → 1)
+      palavraExtraEmSegundos: number;
+      logoEmSegundos: number; // o logo volta ao centro girando uma vez
+      marca: string; // "Método JR." (dourado, grande, uma batida só)
+      marcaEmSegundos: number;
+      fecho: string; // "Em breve." (branco, menor)
+      fechoEmSegundos: number;
+    };
 
 export type Bloco = {
   id: string;
@@ -241,15 +257,21 @@ export const BLOCOS: Bloco[] = [
   {
     id: "08",
     pergunta: { texto: "Como conhecer o Método JR?", audio: `${A}08-pergunta.mp3` },
-    // 08-resposta.mp3 ainda não existe (19/10/2026): fica mudo com a reserva.
     resposta: { audio: `${A}08-resposta.mp3` },
     contador: "8/8",
-    texto: "Siga o canal",
-    destaque: "Siga",
     elemento: {
-      tipo: "cartela",
-      linhaMenor: "Acompanhe a chegada\ndo Método JR", // "\n" = quebra de linha
-      linhaMenorAposFrames: 24,
+      tipo: "cta",
+      chamada: "Siga este canal.",
+      linhaDouradaEmSegundos: 1.0,
+      miolo: "Aqui você vai ver\nO que ninguém\nTe mostrou antes.",
+      mioloEmSegundos: 1.45,
+      palavraExtra: "ninguém",
+      palavraExtraEmSegundos: 3.45,
+      logoEmSegundos: 3.3,
+      marca: "Método JR.",
+      marcaEmSegundos: 5.29,
+      fecho: "Em breve.",
+      fechoEmSegundos: 7.02,
     },
   },
 ];
