@@ -16,6 +16,7 @@ import { TesteRoteiro02 } from "./TesteRoteiro02";
 import "./index.css";
 import { MyComposition } from "./Composition";
 import { PlanoComposicao } from "./PlanoComposicao";
+import { VideoApresentacao, calcularApresentacao } from "./VideoApresentacao";
 import { CamadaVideo } from "./components/v2/CamadaVideo";
 import { LegendaAnimada } from "./components/v2/LegendaAnimada";
 import plano0926 from "../planos/0926.plano.json";
@@ -163,6 +164,20 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <MyComposition />
+      <Folder name="Videos">
+        {/* Vídeo de apresentação (pergunta e resposta, sem câmera). Duração
+            calculada pelos áudios de public/audio/apresentacao/. */}
+        <Composition
+          id="VideoApresentacao"
+          component={VideoApresentacao}
+          durationInFrames={300}
+          fps={30}
+          width={1080}
+          height={1920}
+          defaultProps={{}}
+          calculateMetadata={calcularApresentacao}
+        />
+      </Folder>
       <Folder name="Testes">
         <Composition
           id="naruto"

@@ -25,6 +25,23 @@ do 6.5 foi confirmado pelo Matheus em 16/10/2026 (sem prova item a item). 6.3 cu
 confirmado pelo render e pelo Matheus). **6a cumprida em 09/10/2026 (critérios 6.1 a 6.6)**;
 pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
 
+## Vídeo de apresentação (fora das etapas; branch `video-apresentacao`, 19/10/2026)
+
+Projeto à parte, pedido pelo Matheus em 19/10/2026. Branch `video-apresentacao`, criada a partir
+da `noite-etapa6`; o PR/merge volta para a `noite-etapa6`, **não** para a `main`.
+- **Feito (sem commit):** composição `VideoApresentacao` (pasta Videos do Studio), dados em
+  `src/dados/apresentacao.ts` (modelo para outros vídeos pergunta e resposta), componentes em
+  `src/components/apresentacao/`, `GradeAtivos3D` novo no catálogo, `mediabunny` 1.56.1 declarado
+  no `package.json`. Duração pelos áudios: 2353 frames (78,4 s), conferida contra o `ffprobe`.
+- **Stills:** 9 em `out/stills/apresentacao/` (frame do meio de cada bloco), renderizados em casa
+  em 19/10/2026 (o `remotion still` funcionou no Windows).
+- **Falta:** o Matheus ver no Studio e aprovar; só depois o render em
+  `out/video-apresentacao.mp4`. `08-resposta.mp3` não existe (bloco 08 mudo, reserva de 90
+  frames). `software-recorte.png` não existe (bloco 04 só com texto). Nenhum arquivo de whoosh,
+  tick ou trilha (pontos marcados na timeline como "SOM ...").
+- **Sem commit:** áudios, 8 imagens originais, imagens prontas e logo (decisão do Matheus).
+- Rascunho do README do PR, com a lista de quebras de marca: `docs/pr-video-apresentacao.md`.
+
 ## Feito (conforme histórico de commits e `docs/relatorio-noite-0201.md`)
 
 - Catálogo (Etapa 3): `CirculoDestaque` e `CallToAction` movidos pra

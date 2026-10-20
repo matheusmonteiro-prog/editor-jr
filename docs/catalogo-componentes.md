@@ -559,3 +559,37 @@ não visto no Studio com palavras reais** nem com o rosto do JR.
 | `maiusculas` | `boolean` | não (tem `.default()`) | `true` |
 | `maxPalavrasPorFrase` | `number` (1 a 12) | não (tem `.default()`) | `4` |
 | `pausaQuebraMs` | `number` (min 0) | não (tem `.default()`) | `700` |
+
+### GradeAtivos3D (v2)
+**Arquivo:** `src/components/v2/GradeAtivos3D.tsx`
+**O que faz:** grade de cubos baixinhos (padrão 20x20 = 400) em **CSS 3D, sem biblioteca**, num
+plano inclinado visto de câmera baixa (`rotateX` + `rotateZ`, com `perspective`). Os cubos
+começam apagados (`corApagado` com borda creme fraca) e acendem numa **onda diagonal** de canto a
+canto em `duracaoOnda` frames; cada cubo pulsa (fica mais alto e volta) ao passar para
+`corAceso`. Luz baixa simulada: frente do cubo mais escura, lateral em meio-tom, topo na cor
+cheia. **Sem número dentro dos cubos.** Tudo em fração de `width`/`height`.
+**Origem:** criado para o vídeo de apresentação (bloco 06, "+400 ativos"), com a **exceção de 3D**
+autorizada pelo Matheus em 19/10/2026 só para esse vídeo. Usa `filter: brightness()` nas faces
+(não é blur).
+Registrado em `src/Composition.tsx` (pasta Catalogo, 1080x1920) e no `CATALOGO` de
+`src/PlanoComposicao.tsx`.
+**Status:** código pronto (19/10/2026); **ainda não visto pelo Matheus no Studio.**
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `colunas` | `number` inteiro (1 a 40) | não (tem `.default()`) | `20` |
+| `linhas` | `number` inteiro (1 a 40) | não (tem `.default()`) | `20` |
+| `inclinacao` (graus, eixo X) | `number` (0 a 80) | não (tem `.default()`) | `58` |
+| `giro` (graus, eixo Z) | `number` (-45 a 45) | não (tem `.default()`) | `-18` |
+| `frameInicio` (começa a onda) | `number` (min 0) | não (tem `.default()`) | `0` |
+| `framesAntesDaOnda` (a grade aparece apagada esse tanto antes da onda) | `number` (min 0) | não (tem `.default()`) | `12` |
+| `duracaoOnda` (frames do 1º ao último cubo) | `number` (min 1) | não (tem `.default()`) | `40` |
+| `corApagado` | `zColor()` | não (tem `.default()`) | `"#0F2A1D"` |
+| `corAceso` | `zColor()` | não (tem `.default()`) | `"#F5F0E6"` |
+| `corBorda` | `zColor()` | não (tem `.default()`) | `"#F5F0E6"` |
+| `largura` (fração da largura) | `number` (0.1 a 1.5) | não (tem `.default()`) | `0.95` |
+| `centroY` (fração da altura) | `number` (0 a 1) | não (tem `.default()`) | `0.4` |
+| `alturaCubo` (fração do lado da célula) | `number` (0.05 a 1) | não (tem `.default()`) | `0.28` |
+| `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
+| `framesSaida` | `number` (min 1) | não (tem `.default()`) | `12` |
+| `corFundo` | `zColor()` | **sim** | transparente |

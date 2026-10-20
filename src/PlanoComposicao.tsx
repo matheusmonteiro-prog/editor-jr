@@ -31,6 +31,7 @@ import { Contador } from "./components/v2/Contador";
 import { AvisoCVM } from "./components/v2/AvisoCVM";
 import { ArrobaInstagram } from "./components/v2/ArrobaInstagram";
 import { LegendaAnimada } from "./components/v2/LegendaAnimada";
+import { GradeAtivos3D } from "./components/v2/GradeAtivos3D";
 import { criarParaFrameCortado, type TrechoCortado } from "./utils/tempoCortado";
 import { converterPalavrasMs } from "./utils/legenda";
 
@@ -61,6 +62,7 @@ const CATALOGO: Record<string, React.ComponentType<any>> = {
   AvisoCVM,
   ArrobaInstagram,
   LegendaAnimada,
+  GradeAtivos3D,
 };
 
 type ElementoPlano = {

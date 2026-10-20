@@ -44,6 +44,10 @@ import {
   LegendaAnimada,
   legendaAnimadaSchema,
 } from "./components/v2/LegendaAnimada";
+import {
+  GradeAtivos3D,
+  gradeAtivos3DSchema,
+} from "./components/v2/GradeAtivos3D";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -540,6 +544,33 @@ export const MyComposition = () => {
           maiusculas: true,
           maxPalavrasPorFrase: 4,
           pausaQuebraMs: 700,
+        }}
+      />
+      <Composition
+        id="GradeAtivos3D"
+        component={GradeAtivos3D}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={gradeAtivos3DSchema}
+        defaultProps={{
+          colunas: 20,
+          linhas: 20,
+          inclinacao: 58,
+          giro: -18,
+          frameInicio: 22,
+          framesAntesDaOnda: 12,
+          duracaoOnda: 40,
+          corApagado: "#0F2A1D",
+          corAceso: "#F5F0E6",
+          corBorda: "#F5F0E6",
+          largura: 0.95,
+          centroY: 0.4,
+          alturaCubo: 0.28,
+          duracaoFrames: 150,
+          framesSaida: 12,
+          corFundo: "#0F2A1D",
         }}
       />
     </Folder>
