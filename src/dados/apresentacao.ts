@@ -12,6 +12,13 @@ export type CardCheck = {
   emFracao: number;
 };
 
+export type FraseComIcone = {
+  texto: string;
+  destaque: string; // UMA palavra em dourado
+  icone: "check" | "engrenagem" | "lampada";
+  emSegundos: number; // corte de entrada, desde o início do áudio da resposta
+};
+
 export type Elemento =
   | { tipo: "abertura" } // logo girando + título
   | { tipo: "logoSpotlight" } // logo no centro com brilho; no fim voa para o canto
@@ -36,6 +43,11 @@ export type Elemento =
       particulas: boolean;
       legenda?: string;
       legendaEmFracao?: number;
+      // Bloco 07 (rodada 2): frases inteiras com ícone, em corte seco, que
+      // entram depois da risca. Tempos em SEGUNDOS desde o início do áudio da
+      // resposta (medidos pelas pausas do narrador com silencedetect).
+      frases?: FraseComIcone[];
+      fimFrasesSegundos?: number;
     }
   | {
       // Bloco 06 (rodada 2): lista rolando no fundo + contador grande 0 → valorFinal.
@@ -209,8 +221,6 @@ export const BLOCOS: Bloco[] = [
     },
     resposta: { audio: `${A}07-resposta.mp3` },
     contador: "7/8",
-    texto: "Mostra como faz",
-    destaque: "Mostra",
     elemento: {
       tipo: "contraste",
       riscado: "Recomenda compra\nou venda", // "\n" = quebra de linha
@@ -218,8 +228,14 @@ export const BLOCOS: Bloco[] = [
       duracaoRisco: 8,
       depoisDoRisco: "apagar",
       particulas: false,
+      frases: [
+        { texto: "O que faz", destaque: "faz", icone: "check", emSegundos: 3.25 },
+        { texto: "Como faz", destaque: "faz", icone: "engrenagem", emSegundos: 4.32 },
+        { texto: "E por que faz", destaque: "faz", icone: "lampada", emSegundos: 5.43 },
+      ],
+      fimFrasesSegundos: 7.15,
       legenda: "A decisão é de cada investidor.",
-      legendaEmFracao: 0.62,
+      legendaEmFracao: 0.6,
     },
   },
   {

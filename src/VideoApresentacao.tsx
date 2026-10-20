@@ -20,6 +20,7 @@ import { TextoRiscado } from "./components/apresentacao/TextoRiscado";
 import { Particulas } from "./components/apresentacao/Particulas";
 import { WipeBloco } from "./components/apresentacao/WipeBloco";
 import { ListaRolando } from "./components/apresentacao/ListaRolando";
+import { FraseIcone } from "./components/apresentacao/FraseIcone";
 
 // Vídeo de apresentação do JR: pergunta e resposta, sem câmera.
 // Dados em src/dados/apresentacao.ts; duração calculada pelos áudios reais.
@@ -143,75 +144,82 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
         <TextoKinetic texto={bloco.texto} destaque={bloco.destaque} inicio={resp} saida={fimTexto} top={0.38} tamanho={0.085} />
       ) : null}
 
-      {el.tipo === "contraste" && bloco.texto ? (
-        el.depoisDoRisco === "recuar" ? (
-          // Bloco 05: DIFÍCIL riscado sai para trás; FÁCIL E PRÁTICO entra em escala.
-          <>
-            <TextoRiscado
-              texto={el.riscado}
-              inicio={resp}
-              frameRisco={resp + el.riscoAposFrames}
-              duracaoRisco={el.duracaoRisco}
-              depois="recuar"
-              top={0.42}
-              tamanho={0.17}
-            />
-            {el.particulas ? (
-              <Particulas
-                modo="explosao"
-                quantidade={36}
-                semente="facil"
-                inicio={resp + el.riscoAposFrames + el.duracaoRisco + 6}
-                duracao={36}
-                centroY={0.44}
-                tamanhoMax={0.009}
-              />
-            ) : null}
-            <TextoKinetic
-              texto={bloco.texto}
-              destaque={bloco.destaque}
+      {el.tipo === "contraste" && el.depoisDoRisco === "recuar" && bloco.texto ? (
+        // Bloco 05: DIFÍCIL riscado sai para trás; FÁCIL E PRÁTICO entra em escala.
+        <>
+          <TextoRiscado
+            texto={el.riscado}
+            inicio={resp}
+            frameRisco={resp + el.riscoAposFrames}
+            duracaoRisco={el.duracaoRisco}
+            depois="recuar"
+            top={0.42}
+            tamanho={0.17}
+          />
+          {el.particulas ? (
+            <Particulas
+              modo="explosao"
+              quantidade={36}
+              semente="facil"
               inicio={resp + el.riscoAposFrames + el.duracaoRisco + 6}
-              saida={fimTexto}
-              top={0.37}
-              tamanho={0.12}
-              entrada="escala"
+              duracao={36}
+              centroY={0.44}
+              tamanhoMax={0.009}
             />
-          </>
-        ) : (
-          // Bloco 07: frase riscada fica fraca em cima; MOSTRA COMO FAZ entra embaixo.
-          <>
-            <TextoRiscado
-              texto={el.riscado}
-              inicio={resp}
-              frameRisco={resp + el.riscoAposFrames}
-              duracaoRisco={el.duracaoRisco}
-              depois="apagar"
-              saida={fimElementos}
-              top={0.31}
-              tamanho={0.082}
-            />
-            <TextoKinetic
-              texto={bloco.texto}
-              destaque={bloco.destaque}
-              inicio={resp + el.riscoAposFrames + el.duracaoRisco + 4}
-              saida={fimTexto}
-              top={0.43}
-              tamanho={0.115}
-            />
-            {el.legenda ? (
-              <TextoKinetic
-                texto={el.legenda}
-                inicio={Math.round(resp + t.respostaFrames * (el.legendaEmFracao ?? 0.6))}
-                saida={fimTexto}
-                top={0.6}
-                tamanho={0.036}
-                fonte="rotulo"
-                intervalo={2}
-                opacidadeMax={0.85}
+          ) : null}
+          <TextoKinetic
+            texto={bloco.texto}
+            destaque={bloco.destaque}
+            inicio={resp + el.riscoAposFrames + el.duracaoRisco + 6}
+            saida={fimTexto}
+            top={0.37}
+            tamanho={0.12}
+            entrada="escala"
+          />
+        </>
+      ) : null}
+
+      {el.tipo === "contraste" && el.depoisDoRisco === "apagar" ? (
+        // Bloco 07: a frase riscada fica fraca em cima; as 3 frases com ícone entram em corte seco.
+        <>
+          <TextoRiscado
+            texto={el.riscado}
+            inicio={resp}
+            frameRisco={resp + el.riscoAposFrames}
+            duracaoRisco={el.duracaoRisco}
+            depois="apagar"
+            saida={fimElementos}
+            top={0.31}
+            tamanho={0.082}
+          />
+          {(el.frases ?? []).map((f, i, todas) => {
+            const corte = (seg: number) => t.respostaInicio + Math.round(seg * 30);
+            const proximo = todas[i + 1];
+            return (
+              <FraseIcone
+                key={f.texto}
+                texto={f.texto}
+                destaque={f.destaque}
+                icone={f.icone}
+                inicio={corte(f.emSegundos)}
+                fim={corte(proximo ? proximo.emSegundos : (el.fimFrasesSegundos ?? 7))}
+                top={0.47}
               />
-            ) : null}
-          </>
-        )
+            );
+          })}
+          {el.legenda ? (
+            <TextoKinetic
+              texto={el.legenda}
+              inicio={Math.round(resp + t.respostaFrames * (el.legendaEmFracao ?? 0.6))}
+              saida={t.duracao - (12 + el.legenda.split(/s+/).length * 2)}
+              top={0.62}
+              tamanho={0.036}
+              fonte="rotulo"
+              intervalo={2}
+              opacidadeMax={0.85}
+            />
+          ) : null}
+        </>
       ) : null}
 
       {el.tipo === "contadorLista" && bloco.texto ? (
