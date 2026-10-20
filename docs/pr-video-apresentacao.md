@@ -284,6 +284,39 @@ mostrou antes"), porque o áudio não foi regerado. Confirmar com o JR antes de 
 - O fim da fala do bloco 08 e a pílula entram juntos perto de 7,7 s: se ficar apertado, ajustar
   `pilulaEmSegundos` em `src/dados/apresentacao.ts`.
 
+## Rodada 5c (20/10/2026): só o bloco 08. SUBSTITUI a rodada 5b
+
+### O que saiu
+- A frase **"AQUI VOCÊ VAI VER COMO FUNCIONA NA PRÁTICA"** (entrou na 5b por engano).
+- A **linha dourada** que atravessava a tela entre "SIGA ESTE CANAL" e "ACOMPANHE A CHEGADA DO" (e o whoosh dela).
+- A frase antiga **"AQUI VOCÊ VAI VER O QUE NINGUÉM TE MOSTROU ANTES"** (já tinha saído na 5b).
+- Com isso, a pendência da 5b ("COMO FUNCIONA NA PRÁTICA" para o JR aprovar) **deixa de existir**.
+
+### Layout novo (de cima para baixo)
+Pílula da pergunta → **SIGA ESTE CANAL** (creme, grande, 2 linhas) → **ACOMPANHE A CHEGADA DO** (creme,
+menor) → **MÉTODO JR.** (dourado, grande; único texto dourado) → **logo** inteiro (55% da largura) →
+pílula chapada creme **EM BREVE NESTE CANAL** (texto #0F2A1D, raio 28 px, sem sombra, borda ou
+transparência). Termina em cerca de **79% da altura**; a parte de baixo fica vazia de propósito.
+
+### Sincronia (áudio `08-resposta`)
+- **ATENÇÃO:** o áudio `08-resposta.mp3` é o mesmo de antes (7,81 s, de 20/10 10:24). Ele diz "Siga este
+  canal. Aqui você vai ver o que ninguém te mostrou antes. Método JR. Em breve." e **não tem** "e acompanhe
+  a chegada do". Por isso:
+  - "SIGA ESTE CANAL" entra com "Siga este canal" (0 s);
+  - "ACOMPANHE A CHEGADA DO" entra em 5,05 s, logo antes de "Método JR" (não há trecho falado igual);
+  - "MÉTODO JR." entra em 5,29 s, com "Método JR", escala 0,7 → 1;
+  - o logo sobe a partir de 4,55 s e pousa junto com a assinatura, depois pulsa uma vez;
+  - a pílula entra em 7,7 s, quando a fala termina.
+- **Pendência:** se o narrador passar a dizer "Siga este canal e acompanhe a chegada do Método JR.", o áudio
+  precisa ser regerado (eu não gero voz) e os tempos em `src/dados/apresentacao.ts` conferidos. Entre
+  1,1 s e 5 s da fala atual, a tela mostra só "SIGA ESTE CANAL".
+- Ticks do bloco 08: só o da pílula da pergunta.
+
+### Música no CTA
+Igual à 5b (já estava aplicada): sem a subida de 0,20 para 0,35; **0,12** durante a fala
+(`VOLUMES.musicaCtaDuranteFala`); depois sobe devagar até **0,28** (`VOLUMES.musicaCtaAposFala`) em 60
+frames (`VOLUMES.subidaMusicaCtaFrames`); fade-out de 60 frames no fim mantido.
+
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.
