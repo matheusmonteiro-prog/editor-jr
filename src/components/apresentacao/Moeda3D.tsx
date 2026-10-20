@@ -44,9 +44,20 @@ export const Moeda3D: React.FC<Props> = ({ inicio, duracao = 28, x = 0.72, taman
           ? COR.marrom
           : `radial-gradient(circle at 35% 30%, ${COR.creme} 0%, ${COR.dourado} 30%, ${COR.dourado} 62%, ${COR.marrom} 100%)`,
         boxShadow: escuro ? "none" : `inset 0 0 0 ${lado * 0.06}px ${comAlfa(COR.marrom, 0.55)}`,
-        filter: escuro ? "none" : `brightness(${luz})`,
       }}
     >
+      {/* Luz baixa: camada escura em alfa no lugar de filter (filter quebra a ordem de profundidade do 3D). */}
+      {!escuro ? (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "50%",
+            backgroundColor: COR.fundo,
+            opacity: Math.max(0, 1 - luz) * 1.1,
+          }}
+        />
+      ) : null}
       {!escuro ? (
         <div
           style={{
@@ -81,7 +92,7 @@ export const Moeda3D: React.FC<Props> = ({ inicio, duracao = 28, x = 0.72, taman
         }}
       >
         {face(-(CAMADAS / 2) * espessura, false, "tras")}
-        {new Array(CAMADAS).fill(0).map((_, i) => face((i - CAMADAS / 2) * espessura, true, `borda-${i}`))}
+        {new Array(CAMADAS).fill(0).map((_, i) => face((i - CAMADAS / 2 + 0.5) * espessura, true, `borda-${i}`))}
         {face((CAMADAS / 2) * espessura, false, "frente")}
       </div>
     </div>
