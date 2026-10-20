@@ -322,7 +322,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 0,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 8,
+    desfoque: 4,
     tingir: true,
     enquadramento: { escala: 1.55, x: 0, y: 0.27 },
     particulas: true,
@@ -340,7 +340,7 @@ export const CENAS: Cena[] = [
   },
   {
     // Rodada 3: vídeo da bolsa (tabela de números). Os números são legíveis no
-    // original, então o desfoque sobe para 12 px.
+    // original, então o desfoque é 7 px (rodada 5).
     nome: "Cena 3: cena-3-bolsa.mp4",
     fonte: { tipo: "video", arquivo: `${V}cena-3-bolsa.mp4` },
     blocoInicial: "03",
@@ -350,7 +350,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 16,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 12,
+    desfoque: 7,
     tingir: true,
   },
   {
@@ -364,7 +364,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 18,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 8,
+    desfoque: 4,
     raiosDeLuz: true,
   },
   {
@@ -379,7 +379,7 @@ export const CENAS: Cena[] = [
     // 12% (e não 8%): o dourado do céu do trigo compete com o "FÁCIL" dourado.
     escurecimento: 0.12,
     posicaoY: 50,
-    desfoque: 8,
+    desfoque: 4,
     tingir: true,
     particulas: true,
   },
@@ -396,7 +396,7 @@ export const CENAS: Cena[] = [
   },
   {
     // Rodada 3: vídeo do celular/tablet com gráficos (aparece texto legível,
-    // como "BTC-USD"): desfoque de 12 px.
+    // como "BTC-USD"): desfoque de 7 px (rodada 5).
     nome: "Cena 7: cena-7-celular.mp4",
     fonte: { tipo: "video", arquivo: `${V}cena-7-celular.mp4` },
     blocoInicial: "07",
@@ -406,7 +406,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 14,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 12,
+    desfoque: 7,
     tingir: true,
   },
   {
@@ -419,7 +419,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 20,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 8,
+    desfoque: 4,
     tingir: true,
     particulas: true,
     brilhoLogo: true,

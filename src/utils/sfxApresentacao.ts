@@ -47,12 +47,10 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
     const resp = t.respostaInicio + 2;
     const el = bloco.elemento;
 
-    // moeda: só no bloco 08. Nos blocos dos contadores (02 e 06) vale o som de contagem.
-    if (bloco.id === "08") {
-      planoMoedas(bloco.moedas, t).forEach((m, i) =>
-        ev.push({ tipo: "moeda", nome: `moeda ${bloco.id}.${i + 1}`, frame: t.inicio + m.inicio, volume: 0.4 }),
-      );
-    }
+    // moeda: uma por queda, em todos os blocos com moeda (02, 06 e 08). Volume abaixo do contador (0,5).
+    planoMoedas(bloco.moedas, t).forEach((m, i) =>
+      ev.push({ tipo: "moeda", nome: `moeda ${bloco.id}.${i + 1}`, frame: t.inicio + m.inicio, volume: 0.25 }),
+    );
 
     // contador: toca junto da contagem (do início ao fim dela, 67 frames).
     if (el.tipo === "contadorCards" || el.tipo === "contadorLista") {

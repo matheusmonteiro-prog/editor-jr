@@ -305,14 +305,16 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
           <TextoKinetic
             texto={el.miolo}
             fonte="titulo"
-            cor={COR.dourado}
+            cor={COR.creme}
+            damping={12}
+            destaque={el.palavraExtra}
             intervalo={4}
             inicio={t.respostaInicio + Math.round(el.mioloEmSegundos * 30)}
             top={0.355}
             tamanho={0.058}
             pulsoPalavra={{
               palavra: el.palavraExtra,
-              escala: 1.2,
+              escala: 1.15,
               emFrame: t.respostaInicio + Math.round(el.palavraExtraEmSegundos * 30),
             }}
           />
