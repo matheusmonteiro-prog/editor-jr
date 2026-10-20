@@ -239,6 +239,51 @@ têm moeda caindo, então não há queda sem som.
 - A cena 1 e a cena 8 continuam em cinza (você só pediu para tirar o cinza das cenas 3, 5 e 7).
 - Cenas 3 e 7: se algum número ainda ficar legível em movimento, subir `DESFOQUE_TEXTO_LEGIVEL`.
 
+## Rodada 5b (20/10/2026): só o bloco 08 e a música no CTA
+
+**Esta rodada substitui o item 3 da rodada 5** (motion de "NINGUÉM"): a frase "AQUI VOCÊ VAI VER O QUE
+NINGUÉM TE MOSTROU ANTES" saiu do vídeo.
+
+### Texto do bloco 08, antes e depois
+| | Antes (rodada 5) | Depois (rodada 5b) |
+|---|---|---|
+| Chamada | SIGA ESTE CANAL (creme) | SIGA ESTE CANAL (creme, maior, 2 linhas) |
+| Frase do meio | AQUI VOCÊ VAI VER / O QUE NINGUÉM / TE MOSTROU ANTES (dourado/creme) | **removida** |
+| Marca | MÉTODO JR. (dourado) | "ACOMPANHE A CHEGADA DO" (creme, menor) + **MÉTODO JR.** (dourado, grande, escala 0,7 → 1). **Único texto dourado do bloco.** |
+| Logo | 36% da largura | **55% da largura** (inteiro, com chapéu) |
+| Convite | — | **AQUI VOCÊ VAI VER COMO FUNCIONA NA PRÁTICA** (creme, menor) |
+| Fecho | EM BREVE (texto) | pílula **chapada** creme #F5F0E6, texto #0F2A1D, raio 28 px, sem sombra, sem borda, sem transparência: **EM BREVE NESTE CANAL** |
+
+Tudo em Inter (títulos 800, rótulos 600), caixa alta, sem emoji, sem verde #1DD41E. Ticks: só o da pílula da
+pergunta, como na rodada 5. A pílula termina em cerca de 82% da altura (zona segura das plataformas não foi
+medida). Sem link, lista de espera, "link na bio" ou comentário fixado.
+
+**Sincronia pelo áudio `08-resposta`** (tempos medidos com `silencedetect`, em segundos desde o início da fala):
+"SIGA ESTE CANAL" com o início da fala; linha dourada em 1,0 s; "ACOMPANHE A CHEGADA DO" em 5,05 s;
+"MÉTODO JR." em 5,29 s (quando o narrador diz "Método JR"); a pílula em **7,7 s**, quando a fala termina
+(áudio de 7,81 s). O "AQUI VOCÊ VAI VER COMO FUNCIONA NA PRÁTICA" entra em 3,2 s, junto com o logo, que sobe em 2,3 s.
+
+### Música no bloco 08, antes e depois
+| | Antes | Depois |
+|---|---|---|
+| Subida de 0,20 para 0,35 no bloco 08 | sim (`musicaFinal`) | **removida** |
+| Durante a fala do narrador | 0,35 | **0,12** (`VOLUMES.musicaCtaDuranteFala`) |
+| Depois que a fala termina | 0,35 | sobe devagar até **0,28** (`VOLUMES.musicaCtaAposFala`), em **60 frames** (`VOLUMES.subidaMusicaCtaFrames`) |
+| Fade-out de 60 frames no fim | sim | sim (sem mudança) |
+
+As constantes estão em `src/dados/apresentacao.ts`, no objeto `VOLUMES`.
+
+### PENDÊNCIA para o JR aprovar
+**A troca de "O QUE NINGUÉM TE MOSTROU ANTES" por "COMO FUNCIONA NA PRÁTICA"** é uma mudança de texto de tela.
+Ela também **não bate com o que o narrador diz** no áudio `08-resposta` ("Aqui você vai ver o que ninguém te
+mostrou antes"), porque o áudio não foi regerado. Confirmar com o JR antes de publicar.
+
+### Para conferir no Studio
+- O frame do meio do bloco 08 (`bloco-08.png`) ainda não mostra "MÉTODO JR." nem a pílula (entram depois); o
+  quadro completo está em `out/stills/apresentacao/bloco-08-final.png`.
+- O fim da fala do bloco 08 e a pílula entram juntos perto de 7,7 s: se ficar apertado, ajustar
+  `pilulaEmSegundos` em `src/dados/apresentacao.ts`.
+
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.
