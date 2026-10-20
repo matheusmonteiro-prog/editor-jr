@@ -413,21 +413,19 @@ export const CENAS: Cena[] = [
 
 export const SONS: Sons = {
   trilha: "audio/apresentacao/musica-fundo.mp3",
-  // Efeitos: os arquivos NÃO existem ainda (o Pixabay bloqueou o download em
-  // 20/10/2026). Os pontos já estão marcados na timeline do Studio como
-  // "SOM whoosh/tick/moeda/impacto (sem arquivo)". Para ligar, coloque o arquivo
-  // em public/audio/apresentacao/sfx/ e descomente a linha:
-  // whoosh: "audio/apresentacao/sfx/sfx-whoosh.mp3",
-  // tick: "audio/apresentacao/sfx/sfx-tick.mp3",
-  // moeda: "audio/apresentacao/sfx/sfx-moeda.mp3",
-  // impacto: "audio/apresentacao/sfx/sfx-impacto.mp3",
+  // Efeitos (rodada 3, 20/10/2026): arquivos em public/audio/apresentacao/sfx/.
+  // Volume e momento de cada um: src/utils/sfxApresentacao.ts.
+  whoosh: "audio/apresentacao/sfx/sfx-whoosh.mp3",
+  tick: "audio/apresentacao/sfx/sfx-tick.mp3",
+  moeda: "audio/apresentacao/sfx/sfx-moeda.mp3",
+  impacto: "audio/apresentacao/sfx/sfx-impacto.mp3",
 };
 
 // Volumes (0 a 1). A narração toca em 1,0.
 export const VOLUMES = {
   musica: 0.2, // blocos 00 a 07
   musicaFinal: 0.35, // bloco 08
-  efeitos: 0.4,
+  musicaComEfeito: 0.15, // ducking: a música baixa para este valor (base 0,20) enquanto um efeito toca
   fadeInMusicaFrames: 30,
   fadeOutMusicaFrames: 60, // nos últimos 2 segundos
 };
