@@ -419,7 +419,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
 
       {/* Música de fundo: do frame 0, sem loop (é mais longa que o vídeo), fade-in e fade-out. */}
       {SONS.trilha ? (
-        <Sequence name="Música de fundo" from={0}>
+        <Sequence name="Música de fundo">
           <Html5Audio src={staticFile(SONS.trilha)} volume={volumeMusica} />
         </Sequence>
       ) : (
