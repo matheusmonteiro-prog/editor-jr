@@ -440,6 +440,11 @@ export const SONS: Sons = {
   ok: "audio/apresentacao/sfx/sfx-ok.mp3",
 };
 
+// Fecho do bloco 08 (rodada 5d): o logo vem em direção ao espectador até ocupar ~95% da largura.
+// O logo final do bloco 08 tem 55% da largura, então a escala é 0,95 / 0,55. Para testar um logo maior
+// no Studio, aumente este valor (ex.: 2).
+export const ESCALA_FINAL_LOGO = 0.95 / 0.55;
+
 // Volumes (0 a 1). A narração toca em 1,0.
 export const VOLUMES = {
   musica: 0.2, // blocos 00 a 07

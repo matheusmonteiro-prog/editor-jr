@@ -2,11 +2,19 @@ import React from "react";
 import { AbsoluteFill, Easing, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import type { CalculateMetadataFunction } from "remotion";
 import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
-import { BLOCOS, CENAS, LOGO, SONS, VOLUMES } from "./dados/apresentacao";
+import { BLOCOS, CENAS, ESCALA_FINAL_LOGO, LOGO, SONS, VOLUMES } from "./dados/apresentacao";
 import type { Bloco } from "./dados/apresentacao";
 import { acharBloco, montarLinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
 import { planoMoedas } from "./utils/moedasApresentacao";
-import { FRAMES_SFX, eventosSfx, inicioCrescerLogo, inicioVoltaLogo } from "./utils/sfxApresentacao";
+import {
+  FRAMES_CRESCER_LOGO,
+  FRAMES_SFX,
+  FRAMES_STAGGER_SAIDA,
+  eventosSfx,
+  inicioCrescerLogo,
+  inicioVoltaLogo,
+  saidaFechoRelativa,
+} from "./utils/sfxApresentacao";
 import type { EventoSfx } from "./utils/sfxApresentacao";
 import type { BlocoNoTempo, LinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
 import { COR } from "./components/apresentacao/marca";
@@ -98,10 +106,19 @@ const EntradaBloco: React.FC<{ direcao?: Bloco["entrada"]; children: React.React
   );
 };
 
+// Início da saída do fecho (bloco 08), relativo ao bloco; nos outros blocos não é usado.
+const el0 = (t: BlocoNoTempo, bloco: Bloco): number => {
+  const cta = bloco.elemento;
+  return cta.tipo === "cta" ? t.respostaInicio + Math.round(cta.pilulaEmSegundos * 30) + 20 : t.duracao - 14;
+};
+
 const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }) => {
   const resp = t.respostaInicio + 2; // a resposta aparece com os primeiros 2 frames do narrador
   const fimTexto = saidaTexto(t, (bloco.texto ?? "").split(/\s+/).length);
   const fimElementos = t.duracao - 14;
+  // Fecho do bloco 08 (rodada 5d): frame (relativo ao bloco) em que os elementos começam a sair,
+  // um de cada vez (stagger), os de cima para cima e os de baixo para baixo.
+  const saidaCta = el0(t, bloco);
   const el = bloco.elemento;
 
   return (
@@ -113,7 +130,12 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
 
       {/* Pílula: pergunta (com contador) ou chamada de abertura. */}
       {bloco.pergunta ? (
-        <PilulaPergunta texto={bloco.pergunta.texto} contador={bloco.contador} inicio={0} saida={fimElementos} />
+        <PilulaPergunta
+          texto={bloco.pergunta.texto}
+          contador={bloco.contador}
+          inicio={0}
+          saida={el.tipo === "cta" ? saidaCta : fimElementos}
+        />
       ) : bloco.pilula ? (
         <PilulaPergunta texto={bloco.pilula} inicio={2} saida={fimElementos} />
       ) : null}
@@ -293,13 +315,30 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
           {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
           {/* Pílula discreta logo abaixo da pergunta, junto com "SIGA ESTE CANAL" (sem dourado). */}
-          <PilulaCta texto={el.pilulaTopo} inicio={resp} top={0.182} tamanho={0.026} discreta />
-          <TextoKinetic texto={el.chamada} fonte="titulo" damping={12} inicio={resp} top={0.235} tamanho={0.105} />
+          <PilulaCta
+            texto={el.pilulaTopo}
+            inicio={t.respostaInicio}
+            top={0.182}
+            tamanho={0.026}
+            discreta
+            saida={saidaCta + FRAMES_STAGGER_SAIDA}
+            saidaPara="cima"
+          />
+          <TextoKinetic
+            texto={el.chamada}
+            fonte="titulo"
+            damping={12}
+            inicio={t.respostaInicio}
+            saida={saidaCta + 2 * FRAMES_STAGGER_SAIDA}
+            top={0.235}
+            tamanho={0.105}
+          />
           <TextoKinetic
             texto={el.acompanhe}
             fonte="rotulo"
             damping={12}
             inicio={t.respostaInicio + Math.round(el.acompanheEmSegundos * 30)}
+            saida={saidaCta + 3 * FRAMES_STAGGER_SAIDA}
             top={0.385}
             tamanho={0.042}
           />
@@ -310,6 +349,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             damping={10}
             brilho
             inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * 30)}
+            saida={saidaCta + 4 * FRAMES_STAGGER_SAIDA}
             top={0.415}
             tamanho={0.115}
           />
@@ -381,7 +421,8 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
           inicioVolta={inicioVolta}
           centroFinal={{ x: 0.5, y: 0.585, largura: 0.55 }}
           crescerInicio={inicioCrescerLogo(linha)}
-          crescerFim={b08.inicio + b08.duracao}
+          crescerFim={inicioCrescerLogo(linha) + FRAMES_CRESCER_LOGO}
+          escalaFinal={ESCALA_FINAL_LOGO}
         />
       </Sequence>
 
@@ -391,6 +432,8 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
           <PilulaCta
             texto={ctaFinal.pilula}
             inicio={b08.respostaInicio + Math.round(ctaFinal.pilulaEmSegundos * 30)}
+            saida={saidaFechoRelativa(linha) + 5 * FRAMES_STAGGER_SAIDA}
+            saidaPara="baixo"
             top={0.735}
           />
         </Sequence>

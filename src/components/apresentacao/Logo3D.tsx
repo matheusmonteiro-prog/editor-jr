@@ -20,10 +20,11 @@ type Props = {
   centro?: Pose;
   canto?: Pose;
   centroFinal?: Pose; // onde o logo pousa na volta (padrão: o mesmo centro da entrada)
-  // Rodada 5d: no fim do vídeo o logo cresce em direção ao espectador (escala 1 → ~3, ease-in)
-  // e some (fade) nos últimos frames. Frames globais; sem isso, o logo não cresce.
+  // Rodada 5d: no fecho do bloco 08 o logo vem em direção ao espectador (ease-in) até
+  // `escalaFinal` vezes o tamanho atual, centralizado, e dá um pulso (1 → 1,05 → 1). Frames globais.
   crescerInicio?: number;
   crescerFim?: number;
+  escalaFinal?: number;
 };
 
 const CAMADAS_ESPESSURA = 6;
@@ -38,6 +39,7 @@ export const Logo3D: React.FC<Props> = ({
   centroFinal,
   crescerInicio,
   crescerFim,
+  escalaFinal = 1,
 }) => {
   const fim = centroFinal ?? centro;
   const frame = useCurrentFrame();
@@ -82,12 +84,13 @@ export const Logo3D: React.FC<Props> = ({
     anguloY = 0;
   }
   // Pulso único do logo final (1 → 1,1 → 1 em 10 frames), depois que ele pousa.
-  // Crescer em direção ao espectador (ease-in cúbico) com fade de saída no fim.
+  // Crescer em direção ao espectador (ease-in cúbico), indo para o centro da tela; depois pulso curto.
   let crescer = 1;
   if (crescerInicio !== undefined && crescerFim !== undefined) {
     const c = interpolate(frame, [crescerInicio, crescerFim], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-    crescer = 1 + 2 * c; // 1 → 3
-    opacidade *= interpolate(frame, [crescerFim - 14, crescerFim], [1, 0], clamp);
+    crescer = 1 + (escalaFinal - 1) * c;
+    y = y + (0.5 - y) * c;
+    crescer *= interpolate(frame - crescerFim, [0, 5, 10], [1, 1.05, 1], clamp);
   }
   const pulso = interpolate(frame - (inicioVolta + FRAMES_ATE_PULSO_LOGO), [0, 5, 10], [1, 1.1, 1], clamp);
 

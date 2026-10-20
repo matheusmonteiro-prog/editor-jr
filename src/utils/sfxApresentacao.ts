@@ -25,13 +25,21 @@ export const FRAMES_ATE_PULSO_LOGO = 22;
 // Frames entre o início de "MÉTODO JR." e o pico da escala.
 export const FRAMES_ATE_PICO_MARCA = 6;
 
-// Rodada 5d: o logo final cresce em direção ao espectador durante o FIM do bloco 08 (sem
-// estender o vídeo). Duração do crescimento, em frames, contada de trás para frente.
-export const FRAMES_CRESCER_LOGO = 50;
-export const inicioCrescerLogo = (linha: LinhaDoTempo): number => {
+// Rodada 5d (final): fecho do bloco 08. A pílula "EM BREVE NESTE CANAL" fica FRAMES_LEITURA_PILULA
+// frames na tela; depois os elementos saem em stagger e o logo vem em direção ao espectador, sem
+// estender o vídeo. Tudo calculado a partir da entrada da pílula.
+export const FRAMES_LEITURA_PILULA = 20;
+export const FRAMES_CRESCER_LOGO = 22; // o logo cresce neste tempo; depois pulsa e fica estático
+export const FRAMES_STAGGER_SAIDA = 3;
+
+// Frame do bloco 08, RELATIVO ao bloco, em que a saída dos elementos (e o crescimento do logo) começa.
+export const saidaFechoRelativa = (linha: LinhaDoTempo): number => {
   const b08 = acharBloco(linha, "08");
-  return b08.inicio + b08.duracao - FRAMES_CRESCER_LOGO;
+  const cta = BLOCOS.find((b) => b.id === "08")?.elemento;
+  const pilula = cta && cta.tipo === "cta" ? b08.respostaInicio + Math.round(cta.pilulaEmSegundos * 30) : b08.duracao - 60;
+  return pilula + FRAMES_LEITURA_PILULA;
 };
+export const inicioCrescerLogo = (linha: LinhaDoTempo): number => acharBloco(linha, "08").inicio + saidaFechoRelativa(linha);
 
 // Frame global em que o logo final do bloco 08 começa a subir.
 export const inicioVoltaLogo = (linha: LinhaDoTempo): number => {
@@ -99,8 +107,9 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
     }
   });
 
-  // whoosh na transição final: o logo crescendo em direção ao espectador (bloco 08).
-  ev.push({ tipo: "whoosh", nome: "whoosh logo cresce", frame: inicioCrescerLogo(linha), volume: 0.5 });
+  // Fecho do bloco 08: whoosh no início da saída dos elementos; impacto no pulso final do logo.
+  ev.push({ tipo: "whoosh", nome: "whoosh saída do fecho", frame: inicioCrescerLogo(linha), volume: 0.5 });
+  ev.push({ tipo: "impacto", nome: "impacto logo final", frame: inicioCrescerLogo(linha) + FRAMES_CRESCER_LOGO, volume: 0.5 });
 
   return ev.sort((a, b) => a.frame - b.frame);
 };

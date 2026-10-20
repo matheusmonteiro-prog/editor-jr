@@ -11,16 +11,22 @@ type Props = {
   tamanho?: number; // fração da largura
   // Variante discreta (rodada 5d): texto creme sobre #0F2A1D, menor. Sem borda, sem sombra.
   discreta?: boolean;
+  // Saída (rodada 5d): frame em que começa a sair (10 frames, translateY + opacidade).
+  saida?: number;
+  saidaPara?: "cima" | "baixo";
 };
 
-export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04, discreta = false }) => {
+export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04, discreta = false, saida, saidaPara = "baixo" }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const p = spring({ frame: frame - inicio, fps, config: { damping: 12, mass: 1 }, durationInFrames: 12 });
   if (frame < inicio) return null;
   const fontSize = width * tamanho;
   // Opacidade só do movimento de entrada (a pílula em si é opaca).
-  const op = interpolate(frame - inicio, [0, 3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+  const q = saida === undefined ? 0 : interpolate(frame - saida, [0, 10], [0, 1], clamp);
+  const op = interpolate(frame - inicio, [0, 3], [0, 1], clamp) * (1 - q);
+  const deslocY = (saidaPara === "cima" ? -1 : 1) * q * height * 0.03;
 
   return (
     <div
@@ -32,7 +38,7 @@ export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04,
         display: "flex",
         justifyContent: "center",
         opacity: op,
-        transform: `scale(${interpolate(p, [0, 1], [0.7, 1])})`,
+        transform: `translateY(${deslocY}px) scale(${interpolate(p, [0, 1], [0.7, 1])})`,
       }}
     >
       <div
