@@ -278,7 +278,7 @@ export const BLOCOS: Bloco[] = [
       mioloEmSegundos: 1.45,
       palavraExtra: "ninguém",
       palavraExtraEmSegundos: 3.45,
-      logoEmSegundos: 3.3,
+      logoEmSegundos: 2.3,
       marca: "Método JR.",
       marcaEmSegundos: 5.29,
       fecho: "Em breve.",
