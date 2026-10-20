@@ -11,13 +11,15 @@ narração TTS, em abertura + 8 blocos de pergunta e resposta. A duração de ca
 **Catalogo** → `GradeAtivos3D`.
 
 ## O que entrou
-- `src/VideoApresentacao.tsx`: a composição e o `calculateMetadata` (mede os 17 áudios).
+- `src/VideoApresentacao.tsx`: a composição e o `calculateMetadata` (mede os 18 áudios e os vídeos de fundo).
 - `src/dados/apresentacao.ts`: textos, áudios, cenas e tempos. **É o modelo** para outros vídeos
   pergunta e resposta: copiar e trocar os dados.
 - `src/utils/linhaDoTempoApresentacao.ts`: monta a linha do tempo a partir das durações.
 - `src/components/apresentacao/`: FundoCenas, TextoKinetic, PilulaPergunta, FioProgresso,
   Logo3D, Moeda3D, CardCheckFlip, ContadorImpacto, TextoRiscado, Particulas, RaiosDeLuz,
-  BrilhoRadial, WipeBloco e `marca.ts` (cores e fontes).
+  BrilhoRadial, WipeBloco, ListaRolando, FraseIcone, TextoPulso, LinhaDourada e `marca.ts`
+  (cores e fontes).
+- `src/utils/moedasApresentacao.ts`: sorteio reproduzível das moedas 3D.
 - `src/components/v2/GradeAtivos3D.tsx`: componente novo do catálogo (registrado no Studio e no
   `CATALOGO`).
 - `package.json`: `mediabunny` 1.56.1 declarado (é a versão que o Remotion 4.0.527 já usa; a
@@ -41,51 +43,98 @@ Exceções autorizadas pelo Matheus em 19/10/2026, **só para este vídeo**.
 - **Fotos de fundo** com zoom/pan e 7 transições diferentes (flash dourado, empurrão, zoom
   atravessando, deslize, máscara circular, wipe, fusão com brilho).
 
-### Bloco a bloco
+### Bloco a bloco (estado depois da rodada 2)
 | Bloco | Quebras |
 |---|---|
-| 00 Abertura | Logo em **3D (CSS)** girando uma volta no eixo Y; **brilho radial** atrás do logo; **partículas** de poeira dourada; caixa alta |
+| 00 Abertura | Logo em **3D (CSS)** girando uma volta no eixo Y; **brilho radial** atrás do logo; **partículas** de poeira dourada; fundo em **vídeo desfocado e tingido**; caixa alta |
 | 01 Quem é ele? | **Spotlight dourado (glow)** atrás do logo 3D; logo voa em curva para o canto; partículas |
-| 02 O que ele faz? | **Moeda 3D** caindo; contador com **pulso e borrão de movimento**; cards com **flip 3D**; flash dourado na troca de cena |
-| 03 O que é o Método JR? | **Moeda 3D** caindo rápido; cards com **flip 3D**; empurrão vertical |
-| 04 O que vai mostrar? | **Raios de luz** com blur; zoom atravessando a cena |
-| 05 É difícil entender? | Risca dourada com **glow**; "DIFÍCIL" sai para trás; **explosão de partículas** em "FÁCIL"; partículas no fundo |
-| 06 Portfólio? | **GradeAtivos3D: 400 cubos em 3D**; máscara circular na troca |
-| 07 Recomenda? | Risca dourada com **glow**; fundo com **gráfico ilustrativo** (a foto da cena 7 tem candles e barras douradas, sem número) |
-| 08 Como conhecer? | Logo **3D** girando ao contrário; **brilho radial dourado**; **partículas**; fusão com brilho |
+| 02 O que ele faz? | **Moedas 3D** caindo (3); contador com **pulso e borrão de movimento**; cards com **flip 3D**; flash dourado na troca de cena |
+| 03 O que é o Método JR? | **Moedas 3D** caindo (3); cards com **flip 3D**; empurrão vertical; fundo verde-escuro liso |
+| 04 O que vai mostrar? | **Raios de luz** com blur; imagem de fundo **desfocada (8 px)**; zoom atravessando a cena |
+| 05 É difícil entender? | Risca dourada com **glow**; "DIFÍCIL" sai para trás; **explosão de partículas** em "FÁCIL"; poeira dourada no fundo; fundo verde-escuro liso |
+| 06 Portfólio? | **Lista rolando desfocada** no fundo; **contador grande 0 → +400** com pulso e borrão; **estouro de partículas** ao bater 400; **moedas 3D** (3); máscara circular na troca |
+| 07 Recomenda? | Risca dourada com **glow**; **3 frases em corte seco** com pulso forte; **3 ícones SVG** com traço animado e **brilho**; gráfico ilustrativo de fundo (foto sem número) |
+| 08 Como conhecer? | Logo **3D** voltando girando uma vez; **linha dourada com glow**; texto **inteiro em dourado** no miolo; "MÉTODO JR." com batida e **halo dourado**; **partículas subindo**; vídeo de fundo **desfocado e tingido**; fusão com brilho |
 
 ### O que continua proibido (e não foi usado)
 Verde #1DD41E fora de sinal de compra (só aparece na seta do próprio logo, que é a marca), emoji,
 rosto do JR por IA, promessa de rentabilidade, AvisoCVM, ArrobaInstagram, lista de espera, link
 na bio, comentário fixado.
 
+## Ajustes da rodada 2 (20/10/2026)
+
+Commits por etapa na branch `video-apresentacao` (só código; nenhuma mídia foi para o Git).
+
+1. **Arquivos novos.** Renomeados sem espaço e sem extensão dupla. Vídeos em
+   `public/videos/cenas/`, imagem da cena 4 em `public/images/cena-4-dourado.png`,
+   `08-resposta.mp3` e `musica-fundo.mp3` em `public/audio/apresentacao/`. As cópias da música
+   em `public/music/` e na Downloads ficaram como estavam.
+2. **Cenas novas** (o `FundoCenas` agora aceita imagem, vídeo em loop e fundo sólido):
+   - **Cena 1** (blocos 00 e 01): vídeo `cena-1-not.mp4`, mudo, em loop, desfocado (8 px),
+     **dessaturado e tingido** em duas cores da marca (sombras verde-escuras, claros dourados).
+     Reenquadrado (escala 155% e deslocado para baixo) para o notebook não ficar atrás do logo.
+   - **Cena 3** (bloco 03): fundo verde-escuro #0F2A1D. O vídeo "grafico 1" tem **"Link in Bio"
+     escrito** e cores neon: não usado.
+   - **Cena 4** (bloco 04): imagem `cena-4-dourado.png`, desfocada (8 px). Tem 940 px de largura
+     (< 1170): zoom de **103%** e pan reduzido (±1,4% em vez de ±3%).
+   - **Cena 5** (bloco 05): fundo verde-escuro. O vídeo do trator tem a **marca d'água
+     "@EDI.RISSI"** (outro criador): não usado.
+   - **Cena 8** (bloco 08): vídeo `cena-8-linhas.mp4`, mesmo tratamento da cena 1.
+   - Escurecimento de 55% para **40%** em todas as cenas (cena 6 segue em 70%).
+3. **Bloco 06.** Sai a `GradeAtivos3D` (continua no catálogo). Entra a lista rolando no fundo
+   (só barra, estrelas e check desenhados em SVG: nenhum nome, ticker ou número) e o contador
+   grande 0 → +400, que **para meio segundo (15 frames) antes do narrador terminar**. Partículas
+   douradas estouram ao bater 400.
+4. **Bloco 07.** A risca continua. Depois entram "O QUE FAZ", "COMO FAZ" e "E POR QUE FAZ",
+   inteiras, em corte seco, com pulso 1 → 1,1 → 1 em 6 frames, "FAZ" em dourado nas três, cada
+   uma com um ícone SVG (check, engrenagem, lâmpada). Cada frase fica de 32 a 51 frames na tela;
+   o ícone leva 14 frames para desenhar, então **todos desenham completos antes do próximo corte**.
+5. **Bloco 08.** CTA novo, parte por parte, no tempo da fala (ver "O que supus").
+6. **Moedas.** De 2 a 4 moedas 3D por bloco (02, 03 e 06) em posições e tempos sorteados com
+   `random()` e semente fixa. Passam por cima do fundo e por trás do texto. Corrigido um defeito da
+   moeda: ao virar, a borda marrom cobria o dourado.
+7. **Música.** `musica-fundo.mp3` do frame 0, sem loop, fade-in de 30 frames, volume 0,20 nos
+   blocos 00 a 07 e 0,35 no 08, fade-out de 60 frames no fim.
+8. **Efeitos sonoros.** Os pontos de whoosh, tick, moeda e impacto estão marcados na timeline
+   (volume 0,4). Os 4 arquivos **não baixaram** do Pixabay (403, desafio do Cloudflare); sem
+   arquivo, os pontos ficam mudos.
+
+### Quebras de marca novas da rodada 2 (para aprovar)
+- **Blur de 8 px** em vídeo/imagem de fundo (cenas 1, 4 e 8) e **desfoque** na lista rolando do bloco 06.
+- **Fundo tingido** (duotone verde-escuro e dourado) nas cenas 1 e 8, por causa das cores neon e
+  candles vermelhos/verdes dos vídeos originais.
+- **Bloco 08:** "AQUI VOCÊ VAI VER / O QUE NINGUÉM / TE MOSTROU ANTES." e "MÉTODO JR." inteiros em
+  dourado (a regra "um destaque de cor por frase" foi quebrada a pedido).
+- **Música de fundo** (arquivo `music impact.mp3` da Downloads): **a licença/origem não foi
+  verificada por mim.** Confirmar antes de publicar.
+
 ## Pendências
-- **Falta `audio/apresentacao/08-resposta.mp3`.** O bloco 08 fica mudo na fala do narrador, com
-  uma reserva de 90 frames (`TEMPOS.reservaAudioFaltando`). Quando o arquivo existir, a duração se
-  ajusta sozinha.
-- **Falta `images/software-recorte.png`.** O bloco 04 está só com texto.
-- **Sons:** nenhum arquivo de whoosh, tick ou trilha. Os lugares estão marcados na timeline do
-  Studio como "SOM whoosh NN", "SOM tick NN" e "SOM trilha (sem arquivo)". Para ligar, preencher
-  `SONS` em `src/dados/apresentacao.ts`.
-- **Fotos:** nenhuma com marca d'água ou texto; nenhuma abaixo de 1170 px depois do preparo
-  (originais 1024x1536 → prontas 1296x2304). Nenhum zoom reduzido para 103%.
+- **Efeitos sonoros:** nenhum dos 4 (whoosh, tick, moeda, impacto) baixou. Colocar em
+  `public/audio/apresentacao/sfx/` e descomentar as linhas em `SONS` (`src/dados/apresentacao.ts`).
+- **`software-recorte.png`** não existe: o bloco 04 está só com texto.
+- **Vídeos não usados**, ainda em `public/videos/cenas/`: `cena-3-grafico.mp4` ("Link in Bio") e
+  `cena-5-trator.mp4` (marca d'água). Podem ser apagados.
+- **Fotos:** nenhuma das imagens tem marca d'água ou texto. Só a cena 4 está abaixo de 1170 px.
 - **Biblioteca 3D:** nenhuma instalada. Tudo em CSS 3D.
 - **Pronúncia:** não conferida (não consigo ouvir o áudio).
 
 ## O que não consegui seguir à risca
-- **Cena 1, "nenhum assunto atrás do logo":** nos blocos 00 e 01 o logo fica em cima do broto.
-  A imagem já está em 9:16, então descer o broto exige zoom de uns 125% (a foto fica mole).
-  Decisão do Matheus: manter assim ("logo nascendo do broto") ou trocar o enquadramento.
-- **Destaque de várias palavras** ("MÉTODO JR", "NA PRÁTICA") entra como uma peça só, para não
-  quebrar de linha no meio. As outras palavras seguem uma por uma, com 3 frames entre elas.
-- **Momento dos cards, da moeda e da legenda do 07:** calculado como fração da fala do narrador
-  (ex.: card 1 do bloco 02 em 42% da fala), não pela palavra exata. Não há marcação de tempo
-  por palavra nos áudios.
+- **"Partículas subindo só no bloco 08":** as cenas 1, 5 e 8 já tinham poeira dourada subindo
+  ("partículas atuais ficam iguais"). Mantive. O bloco 08 ganhou partículas próprias, mais visíveis.
+- **Bloco 05, "DIFÍCIL estilhaçado":** a animação é risca + sai para trás (não estilhaça). O ponto de
+  impacto marca o fim da risca.
+- **Bloco 07:** entre 0,5 s e 3,2 s o centro fica sem frase (as frases entram nas pausas da fala);
+  só a frase riscada fica no alto.
+- **Cena 1, "nenhum assunto atrás do logo":** o notebook saiu de trás do logo, mas o texto da
+  resposta passa por cima da parte de baixo do vídeo (desfocado e escurecido).
 
 ## O que supus sem confirmar
-- Destaque do bloco 07 ("MOSTRA COMO FAZ") em **"MOSTRA"** (o pedido não dizia qual palavra).
-- A legenda do bloco 07 ("A DECISÃO É DE CADA INVESTIDOR.") também em caixa alta, pela regra
-  "caixa alta em tudo".
-- O "+" do contador em dourado é o único destaque daquele elemento.
-- A cartela segura 30 frames a mais no fim (`TEMPOS.seguraCartela`), além da folga de 20.
-- No bloco 06, a grade aparece **apagada** já durante a pergunta e acende na resposta.
+- Os tempos dos blocos 07 e 08 (cada frase entra no momento da fala) vêm das **pausas do narrador**
+  medidas com `silencedetect` do FFmpeg, não de uma transcrição palavra por palavra. Se o áudio for
+  regerado, conferir os tempos em `src/dados/apresentacao.ts`.
+- **Tick** em 9 pontos (as 8 perguntas e a pílula da abertura), em vez de 8.
+- O logo volta ao centro no bloco 08 aos 2,3 s, num tamanho menor (36% da largura) e mais abaixo
+  (55% da altura), para caber todo o texto.
+- Cards, moeda fixa e legenda do 07 entram numa fração da fala, não na palavra exata.
+- No bloco 06, a lista aparece desde o início, e o contador só começa com a resposta.
+- A cartela segura 30 frames a mais no fim, além da folga de 20.
