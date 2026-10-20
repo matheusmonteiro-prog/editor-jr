@@ -70,8 +70,15 @@ export type Movimento =
   | { tipo: "panVertical"; zoom: number; deY: number; paraY: number } // Y em fração da altura
   | { tipo: "panDiagonal"; zoom: number; deX: number; paraX: number; deY: number; paraY: number };
 
+// De onde vem o fundo da cena. "solido" = só o verde-escuro da marca (#0F2A1D).
+export type FonteCena =
+  | { tipo: "imagem"; arquivo: string } // relativo a public/
+  | { tipo: "video"; arquivo: string } // relativo a public/; sempre mudo, em loop
+  | { tipo: "solido" };
+
 export type Cena = {
-  arquivo: string; // relativo a public/
+  nome: string; // aparece na timeline do Studio
+  fonte: FonteCena;
   blocoInicial: string;
   blocoFinal: string;
   movimento: Movimento;
@@ -79,9 +86,16 @@ export type Cena = {
   framesTransicao: number; // 12 a 20
   escurecimento: number; // opacidade da camada #0F2A1D (0 a 1)
   posicaoY: number; // objectPosition vertical, 0 a 100 (%)
+  desfoque?: number; // px; foto/vídeo de fundo desfocado
+  // Dessatura (grayscale) e tinge em duas cores da marca: sombras em
+  // verde-escuro, claros em dourado. Para vídeo com cor fora da paleta.
+  tingir?: boolean;
+  // Reenquadra o fundo: escala e deslocamento (fração do quadro; +y = desce).
+  enquadramento?: { escala: number; x: number; y: number };
   particulas?: boolean;
   raiosDeLuz?: boolean;
   brilhoLogo?: boolean;
+  brilhoY?: number; // fração da altura (padrão 0,33)
 };
 
 // Sons opcionais. Só arquivos informados pelo Matheus; vazio = lugar marcado e mudo.
@@ -218,63 +232,85 @@ export const BLOCOS: Bloco[] = [
 ];
 
 const C = "images/cenas/prontas/";
+const V = "videos/cenas/";
+
+// Escurecimento: camada #0F2A1D por cima do fundo. Rodada 2 (20/10/2026): de 55%
+// para 40% em todas as cenas; a cena 6 (mosaico) segue em 70%.
+const ESCURECIMENTO = 0.4;
 
 export const CENAS: Cena[] = [
   {
-    arquivo: `${C}cena-1-semente.jpg`,
+    // Vídeo do notebook com gráfico (cena 1). Reenquadrado: a escala e o
+    // deslocamento para baixo tiram o notebook de trás do logo (centro, em cima).
+    nome: "Cena 1: cena-1-not.mp4",
+    fonte: { tipo: "video", arquivo: `${V}cena-1-not.mp4` },
     blocoInicial: "00",
     blocoFinal: "01",
     movimento: { tipo: "zoom", de: 1, para: 1.1 },
     transicao: "nenhuma",
     framesTransicao: 0,
-    escurecimento: 0.55,
+    escurecimento: ESCURECIMENTO,
     posicaoY: 50,
+    desfoque: 8,
+    tingir: true,
+    enquadramento: { escala: 1.55, x: 0, y: 0.27 },
     particulas: true,
   },
   {
-    arquivo: `${C}cena-2-moedas.jpg`,
+    nome: "Cena 2: cena-2-moedas.jpg",
+    fonte: { tipo: "imagem", arquivo: `${C}cena-2-moedas.jpg` },
     blocoInicial: "02",
     blocoFinal: "02",
     movimento: { tipo: "zoom", de: 1.1, para: 1 },
     transicao: "flashWipe",
     framesTransicao: 16,
-    escurecimento: 0.55,
+    escurecimento: ESCURECIMENTO,
     posicaoY: 50,
   },
   {
-    arquivo: `${C}cena-3-milho.jpg`,
+    // O vídeo "grafico 1" tem "Link in Bio" escrito e cor neon: não usado
+    // (decisão do Matheus, 20/10/2026). Fica o verde-escuro da marca.
+    nome: "Cena 3: fundo verde-escuro",
+    fonte: { tipo: "solido" },
     blocoInicial: "03",
     blocoFinal: "03",
-    movimento: { tipo: "zoom", de: 1, para: 1.08 },
+    movimento: { tipo: "zoom", de: 1, para: 1 },
     transicao: "empurraoVertical",
     framesTransicao: 16,
-    escurecimento: 0.55,
+    escurecimento: 0,
     posicaoY: 50,
   },
   {
-    arquivo: `${C}cena-4-lavoura.jpg`,
+    // Imagem de 940 px de largura (< 1170): zoom de 103% e pan menor.
+    nome: "Cena 4: cena-4-dourado.png",
+    fonte: { tipo: "imagem", arquivo: "images/cena-4-dourado.png" },
     blocoInicial: "04",
     blocoFinal: "04",
-    movimento: { tipo: "panVertical", zoom: 1.08, deY: 0.03, paraY: -0.03 },
+    movimento: { tipo: "panVertical", zoom: 1.03, deY: 0.014, paraY: -0.014 },
     transicao: "zoomAtravessa",
     framesTransicao: 18,
-    escurecimento: 0.55,
+    escurecimento: ESCURECIMENTO,
     posicaoY: 50,
+    desfoque: 8,
     raiosDeLuz: true,
   },
   {
-    arquivo: `${C}cena-5-caminho.jpg`,
+    // O vídeo do trator tem a marca d'água "@EDI.RISSI" e é de outro criador:
+    // não usado (decisão do Matheus, 20/10/2026). Fica o verde-escuro da marca.
+    nome: "Cena 5: fundo verde-escuro",
+    fonte: { tipo: "solido" },
     blocoInicial: "05",
     blocoFinal: "05",
-    movimento: { tipo: "zoom", de: 1, para: 1.08 },
+    movimento: { tipo: "zoom", de: 1, para: 1 },
     transicao: "deslizeHorizontal",
     framesTransicao: 14,
-    escurecimento: 0.55,
+    escurecimento: 0,
     posicaoY: 50,
     particulas: true,
   },
   {
-    arquivo: `${C}cena-6-mosaico.jpg`,
+    nome: "Cena 6: cena-6-mosaico.jpg",
+    fonte: { tipo: "imagem", arquivo: `${C}cena-6-mosaico.jpg` },
     blocoInicial: "06",
     blocoFinal: "06",
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
@@ -284,26 +320,31 @@ export const CENAS: Cena[] = [
     posicaoY: 50,
   },
   {
-    arquivo: `${C}cena-7-grafico.jpg`,
+    nome: "Cena 7: cena-7-grafico.jpg",
+    fonte: { tipo: "imagem", arquivo: `${C}cena-7-grafico.jpg` },
     blocoInicial: "07",
     blocoFinal: "07",
     movimento: { tipo: "panDiagonal", zoom: 1.08, deX: 0.02, paraX: -0.02, deY: 0.02, paraY: -0.02 },
     transicao: "wipeDiagonal",
     framesTransicao: 14,
-    escurecimento: 0.55,
+    escurecimento: ESCURECIMENTO,
     posicaoY: 50,
   },
   {
-    arquivo: `${C}cena-8-amanhecer.jpg`,
+    nome: "Cena 8: cena-8-linhas.mp4",
+    fonte: { tipo: "video", arquivo: `${V}cena-8-linhas.mp4` },
     blocoInicial: "08",
     blocoFinal: "08",
     movimento: { tipo: "zoom", de: 1.08, para: 1 },
     transicao: "fusaoBrilho",
     framesTransicao: 20,
-    escurecimento: 0.55,
+    escurecimento: ESCURECIMENTO,
     posicaoY: 50,
+    desfoque: 8,
+    tingir: true,
     particulas: true,
     brilhoLogo: true,
+    brilhoY: 0.565,
   },
 ];
 

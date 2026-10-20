@@ -33,22 +33,24 @@ export type VideoApresentacaoProps = {
 const FPS = 30;
 const DURACAO_WIPE = 10;
 
-// Duração de um áudio de public/ com Mediabunny (forma indicada pela
+// Duração de um áudio ou vídeo de public/ com Mediabunny (forma indicada pela
 // documentação do Remotion 4.0.527: remotion.dev/docs/mediabunny/metadata).
 const medirAudio = async (caminho: string): Promise<number | null> => {
   try {
     const input = new Input({ formats: ALL_FORMATS, source: new UrlSource(staticFile(caminho)) });
     return await input.computeDuration();
   } catch {
-    console.warn(`VideoApresentacao: áudio "${caminho}" não existe ou não abriu; o bloco fica mudo.`);
+    console.warn(`VideoApresentacao: arquivo "${caminho}" não existe ou não abriu; fica mudo/sem fundo.`);
     return null;
   }
 };
 
 export const calcularApresentacao: CalculateMetadataFunction<VideoApresentacaoProps> = async ({ props }) => {
-  const caminhos = BLOCOS.flatMap((b) => [b.pergunta?.audio, b.resposta.audio]).filter(
-    (c): c is string => typeof c === "string",
-  );
+  const videosDeFundo = CENAS.flatMap((c) => (c.fonte.tipo === "video" ? [c.fonte.arquivo] : []));
+  const caminhos = [
+    ...BLOCOS.flatMap((b) => [b.pergunta?.audio, b.resposta.audio]).filter((c): c is string => typeof c === "string"),
+    ...videosDeFundo,
+  ];
   const medidas = await Promise.all(caminhos.map(medirAudio));
   const duracoes: Record<string, number | null> = {};
   caminhos.forEach((c, i) => (duracoes[c] = medidas[i]));
@@ -238,7 +240,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
   );
 };
 
-const Camadas: React.FC<{ linha: LinhaDoTempo }> = ({ linha }) => {
+const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number | null> }> = ({ linha, duracoes }) => {
   const b00 = acharBloco(linha, "00");
   const b01 = acharBloco(linha, "01");
   const b08 = acharBloco(linha, "08");
@@ -247,7 +249,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo }> = ({ linha }) => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: COR.fundo }}>
-      <FundoCenas cenas={CENAS} linha={linha} />
+      <FundoCenas cenas={CENAS} linha={linha} duracoes={duracoes} />
 
       {/* Spotlight dourado em volta do logo (abertura e bloco 01). */}
       <Sequence name="Brilho do logo (00-01)" from={b00.inicio} durationInFrames={b01.inicio + b01.duracao - b00.inicio}>
@@ -332,5 +334,5 @@ const BrilhoLogoInicial: React.FC<{ fim: number; spotlightDe: number }> = ({ fim
 
 export const VideoApresentacao: React.FC<VideoApresentacaoProps> = ({ duracoes }) => {
   const linha = montarLinhaDoTempo(BLOCOS, duracoes ?? {}, FPS);
-  return <Camadas linha={linha} />;
+  return <Camadas linha={linha} duracoes={duracoes ?? {}} />;
 };

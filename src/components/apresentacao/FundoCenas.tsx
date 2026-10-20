@@ -1,5 +1,16 @@
 import React from "react";
-import { AbsoluteFill, Easing, Img, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
+import {
+  AbsoluteFill,
+  Easing,
+  Img,
+  interpolate,
+  Loop,
+  OffthreadVideo,
+  Sequence,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import type { Cena, Movimento, TipoTransicao } from "../../dados/apresentacao";
 import type { LinhaDoTempo } from "../../utils/linhaDoTempoApresentacao";
 import { acharBloco } from "../../utils/linhaDoTempoApresentacao";
@@ -109,12 +120,67 @@ const efeitoSaida = (tipoSeguinte: TipoTransicao | undefined, p: number): React.
   }
 };
 
+// Mídia da cena (imagem, vídeo em loop ou nada) com movimento, reenquadramento,
+// desfoque e tingimento. Estrutura (de fora para dentro):
+//   recorte (overflow hidden) > filtro (grayscale/blur, NÃO escalado, então o
+//   desfoque tem sempre os px pedidos) > movimento (transform) > mídia.
+const MidiaDaCena: React.FC<{
+  cena: Cena;
+  t: number; // 0 a 1, progresso do movimento
+  totalFrames: number;
+  duracaoVideoSeg?: number | null;
+}> = ({ cena, t, totalFrames, duracaoVideoSeg }) => {
+  const { fps } = useVideoConfig();
+  const { fonte } = cena;
+  if (fonte.tipo === "solido") return null;
+
+  const enq = cena.enquadramento;
+  const transform = `${
+    enq ? `translate(${enq.x * 100}%, ${enq.y * 100}%) scale(${enq.escala}) ` : ""
+  }${transformMovimento(cena.movimento, t)}`;
+  const filtros = [
+    cena.tingir ? "grayscale(1) contrast(1.05)" : "saturate(0.85) contrast(1.05)",
+    cena.desfoque ? `blur(${cena.desfoque}px)` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const estiloMidia: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: `50% ${cena.posicaoY}%`,
+  };
+
+  let midia: React.ReactNode;
+  if (fonte.tipo === "imagem") {
+    midia = <Img src={staticFile(fonte.arquivo)} style={estiloMidia} />;
+  } else {
+    // Vídeo sempre mudo. Em loop se for mais curto que a cena; corta no fim
+    // da cena se for mais longo (a Sequence da cena já termina nesse ponto).
+    const frames = duracaoVideoSeg ? Math.max(1, Math.floor(duracaoVideoSeg * fps)) : totalFrames;
+    midia = (
+      <Loop durationInFrames={frames}>
+        <OffthreadVideo src={staticFile(fonte.arquivo)} muted style={estiloMidia} />
+      </Loop>
+    );
+  }
+
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill style={{ filter: filtros || undefined }}>
+        <AbsoluteFill style={{ transform }}>{midia}</AbsoluteFill>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
 const CenaUnica: React.FC<{
   cena: Cena;
   duracaoPropria: number; // frames em que a cena é a principal
   framesSaida: number; // transição da cena seguinte (a antiga fica por baixo)
   transicaoSeguinte?: TipoTransicao;
-}> = ({ cena, duracaoPropria, framesSaida, transicaoSeguinte }) => {
+  duracaoVideoSeg?: number | null;
+}> = ({ cena, duracaoPropria, framesSaida, transicaoSeguinte, duracaoVideoSeg }) => {
   const frame = useCurrentFrame();
   const total = duracaoPropria + framesSaida;
   const t = interpolate(frame, [0, total], [0, 1], clamp);
@@ -127,35 +193,40 @@ const CenaUnica: React.FC<{
   return (
     <AbsoluteFill>
       {entrada.faixa ? <AbsoluteFill style={entrada.faixa} /> : null}
-      <AbsoluteFill style={{ ...entrada.estilo, overflow: "hidden" }}>
+      <AbsoluteFill style={{ ...entrada.estilo, overflow: "hidden", isolation: "isolate" }}>
         <AbsoluteFill style={{ ...saida }}>
-          <Img
-            src={staticFile(cena.arquivo)}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              objectPosition: `50% ${cena.posicaoY}%`,
-              filter: "saturate(0.85) contrast(1.05)",
-              transform: transformMovimento(cena.movimento, t),
-            }}
-          />
+          {/* Fundo verde-escuro da marca: base de toda cena (e a cena inteira quando é "solido"). */}
+          <AbsoluteFill style={{ backgroundColor: COR.fundo }} />
+          <MidiaDaCena cena={cena} t={t} totalFrames={total} duracaoVideoSeg={duracaoVideoSeg} />
+          {/* Tingimento duotone (sombras verde-escuras, claros dourados). */}
+          {cena.tingir ? (
+            <>
+              <AbsoluteFill style={{ backgroundColor: COR.dourado, mixBlendMode: "multiply", opacity: 0.8 }} />
+              <AbsoluteFill style={{ backgroundColor: COR.fundo, mixBlendMode: "lighten" }} />
+            </>
+          ) : null}
           {/* Escurecimento chapado + reforço em alfa atrás da pílula e do texto. */}
-          <AbsoluteFill style={{ backgroundColor: COR.fundo, opacity: cena.escurecimento }} />
-          <AbsoluteFill
-            style={{
-              background: `linear-gradient(180deg, ${comAlfa(COR.fundo, 0.35)} 0%, ${comAlfa(
-                COR.fundo,
-                0,
-              )} 22%, ${comAlfa(COR.fundo, 0.12)} 35%, ${comAlfa(COR.fundo, 0.12)} 65%, ${comAlfa(
-                COR.fundo,
-                0.3,
-              )} 100%)`,
-            }}
-          />
+          {cena.escurecimento > 0 ? (
+            <AbsoluteFill style={{ backgroundColor: COR.fundo, opacity: cena.escurecimento }} />
+          ) : null}
+          {cena.fonte.tipo !== "solido" ? (
+            <AbsoluteFill
+              style={{
+                background: `linear-gradient(180deg, ${comAlfa(COR.fundo, 0.35)} 0%, ${comAlfa(
+                  COR.fundo,
+                  0,
+                )} 22%, ${comAlfa(COR.fundo, 0.12)} 35%, ${comAlfa(COR.fundo, 0.12)} 65%, ${comAlfa(
+                  COR.fundo,
+                  0.3,
+                )} 100%)`,
+              }}
+            />
+          ) : null}
           {cena.raiosDeLuz ? <RaiosDeLuz /> : null}
-          {cena.particulas ? <Particulas semente={cena.arquivo} opacidade={0.8} /> : null}
-          {cena.brilhoLogo ? <BrilhoRadial x={0.5} y={0.33} raio={0.6} intensidade={brilhoLogo} /> : null}
+          {cena.particulas ? <Particulas semente={cena.nome} opacidade={0.8} /> : null}
+          {cena.brilhoLogo ? (
+            <BrilhoRadial x={0.5} y={cena.brilhoY ?? 0.33} raio={0.6} intensidade={brilhoLogo} />
+          ) : null}
         </AbsoluteFill>
       </AbsoluteFill>
       {entrada.camadaFrente ?? null}
@@ -163,7 +234,11 @@ const CenaUnica: React.FC<{
   );
 };
 
-export const FundoCenas: React.FC<{ cenas: Cena[]; linha: LinhaDoTempo }> = ({ cenas, linha }) => {
+export const FundoCenas: React.FC<{
+  cenas: Cena[];
+  linha: LinhaDoTempo;
+  duracoes?: Record<string, number | null>;
+}> = ({ cenas, linha, duracoes }) => {
   return (
     <>
       {cenas.map((cena, i) => {
@@ -173,17 +248,13 @@ export const FundoCenas: React.FC<{ cenas: Cena[]; linha: LinhaDoTempo }> = ({ c
         const seguinte = cenas[i + 1];
         const framesSaida = seguinte ? seguinte.framesTransicao : 0;
         return (
-          <Sequence
-            key={cena.arquivo}
-            name={`Cena ${i + 1}: ${cena.arquivo.split("/").pop()}`}
-            from={de}
-            durationInFrames={ate - de + framesSaida}
-          >
+          <Sequence key={cena.nome} name={cena.nome} from={de} durationInFrames={ate - de + framesSaida}>
             <CenaUnica
               cena={cena}
               duracaoPropria={ate - de}
               framesSaida={framesSaida}
               transicaoSeguinte={seguinte?.transicao}
+              duracaoVideoSeg={cena.fonte.tipo === "video" ? duracoes?.[cena.fonte.arquivo] : undefined}
             />
           </Sequence>
         );
