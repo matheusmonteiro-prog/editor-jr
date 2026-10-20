@@ -317,6 +317,35 @@ Igual à 5b (já estava aplicada): sem a subida de 0,20 para 0,35; **0,12** dura
 (`VOLUMES.musicaCtaDuranteFala`); depois sobe devagar até **0,28** (`VOLUMES.musicaCtaAposFala`) em 60
 frames (`VOLUMES.subidaMusicaCtaFrames`); fade-out de 60 frames no fim mantido.
 
+## Rodada 5d (20/10/2026): bloco 08 e conferência da rodada 5
+
+### 0. Conferência da rodada 5 (tudo estava aplicado; nada precisou ser refeito)
+| Item | Estado |
+|---|---|
+| a) Ticks removidos: bloco 00, bloco 07 e palavras do CTA; bloco 08 só com o tick da pílula da pergunta | **Aplicado.** Só resta o tick das pílulas de pergunta dos blocos 01 a 08 (`sfxApresentacao.ts`) |
+| b) Sem tingimento verde (`TINGIMENTO = 0`); cenas 3, 5 e 7 sem filtro cinza (só 1 e 8 dessaturadas); blur 2 px nas cenas 1, 2, 4, 5, 6 e 8; 7 px nas 3 e 7 | **Aplicado** |
+| c) sfx-moeda em cada moeda dos blocos 02, 06 e 08 (volume 0,25, abaixo do contador 0,5) | **Aplicado** |
+| d) Música no bloco 08: 0,12 na fala, sobe até 0,28 depois, fade-out de 60 frames | **Aplicado** (`VOLUMES.musicaCtaDuranteFala`, `musicaCtaAposFala`, `subidaMusicaCtaFrames`) |
+
+### 1. Nova pílula no topo do bloco 08
+**"O QUE NINGUÉM TE MOSTROU ANTES"**, logo abaixo da pílula da pergunta. Pequena (Inter 600, caixa alta), texto
+creme #F5F0E6 sobre #0F2A1D, raio 28 px, sem borda e sem sombra, sem dourado. Entra junto com "SIGA ESTE CANAL".
+Para abrir espaço, a chamada e os textos abaixo desceram uns 2,5% da altura.
+
+### 2. Transição final
+O logo (inteiro, com chapéu) **cresce em direção ao espectador**: escala de 1 até **3**, com ease-in cúbico,
+**nos últimos 50 frames do vídeo** (frames 2468 a 2518), com fade de saída nos últimos 14. A pílula "EM BREVE
+NESTE CANAL" continua na tela, por cima, e o logo cresce por trás dela (a pílula passou a ser desenhada depois do
+logo). **A duração não mudou: 2518 frames.**
+**Aviso: o zoom corta o logo nas bordas.** Com escala 3 o logo (55% da largura) passa de 100% da largura; no
+frame 2503 (escala ~2,3) o chapéu e a seta já encostam nas laterais. O fade de saída cobre o final.
+
+### 3. Whoosh
+Ponto marcado na timeline como **"SOM whoosh logo cresce"** (frame 2468, volume 0,5), com o sfx-whoosh ligado.
+
+### Para conferir no Studio
+- O crescimento tem só 50 frames (1,7 s). Se quiser mais lento, é `FRAMES_CRESCER_LOGO` em `sfxApresentacao.ts`.
+
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.
