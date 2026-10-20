@@ -26,7 +26,6 @@ import { ListaRolando } from "./components/apresentacao/ListaRolando";
 import { FraseIcone } from "./components/apresentacao/FraseIcone";
 import { TextoPulso } from "./components/apresentacao/TextoPulso";
 import { PilulaCta } from "./components/apresentacao/PilulaCta";
-import { LinhaDourada } from "./components/apresentacao/LinhaDourada";
 
 // Vídeo de apresentação do JR: pergunta e resposta, sem câmera.
 // Dados em src/dados/apresentacao.ts; duração calculada pelos áudios reais.
@@ -293,14 +292,13 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
         <>
           {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
-          <TextoKinetic texto={el.chamada} fonte="titulo" damping={12} inicio={resp} top={0.18} tamanho={0.105} />
-          <LinhaDourada inicio={t.respostaInicio + Math.round(el.linhaDouradaEmSegundos * 30)} duracao={12} top={0.325} />
+          <TextoKinetic texto={el.chamada} fonte="titulo" damping={12} inicio={resp} top={0.19} tamanho={0.105} />
           <TextoKinetic
             texto={el.acompanhe}
             fonte="rotulo"
             damping={12}
             inicio={t.respostaInicio + Math.round(el.acompanheEmSegundos * 30)}
-            top={0.337}
+            top={0.36}
             tamanho={0.042}
           />
           <TextoPulso
@@ -310,18 +308,10 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             damping={10}
             brilho
             inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * 30)}
-            top={0.375}
+            top={0.395}
             tamanho={0.115}
           />
-          <TextoKinetic
-            texto={el.convite}
-            fonte="rotulo"
-            damping={12}
-            inicio={t.respostaInicio + Math.round(el.conviteEmSegundos * 30)}
-            top={0.705}
-            tamanho={0.04}
-          />
-          <PilulaCta texto={el.pilula} inicio={t.respostaInicio + Math.round(el.pilulaEmSegundos * 30)} top={0.765} />
+          <PilulaCta texto={el.pilula} inicio={t.respostaInicio + Math.round(el.pilulaEmSegundos * 30)} top={0.735} />
         </>
       ) : null}
     </AbsoluteFill>
@@ -387,7 +377,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
           inicioGiro={b00.inicio + 4}
           inicioVoo={inicioVoo}
           inicioVolta={inicioVolta}
-          centroFinal={{ x: 0.5, y: 0.56, largura: 0.55 }}
+          centroFinal={{ x: 0.5, y: 0.585, largura: 0.55 }}
         />
       </Sequence>
 

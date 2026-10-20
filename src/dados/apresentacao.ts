@@ -58,19 +58,16 @@ export type Elemento =
       passoPulso: number; // pulsa a cada N números
     }
   | {
-      // Bloco 08 (rodada 5b): chamada final em partes, cada uma no seu momento da fala.
+      // Bloco 08 (rodada 5c): chamada final em partes, cada uma no seu momento da fala.
       // Tempos em SEGUNDOS desde o início do áudio da resposta (pausas do narrador medidas
       // com silencedetect; se o áudio for regerado, conferir).
       tipo: "cta";
       chamada: string; // "Siga este canal" (creme, grande, 2 linhas)
-      linhaDouradaEmSegundos: number; // linha dourada atravessa a tela
       acompanhe: string; // "Acompanhe a chegada do" (creme, menor)
       acompanheEmSegundos: number;
       marca: string; // "Método JR." (dourado, grande: o ÚNICO texto dourado do bloco)
       marcaEmSegundos: number;
-      logoEmSegundos: number; // o logo sobe do fundo
-      convite: string; // "Aqui você vai ver como funciona na prática" (creme, menor)
-      conviteEmSegundos: number;
+      logoEmSegundos: number; // o logo sobe do fundo e pousa junto com a assinatura
       pilula: string; // pílula chapada creme, texto #0F2A1D (entra quando a fala termina)
       pilulaEmSegundos: number;
     };
@@ -288,14 +285,12 @@ export const BLOCOS: Bloco[] = [
     elemento: {
       tipo: "cta",
       chamada: "Siga este canal",
-      linhaDouradaEmSegundos: 1.0,
       acompanhe: "Acompanhe a chegada do",
       acompanheEmSegundos: 5.05,
       marca: "Método JR.",
       marcaEmSegundos: 5.29,
-      logoEmSegundos: 2.3,
-      convite: "Aqui você vai ver como funciona na prática",
-      conviteEmSegundos: 3.2,
+      // O logo sobe ~1 s antes para POUSAR (fim da mola) junto com "MÉTODO JR." (5,29 s).
+      logoEmSegundos: 4.55,
       pilula: "Em breve neste canal",
       pilulaEmSegundos: 7.7,
     },

@@ -86,7 +86,6 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
     if (el.tipo === "cta") {
       const audio = t.inicio + t.respostaInicio;
       // Rodada 5: sem tick nas palavras de "SIGA ESTE CANAL"; no bloco 08 fica só o tick da pílula.
-      ev.push({ tipo: "whoosh", nome: "whoosh linha dourada", frame: audio + Math.round(el.linhaDouradaEmSegundos * 30), volume: 0.5 });
       ev.push({ tipo: "impacto", nome: "impacto logo", frame: inicioVoltaLogo(linha) + FRAMES_ATE_PULSO_LOGO, volume: 0.5 });
       ev.push({ tipo: "impacto", nome: "impacto MÉTODO JR", frame: audio + Math.round(el.marcaEmSegundos * 30) + FRAMES_ATE_PICO_MARCA, volume: 0.5 });
     }
