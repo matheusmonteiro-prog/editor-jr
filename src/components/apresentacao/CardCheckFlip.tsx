@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { COR, ESPACO_TITULO, FONTE_TITULO, MOLA, comAlfa } from "./marca";
+import { COR, ESPACO_TITULO, FONTE_TITULO, PESO_TITULO, MOLA, comAlfa } from "./marca";
 
 // Card de check no visual do ListaCheck (texto + check desenhado), entrando
 // com FLIP 3D no eixo X (exceção visual do vídeo de apresentação).
@@ -89,7 +89,7 @@ export const CardCheckFlip: React.FC<Props> = ({ texto, destaque, inicio, saida,
         <span
           style={{
             fontFamily: FONTE_TITULO,
-            fontWeight: 700,
+            fontWeight: PESO_TITULO,
             letterSpacing: ESPACO_TITULO,
             fontSize,
             color: COR.creme,

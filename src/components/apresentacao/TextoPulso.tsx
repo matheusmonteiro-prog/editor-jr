@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { COR, ESPACO_ROTULO, ESPACO_TITULO, FONTE_IMPACTO, FONTE_ROTULO, FONTE_TITULO, comAlfa } from "./marca";
+import { COR, ESPACO_ROTULO, ESPACO_TITULO, FONTE_ROTULO, FONTE_TITULO, PESO_TITULO, comAlfa } from "./marca";
 
 // Frase inteira que entra de uma vez (spring em escala) e, se `pulso` > 1, dá
 // UMA batida só, como batimento de coração (1 → pulso → 1 em 10 frames).
@@ -11,8 +11,8 @@ type Props = {
   top: number; // fração da altura (topo)
   tamanho: number; // fração da largura
   cor?: string;
-  fonte?: "titulo" | "rotulo" | "impacto";
-  peso?: 700 | 900; // peso da Fraunces (fonte "titulo")
+  fonte?: "titulo" | "rotulo";
+  peso?: number; // peso da Inter nos títulos (padrão 800)
   escalaInicial?: number; // entra em escala a partir daqui, com overshoot (padrão 0,6)
   damping?: number; // mola da entrada (padrão 12)
   pulso?: number; // escala máxima da batida; 1 = sem batida
@@ -28,7 +28,7 @@ export const TextoPulso: React.FC<Props> = ({
   tamanho,
   cor = COR.creme,
   fonte = "titulo",
-  peso = 900,
+  peso = PESO_TITULO,
   escalaInicial = 0.6,
   damping = 12,
   pulso = 1,
@@ -65,8 +65,8 @@ export const TextoPulso: React.FC<Props> = ({
     >
       <span
         style={{
-          fontFamily: fonte === "titulo" ? FONTE_TITULO : fonte === "impacto" ? FONTE_IMPACTO : FONTE_ROTULO,
-          fontWeight: fonte === "titulo" ? peso : fonte === "impacto" ? 700 : 600,
+          fontFamily: fonte === "titulo" ? FONTE_TITULO : FONTE_ROTULO,
+          fontWeight: fonte === "titulo" ? peso : 600,
           letterSpacing: fonte === "titulo" ? ESPACO_TITULO : ESPACO_ROTULO,
           fontSize,
           lineHeight: 1.1,

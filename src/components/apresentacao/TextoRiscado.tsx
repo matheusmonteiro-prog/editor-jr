@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { COR, ESPACO_TITULO, FONTE_TITULO, MOLA, comAlfa } from "./marca";
+import { COR, ESPACO_TITULO, FONTE_TITULO, PESO_TITULO, MOLA, comAlfa } from "./marca";
 
 // Palavra (ou frase) que entra, é cortada por uma risca dourada e depois:
 // - "recuar": sai para trás, diminuindo (bloco 05, "DIFÍCIL");
@@ -78,7 +78,7 @@ export const TextoRiscado: React.FC<Props> = ({
               <span
                 style={{
                   fontFamily: FONTE_TITULO,
-                  fontWeight: 700,
+                  fontWeight: PESO_TITULO,
                   letterSpacing: ESPACO_TITULO,
                   fontSize,
                   lineHeight: 1.12,

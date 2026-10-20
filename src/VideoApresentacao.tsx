@@ -204,7 +204,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             tamanho={0.082}
           />
           {/* As frases entram uma a uma e FICAM até o fim do bloco, empilhando de baixo para cima. */}
-          {(el.frases ?? []).map((f, i) => {
+          {(el.frases ?? []).map((f, i, todas) => {
             const corte = (seg: number) => t.respostaInicio + Math.round(seg * 30);
             return (
               <FraseIcone
@@ -214,7 +214,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
                 icone={f.icone}
                 estiloFaz={f.estiloFaz}
                 inicio={corte(f.emSegundos)}
-                degrau={i}
+                empurroes={todas.slice(i + 1).map((g) => corte(g.emSegundos))}
                 top={0.58}
               />
             );
@@ -272,7 +272,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
           <TextoKinetic
             texto={el.chamada}
-            fonte="impacto"
+            fonte="titulo"
             damping={10}
             deslocamentoY={20 / 1080}
             inicio={resp}
@@ -282,7 +282,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
           <LinhaDourada inicio={t.respostaInicio + Math.round(el.linhaDouradaEmSegundos * 30)} duracao={12} top={0.335} />
           <TextoKinetic
             texto={el.miolo}
-            fonte="impacto"
+            fonte="titulo"
             cor={COR.dourado}
             intervalo={4}
             inicio={t.respostaInicio + Math.round(el.mioloEmSegundos * 30)}
@@ -297,7 +297,6 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
           <TextoPulso
             texto={el.marca}
             cor={COR.dourado}
-            peso={700}
             escalaInicial={0.7}
             damping={10}
             brilho
@@ -307,7 +306,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
           />
           <TextoPulso
             texto={el.fecho}
-            fonte="impacto"
+            fonte="titulo"
             inicio={t.respostaInicio + Math.round(el.fechoEmSegundos * 30)}
             top={0.77}
             tamanho={0.045}

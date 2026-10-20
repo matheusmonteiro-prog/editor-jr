@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { COR, ESPACO_ROTULO, ESPACO_TITULO, FONTE_IMPACTO, FONTE_ROTULO, FONTE_TITULO, MOLA } from "./marca";
+import { COR, ESPACO_ROTULO, ESPACO_TITULO, FONTE_ROTULO, FONTE_TITULO, MOLA, PESO_TITULO } from "./marca";
 
 // Kinetic typography: palavra por palavra, cada uma entra com spring
 // (de baixo ou em escala), 3 frames entre elas. A expressão do destaque
@@ -14,7 +14,7 @@ type Props = {
   saida?: number; // frame em que a 1ª palavra começa a sair
   top: number; // fração da altura (topo do bloco de texto)
   tamanho: number; // fração da largura
-  fonte?: "titulo" | "rotulo" | "impacto";
+  fonte?: "titulo" | "rotulo";
   damping?: number; // mola da entrada (padrão 12)
   deslocamentoY?: number; // fração da largura: quanto a palavra sobe ao entrar (padrão: 0,7 do corpo da letra)
   cor?: string;
@@ -23,7 +23,7 @@ type Props = {
   entrada?: "subir" | "escala";
   intervalo?: number; // frames entre palavras
   opacidadeMax?: number;
-  peso?: 700 | 900; // peso da Fraunces (só fonte "titulo")
+  peso?: number; // peso da Inter nos títulos (padrão 800)
   // Pulso extra em uma palavra (ex.: NINGUÉM 1 → 1,2 → 1). emFrame = quando
   // pulsa (padrão: logo que a palavra entra).
   pulsoPalavra?: { palavra: string; escala: number; emFrame?: number };
@@ -61,7 +61,7 @@ export const TextoKinetic: React.FC<Props> = ({
   entrada = "subir",
   intervalo = 3,
   opacidadeMax = 1,
-  peso = 700,
+  peso = PESO_TITULO,
   pulsoPalavra,
   damping = MOLA.damping,
   deslocamentoY,
@@ -109,8 +109,8 @@ export const TextoKinetic: React.FC<Props> = ({
         justifyContent: "center",
         columnGap: fontSize * 0.34,
         rowGap: fontSize * 0.05,
-        fontFamily: fonte === "titulo" ? FONTE_TITULO : fonte === "impacto" ? FONTE_IMPACTO : FONTE_ROTULO,
-        fontWeight: fonte === "titulo" || fonte === "impacto" ? (fonte === "impacto" ? 700 : peso) : 600,
+        fontFamily: fonte === "titulo" ? FONTE_TITULO : FONTE_ROTULO,
+        fontWeight: fonte === "titulo" ? peso : 600,
         letterSpacing: fonte === "titulo" ? ESPACO_TITULO : ESPACO_ROTULO,
         fontSize,
         lineHeight: 1.08,

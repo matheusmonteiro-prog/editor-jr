@@ -1,11 +1,12 @@
 import React from "react";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { COR, ESPACO_TITULO, FONTE_TITULO, comAlfa } from "./marca";
+import { COR, ESPACO_TITULO, FONTE_TITULO, PESO_TITULO, comAlfa } from "./marca";
 
-// Frase inteira com um ícone ao lado. Aparece (corte seco, subindo um degrau em 15
-// frames) no frame `inicio` e FICA até o fim do bloco. As frases se empilham de baixo
-// para cima: a 1ª no degrau 0 (embaixo), a 2ª no degrau 1, a 3ª no degrau 2.
-// Entrada com pulso de escala forte (1 → 1,1 → 1 em 6 frames).
+// Frase inteira com um ícone ao lado. Aparece de uma vez (corte seco) no frame `inicio`,
+// na posição de baixo, e FICA até o fim do bloco. Quando a próxima frase entra
+// (`empurroes`), esta sobe um degrau (`passo`) em 15 frames. Assim, lido de cima para
+// baixo, o resultado final segue a ordem da fala. Entrada com pulso de escala forte
+// (1 → 1,1 → 1 em 6 frames).
 // O ícone é SVG inline, traço fino dourado (mesma espessura nos três), que se
 // desenha (stroke-dashoffset), dá um pulso curto e solta um brilho rápido.
 
@@ -19,7 +20,7 @@ type Props = {
   destaque: string; // UMA palavra em dourado
   icone: NomeIcone;
   inicio: number; // frame (relativo à Sequence) do corte de entrada
-  degrau?: number; // 0 = posição de baixo; cada degrau sobe `passo`
+  empurroes?: number[]; // frames em que as frases seguintes entram (esta sobe um degrau cada vez)
   passo?: number; // fração da altura de cada degrau
   estiloFaz?: EstiloFaz;
   top: number; // fração da altura (centro da linha, na posição de baixo)
@@ -93,7 +94,7 @@ export const FraseIcone: React.FC<Props> = ({
   destaque,
   icone,
   inicio,
-  degrau = 0,
+  empurroes = [],
   passo = 0.08,
   estiloFaz = "dourado",
   top,
@@ -119,8 +120,11 @@ export const FraseIcone: React.FC<Props> = ({
   const lado = fontSize * 1.5;
 
   const escala = interpolate(local, [0, 3, 6], [1, 1.1, 1], clamp);
-  // Entra subindo de baixo para o seu degrau (movimento suave de 15 frames).
-  const chegada = interpolate(local, [0, 15], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+  // Sobe um degrau a cada frase que entra depois (movimento suave de 15 frames).
+  const subida = empurroes.reduce(
+    (soma, e) => soma + interpolate(frame - e, [0, 15], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) }),
+    0,
+  );
   const pulsoFaz = estiloFaz === "pulso" ? interpolate(local, [6, 12, 20], [1, 1.25, 1], clamp) : 1;
   const inicioTraco = 2;
   const progresso = interpolate(local, [inicioTraco, inicioTraco + duracaoTraco], [0, 1], clamp);
@@ -134,7 +138,7 @@ export const FraseIcone: React.FC<Props> = ({
         position: "absolute",
         left: 0,
         width: "100%",
-        top: height * (top - passo * degrau + passo * 0.7 * (1 - chegada)),
+        top: height * (top - passo * subida),
         display: "flex",
         justifyContent: "center",
         transform: `translateY(-50%) scale(${escala})`,
@@ -164,7 +168,7 @@ export const FraseIcone: React.FC<Props> = ({
         <span
           style={{
             fontFamily: FONTE_TITULO,
-            fontWeight: 700,
+            fontWeight: PESO_TITULO,
             letterSpacing: ESPACO_TITULO,
             fontSize,
             color: COR.creme,
