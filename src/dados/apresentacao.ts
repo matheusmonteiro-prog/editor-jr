@@ -290,9 +290,9 @@ export const BLOCOS: Bloco[] = [
 const C = "images/cenas/prontas/";
 const V = "videos/cenas/";
 
-// Escurecimento: camada #0F2A1D por cima do fundo. Rodada 2 (20/10/2026): de 55%
-// para 40% em todas as cenas; a cena 6 (mosaico) segue em 70%.
-const ESCURECIMENTO = 0.4;
+// Escurecimento: camada #0F2A1D por cima do fundo. Rodada 3 (20/10/2026): 15% em
+// todas as cenas; a cena 6 (mosaico) segue em 70%.
+const ESCURECIMENTO = 0.15;
 
 export const CENAS: Cena[] = [
   {
@@ -324,17 +324,19 @@ export const CENAS: Cena[] = [
     posicaoY: 50,
   },
   {
-    // O vídeo "grafico 1" tem "Link in Bio" escrito e cor neon: não usado
-    // (decisão do Matheus, 20/10/2026). Fica o verde-escuro da marca.
-    nome: "Cena 3: fundo verde-escuro",
-    fonte: { tipo: "solido" },
+    // Rodada 3: vídeo da bolsa (tabela de números). Os números são legíveis no
+    // original, então o desfoque sobe para 12 px.
+    nome: "Cena 3: cena-3-bolsa.mp4",
+    fonte: { tipo: "video", arquivo: `${V}cena-3-bolsa.mp4` },
     blocoInicial: "03",
     blocoFinal: "03",
-    movimento: { tipo: "zoom", de: 1, para: 1 },
+    movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "empurraoVertical",
     framesTransicao: 16,
-    escurecimento: 0,
+    escurecimento: ESCURECIMENTO,
     posicaoY: 50,
+    desfoque: 12,
+    tingir: true,
   },
   {
     // Imagem de 940 px de largura (< 1170): zoom de 103% e pan menor.
@@ -351,17 +353,18 @@ export const CENAS: Cena[] = [
     raiosDeLuz: true,
   },
   {
-    // O vídeo do trator tem a marca d'água "@EDI.RISSI" e é de outro criador:
-    // não usado (decisão do Matheus, 20/10/2026). Fica o verde-escuro da marca.
-    nome: "Cena 5: fundo verde-escuro",
-    fonte: { tipo: "solido" },
+    // Rodada 3: vídeo do campo de trigo (cópia de 14 s em 1080x1920).
+    nome: "Cena 5: cena-5-trigo.mp4",
+    fonte: { tipo: "video", arquivo: `${V}cena-5-trigo.mp4` },
     blocoInicial: "05",
     blocoFinal: "05",
-    movimento: { tipo: "zoom", de: 1, para: 1 },
+    movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "deslizeHorizontal",
     framesTransicao: 14,
-    escurecimento: 0,
+    escurecimento: ESCURECIMENTO,
     posicaoY: 50,
+    desfoque: 8,
+    tingir: true,
     particulas: true,
   },
   {
@@ -376,15 +379,19 @@ export const CENAS: Cena[] = [
     posicaoY: 50,
   },
   {
-    nome: "Cena 7: cena-7-grafico.jpg",
-    fonte: { tipo: "imagem", arquivo: `${C}cena-7-grafico.jpg` },
+    // Rodada 3: vídeo do celular/tablet com gráficos (aparece texto legível,
+    // como "BTC-USD"): desfoque de 12 px.
+    nome: "Cena 7: cena-7-celular.mp4",
+    fonte: { tipo: "video", arquivo: `${V}cena-7-celular.mp4` },
     blocoInicial: "07",
     blocoFinal: "07",
-    movimento: { tipo: "panDiagonal", zoom: 1.08, deX: 0.02, paraX: -0.02, deY: 0.02, paraY: -0.02 },
+    movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "wipeDiagonal",
     framesTransicao: 14,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
+    desfoque: 12,
+    tingir: true,
   },
   {
     nome: "Cena 8: cena-8-linhas.mp4",
