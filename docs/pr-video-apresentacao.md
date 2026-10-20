@@ -192,30 +192,52 @@ Vieram da revisão dos stills no Studio. Nenhuma fala, texto de tela ou duraçã
 - O verde ficou tão leve nos blocos 01 e 08 que as cenas parecem quase cinza com um toque de verde.
   Se quiser um pouco mais, é o valor `TINGIMENTO` em `FundoCenas.tsx`.
 
-## Ajustes da rodada 5 (20/10/2026)
+## Ajustes da rodada 5 (20/10/2026, consolidada)
 
-Não há fala, texto de tela nem duração novos (continua 2518 frames). Nada foi renderizado e nenhum
+Nenhuma fala, texto de tela ou duração mudou (continua 2518 frames). Nada foi renderizado e nenhum
 áudio de voz foi gerado. O posicionamento segue para o Matheus ajustar no Studio.
 
-1. **Desfoque do fundo** (imagem ficar reconhecível):
-   - Cenas 1, 4, 5 e 8: **8 px → 4 px**.
-   - Cenas 3 e 7: **12 px → 7 px**. Conferido no still do bloco 03: os números da tabela ainda
-     aparecem como massa desfocada, sem nenhum legível. No bloco 07, o trecho "BTC-USD" do celular
-     também não se lê (ver o still do bloco 07 no Studio, mesma regra).
-   - Cenas 2 e 6 não têm desfoque; nada foi mudado.
-2. **Bloco 08, "O QUE NINGUÉM TE MOSTROU ANTES":** continua em Inter, com as palavras entrando em
-   sequência por mola (amortecimento 12, 4 frames entre palavras). "NINGUÉM" pulsa de 1 → 1,15 → 1 e
-   é a **única palavra dourada** (#EFAF20); as demais do miolo ficaram em creme. "AQUI VOCÊ VAI VER"
-   e "TE MOSTROU ANTES" não são mais dourados.
-3. **Som de moeda em cada queda:** religado nos blocos **02** (1 moeda fixa + 1 aleatória), **06** (2)
-   e **08** (2), com volume **0,25** (abaixo do contador, 0,5). Antes só o bloco 08 tinha som de moeda.
-   Os blocos 03 e 07 não têm moeda caindo, então não houve queda sem som.
+### 1. Ticks (sfx-tick)
+- **Removidos:**
+  - **Bloco 00:** o tick da pílula **"EM BREVE, NESTE CANAL"**. É o único tick dessa região do vídeo
+    e toca no frame 2 (o som dura 1,44 s, por isso pode parecer que vem perto de 1 s).
+  - **Bloco 07:** os 3 ticks dos ícones das frases O QUE FAZ / COMO FAZ / E POR QUE FAZ.
+  - **Bloco 08:** os 3 ticks das palavras de "SIGA ESTE CANAL".
+- **Mantidos:** o tick da pílula de pergunta dos blocos **01 a 08** (inclusive o do bloco 08).
 
-### Dúvidas para o Studio
-- Cenas 3 e 7: se algum número ou o "BTC-USD" ainda ficar legível em movimento, o próximo passo é
-  subir o desfoque (valor `desfoque` em `src/dados/apresentacao.ts`).
-- "NINGUÉM" dourado dentro de um miolo creme: se preferir mais peso, o pulso pode ser maior, mas
-  isso sai da regra de 1 → 1,15 → 1 que você pediu.
+### 2. Fundo mais natural (`FundoCenas.tsx` e `src/dados/apresentacao.ts`)
+| Item | Antes (rodada 4) | Depois (rodada 5) |
+|---|---|---|
+| Tingimento verde (`TINGIMENTO`, em `FundoCenas.tsx`) | 0,3 | **0** (camada nem é desenhada) |
+| Cinza/dessaturação | cenas 1, 3, 5, 7 e 8 | só as cenas **1 e 8** (`dessaturar: true`); **3, 5 e 7 ficam com a cor natural** |
+| Desfoque cenas 1, 4, 5 e 8 | 4 px | **2 px** (`DESFOQUE_PADRAO`) |
+| Desfoque cenas 2 e 6 | sem desfoque | **2 px** (`DESFOQUE_PADRAO`) |
+| Desfoque cenas 3 e 7 | 7 px | **7 px** (`DESFOQUE_TEXTO_LEGIVEL`); conferido: nenhum número ou "BTC-USD" legível |
+| Escurecimento | 8% (cena 5: 12%; cena 6: 45%) | **sem mudança** |
+
+- **Constantes fáceis de achar:** `TINGIMENTO` (`src/components/apresentacao/FundoCenas.tsx`),
+  `DESFOQUE_PADRAO` e `DESFOQUE_TEXTO_LEGIVEL` (`src/dados/apresentacao.ts`, antes de `CENAS`).
+- **Bloco 01 (CRIADOR):** conferi o contraste de "CRIADOR DO MÉTODO JR" com o fundo mais nítido e
+  ele continua lendo bem; **não coloquei faixa escura**. Vale conferir no Studio, porque o notebook
+  ficou mais definido atrás do texto.
+
+### Quebra de marca desta rodada
+**Fundo sem tingimento verde.** Com a cor natural, as cenas de vídeo mostram cores fora da paleta:
+a cena 7 (celular) aparece com azul, ciano e vermelho nos gráficos; a cena 5 (trigo) fica dourada e
+azul-acinzentada. O verde da marca (#0F2A1D) agora só aparece no escurecimento e nos elementos.
+
+### 3. Bloco 08, "O QUE NINGUÉM TE MOSTROU ANTES" (feito na rodada 5, commit anterior)
+Inter, sem fonte nova; palavras entrando em sequência por mola (amortecimento 12, 4 frames entre
+palavras); "NINGUÉM" pulsa 1 → 1,15 → 1 e é a **única palavra dourada** (#EFAF20).
+
+### 4. Som de moeda (feito na rodada 5, commit anterior)
+Religado em **cada queda** dos blocos **02** (2 moedas), **06** (2) e **08** (2), um som por queda, volume
+**0,25** (abaixo do sfx-contador, 0,5). Antes só o bloco 08 tinha som de moeda. Os blocos 03 e 07 não
+têm moeda caindo, então não há queda sem som.
+
+### Para conferir
+- A cena 1 e a cena 8 continuam em cinza (você só pediu para tirar o cinza das cenas 3, 5 e 7).
+- Cenas 3 e 7: se algum número ainda ficar legível em movimento, subir `DESFOQUE_TEXTO_LEGIVEL`.
 
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
