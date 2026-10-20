@@ -146,6 +146,52 @@ sempre inteiro. Essas transições só têm o whoosh de troca de bloco.
 - **Whoosh em 00→01 e 03→04:** já existe o whoosh de troca de bloco nesses pontos; não dobrei.
 - **Vídeos 3 e 5 antigos** (`cena-3-grafico.mp4`, trator) não são mais usados.
 
+## Ajustes da rodada 4 (20/10/2026)
+
+Vieram da revisão dos stills no Studio. Nenhuma fala, texto de tela ou duração de bloco mudou
+(continua **2518 frames / 83,9 s**).
+
+1. **Bloco 07, ordem das frases corrigida.** Lido de cima para baixo: **O QUE FAZ, COMO FAZ, E POR
+   QUE FAZ**, na ordem da fala. Cada frase entra embaixo e a anterior sobe um degrau em 15 frames.
+   As 3 ficam até o fim do bloco, com a legenda fixa embaixo.
+2. **Inter em tudo.** Saíram a Fraunces e a Space Grotesk. Títulos e respostas em Inter 800; rótulos,
+   pílulas e números em Inter 600 (números tabulares, formato BR). "MÉTODO JR." no bloco 08 usa o
+   mesmo estilo dos outros títulos: o tratamento da assinatura fica como decisão de marca para
+   depois (não inventei um estilo).
+3. **Verde bem leve, com o bloco 02 como régua.**
+   - Tingimento: de duotone verde/dourado pesado para uma camada de verde da marca com intensidade
+     de **30%** em modo "color" (só o tom; a luz da arte fica). A arte continua dessaturada.
+   - Escurecimento: de 15% para **8%** em todas as cenas; cena 5 (trigo) em 12% e cena 6 (mosaico)
+     em 45% (era 70%).
+   - **Para conferir no Studio, bloco 01 (CRIADOR):** com menos verde o fundo ficou mais claro atrás
+     do logo. O texto "CRIADOR DO MÉTODO JR" fica sobre a parte escura do teclado e leu bem no
+     still, mas não adicionei nenhum escurecimento localizado. Se perder contraste no Studio, o
+     caminho é uma faixa escura só atrás do texto, sem escurecer a tela toda.
+4. **Moedas reduzidas e só onde há dinheiro:** blocos **02** (2 moedas), **06** (2) e **08** (2).
+   Saíram do bloco 03. O som de moeda toca só no bloco 08; nos blocos dos contadores (02 e 06) vale o
+   som de contagem.
+5. **Transições dinâmicas de volta** (nada de chapéu voando). As cenas trocam deslizando: 01→02 de
+   lado (da direita), 02→03 de baixo para cima, 03→04 de cima para baixo, 04→05 de lado (da
+   esquerda), 05→06 de baixo para cima, 06→07 de lado (da direita), 07→08 de cima para baixo.
+   Além disso, **o conteúdo de cada bloco entra deslizando** (do lado, de baixo ou de cima), o que dá
+   movimento também às trocas **00→01** e **03→04**. Cada troca continua marcada na timeline para o
+   whoosh.
+6. **Sons novos: os dois arquivos existiam e estão ligados.**
+   - `sfx-contador.mp3` (2,23 s = 67 frames) toca junto da contagem dos blocos **02** (0→15) e **06**
+     (0→400). Como o arquivo tem 2,23 s, a **duração da contagem passou a 67 frames** nos dois
+     contadores (linear, estilo odômetro). No bloco 06 isso **substitui** a regra antiga de parar meio
+     segundo antes do narrador terminar: o +400 agora chega cerca de 2,2 s depois do início da
+     resposta e o estouro de partículas acompanha.
+   - `sfx-ok.mp3` (0,74 s) toca quando aparece um check: nos 2 cards do bloco **03** e no check do
+     bloco **07**. O arquivo veio como `sfx-ok.mp3.mp3` e foi renomeado para `sfx-ok.mp3`.
+   - Os 4 sons anteriores (whoosh, tick, moeda, impacto) continuam como estavam.
+
+### Quebras e dúvidas da rodada 4
+- Os cards com check do **bloco 02** (AÇÕES E ETFS, BRASIL E EUA) **não** têm o som de ok, porque você
+  listou só os blocos 03 e 07. É um ajuste de uma linha se quiser.
+- O verde ficou tão leve nos blocos 01 e 08 que as cenas parecem quase cinza com um toque de verde.
+  Se quiser um pouco mais, é o valor `TINGIMENTO` em `FundoCenas.tsx`.
+
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.
