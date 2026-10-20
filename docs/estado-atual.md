@@ -35,7 +35,8 @@ da `noite-etapa6`; o PR/merge volta para a `noite-etapa6`, **não** para a `main
   declarado. Rodada 2: cenas com vídeo/imagem/fundo sólido, bloco 06 com contador até +400, bloco 07
   com 3 frases e ícones, bloco 08 com o CTA novo, moedas aleatórias, música de fundo e pontos de som.
   Duração pelos áudios: **2518 frames (83,9 s)**.
-- **Stills:** 9 em `out/stills/apresentacao/` (frame do meio de cada bloco), de 20/10/2026.
+- **Rodada 3 (20/10/2026):** cenas 3, 5 e 7 em vídeo, escurecimento 15%, bloco 07 empilhando, bloco 08 redesenhado (Space Grotesk), sons reais com ducking. Detalhes em `docs/pr-video-apresentacao.md`.
+- **Stills:** 9 em `out/stills/apresentacao/` (frame do meio de cada bloco), de 20/10/2026 (rodada 3).
 - **Falta:** o Matheus ver no Studio e aprovar; só depois o render em `out/video-apresentacao.mp4`.
   Os 4 efeitos sonoros não baixaram do Pixabay (403): pontos marcados e mudos. `software-recorte.png`
   não existe (bloco 04 só com texto). Vídeos das cenas 3 e 5 não usados (ver o rascunho do PR).

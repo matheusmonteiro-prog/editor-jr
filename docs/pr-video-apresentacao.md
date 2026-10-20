@@ -108,9 +108,46 @@ Commits por etapa na branch `video-apresentacao` (só código; nenhuma mídia fo
 - **Música de fundo** (arquivo `music impact.mp3` da Downloads): **a licença/origem não foi
   verificada por mim.** Confirmar antes de publicar.
 
+## Ajustes da rodada 3 (20/10/2026)
+
+1. **Arquivos.** Extensões duplas corrigidas. Os 3 vídeos novos eram 4K (o do trigo, 342 MB): gerei
+   cópias 1080x1920 sem áudio com FFmpeg (trigo só com 14 s, a partir de 8 s; bolsa e celular
+   inteiros) em `public/videos/cenas/`. Os originais ficaram **intocados** em
+   `videos/originais-cenas/` (pasta ignorada pelo Git, fora do `public/`).
+2. **Cenas 3, 5 e 7** viraram vídeo (mudo, em loop, cinza + tingimento verde-escuro/dourado).
+   Desfoque de **12 px** nas cenas 3 (bolsa: números legíveis) e 7 (celular: aparece "BTC-USD");
+   8 px na 5 (trigo). Nenhum arroba, marca d'água ou logo nas amostras que olhei.
+3. **Escurecimento de 15%** em todas as cenas, menos a 6 (70%) e a **5 (25%)**: o céu dourado do
+   trigo competia com o "FÁCIL" dourado.
+4. **Bloco 07.** As 3 frases agora **ficam até o fim do bloco**, empilhadas de baixo para cima: "O QUE
+   FAZ" embaixo, "COMO FAZ" no meio, "E POR QUE FAZ" em cima, cada uma com seu ícone. "FAZ": dourado
+   chapado / creme com contorno dourado / dourado com pulso 1 → 1,25 → 1. A legenda "A DECISÃO É DE
+   CADA INVESTIDOR" (sem ponto) fica fixa embaixo o bloco todo.
+5. **Bloco 08.** Textos sem ponto (só "MÉTODO JR." mantém). **Space Grotesk Bold** em tudo, menos
+   "MÉTODO JR." (Fraunces Bold, entra em escala 0,7 → 1 com overshoot). "SIGA ESTE CANAL" palavra por
+   palavra (mola 10, sobe 20 px). "NINGUÉM" pulsa 1 → 1,2 → 1 em 8 frames. O **logo inteiro** sobe do
+   fundo com spring e pulsa uma vez (1 → 1,1 → 1 em 10 frames). 3 moedas caem atrás do logo.
+6. **Sons ligados** (`src/utils/sfxApresentacao.ts`): whoosh 0,5 (trocas de bloco e linha do CTA),
+   tick 0,3 (pílulas e ícones do 07; 0,4 nas palavras do CTA), moeda 0,4, impacto 0,5 (fim da risca do
+   05, as 3 frases do 07, pulso do logo e "MÉTODO JR."). **Ducking:** a música baixa de 0,20 para
+   0,15 enquanto um efeito toca (volume dinâmico do Remotion).
+
+### Não feito, por decisão do Matheus
+Chapéu separado, `ChapeuVoando` e transições com elemento voando (00→01 e 03→04): o logo fica
+sempre inteiro. Essas transições só têm o whoosh de troca de bloco.
+
+### O que trocou de abordagem / contradições do pedido
+- **Ordem do bloco 07:** o pedido descrevia dois resultados opostos (a 1ª frase sobe, mas também
+  "O QUE FAZ" é a de baixo). Segui a **lista da ordem final** (de cima para baixo: E POR QUE FAZ,
+  COMO FAZ, O QUE FAZ): as frases se empilham de baixo para cima, cada uma entrando subindo até o seu
+  degrau, sem as anteriores se moverem.
+- **Volume do tick:** o pedido diz 0,4 (palavras do CTA) e 0,3 (mapa de sons). Usei 0,4 nas palavras do
+  CTA e 0,3 no resto.
+- **Whoosh em 00→01 e 03→04:** já existe o whoosh de troca de bloco nesses pontos; não dobrei.
+- **Vídeos 3 e 5 antigos** (`cena-3-grafico.mp4`, trator) não são mais usados.
+
 ## Pendências
-- **Efeitos sonoros:** nenhum dos 4 (whoosh, tick, moeda, impacto) baixou. Colocar em
-  `public/audio/apresentacao/sfx/` e descomentar as linhas em `SONS` (`src/dados/apresentacao.ts`).
+- **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.
 - **Vídeos não usados**, ainda em `public/videos/cenas/`: `cena-3-grafico.mp4` ("Link in Bio") e
   `cena-5-trator.mp4` (marca d'água). Podem ser apagados.
