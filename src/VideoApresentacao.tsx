@@ -74,7 +74,7 @@ const MarcaSom: React.FC<{ evento: EventoSfx }> = ({ evento }) => {
       durationInFrames={FRAMES_SFX[evento.tipo]}
       layout="none"
     >
-      {arquivo ? <Html5Audio src={staticFile(arquivo)} volume={evento.volume} /> : null}
+      {arquivo ? <Html5Audio src={staticFile(arquivo)} volume={() => evento.volume} /> : null}
     </Sequence>
   );
 };
@@ -203,27 +203,28 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             top={0.31}
             tamanho={0.082}
           />
-          {(el.frases ?? []).map((f, i, todas) => {
+          {/* As frases entram uma a uma e FICAM até o fim do bloco, empilhando de baixo para cima. */}
+          {(el.frases ?? []).map((f, i) => {
             const corte = (seg: number) => t.respostaInicio + Math.round(seg * 30);
-            const proximo = todas[i + 1];
             return (
               <FraseIcone
                 key={f.texto}
                 texto={f.texto}
                 destaque={f.destaque}
                 icone={f.icone}
+                estiloFaz={f.estiloFaz}
                 inicio={corte(f.emSegundos)}
-                fim={corte(proximo ? proximo.emSegundos : (el.fimFrasesSegundos ?? 7))}
-                top={0.47}
+                degrau={i}
+                top={0.58}
               />
             );
           })}
+          {/* Legenda fixa embaixo, o bloco todo. */}
           {el.legenda ? (
             <TextoKinetic
               texto={el.legenda}
-              inicio={Math.round(resp + t.respostaFrames * (el.legendaEmFracao ?? 0.6))}
-              saida={t.duracao - (12 + el.legenda.split(/s+/).length * 2)}
-              top={0.62}
+              inicio={resp}
+              top={0.68}
               tamanho={0.036}
               fonte="rotulo"
               intervalo={2}
@@ -269,12 +270,20 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
         <>
           {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
-          <TextoKinetic texto={el.chamada} inicio={resp} top={0.2} tamanho={0.1} peso={900} />
+          <TextoKinetic
+            texto={el.chamada}
+            fonte="impacto"
+            damping={10}
+            deslocamentoY={20 / 1080}
+            inicio={resp}
+            top={0.2}
+            tamanho={0.1}
+          />
           <LinhaDourada inicio={t.respostaInicio + Math.round(el.linhaDouradaEmSegundos * 30)} duracao={12} top={0.335} />
           <TextoKinetic
             texto={el.miolo}
+            fonte="impacto"
             cor={COR.dourado}
-            peso={900}
             intervalo={4}
             inicio={t.respostaInicio + Math.round(el.mioloEmSegundos * 30)}
             top={0.355}
@@ -288,7 +297,9 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
           <TextoPulso
             texto={el.marca}
             cor={COR.dourado}
-            pulso={1.15}
+            peso={700}
+            escalaInicial={0.7}
+            damping={10}
             brilho
             inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * 30)}
             top={0.675}
@@ -296,7 +307,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
           />
           <TextoPulso
             texto={el.fecho}
-            fonte="rotulo"
+            fonte="impacto"
             inicio={t.respostaInicio + Math.round(el.fechoEmSegundos * 30)}
             top={0.77}
             tamanho={0.045}

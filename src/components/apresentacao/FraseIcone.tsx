@@ -1,22 +1,28 @@
 import React from "react";
-import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, ESPACO_TITULO, FONTE_TITULO, comAlfa } from "./marca";
 
-// Frase inteira com um ícone ao lado, em CORTE SECO: aparece de uma vez no
-// frame `inicio` e some de uma vez no frame `fim` (sem fade, sem palavra por
-// palavra). Entrada com pulso de escala forte (1 → 1,1 → 1 em 6 frames).
+// Frase inteira com um ícone ao lado. Aparece (corte seco, subindo um degrau em 15
+// frames) no frame `inicio` e FICA até o fim do bloco. As frases se empilham de baixo
+// para cima: a 1ª no degrau 0 (embaixo), a 2ª no degrau 1, a 3ª no degrau 2.
+// Entrada com pulso de escala forte (1 → 1,1 → 1 em 6 frames).
 // O ícone é SVG inline, traço fino dourado (mesma espessura nos três), que se
 // desenha (stroke-dashoffset), dá um pulso curto e solta um brilho rápido.
 
 export type NomeIcone = "check" | "engrenagem" | "lampada";
+// Como a palavra em destaque ("FAZ") aparece: dourado chapado, creme com contorno
+// dourado, ou dourado com pulso maior (1 → 1,25 → 1).
+export type EstiloFaz = "dourado" | "contorno" | "pulso";
 
 type Props = {
   texto: string;
   destaque: string; // UMA palavra em dourado
   icone: NomeIcone;
   inicio: number; // frame (relativo à Sequence) do corte de entrada
-  fim: number; // frame do corte de saída
-  top: number; // fração da altura (centro da linha)
+  degrau?: number; // 0 = posição de baixo; cada degrau sobe `passo`
+  passo?: number; // fração da altura de cada degrau
+  estiloFaz?: EstiloFaz;
+  top: number; // fração da altura (centro da linha, na posição de baixo)
   tamanho?: number; // fração da largura
   larguraMax?: number; // fração da largura
   duracaoTraco?: number; // frames para desenhar o ícone
@@ -87,7 +93,9 @@ export const FraseIcone: React.FC<Props> = ({
   destaque,
   icone,
   inicio,
-  fim,
+  degrau = 0,
+  passo = 0.08,
+  estiloFaz = "dourado",
   top,
   tamanho = 0.074,
   larguraMax = 0.9,
@@ -95,7 +103,7 @@ export const FraseIcone: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
-  if (frame < inicio || frame >= fim) return null;
+  if (frame < inicio) return null;
 
   const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const local = frame - inicio;
@@ -111,6 +119,9 @@ export const FraseIcone: React.FC<Props> = ({
   const lado = fontSize * 1.5;
 
   const escala = interpolate(local, [0, 3, 6], [1, 1.1, 1], clamp);
+  // Entra subindo de baixo para o seu degrau (movimento suave de 15 frames).
+  const chegada = interpolate(local, [0, 15], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+  const pulsoFaz = estiloFaz === "pulso" ? interpolate(local, [6, 12, 20], [1, 1.25, 1], clamp) : 1;
   const inicioTraco = 2;
   const progresso = interpolate(local, [inicioTraco, inicioTraco + duracaoTraco], [0, 1], clamp);
   const fimTraco = inicioTraco + duracaoTraco;
@@ -123,7 +134,7 @@ export const FraseIcone: React.FC<Props> = ({
         position: "absolute",
         left: 0,
         width: "100%",
-        top: height * top,
+        top: height * (top - passo * degrau + passo * 0.7 * (1 - chegada)),
         display: "flex",
         justifyContent: "center",
         transform: `translateY(-50%) scale(${escala})`,
@@ -161,7 +172,17 @@ export const FraseIcone: React.FC<Props> = ({
           }}
         >
           {antes}
-          <span style={{ color: COR.dourado }}>{meio}</span>
+          <span
+            style={{
+              display: "inline-block",
+              transform: `scale(${pulsoFaz})`,
+              color: estiloFaz === "contorno" ? COR.creme : COR.dourado,
+              WebkitTextStroke: estiloFaz === "contorno" ? `${width * 0.0019}px ${COR.dourado}` : undefined,
+              paintOrder: "stroke fill",
+            }}
+          >
+            {meio}
+          </span>
           {depois}
         </span>
       </div>

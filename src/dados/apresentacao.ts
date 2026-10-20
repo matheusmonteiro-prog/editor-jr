@@ -16,6 +16,7 @@ export type FraseComIcone = {
   texto: string;
   destaque: string; // UMA palavra em dourado
   icone: "check" | "engrenagem" | "lampada";
+  estiloFaz: "dourado" | "contorno" | "pulso"; // como "faz" aparece (rodada 3)
   emSegundos: number; // corte de entrada, desde o início do áudio da resposta
 };
 
@@ -256,12 +257,12 @@ export const BLOCOS: Bloco[] = [
       depoisDoRisco: "apagar",
       particulas: false,
       frases: [
-        { texto: "O que faz", destaque: "faz", icone: "check", emSegundos: 3.25 },
-        { texto: "Como faz", destaque: "faz", icone: "engrenagem", emSegundos: 4.32 },
-        { texto: "E por que faz", destaque: "faz", icone: "lampada", emSegundos: 5.43 },
+        { texto: "O que faz", destaque: "faz", icone: "check", estiloFaz: "dourado", emSegundos: 3.25 },
+        { texto: "Como faz", destaque: "faz", icone: "engrenagem", estiloFaz: "contorno", emSegundos: 4.32 },
+        { texto: "E por que faz", destaque: "faz", icone: "lampada", estiloFaz: "pulso", emSegundos: 5.43 },
       ],
       fimFrasesSegundos: 7.15,
-      legenda: "A decisão é de cada investidor.",
+      legenda: "A decisão é de cada investidor",
       legendaEmFracao: 0.6,
     },
   },
@@ -270,18 +271,19 @@ export const BLOCOS: Bloco[] = [
     pergunta: { texto: "Como conhecer o Método JR?", audio: `${A}08-pergunta.mp3` },
     resposta: { audio: `${A}08-resposta.mp3` },
     contador: "8/8",
+    moedas: { semente: "bloco-08", aleatorias: 3 }, // caem atrás do logo (rodada 3)
     elemento: {
       tipo: "cta",
-      chamada: "Siga este canal.",
+      chamada: "Siga este canal",
       linhaDouradaEmSegundos: 1.0,
-      miolo: "Aqui você vai ver\nO que ninguém\nTe mostrou antes.",
+      miolo: "Aqui você vai ver\nO que ninguém\nTe mostrou antes",
       mioloEmSegundos: 1.45,
       palavraExtra: "ninguém",
       palavraExtraEmSegundos: 3.45,
       logoEmSegundos: 2.3,
       marca: "Método JR.",
       marcaEmSegundos: 5.29,
-      fecho: "Em breve.",
+      fecho: "Em breve",
       fechoEmSegundos: 7.02,
     },
   },
@@ -361,7 +363,8 @@ export const CENAS: Cena[] = [
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "deslizeHorizontal",
     framesTransicao: 14,
-    escurecimento: ESCURECIMENTO,
+    // 25% (e não 15%): o dourado do céu do trigo competia com o "FÁCIL" dourado.
+    escurecimento: 0.25,
     posicaoY: 50,
     desfoque: 8,
     tingir: true,

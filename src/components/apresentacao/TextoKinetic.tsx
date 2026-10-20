@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { COR, ESPACO_ROTULO, ESPACO_TITULO, FONTE_ROTULO, FONTE_TITULO, MOLA } from "./marca";
+import { COR, ESPACO_ROTULO, ESPACO_TITULO, FONTE_IMPACTO, FONTE_ROTULO, FONTE_TITULO, MOLA } from "./marca";
 
 // Kinetic typography: palavra por palavra, cada uma entra com spring
 // (de baixo ou em escala), 3 frames entre elas. A expressão do destaque
@@ -14,7 +14,9 @@ type Props = {
   saida?: number; // frame em que a 1ª palavra começa a sair
   top: number; // fração da altura (topo do bloco de texto)
   tamanho: number; // fração da largura
-  fonte?: "titulo" | "rotulo";
+  fonte?: "titulo" | "rotulo" | "impacto";
+  damping?: number; // mola da entrada (padrão 12)
+  deslocamentoY?: number; // fração da largura: quanto a palavra sobe ao entrar (padrão: 0,7 do corpo da letra)
   cor?: string;
   corDestaque?: string;
   larguraMax?: number; // fração da largura
@@ -61,6 +63,8 @@ export const TextoKinetic: React.FC<Props> = ({
   opacidadeMax = 1,
   peso = 700,
   pulsoPalavra,
+  damping = MOLA.damping,
+  deslocamentoY,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
@@ -105,8 +109,8 @@ export const TextoKinetic: React.FC<Props> = ({
         justifyContent: "center",
         columnGap: fontSize * 0.34,
         rowGap: fontSize * 0.05,
-        fontFamily: fonte === "titulo" ? FONTE_TITULO : FONTE_ROTULO,
-        fontWeight: fonte === "titulo" ? peso : 600,
+        fontFamily: fonte === "titulo" ? FONTE_TITULO : fonte === "impacto" ? FONTE_IMPACTO : FONTE_ROTULO,
+        fontWeight: fonte === "titulo" || fonte === "impacto" ? (fonte === "impacto" ? 700 : peso) : 600,
         letterSpacing: fonte === "titulo" ? ESPACO_TITULO : ESPACO_ROTULO,
         fontSize,
         lineHeight: 1.08,
@@ -119,7 +123,7 @@ export const TextoKinetic: React.FC<Props> = ({
           return <div key={i} style={{ flexBasis: "100%", height: 0 }} />;
         }
         const t0 = inicio + ordem[i] * intervalo;
-        const p = spring({ frame: frame - t0, fps, config: MOLA, durationInFrames: DURACAO_ENTRADA });
+        const p = spring({ frame: frame - t0, fps, config: { ...MOLA, damping }, durationInFrames: DURACAO_ENTRADA });
         const opEntrada = interpolate(frame - t0, [0, 5], [0, 1], clamp);
 
         let ySaida = 0;
@@ -133,7 +137,7 @@ export const TextoKinetic: React.FC<Props> = ({
 
         const transformEntrada =
           entrada === "subir"
-            ? `translateY(${(1 - p) * fontSize * 0.7}px)`
+            ? `translateY(${(1 - p) * (deslocamentoY !== undefined ? width * deslocamentoY : fontSize * 0.7)}px)`
             : `scale(${interpolate(p, [0, 1], [1.8, 1])})`;
 
         const ehDestaque = dourado.has(i);
@@ -148,7 +152,7 @@ export const TextoKinetic: React.FC<Props> = ({
           pulsoPalavra && normalizar(palavra) === normalizar(pulsoPalavra.palavra)
             ? interpolate(
                 frame - (pulsoPalavra.emFrame ?? t0 + DURACAO_ENTRADA),
-                [0, 5, 12],
+                [0, 4, 8],
                 [1, pulsoPalavra.escala, 1],
                 clamp,
               )

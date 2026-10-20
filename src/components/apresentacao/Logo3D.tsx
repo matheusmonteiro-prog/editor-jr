@@ -1,6 +1,7 @@
 import React from "react";
 import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, comAlfa } from "./marca";
+import { FRAMES_ATE_PULSO_LOGO } from "../../utils/sfxApresentacao";
 
 // Logo do JR como uma PLACA em CSS 3D (o logo é um PNG plano).
 // - Entrada: gira uma volta completa no eixo Y, desacelera e para de frente.
@@ -41,8 +42,8 @@ export const Logo3D: React.FC<Props> = ({
   const pGiro = spring({ frame: frame - inicioGiro, fps, config: { damping: 14, mass: 1 }, durationInFrames: 45 });
   // Voo para o canto: 24 frames, curva para cima.
   const pVoo = spring({ frame: frame - inicioVoo, fps, config: { damping: 14, mass: 1 }, durationInFrames: 24 });
-  // Volta ao centro girando ao contrário.
-  const pVolta = spring({ frame: frame - inicioVolta, fps, config: { damping: 13, mass: 1 }, durationInFrames: 40 });
+  // Rodada 3: o logo inteiro SOBE do fundo com spring até o centro final e dá um pulso.
+  const pVolta = spring({ frame: frame - inicioVolta, fps, config: { damping: 12, mass: 1 }, durationInFrames: 30 });
 
   let x: number;
   let y: number;
@@ -66,15 +67,16 @@ export const Logo3D: React.FC<Props> = ({
     // Balanço leve no canto para não parecer adesivo.
     const balanco = Math.sin((frame - inicioVoo) / 25) * 10 * Math.min(1, Math.max(0, p));
     anguloY = interpolate(p, [0, 0.5, 1], [0, -25, 0]) + balanco;
+    // O logo pequeno do canto some pouco antes de o logo final subir.
+    opacidade = interpolate(frame, [inicioVolta - 8, inicioVolta], [1, 0], clamp);
   } else {
-    const p = pVolta;
-    const deX = canto.x;
-    x = interpolate(p, [0, 1], [deX, fim.x]);
-    const arco = Math.sin(Math.min(1, Math.max(0, p)) * Math.PI) * 0.05;
-    y = interpolate(p, [0, 1], [canto.y, fim.y]) - arco;
-    largura = interpolate(p, [0, 1], [canto.largura, fim.largura]);
-    anguloY = -360 * (1 - p);
+    x = fim.x;
+    y = interpolate(pVolta, [0, 1], [1.12, fim.y]);
+    largura = fim.largura;
+    anguloY = 0;
   }
+  // Pulso único do logo final (1 → 1,1 → 1 em 10 frames), depois que ele pousa.
+  const pulso = interpolate(frame - (inicioVolta + FRAMES_ATE_PULSO_LOGO), [0, 5, 10], [1, 1.1, 1], clamp);
 
   const lado = width * largura;
   // Luz: 1 de frente, mais forte quando a face aponta para a esquerda (luz baixa).
@@ -92,6 +94,7 @@ export const Logo3D: React.FC<Props> = ({
         height: lado,
         perspective: lado * 3,
         opacity: opacidade,
+        transform: frame >= inicioVolta ? `scale(${pulso})` : undefined,
       }}
     >
       <div

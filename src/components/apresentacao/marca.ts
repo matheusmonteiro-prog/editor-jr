@@ -3,6 +3,7 @@
 // src/components/apresentacao/ não repetirem valores.
 import { loadFont as carregarFraunces } from "@remotion/google-fonts/Fraunces";
 import { loadFont as carregarInter } from "@remotion/google-fonts/Inter";
+import { loadFont as carregarSpaceGrotesk } from "@remotion/google-fonts/SpaceGrotesk";
 
 export const COR = {
   fundo: "#0F2A1D", // verde-escuro
@@ -15,6 +16,12 @@ export const COR = {
 
 export const FONTE_TITULO = carregarFraunces("normal", {
   weights: ["700", "900"],
+  subsets: ["latin", "latin-ext"],
+}).fontFamily;
+
+// Fonte de impacto do bloco 08 (CTA), exceção da rodada 3: tudo menos "MÉTODO JR.".
+export const FONTE_IMPACTO = carregarSpaceGrotesk("normal", {
+  weights: ["700"],
   subsets: ["latin", "latin-ext"],
 }).fontFamily;
 
