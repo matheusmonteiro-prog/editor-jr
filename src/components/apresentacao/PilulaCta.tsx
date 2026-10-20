@@ -1,0 +1,54 @@
+import React from "react";
+import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { COR, ESPACO_ROTULO, FONTE_ROTULO } from "./marca";
+
+// Pílula chapada do CTA final (bloco 08): fundo creme #F5F0E6, texto #0F2A1D, raio de
+// 28 px, SEM sombra, SEM borda e SEM transparência. Entra com mola (escala 0,7 → 1).
+type Props = {
+  texto: string;
+  inicio: number; // frame (relativo à Sequence)
+  top: number; // fração da altura (topo)
+  tamanho?: number; // fração da largura
+};
+
+export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04 }) => {
+  const frame = useCurrentFrame();
+  const { fps, width, height } = useVideoConfig();
+  const p = spring({ frame: frame - inicio, fps, config: { damping: 12, mass: 1 }, durationInFrames: 12 });
+  if (frame < inicio) return null;
+  const fontSize = width * tamanho;
+  // Opacidade só do movimento de entrada (a pílula em si é opaca).
+  const op = interpolate(frame - inicio, [0, 3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: 0,
+        width: "100%",
+        top: height * top,
+        display: "flex",
+        justifyContent: "center",
+        opacity: op,
+        transform: `scale(${interpolate(p, [0, 1], [0.7, 1])})`,
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: COR.creme,
+          color: COR.fundo,
+          borderRadius: 28,
+          padding: `${fontSize * 0.6}px ${fontSize * 1.3}px`,
+          fontFamily: FONTE_ROTULO,
+          fontWeight: 600,
+          letterSpacing: ESPACO_ROTULO,
+          fontSize,
+          lineHeight: 1.1,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {texto.toLocaleUpperCase("pt-BR")}
+      </div>
+    </div>
+  );
+};

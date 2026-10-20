@@ -58,21 +58,21 @@ export type Elemento =
       passoPulso: number; // pulsa a cada N números
     }
   | {
-      // Bloco 08 (rodada 2): chamada final em partes, cada uma no seu momento da fala.
-      // Tempos em SEGUNDOS desde o início do áudio da resposta (pausas do
-      // narrador medidas com silencedetect; se o áudio for regerado, conferir).
+      // Bloco 08 (rodada 5b): chamada final em partes, cada uma no seu momento da fala.
+      // Tempos em SEGUNDOS desde o início do áudio da resposta (pausas do narrador medidas
+      // com silencedetect; se o áudio for regerado, conferir).
       tipo: "cta";
-      chamada: string; // "Siga este canal." (kinetic, branco, grande)
+      chamada: string; // "Siga este canal" (creme, grande, 2 linhas)
       linhaDouradaEmSegundos: number; // linha dourada atravessa a tela
-      miolo: string; // "\n" = quebra de linha (kinetic, dourado, mais lento)
-      mioloEmSegundos: number;
-      palavraExtra: string; // palavra do miolo com pulso extra (1 → 1,2 → 1)
-      palavraExtraEmSegundos: number;
-      logoEmSegundos: number; // o logo volta ao centro girando uma vez
-      marca: string; // "Método JR." (dourado, grande, uma batida só)
+      acompanhe: string; // "Acompanhe a chegada do" (creme, menor)
+      acompanheEmSegundos: number;
+      marca: string; // "Método JR." (dourado, grande: o ÚNICO texto dourado do bloco)
       marcaEmSegundos: number;
-      fecho: string; // "Em breve." (branco, menor)
-      fechoEmSegundos: number;
+      logoEmSegundos: number; // o logo sobe do fundo
+      convite: string; // "Aqui você vai ver como funciona na prática" (creme, menor)
+      conviteEmSegundos: number;
+      pilula: string; // pílula chapada creme, texto #0F2A1D (entra quando a fala termina)
+      pilulaEmSegundos: number;
     };
 
 // Moedas 3D caindo no fundo (blocos 02, 03 e 06): entre 2 e 4 por bloco.
@@ -289,15 +289,15 @@ export const BLOCOS: Bloco[] = [
       tipo: "cta",
       chamada: "Siga este canal",
       linhaDouradaEmSegundos: 1.0,
-      miolo: "Aqui você vai ver\nO que ninguém\nTe mostrou antes",
-      mioloEmSegundos: 1.45,
-      palavraExtra: "ninguém",
-      palavraExtraEmSegundos: 3.45,
-      logoEmSegundos: 2.3,
+      acompanhe: "Acompanhe a chegada do",
+      acompanheEmSegundos: 5.05,
       marca: "Método JR.",
       marcaEmSegundos: 5.29,
-      fecho: "Em breve",
-      fechoEmSegundos: 7.02,
+      logoEmSegundos: 2.3,
+      convite: "Aqui você vai ver como funciona na prática",
+      conviteEmSegundos: 3.2,
+      pilula: "Em breve neste canal",
+      pilulaEmSegundos: 7.7,
     },
   },
 ];
@@ -446,7 +446,10 @@ export const SONS: Sons = {
 // Volumes (0 a 1). A narração toca em 1,0.
 export const VOLUMES = {
   musica: 0.2, // blocos 00 a 07
-  musicaFinal: 0.35, // bloco 08
+  // Música no bloco 08 (rodada 5b): baixa durante a fala e sobe devagar depois que ela termina.
+  musicaCtaDuranteFala: 0.12,
+  musicaCtaAposFala: 0.28, // máximo, atingido ao fim da subida lenta
+  subidaMusicaCtaFrames: 60,
   musicaComEfeito: 0.15, // ducking: a música baixa para este valor (base 0,20) enquanto um efeito toca
   fadeInMusicaFrames: 30,
   fadeOutMusicaFrames: 60, // nos últimos 2 segundos

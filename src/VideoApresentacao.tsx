@@ -25,6 +25,7 @@ import { WipeBloco } from "./components/apresentacao/WipeBloco";
 import { ListaRolando } from "./components/apresentacao/ListaRolando";
 import { FraseIcone } from "./components/apresentacao/FraseIcone";
 import { TextoPulso } from "./components/apresentacao/TextoPulso";
+import { PilulaCta } from "./components/apresentacao/PilulaCta";
 import { LinhaDourada } from "./components/apresentacao/LinhaDourada";
 
 // Vídeo de apresentação do JR: pergunta e resposta, sem câmera.
@@ -288,35 +289,19 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
 
       {el.tipo === "cta" ? (
         // Bloco 08: chamada final. Cada parte entra no momento da fala (tempos em segundos
-        // desde o início do áudio da resposta).
+        // desde o início do áudio da resposta). Só "MÉTODO JR." é dourado.
         <>
           {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
+          <TextoKinetic texto={el.chamada} fonte="titulo" damping={12} inicio={resp} top={0.18} tamanho={0.105} />
+          <LinhaDourada inicio={t.respostaInicio + Math.round(el.linhaDouradaEmSegundos * 30)} duracao={12} top={0.325} />
           <TextoKinetic
-            texto={el.chamada}
-            fonte="titulo"
-            damping={10}
-            deslocamentoY={20 / 1080}
-            inicio={resp}
-            top={0.2}
-            tamanho={0.1}
-          />
-          <LinhaDourada inicio={t.respostaInicio + Math.round(el.linhaDouradaEmSegundos * 30)} duracao={12} top={0.335} />
-          <TextoKinetic
-            texto={el.miolo}
-            fonte="titulo"
-            cor={COR.creme}
+            texto={el.acompanhe}
+            fonte="rotulo"
             damping={12}
-            destaque={el.palavraExtra}
-            intervalo={4}
-            inicio={t.respostaInicio + Math.round(el.mioloEmSegundos * 30)}
-            top={0.355}
-            tamanho={0.058}
-            pulsoPalavra={{
-              palavra: el.palavraExtra,
-              escala: 1.15,
-              emFrame: t.respostaInicio + Math.round(el.palavraExtraEmSegundos * 30),
-            }}
+            inicio={t.respostaInicio + Math.round(el.acompanheEmSegundos * 30)}
+            top={0.337}
+            tamanho={0.042}
           />
           <TextoPulso
             texto={el.marca}
@@ -325,16 +310,18 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             damping={10}
             brilho
             inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * 30)}
-            top={0.675}
-            tamanho={0.11}
+            top={0.375}
+            tamanho={0.115}
           />
-          <TextoPulso
-            texto={el.fecho}
-            fonte="titulo"
-            inicio={t.respostaInicio + Math.round(el.fechoEmSegundos * 30)}
-            top={0.77}
-            tamanho={0.045}
+          <TextoKinetic
+            texto={el.convite}
+            fonte="rotulo"
+            damping={12}
+            inicio={t.respostaInicio + Math.round(el.conviteEmSegundos * 30)}
+            top={0.705}
+            tamanho={0.04}
           />
+          <PilulaCta texto={el.pilula} inicio={t.respostaInicio + Math.round(el.pilulaEmSegundos * 30)} top={0.765} />
         </>
       ) : null}
     </AbsoluteFill>
@@ -353,7 +340,11 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
     const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
     const entrada = interpolate(f, [0, VOLUMES.fadeInMusicaFrames], [0, 1], clamp);
     const saida = interpolate(f, [linha.total - VOLUMES.fadeOutMusicaFrames, linha.total], [1, 0], clamp);
-    const base = interpolate(f, [b08.inicio - 10, b08.inicio + 10], [VOLUMES.musica, VOLUMES.musicaFinal], clamp);
+    // Bloco 08: 0,12 durante a fala; depois que ela termina, sobe devagar até o máximo de 0,28.
+    const fimFala = b08.inicio + b08.respostaInicio + b08.respostaFrames;
+    const baixa = interpolate(f, [b08.inicio - 10, b08.inicio + 10], [VOLUMES.musica, VOLUMES.musicaCtaDuranteFala], clamp);
+    const sobe = interpolate(f, [fimFala, fimFala + VOLUMES.subidaMusicaCtaFrames], [0, 1], clamp);
+    const base = baixa + (VOLUMES.musicaCtaAposFala - VOLUMES.musicaCtaDuranteFala) * sobe;
     let duck = 0;
     for (const e of eventos) {
       if (f < e.frame - 4 || f > e.frame + FRAMES_SFX[e.tipo] + 8) continue;
@@ -367,7 +358,11 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
   const inicioVolta = inicioVoltaLogo(linha);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COR.fundo }}>
+    <AbsoluteFill
+      style={{
+        backgroundColor: COR.fundo
+      }}
+    >
       <FundoCenas cenas={CENAS} linha={linha} duracoes={duracoes} />
 
       {/* Spotlight dourado em volta do logo (abertura e bloco 01). */}
@@ -392,7 +387,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
           inicioGiro={b00.inicio + 4}
           inicioVoo={inicioVoo}
           inicioVolta={inicioVolta}
-          centroFinal={{ x: 0.5, y: 0.565, largura: 0.36 }}
+          centroFinal={{ x: 0.5, y: 0.56, largura: 0.55 }}
         />
       </Sequence>
 
