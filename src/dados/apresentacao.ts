@@ -37,7 +37,14 @@ export type Elemento =
       legenda?: string;
       legendaEmFracao?: number;
     }
-  | { tipo: "grade" }
+  | {
+      // Bloco 06 (rodada 2): lista rolando no fundo + contador grande 0 → valorFinal.
+      tipo: "contadorLista";
+      valorFinal: number;
+      prefixo: string;
+      folgaFinalFrames: number; // o contador para tantos frames antes do narrador terminar
+      passoPulso: number; // pulsa a cada N números
+    }
   | { tipo: "cartela"; linhaMenor: string; linhaMenorAposFrames: number };
 
 export type Bloco = {
@@ -192,7 +199,7 @@ export const BLOCOS: Bloco[] = [
     contador: "6/8",
     texto: "+400 ativos filtrados e calculados",
     destaque: "+400",
-    elemento: { tipo: "grade" },
+    elemento: { tipo: "contadorLista", valorFinal: 400, prefixo: "+", folgaFinalFrames: 15, passoPulso: 20 },
   },
   {
     id: "07",

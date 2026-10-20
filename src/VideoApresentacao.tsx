@@ -19,7 +19,7 @@ import { ContadorImpacto } from "./components/apresentacao/ContadorImpacto";
 import { TextoRiscado } from "./components/apresentacao/TextoRiscado";
 import { Particulas } from "./components/apresentacao/Particulas";
 import { WipeBloco } from "./components/apresentacao/WipeBloco";
-import { GradeAtivos3D } from "./components/v2/GradeAtivos3D";
+import { ListaRolando } from "./components/apresentacao/ListaRolando";
 
 // Vídeo de apresentação do JR: pergunta e resposta, sem câmera.
 // Dados em src/dados/apresentacao.ts; duração calculada pelos áudios reais.
@@ -214,11 +214,33 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
         )
       ) : null}
 
-      {el.tipo === "grade" && bloco.texto ? (
+      {el.tipo === "contadorLista" && bloco.texto ? (
         <>
-          {/* A grade aparece apagada durante a pergunta e acende na resposta. */}
-          <GradeAtivos3D frameInicio={resp} framesAntesDaOnda={Math.max(0, resp - 8)} duracaoFrames={t.duracao} framesSaida={14} centroY={0.4} largura={0.66} />
-          <TextoKinetic texto={bloco.texto} destaque={bloco.destaque} inicio={resp + 4} saida={fimTexto} top={0.575} tamanho={0.078} />
+          <ListaRolando />
+          {/* O contador para em +400 meio segundo (folgaFinalFrames) antes do narrador terminar. */}
+          <ContadorImpacto
+            valorFinal={el.valorFinal}
+            prefixo={el.prefixo}
+            inicio={resp}
+            duracaoContagem={Math.max(10, t.respostaInicio + t.respostaFrames - el.folgaFinalFrames - resp)}
+            saida={fimElementos}
+            top={0.3}
+            tamanho={0.3}
+            passoPulso={el.passoPulso}
+            curva="quadratica"
+            borraoMax={0.02}
+          />
+          {/* Estouro de partículas douradas quando o contador bate em 400. */}
+          <Particulas
+            modo="explosao"
+            quantidade={46}
+            semente="mais-400"
+            inicio={t.respostaInicio + t.respostaFrames - el.folgaFinalFrames}
+            duracao={40}
+            centroY={0.38}
+            tamanhoMax={0.01}
+          />
+          <TextoKinetic texto={bloco.texto} destaque={bloco.destaque} inicio={resp + 4} saida={fimTexto} top={0.6} tamanho={0.078} />
         </>
       ) : null}
 
