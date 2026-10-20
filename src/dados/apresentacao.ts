@@ -135,9 +135,9 @@ export type Cena = {
   escurecimento: number; // opacidade da camada #0F2A1D (0 a 1)
   posicaoY: number; // objectPosition vertical, 0 a 100 (%)
   desfoque?: number; // px; foto/vídeo de fundo desfocado
-  // Dessatura (grayscale) e tinge em duas cores da marca: sombras em
-  // verde-escuro, claros em dourado. Para vídeo com cor fora da paleta.
-  tingir?: boolean;
+  // Dessatura (grayscale) a arte. Rodada 5: só as cenas 1 e 8; as cenas 3, 5 e 7 ficam com a
+  // cor natural. O tingimento verde por cima é a constante TINGIMENTO em FundoCenas.tsx.
+  dessaturar?: boolean;
   // Reenquadra o fundo: escala e deslocamento (fração do quadro; +y = desce).
   enquadramento?: { escala: number; x: number; y: number };
   particulas?: boolean;
@@ -307,6 +307,10 @@ const V = "videos/cenas/";
 
 // Escurecimento: camada #0F2A1D por cima do fundo. Rodada 4 (20/10/2026): bem leve
 // em todas as cenas (8%); cena 5 em 12% (céu dourado) e cena 6 (mosaico) em 45%.
+// Desfoque do fundo (px). Rodada 5: 2 px nas cenas comuns; 7 px nas cenas com número/texto legível
+// no original (3 bolsa e 7 celular).
+const DESFOQUE_PADRAO = 2;
+const DESFOQUE_TEXTO_LEGIVEL = 7;
 const ESCURECIMENTO = 0.08; // rodada 4: o mínimo para o texto ler (régua: bloco 02)
 
 export const CENAS: Cena[] = [
@@ -322,8 +326,8 @@ export const CENAS: Cena[] = [
     framesTransicao: 0,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 4,
-    tingir: true,
+    desfoque: DESFOQUE_PADRAO,
+    dessaturar: true,
     enquadramento: { escala: 1.55, x: 0, y: 0.27 },
     particulas: true,
   },
@@ -337,6 +341,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 16,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
+    desfoque: DESFOQUE_PADRAO,
   },
   {
     // Rodada 3: vídeo da bolsa (tabela de números). Os números são legíveis no
@@ -350,8 +355,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 16,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 7,
-    tingir: true,
+    desfoque: DESFOQUE_TEXTO_LEGIVEL,
   },
   {
     // Imagem de 940 px de largura (< 1170): zoom de 103% e pan menor.
@@ -364,7 +368,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 18,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 4,
+    desfoque: DESFOQUE_PADRAO,
     raiosDeLuz: true,
   },
   {
@@ -379,8 +383,7 @@ export const CENAS: Cena[] = [
     // 12% (e não 8%): o dourado do céu do trigo compete com o "FÁCIL" dourado.
     escurecimento: 0.12,
     posicaoY: 50,
-    desfoque: 4,
-    tingir: true,
+    desfoque: DESFOQUE_PADRAO,
     particulas: true,
   },
   {
@@ -393,6 +396,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 18,
     escurecimento: 0.45,
     posicaoY: 50,
+    desfoque: DESFOQUE_PADRAO,
   },
   {
     // Rodada 3: vídeo do celular/tablet com gráficos (aparece texto legível,
@@ -406,8 +410,7 @@ export const CENAS: Cena[] = [
     framesTransicao: 14,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 7,
-    tingir: true,
+    desfoque: DESFOQUE_TEXTO_LEGIVEL,
   },
   {
     nome: "Cena 8: cena-8-linhas.mp4",
@@ -419,8 +422,8 @@ export const CENAS: Cena[] = [
     framesTransicao: 20,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
-    desfoque: 4,
-    tingir: true,
+    desfoque: DESFOQUE_PADRAO,
+    dessaturar: true,
     particulas: true,
     brilhoLogo: true,
     brilhoY: 0.565,

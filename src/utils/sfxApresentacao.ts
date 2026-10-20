@@ -38,8 +38,9 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
   linha.blocos.forEach((t, i) => {
     // whoosh em cada troca de bloco (8 vezes), junto do wipe diagonal.
     if (i > 0) ev.push({ tipo: "whoosh", nome: `whoosh ${t.id}`, frame: t.inicio - 4, volume: 0.5 });
-    // tick na entrada de cada pílula (8 perguntas + a chamada "em breve" da abertura).
-    ev.push({ tipo: "tick", nome: `tick ${t.id}`, frame: t.inicio + (t.id === "00" ? 2 : 0), volume: 0.3 });
+    // tick na entrada de cada pílula de pergunta (8 vezes). Rodada 5: sem tick na abertura (00),
+    // que era o da pílula "EM BREVE, NESTE CANAL".
+    if (t.id !== "00") ev.push({ tipo: "tick", nome: `tick ${t.id}`, frame: t.inicio, volume: 0.3 });
   });
 
   BLOCOS.forEach((bloco) => {
@@ -73,11 +74,10 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
       if (el.depoisDoRisco === "recuar") {
         ev.push({ tipo: "impacto", nome: `impacto ${bloco.id}`, frame: t.inicio + resp + el.riscoAposFrames + el.duracaoRisco, volume: 0.5 });
       }
-      // bloco 07: impacto em cada frase que entra + tick quando o ícone termina de desenhar.
+      // bloco 07: impacto em cada frase que entra (sem ticks nos ícones, rodada 5).
       (el.frases ?? []).forEach((f, i) => {
         const corte = t.inicio + t.respostaInicio + Math.round(f.emSegundos * 30);
         ev.push({ tipo: "impacto", nome: `impacto ${bloco.id}.${i + 1}`, frame: corte, volume: 0.5 });
-        ev.push({ tipo: "tick", nome: `tick ícone ${bloco.id}.${i + 1}`, frame: corte + FRAMES_ICONE_PRONTO, volume: 0.3 });
         // ok: quando o ícone de check aparece (1ª frase do bloco 07).
         if (f.icone === "check") ev.push({ tipo: "ok", nome: `ok ${bloco.id}.${i + 1}`, frame: corte + 6, volume: 0.4 });
       });
@@ -85,10 +85,7 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
 
     if (el.tipo === "cta") {
       const audio = t.inicio + t.respostaInicio;
-      // tick em cada palavra de "SIGA ESTE CANAL".
-      el.chamada.split(/\s+/).forEach((_, i) =>
-        ev.push({ tipo: "tick", nome: `tick palavra ${i + 1}`, frame: t.inicio + resp + i * 3, volume: 0.4 }),
-      );
+      // Rodada 5: sem tick nas palavras de "SIGA ESTE CANAL"; no bloco 08 fica só o tick da pílula.
       ev.push({ tipo: "whoosh", nome: "whoosh linha dourada", frame: audio + Math.round(el.linhaDouradaEmSegundos * 30), volume: 0.5 });
       ev.push({ tipo: "impacto", nome: "impacto logo", frame: inicioVoltaLogo(linha) + FRAMES_ATE_PULSO_LOGO, volume: 0.5 });
       ev.push({ tipo: "impacto", nome: "impacto MÉTODO JR", frame: audio + Math.round(el.marcaEmSegundos * 30) + FRAMES_ATE_PICO_MARCA, volume: 0.5 });

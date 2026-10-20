@@ -25,8 +25,8 @@ import { RaiosDeLuz } from "./RaiosDeLuz";
 // sumir: nunca aparece tela preta. A cena antiga também recebe o "empurrão"
 // da transição seguinte (empurrão vertical, deslize, zoom atravessando).
 
-// Intensidade do tingimento verde (0 a 1). Rodada 4: bem fraco, no nível do bloco 02.
-const TINGIMENTO = 0.3;
+// Intensidade do tingimento verde por cima da arte (0 a 1). Rodada 4: 0,3. Rodada 5: 0 (sem tingimento).
+export const TINGIMENTO = 0;
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const suave = Easing.bezier(0.65, 0, 0.35, 1);
@@ -150,7 +150,7 @@ const MidiaDaCena: React.FC<{
     enq ? `translate(${enq.x * 100}%, ${enq.y * 100}%) scale(${enq.escala}) ` : ""
   }${transformMovimento(cena.movimento, t)}`;
   const filtros = [
-    cena.tingir ? "grayscale(1) contrast(1.05)" : "saturate(0.85) contrast(1.05)",
+    cena.dessaturar ? "grayscale(1) contrast(1.05)" : "saturate(0.85) contrast(1.05)",
     cena.desfoque ? `blur(${cena.desfoque}px)` : "",
   ]
     .filter(Boolean)
@@ -211,7 +211,7 @@ const CenaUnica: React.FC<{
           <MidiaDaCena cena={cena} t={t} totalFrames={total} duracaoVideoSeg={duracaoVideoSeg} />
           {/* Tingimento verde BEM LEVE (rodada 4): mistura só o tom do verde da marca, mantendo a
               luz da arte (blend "color"). A arte já foi dessaturada em MidiaDaCena. */}
-          {cena.tingir ? (
+          {TINGIMENTO > 0 ? (
             <AbsoluteFill style={{ backgroundColor: COR.fundo, mixBlendMode: "color", opacity: TINGIMENTO }} />
           ) : null}
           {/* Escurecimento chapado + reforço em alfa atrás da pílula e do texto. */}
