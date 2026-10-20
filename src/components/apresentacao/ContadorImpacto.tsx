@@ -17,7 +17,7 @@ type Props = {
   top: number; // fração da altura (topo do número)
   tamanho?: number; // fração da largura
   passoPulso?: number; // pulsa a cada N números (1 = a cada número; 20 para contagens grandes)
-  curva?: "cubica" | "quadratica"; // quadrática chega ao valor final de forma mais firme
+  curva?: "cubica" | "quadratica" | "linear"; // quadrática chega ao valor final de forma mais firme
   borraoMax?: number; // borrão de movimento máximo, fração do tamanho da fonte
 };
 
@@ -44,7 +44,8 @@ export const ContadorImpacto: React.FC<Props> = ({
   const progresso = (f: number) =>
     interpolate(f - inicio, [0, duracaoContagem], [0, valorFinal], {
       ...clamp,
-      easing: curva === "cubica" ? Easing.out(Easing.cubic) : Easing.out(Easing.quad),
+      easing:
+        curva === "cubica" ? Easing.out(Easing.cubic) : curva === "quadratica" ? Easing.out(Easing.quad) : Easing.linear,
     });
   const valor = progresso(frame);
   const inteiro = Math.floor(valor + 1e-6);

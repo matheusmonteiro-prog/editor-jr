@@ -25,6 +25,9 @@ import { RaiosDeLuz } from "./RaiosDeLuz";
 // sumir: nunca aparece tela preta. A cena antiga também recebe o "empurrão"
 // da transição seguinte (empurrão vertical, deslize, zoom atravessando).
 
+// Intensidade do tingimento verde (0 a 1). Rodada 4: bem fraco, no nível do bloco 02.
+const TINGIMENTO = 0.3;
+
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const suave = Easing.bezier(0.65, 0, 0.35, 1);
 
@@ -75,6 +78,10 @@ const efeitoEntrada = (tipo: TipoTransicao, p: number): EfeitoEntrada => {
       return { estilo: { opacity: e, transform: `scale(${1.25 - 0.25 * e})` } };
     case "deslizeHorizontal":
       return { estilo: { transform: `translateX(${(1 - e) * 100}%)` } };
+    case "deslizeEsquerda":
+      return { estilo: { transform: `translateX(${-(1 - e) * 100}%)` } };
+    case "empurraoDescendo":
+      return { estilo: { transform: `translateY(${-(1 - e) * 100}%)` } };
     case "mascaraCircular":
       // 90% cobre até os cantos de baixo (o centro está a 45% da altura).
       return { estilo: p >= 1 ? {} : { clipPath: `circle(${e * 90}% at 50% 45%)` } };
@@ -113,6 +120,10 @@ const efeitoSaida = (tipoSeguinte: TipoTransicao | undefined, p: number): React.
       return { transform: `translateY(${-e * 35}%)` };
     case "deslizeHorizontal":
       return { transform: `translateX(${-e * 35}%)` };
+    case "deslizeEsquerda":
+      return { transform: `translateX(${e * 35}%)` };
+    case "empurraoDescendo":
+      return { transform: `translateY(${e * 35}%)` };
     case "zoomAtravessa":
       return { transform: `scale(${1 + e * 0.6})` };
     default:
@@ -198,12 +209,10 @@ const CenaUnica: React.FC<{
           {/* Fundo verde-escuro da marca: base de toda cena (e a cena inteira quando é "solido"). */}
           <AbsoluteFill style={{ backgroundColor: COR.fundo }} />
           <MidiaDaCena cena={cena} t={t} totalFrames={total} duracaoVideoSeg={duracaoVideoSeg} />
-          {/* Tingimento duotone (sombras verde-escuras, claros dourados). */}
+          {/* Tingimento verde BEM LEVE (rodada 4): mistura só o tom do verde da marca, mantendo a
+              luz da arte (blend "color"). A arte já foi dessaturada em MidiaDaCena. */}
           {cena.tingir ? (
-            <>
-              <AbsoluteFill style={{ backgroundColor: COR.dourado, mixBlendMode: "multiply", opacity: 0.8 }} />
-              <AbsoluteFill style={{ backgroundColor: COR.fundo, mixBlendMode: "lighten" }} />
-            </>
+            <AbsoluteFill style={{ backgroundColor: COR.fundo, mixBlendMode: "color", opacity: TINGIMENTO }} />
           ) : null}
           {/* Escurecimento chapado + reforço em alfa atrás da pílula e do texto. */}
           {cena.escurecimento > 0 ? (

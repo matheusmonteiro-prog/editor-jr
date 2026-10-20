@@ -92,6 +92,8 @@ export type Bloco = {
   texto?: string;
   destaque?: string;
   moedas?: MoedasBloco;
+  // De onde o conteúdo do bloco entra (movimento da troca de bloco, rodada 4).
+  entrada?: "direita" | "esquerda" | "baixo" | "cima";
   // Etiqueta "1/8" ao lado da pergunta.
   contador?: string;
   // Pílula de abertura (bloco sem pergunta).
@@ -104,7 +106,9 @@ export type TipoTransicao =
   | "flashWipe" // flash dourado + wipe diagonal
   | "empurraoVertical" // a nova sobe e empurra a antiga
   | "zoomAtravessa" // a antiga cresce e some, a nova assenta
-  | "deslizeHorizontal"
+  | "deslizeHorizontal" // a nova entra pela direita
+  | "deslizeEsquerda" // a nova entra pela esquerda
+  | "empurraoDescendo" // a nova desce de cima e empurra a antiga para baixo
   | "mascaraCircular" // círculo abrindo do centro
   | "wipeDiagonal" // wipe com faixa verde-escura
   | "fusaoBrilho"; // fusão lenta com brilho dourado
@@ -149,6 +153,8 @@ export type Sons = {
   tick?: string; // pílula da pergunta aparecendo
   moeda?: string; // cada moeda que cai
   impacto?: string; // risca do bloco 05 e os 3 cortes secos do bloco 07
+  contador?: string; // contagem dos números (blocos 02 e 06)
+  ok?: string; // check aparecendo (blocos 03 e 07)
 };
 
 const A = "audio/apresentacao/";
@@ -164,6 +170,7 @@ export const BLOCOS: Bloco[] = [
   },
   {
     id: "01",
+    entrada: "direita",
     pergunta: { texto: "Quem é ele?", audio: `${A}01-pergunta.mp3` },
     resposta: { audio: `${A}01-resposta.mp3` },
     contador: "1/8",
@@ -173,6 +180,7 @@ export const BLOCOS: Bloco[] = [
   },
   {
     id: "02",
+    entrada: "baixo",
     pergunta: { texto: "O que ele faz?", audio: `${A}02-pergunta.mp3` },
     resposta: { audio: `${A}02-resposta.mp3` },
     contador: "2/8",
@@ -186,10 +194,11 @@ export const BLOCOS: Bloco[] = [
         { texto: "Brasil e EUA", destaque: "EUA", emFracao: 0.68 },
       ],
     },
-    moedas: { semente: "bloco-02", aleatorias: 2, fixa: { emFracao: 0.55, x: 0.78 } },
+    moedas: { semente: "bloco-02", aleatorias: 1, fixa: { emFracao: 0.55, x: 0.78 } },
   },
   {
     id: "03",
+    entrada: "esquerda",
     pergunta: { texto: "O que é o Método JR?", audio: `${A}03-pergunta.mp3` },
     resposta: { audio: `${A}03-resposta.mp3` },
     contador: "3/8",
@@ -200,10 +209,10 @@ export const BLOCOS: Bloco[] = [
         { texto: "Valor intrínseco", destaque: "intrínseco", emFracao: 0.62 },
       ],
     },
-    moedas: { semente: "bloco-03", aleatorias: 2, fixa: { emFracao: 0.4, x: 0.24, duracao: 20 } },
   },
   {
     id: "04",
+    entrada: "cima",
     pergunta: { texto: "O que vai mostrar?", audio: `${A}04-pergunta.mp3` },
     resposta: { audio: `${A}04-resposta.mp3` },
     contador: "4/8",
@@ -214,6 +223,7 @@ export const BLOCOS: Bloco[] = [
   },
   {
     id: "05",
+    entrada: "direita",
     pergunta: { texto: "É difícil entender?", audio: `${A}05-pergunta.mp3` },
     resposta: { audio: `${A}05-resposta.mp3` },
     contador: "5/8",
@@ -230,6 +240,7 @@ export const BLOCOS: Bloco[] = [
   },
   {
     id: "06",
+    entrada: "baixo",
     pergunta: {
       texto: "Teria um portfólio de ativos para acompanhar?",
       audio: `${A}06-pergunta.mp3`,
@@ -238,11 +249,12 @@ export const BLOCOS: Bloco[] = [
     contador: "6/8",
     texto: "+400 ativos filtrados e calculados",
     destaque: "+400",
-    elemento: { tipo: "contadorLista", valorFinal: 400, prefixo: "+", folgaFinalFrames: 15, passoPulso: 20 },
-    moedas: { semente: "bloco-06", aleatorias: 3 },
+    elemento: { tipo: "contadorLista", valorFinal: 400, prefixo: "+", folgaFinalFrames: 15, passoPulso: 50 },
+    moedas: { semente: "bloco-06", aleatorias: 2 },
   },
   {
     id: "07",
+    entrada: "esquerda",
     pergunta: {
       texto: "Ele recomenda ou indica comprar ou vender?",
       audio: `${A}07-pergunta.mp3`,
@@ -268,10 +280,11 @@ export const BLOCOS: Bloco[] = [
   },
   {
     id: "08",
+    entrada: "baixo",
     pergunta: { texto: "Como conhecer o Método JR?", audio: `${A}08-pergunta.mp3` },
     resposta: { audio: `${A}08-resposta.mp3` },
     contador: "8/8",
-    moedas: { semente: "bloco-08", aleatorias: 3 }, // caem atrás do logo (rodada 3)
+    moedas: { semente: "bloco-08", aleatorias: 2 }, // caem atrás do logo
     elemento: {
       tipo: "cta",
       chamada: "Siga este canal",
@@ -292,9 +305,9 @@ export const BLOCOS: Bloco[] = [
 const C = "images/cenas/prontas/";
 const V = "videos/cenas/";
 
-// Escurecimento: camada #0F2A1D por cima do fundo. Rodada 3 (20/10/2026): 15% em
-// todas as cenas; a cena 6 (mosaico) segue em 70%.
-const ESCURECIMENTO = 0.15;
+// Escurecimento: camada #0F2A1D por cima do fundo. Rodada 4 (20/10/2026): bem leve
+// em todas as cenas (8%); cena 5 em 12% (céu dourado) e cena 6 (mosaico) em 45%.
+const ESCURECIMENTO = 0.08; // rodada 4: o mínimo para o texto ler (régua: bloco 02)
 
 export const CENAS: Cena[] = [
   {
@@ -320,7 +333,7 @@ export const CENAS: Cena[] = [
     blocoInicial: "02",
     blocoFinal: "02",
     movimento: { tipo: "zoom", de: 1.1, para: 1 },
-    transicao: "flashWipe",
+    transicao: "deslizeHorizontal",
     framesTransicao: 16,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
@@ -347,7 +360,7 @@ export const CENAS: Cena[] = [
     blocoInicial: "04",
     blocoFinal: "04",
     movimento: { tipo: "panVertical", zoom: 1.03, deY: 0.014, paraY: -0.014 },
-    transicao: "zoomAtravessa",
+    transicao: "empurraoDescendo",
     framesTransicao: 18,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
@@ -361,10 +374,10 @@ export const CENAS: Cena[] = [
     blocoInicial: "05",
     blocoFinal: "05",
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
-    transicao: "deslizeHorizontal",
+    transicao: "deslizeEsquerda",
     framesTransicao: 14,
-    // 25% (e não 15%): o dourado do céu do trigo competia com o "FÁCIL" dourado.
-    escurecimento: 0.25,
+    // 12% (e não 8%): o dourado do céu do trigo compete com o "FÁCIL" dourado.
+    escurecimento: 0.12,
     posicaoY: 50,
     desfoque: 8,
     tingir: true,
@@ -376,9 +389,9 @@ export const CENAS: Cena[] = [
     blocoInicial: "06",
     blocoFinal: "06",
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
-    transicao: "mascaraCircular",
+    transicao: "empurraoVertical",
     framesTransicao: 18,
-    escurecimento: 0.7,
+    escurecimento: 0.45,
     posicaoY: 50,
   },
   {
@@ -389,7 +402,7 @@ export const CENAS: Cena[] = [
     blocoInicial: "07",
     blocoFinal: "07",
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
-    transicao: "wipeDiagonal",
+    transicao: "deslizeHorizontal",
     framesTransicao: 14,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
@@ -402,7 +415,7 @@ export const CENAS: Cena[] = [
     blocoInicial: "08",
     blocoFinal: "08",
     movimento: { tipo: "zoom", de: 1.08, para: 1 },
-    transicao: "fusaoBrilho",
+    transicao: "empurraoDescendo",
     framesTransicao: 20,
     escurecimento: ESCURECIMENTO,
     posicaoY: 50,
@@ -422,6 +435,9 @@ export const SONS: Sons = {
   tick: "audio/apresentacao/sfx/sfx-tick.mp3",
   moeda: "audio/apresentacao/sfx/sfx-moeda.mp3",
   impacto: "audio/apresentacao/sfx/sfx-impacto.mp3",
+  // Rodada 4: ligados porque os arquivos existem (20/10/2026).
+  contador: "audio/apresentacao/sfx/sfx-contador.mp3",
+  ok: "audio/apresentacao/sfx/sfx-ok.mp3",
 };
 
 // Volumes (0 a 1). A narração toca em 1,0.

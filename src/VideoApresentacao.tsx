@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import type { CalculateMetadataFunction } from "remotion";
 import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
 import { BLOCOS, CENAS, LOGO, SONS, VOLUMES } from "./dados/apresentacao";
@@ -82,6 +82,22 @@ const MarcaSom: React.FC<{ evento: EventoSfx }> = ({ evento }) => {
 // Saída das palavras: termina junto com o fim do bloco.
 const saidaTexto = (b: BlocoNoTempo, palavras: number) => b.duracao - (12 + palavras * 3);
 
+// Movimento da troca de bloco: o conteúdo entra deslizando de um lado (ou de baixo/cima).
+const EntradaBloco: React.FC<{ direcao?: Bloco["entrada"]; children: React.ReactNode }> = ({ direcao, children }) => {
+  const frame = useCurrentFrame();
+  const { width, height } = useVideoConfig();
+  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+  const e = interpolate(frame, [0, 14], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+  const d = 1 - e;
+  const x = direcao === "direita" ? d * width * 0.4 : direcao === "esquerda" ? -d * width * 0.4 : 0;
+  const y = direcao === "baixo" ? d * height * 0.2 : direcao === "cima" ? -d * height * 0.2 : 0;
+  return (
+    <AbsoluteFill style={{ transform: `translate(${x}px, ${y}px)`, opacity: interpolate(frame, [0, 6], [0, 1], clamp) }}>
+      {children}
+    </AbsoluteFill>
+  );
+};
+
 const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }) => {
   const resp = t.respostaInicio + 2; // a resposta aparece com os primeiros 2 frames do narrador
   const fimTexto = saidaTexto(t, (bloco.texto ?? "").split(/\s+/).length);
@@ -119,6 +135,8 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             prefixo={el.prefixo}
             rotulo={el.rotulo}
             inicio={resp}
+            duracaoContagem={SONS.contador ? FRAMES_SFX.contador : 30}
+            curva="linear"
             saida={fimElementos}
             top={0.2}
           />
@@ -242,12 +260,16 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             valorFinal={el.valorFinal}
             prefixo={el.prefixo}
             inicio={resp}
-            duracaoContagem={Math.max(10, t.respostaInicio + t.respostaFrames - el.folgaFinalFrames - resp)}
+            duracaoContagem={
+              SONS.contador
+                ? FRAMES_SFX.contador
+                : Math.max(10, t.respostaInicio + t.respostaFrames - el.folgaFinalFrames - resp)
+            }
             saida={fimElementos}
             top={0.3}
             tamanho={0.3}
             passoPulso={el.passoPulso}
-            curva="quadratica"
+            curva="linear"
             borraoMax={0.02}
           />
           {/* Estouro de partículas douradas quando o contador bate em 400. */}
@@ -255,7 +277,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             modo="explosao"
             quantidade={46}
             semente="mais-400"
-            inicio={t.respostaInicio + t.respostaFrames - el.folgaFinalFrames}
+            inicio={SONS.contador ? resp + FRAMES_SFX.contador : t.respostaInicio + t.respostaFrames - el.folgaFinalFrames}
             duracao={40}
             centroY={0.38}
             tamanhoMax={0.01}
@@ -355,7 +377,9 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
         const t = acharBloco(linha, bloco.id);
         return (
           <Sequence key={bloco.id} name={`Bloco ${bloco.id}`} from={t.inicio} durationInFrames={t.duracao}>
-            <ConteudoBloco bloco={bloco} t={t} />
+            <EntradaBloco direcao={bloco.entrada}>
+              <ConteudoBloco bloco={bloco} t={t} />
+            </EntradaBloco>
           </Sequence>
         );
       })}

@@ -6,7 +6,7 @@ import type { LinhaDoTempo } from "./linhaDoTempoApresentacao";
 import { acharBloco } from "./linhaDoTempoApresentacao";
 import { planoMoedas } from "./moedasApresentacao";
 
-export type TipoSfx = "whoosh" | "tick" | "moeda" | "impacto";
+export type TipoSfx = "whoosh" | "tick" | "moeda" | "impacto" | "contador" | "ok";
 
 export type EventoSfx = {
   tipo: TipoSfx;
@@ -16,7 +16,7 @@ export type EventoSfx = {
 };
 
 // Duração de cada arquivo em frames a 30 fps (medida com ffprobe em 20/10/2026).
-export const FRAMES_SFX: Record<TipoSfx, number> = { whoosh: 18, tick: 44, moeda: 33, impacto: 63 };
+export const FRAMES_SFX: Record<TipoSfx, number> = { whoosh: 18, tick: 44, moeda: 33, impacto: 63, contador: 67, ok: 23 };
 
 // Frames até o ícone do bloco 07 terminar de desenhar (início do traço 2 + 14 de traço).
 export const FRAMES_ICONE_PRONTO = 16;
@@ -47,10 +47,28 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
     const resp = t.respostaInicio + 2;
     const el = bloco.elemento;
 
-    // moeda em cada moeda que começa a cair.
-    planoMoedas(bloco.moedas, t).forEach((m, i) =>
-      ev.push({ tipo: "moeda", nome: `moeda ${bloco.id}.${i + 1}`, frame: t.inicio + m.inicio, volume: 0.4 }),
-    );
+    // moeda: só no bloco 08. Nos blocos dos contadores (02 e 06) vale o som de contagem.
+    if (bloco.id === "08") {
+      planoMoedas(bloco.moedas, t).forEach((m, i) =>
+        ev.push({ tipo: "moeda", nome: `moeda ${bloco.id}.${i + 1}`, frame: t.inicio + m.inicio, volume: 0.4 }),
+      );
+    }
+
+    // contador: toca junto da contagem (do início ao fim dela, 67 frames).
+    if (el.tipo === "contadorCards" || el.tipo === "contadorLista") {
+      ev.push({ tipo: "contador", nome: `contador ${bloco.id}`, frame: t.inicio + resp, volume: 0.5 });
+    }
+    // ok: quando o check de cada card aparece (bloco 03).
+    if (el.tipo === "cards") {
+      el.cards.forEach((card, i) =>
+        ev.push({
+          tipo: "ok",
+          nome: `ok ${bloco.id}.${i + 1}`,
+          frame: t.inicio + Math.round(resp + t.respostaFrames * card.emFracao) + 8,
+          volume: 0.4,
+        }),
+      );
+    }
 
     if (el.tipo === "contraste") {
       // impacto: o "DIFÍCIL" saindo (fim da risca) no bloco 05.
@@ -62,6 +80,8 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
         const corte = t.inicio + t.respostaInicio + Math.round(f.emSegundos * 30);
         ev.push({ tipo: "impacto", nome: `impacto ${bloco.id}.${i + 1}`, frame: corte, volume: 0.5 });
         ev.push({ tipo: "tick", nome: `tick ícone ${bloco.id}.${i + 1}`, frame: corte + FRAMES_ICONE_PRONTO, volume: 0.3 });
+        // ok: quando o ícone de check aparece (1ª frase do bloco 07).
+        if (f.icone === "check") ev.push({ tipo: "ok", nome: `ok ${bloco.id}.${i + 1}`, frame: corte + 6, volume: 0.4 });
       });
     }
 
