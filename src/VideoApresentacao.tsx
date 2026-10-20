@@ -6,7 +6,7 @@ import { BLOCOS, CENAS, LOGO, SONS, VOLUMES } from "./dados/apresentacao";
 import type { Bloco } from "./dados/apresentacao";
 import { acharBloco, montarLinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
 import { planoMoedas } from "./utils/moedasApresentacao";
-import { FRAMES_SFX, eventosSfx, inicioVoltaLogo } from "./utils/sfxApresentacao";
+import { FRAMES_SFX, eventosSfx, inicioCrescerLogo, inicioVoltaLogo } from "./utils/sfxApresentacao";
 import type { EventoSfx } from "./utils/sfxApresentacao";
 import type { BlocoNoTempo, LinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
 import { COR } from "./components/apresentacao/marca";
@@ -292,13 +292,15 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
         <>
           {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
-          <TextoKinetic texto={el.chamada} fonte="titulo" damping={12} inicio={resp} top={0.19} tamanho={0.105} />
+          {/* Pílula discreta logo abaixo da pergunta, junto com "SIGA ESTE CANAL" (sem dourado). */}
+          <PilulaCta texto={el.pilulaTopo} inicio={resp} top={0.182} tamanho={0.026} discreta />
+          <TextoKinetic texto={el.chamada} fonte="titulo" damping={12} inicio={resp} top={0.235} tamanho={0.105} />
           <TextoKinetic
             texto={el.acompanhe}
             fonte="rotulo"
             damping={12}
             inicio={t.respostaInicio + Math.round(el.acompanheEmSegundos * 30)}
-            top={0.36}
+            top={0.385}
             tamanho={0.042}
           />
           <TextoPulso
@@ -308,10 +310,9 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             damping={10}
             brilho
             inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * 30)}
-            top={0.395}
+            top={0.415}
             tamanho={0.115}
           />
-          <PilulaCta texto={el.pilula} inicio={t.respostaInicio + Math.round(el.pilulaEmSegundos * 30)} top={0.735} />
         </>
       ) : null}
     </AbsoluteFill>
@@ -346,6 +347,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
   };
 
   const inicioVolta = inicioVoltaLogo(linha);
+  const ctaFinal = BLOCOS.find((b) => b.id === "08")?.elemento;
 
   return (
     <AbsoluteFill
@@ -378,8 +380,21 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
           inicioVoo={inicioVoo}
           inicioVolta={inicioVolta}
           centroFinal={{ x: 0.5, y: 0.585, largura: 0.55 }}
+          crescerInicio={inicioCrescerLogo(linha)}
+          crescerFim={b08.inicio + b08.duracao}
         />
       </Sequence>
+
+      {/* Pílula "EM BREVE NESTE CANAL": fica POR CIMA do logo, que cresce por trás dela no fim. */}
+      {ctaFinal && ctaFinal.tipo === "cta" ? (
+        <Sequence name="Pílula EM BREVE" from={b08.inicio} durationInFrames={b08.duracao}>
+          <PilulaCta
+            texto={ctaFinal.pilula}
+            inicio={b08.respostaInicio + Math.round(ctaFinal.pilulaEmSegundos * 30)}
+            top={0.735}
+          />
+        </Sequence>
+      ) : null}
 
       {/* Wipe diagonal em cada troca de bloco, encavalado com a pílula seguinte. */}
       {linha.blocos.slice(1).map((t) => (

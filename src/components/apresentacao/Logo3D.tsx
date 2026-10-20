@@ -1,5 +1,5 @@
 import React from "react";
-import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, comAlfa } from "./marca";
 import { FRAMES_ATE_PULSO_LOGO } from "../../utils/sfxApresentacao";
 
@@ -20,6 +20,10 @@ type Props = {
   centro?: Pose;
   canto?: Pose;
   centroFinal?: Pose; // onde o logo pousa na volta (padrão: o mesmo centro da entrada)
+  // Rodada 5d: no fim do vídeo o logo cresce em direção ao espectador (escala 1 → ~3, ease-in)
+  // e some (fade) nos últimos frames. Frames globais; sem isso, o logo não cresce.
+  crescerInicio?: number;
+  crescerFim?: number;
 };
 
 const CAMADAS_ESPESSURA = 6;
@@ -32,6 +36,8 @@ export const Logo3D: React.FC<Props> = ({
   centro = { x: 0.5, y: 0.33, largura: 0.62 },
   canto = { x: 0.865, y: 0.128, largura: 0.2 },
   centroFinal,
+  crescerInicio,
+  crescerFim,
 }) => {
   const fim = centroFinal ?? centro;
   const frame = useCurrentFrame();
@@ -76,6 +82,13 @@ export const Logo3D: React.FC<Props> = ({
     anguloY = 0;
   }
   // Pulso único do logo final (1 → 1,1 → 1 em 10 frames), depois que ele pousa.
+  // Crescer em direção ao espectador (ease-in cúbico) com fade de saída no fim.
+  let crescer = 1;
+  if (crescerInicio !== undefined && crescerFim !== undefined) {
+    const c = interpolate(frame, [crescerInicio, crescerFim], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+    crescer = 1 + 2 * c; // 1 → 3
+    opacidade *= interpolate(frame, [crescerFim - 14, crescerFim], [1, 0], clamp);
+  }
   const pulso = interpolate(frame - (inicioVolta + FRAMES_ATE_PULSO_LOGO), [0, 5, 10], [1, 1.1, 1], clamp);
 
   const lado = width * largura;
@@ -94,7 +107,7 @@ export const Logo3D: React.FC<Props> = ({
         height: lado,
         perspective: lado * 3,
         opacity: opacidade,
-        transform: frame >= inicioVolta ? `scale(${pulso})` : undefined,
+        transform: frame >= inicioVolta ? `scale(${pulso * crescer})` : undefined,
       }}
     >
       <div
@@ -131,6 +144,7 @@ export const Logo3D: React.FC<Props> = ({
             transform: `translateZ(${-(CAMADAS_ESPESSURA + 1) * espessura}px) rotateY(180deg)`,
             backfaceVisibility: "hidden",
             filter: `brightness(${luz * 0.85})`,
+            translate: "-1.7px 22.4px"
           }}
         />
         {/* Frente. */}

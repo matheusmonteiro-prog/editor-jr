@@ -25,6 +25,14 @@ export const FRAMES_ATE_PULSO_LOGO = 22;
 // Frames entre o início de "MÉTODO JR." e o pico da escala.
 export const FRAMES_ATE_PICO_MARCA = 6;
 
+// Rodada 5d: o logo final cresce em direção ao espectador durante o FIM do bloco 08 (sem
+// estender o vídeo). Duração do crescimento, em frames, contada de trás para frente.
+export const FRAMES_CRESCER_LOGO = 50;
+export const inicioCrescerLogo = (linha: LinhaDoTempo): number => {
+  const b08 = acharBloco(linha, "08");
+  return b08.inicio + b08.duracao - FRAMES_CRESCER_LOGO;
+};
+
 // Frame global em que o logo final do bloco 08 começa a subir.
 export const inicioVoltaLogo = (linha: LinhaDoTempo): number => {
   const b08 = acharBloco(linha, "08");
@@ -90,6 +98,9 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
       ev.push({ tipo: "impacto", nome: "impacto MÉTODO JR", frame: audio + Math.round(el.marcaEmSegundos * 30) + FRAMES_ATE_PICO_MARCA, volume: 0.5 });
     }
   });
+
+  // whoosh na transição final: o logo crescendo em direção ao espectador (bloco 08).
+  ev.push({ tipo: "whoosh", nome: "whoosh logo cresce", frame: inicioCrescerLogo(linha), volume: 0.5 });
 
   return ev.sort((a, b) => a.frame - b.frame);
 };

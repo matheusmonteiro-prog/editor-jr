@@ -9,9 +9,11 @@ type Props = {
   inicio: number; // frame (relativo à Sequence)
   top: number; // fração da altura (topo)
   tamanho?: number; // fração da largura
+  // Variante discreta (rodada 5d): texto creme sobre #0F2A1D, menor. Sem borda, sem sombra.
+  discreta?: boolean;
 };
 
-export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04 }) => {
+export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04, discreta = false }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const p = spring({ frame: frame - inicio, fps, config: { damping: 12, mass: 1 }, durationInFrames: 12 });
@@ -35,10 +37,10 @@ export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04 
     >
       <div
         style={{
-          backgroundColor: COR.creme,
-          color: COR.fundo,
+          backgroundColor: discreta ? COR.fundo : COR.creme,
+          color: discreta ? COR.creme : COR.fundo,
           borderRadius: 28,
-          padding: `${fontSize * 0.6}px ${fontSize * 1.3}px`,
+          padding: discreta ? `${fontSize * 0.5}px ${fontSize * 1.1}px` : `${fontSize * 0.6}px ${fontSize * 1.3}px`,
           fontFamily: FONTE_ROTULO,
           fontWeight: 600,
           letterSpacing: ESPACO_ROTULO,

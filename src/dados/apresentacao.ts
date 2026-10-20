@@ -69,6 +69,7 @@ export type Elemento =
       marcaEmSegundos: number;
       logoEmSegundos: number; // o logo sobe do fundo e pousa junto com a assinatura
       pilula: string; // pílula chapada creme, texto #0F2A1D (entra quando a fala termina)
+      pilulaTopo: string; // pílula discreta abaixo da pergunta (entra junto com "Siga este canal")
       pilulaEmSegundos: number;
     };
 
@@ -292,6 +293,7 @@ export const BLOCOS: Bloco[] = [
       // O logo sobe ~1 s antes para POUSAR (fim da mola) junto com "MÉTODO JR." (5,29 s).
       logoEmSegundos: 4.55,
       pilula: "Em breve neste canal",
+      pilulaTopo: "O que ninguém te mostrou antes",
       pilulaEmSegundos: 7.7,
     },
   },
