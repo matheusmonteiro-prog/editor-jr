@@ -192,6 +192,31 @@ Vieram da revisão dos stills no Studio. Nenhuma fala, texto de tela ou duraçã
 - O verde ficou tão leve nos blocos 01 e 08 que as cenas parecem quase cinza com um toque de verde.
   Se quiser um pouco mais, é o valor `TINGIMENTO` em `FundoCenas.tsx`.
 
+## Ajustes da rodada 5 (20/10/2026)
+
+Não há fala, texto de tela nem duração novos (continua 2518 frames). Nada foi renderizado e nenhum
+áudio de voz foi gerado. O posicionamento segue para o Matheus ajustar no Studio.
+
+1. **Desfoque do fundo** (imagem ficar reconhecível):
+   - Cenas 1, 4, 5 e 8: **8 px → 4 px**.
+   - Cenas 3 e 7: **12 px → 7 px**. Conferido no still do bloco 03: os números da tabela ainda
+     aparecem como massa desfocada, sem nenhum legível. No bloco 07, o trecho "BTC-USD" do celular
+     também não se lê (ver o still do bloco 07 no Studio, mesma regra).
+   - Cenas 2 e 6 não têm desfoque; nada foi mudado.
+2. **Bloco 08, "O QUE NINGUÉM TE MOSTROU ANTES":** continua em Inter, com as palavras entrando em
+   sequência por mola (amortecimento 12, 4 frames entre palavras). "NINGUÉM" pulsa de 1 → 1,15 → 1 e
+   é a **única palavra dourada** (#EFAF20); as demais do miolo ficaram em creme. "AQUI VOCÊ VAI VER"
+   e "TE MOSTROU ANTES" não são mais dourados.
+3. **Som de moeda em cada queda:** religado nos blocos **02** (1 moeda fixa + 1 aleatória), **06** (2)
+   e **08** (2), com volume **0,25** (abaixo do contador, 0,5). Antes só o bloco 08 tinha som de moeda.
+   Os blocos 03 e 07 não têm moeda caindo, então não houve queda sem som.
+
+### Dúvidas para o Studio
+- Cenas 3 e 7: se algum número ou o "BTC-USD" ainda ficar legível em movimento, o próximo passo é
+  subir o desfoque (valor `desfoque` em `src/dados/apresentacao.ts`).
+- "NINGUÉM" dourado dentro de um miolo creme: se preferir mais peso, o pulso pode ser maior, mas
+  isso sai da regra de 1 → 1,15 → 1 que você pediu.
+
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.
