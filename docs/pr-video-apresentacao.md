@@ -317,34 +317,45 @@ Igual à 5b (já estava aplicada): sem a subida de 0,20 para 0,35; **0,12** dura
 (`VOLUMES.musicaCtaDuranteFala`); depois sobe devagar até **0,28** (`VOLUMES.musicaCtaAposFala`) em 60
 frames (`VOLUMES.subidaMusicaCtaFrames`); fade-out de 60 frames no fim mantido.
 
-## Rodada 5d (20/10/2026): bloco 08 e conferência da rodada 5
+## Rodada 5d (20/10/2026, versão final; substitui a 5d anterior)
 
-### 0. Conferência da rodada 5 (tudo estava aplicado; nada precisou ser refeito)
+### 0. Conferência da rodada 5 (tudo estava aplicado; nada foi refeito)
 | Item | Estado |
 |---|---|
-| a) Ticks removidos: bloco 00, bloco 07 e palavras do CTA; bloco 08 só com o tick da pílula da pergunta | **Aplicado.** Só resta o tick das pílulas de pergunta dos blocos 01 a 08 (`sfxApresentacao.ts`) |
-| b) Sem tingimento verde (`TINGIMENTO = 0`); cenas 3, 5 e 7 sem filtro cinza (só 1 e 8 dessaturadas); blur 2 px nas cenas 1, 2, 4, 5, 6 e 8; 7 px nas 3 e 7 | **Aplicado** |
-| c) sfx-moeda em cada moeda dos blocos 02, 06 e 08 (volume 0,25, abaixo do contador 0,5) | **Aplicado** |
-| d) Música no bloco 08: 0,12 na fala, sobe até 0,28 depois, fade-out de 60 frames | **Aplicado** (`VOLUMES.musicaCtaDuranteFala`, `musicaCtaAposFala`, `subidaMusicaCtaFrames`) |
+| a) Ticks removidos: bloco 00 (pílula "EM BREVE"), bloco 07 e palavras do CTA; bloco 08 só com o tick da pílula da pergunta | **Aplicado** (resta o tick das pílulas de pergunta dos blocos 01 a 08) |
+| b) Sem tingimento verde (`TINGIMENTO = 0`); cenas 3, 5 e 7 sem filtro cinza; blur 2 px nas cenas 1, 2, 4, 5, 6 e 8 e 7 px nas 3 e 7 | **Aplicado** |
+| c) sfx-moeda em cada moeda dos blocos 02, 06 e 08 (volume 0,25) | **Aplicado** |
+| d) Música no bloco 08 em 0,12 na fala, sobe até 0,28, fade-out de 60 frames | **Aplicado** |
 
-### 1. Nova pílula no topo do bloco 08
-**"O QUE NINGUÉM TE MOSTROU ANTES"**, logo abaixo da pílula da pergunta. Pequena (Inter 600, caixa alta), texto
-creme #F5F0E6 sobre #0F2A1D, raio 28 px, sem borda e sem sombra, sem dourado. Entra junto com "SIGA ESTE CANAL".
-Para abrir espaço, a chamada e os textos abaixo desceram uns 2,5% da altura.
+### 1. Pílula "O QUE NINGUÉM TE MOSTROU ANTES"
+Logo abaixo da pílula da pergunta. Inter 600, caixa alta, texto creme #F5F0E6 sobre #0F2A1D, raio 28 px, sem
+borda, sem sombra, sem transparência, sem dourado. Entra no **início exato da fala** do `08-resposta` e fica até
+a saída do fecho.
 
-### 2. Transição final
-O logo (inteiro, com chapéu) **cresce em direção ao espectador**: escala de 1 até **3**, com ease-in cúbico,
-**nos últimos 50 frames do vídeo** (frames 2468 a 2518), com fade de saída nos últimos 14. A pílula "EM BREVE
-NESTE CANAL" continua na tela, por cima, e o logo cresce por trás dela (a pílula passou a ser desenhada depois do
-logo). **A duração não mudou: 2518 frames.**
-**Aviso: o zoom corta o logo nas bordas.** Com escala 3 o logo (55% da largura) passa de 100% da largura; no
-frame 2503 (escala ~2,3) o chapéu e a seta já encostam nas laterais. O fade de saída cobre o final.
+### 2. Fecho: o logo chegando e tudo saindo (sem estender o vídeo: 2518 frames)
+- A pílula "EM BREVE NESTE CANAL" aparece no frame 2464 e fica **20 frames** (`FRAMES_LEITURA_PILULA`).
+- Aos 2484 os elementos saem em **stagger de 3 frames**, de cima para baixo na ordem: pílula da pergunta, pílula
+  nova, SIGA ESTE CANAL, ACOMPANHE A CHEGADA DO, MÉTODO JR. (os de cima sobem, com translateY e opacidade) e, por
+  último, EM BREVE NESTE CANAL (desce).
+- Ao mesmo tempo o logo (inteiro, imagem única) vem em direção ao espectador por **22 frames**
+  (`FRAMES_CRESCER_LOGO`), com ease-in, indo para o centro da tela. Depois, pulso 1 → 1,05 → 1 e fica estático
+  até o fim. Sem glow novo, sem texto novo.
+- **Constante de escala: `ESCALA_FINAL_LOGO`**, em `src/dados/apresentacao.ts` (valor 0,95 / 0,55 ≈ 1,73:
+  o logo final do bloco tem 55% da largura, então a escala leva a ~95%). Para testar maior no Studio, é só aumentar.
+- **Resolução do PNG do logo:** `public/images/logo-jr.png` tem **1254 × 1254 px**. Na escala final o logo ocupa
+  ~1026 px de largura na tela de 1080, então fica **abaixo do tamanho original e não pixeliza**. Se
+  `ESCALA_FINAL_LOGO` passar de uns 2,1 (≈ 1254 px), ele passa a ser ampliado e perde nitidez. Não ampliei com filtro.
+- O trecho visível do desenho (sem a margem transparente do PNG) ocupa cerca de 87% da largura, e não 95%, porque o
+  PNG tem uma margem em volta. Se quiser mais, aumente a constante.
+- Coube nos frames restantes sem encurtar nada: a leitura da pílula ficou nos 20 frames.
 
-### 3. Whoosh
-Ponto marcado na timeline como **"SOM whoosh logo cresce"** (frame 2468, volume 0,5), com o sfx-whoosh ligado.
+### 3. Sons do fecho
+`sfx-whoosh` no início da saída ("SOM whoosh saída do fecho", frame 2484) e `sfx-impacto` no pulso do logo
+("SOM impacto logo final", frame 2506). Sem arquivo novo.
 
-### Para conferir no Studio
-- O crescimento tem só 50 frames (1,7 s). Se quiser mais lento, é `FRAMES_CRESCER_LOGO` em `sfxApresentacao.ts`.
+### PENDÊNCIA para o JR aprovar
+A pílula **"O QUE NINGUÉM TE MOSTROU ANTES"**: é uma afirmação **não verificável** e **fora do áudio** (o
+narrador do `08-resposta` ainda diz outra frase, que a gente tirou da tela).
 
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
