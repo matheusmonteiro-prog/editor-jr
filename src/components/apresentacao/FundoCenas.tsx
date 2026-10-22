@@ -270,6 +270,9 @@ const CenaUnica: React.FC<{
           {cena.escurecimento > 0 ? (
             <AbsoluteFill style={{ backgroundColor: COR.fundo, opacity: cena.escurecimento }} />
           ) : null}
+          {cena.escurecimentoNeutro ? (
+            <AbsoluteFill style={{ backgroundColor: "#000", opacity: cena.escurecimentoNeutro }} />
+          ) : null}
           {cena.fonte.tipo !== "solido" ? (
             <AbsoluteFill
               style={{

@@ -6,7 +6,7 @@ import { COR, comAlfa } from "./marca";
 // Gradiente só em alfa (dourado → transparente).
 export const RaiosDeLuz: React.FC<{ opacidade?: number }> = ({ opacidade = 0.16 }) => {
   const frame = useCurrentFrame();
-  const { width, height } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
   const raios = [
     { angulo: 28, largura: 0.1, fase: 0 },
     { angulo: 38, largura: 0.06, fase: 1.7 },
@@ -19,7 +19,7 @@ export const RaiosDeLuz: React.FC<{ opacidade?: number }> = ({ opacidade = 0.16 
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", mixBlendMode: "screen" }}>
       {raios.map((r, i) => {
         const balanco = Math.sin(frame / 45 + r.fase) * 2;
-        const pulso = 0.7 + 0.3 * Math.sin(frame / 30 + r.fase);
+        const pulso = 0.7 + 0.3 * Math.sin(frame / fps + r.fase);
         return (
           <div
             key={i}

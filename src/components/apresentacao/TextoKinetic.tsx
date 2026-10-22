@@ -21,6 +21,8 @@ type Props = {
   corDestaque?: string;
   larguraMax?: number; // fração da largura
   entrada?: "subir" | "escala";
+  // Rodada 7: "escala" = na saída as palavras crescem um pouco e somem (em vez de subir).
+  saidaModo?: "subir" | "escala";
   intervalo?: number; // frames entre palavras
   opacidadeMax?: number;
   peso?: number; // peso da Inter nos títulos (padrão 800)
@@ -59,6 +61,7 @@ export const TextoKinetic: React.FC<Props> = ({
   corDestaque = COR.dourado,
   larguraMax = 0.86,
   entrada = "subir",
+  saidaModo = "subir",
   intervalo = 3,
   opacidadeMax = 1,
   peso = PESO_TITULO,
@@ -128,10 +131,12 @@ export const TextoKinetic: React.FC<Props> = ({
 
         let ySaida = 0;
         let opSaida = 1;
+        let escalaSaida = 1;
         if (saida !== undefined) {
           const ts = saida + ordem[i] * intervalo;
           const q = interpolate(frame - ts, [0, DURACAO_SAIDA], [0, 1], clamp);
-          ySaida = -q * fontSize * 0.6;
+          if (saidaModo === "escala") escalaSaida = 1 + q * 0.25;
+          else ySaida = -q * fontSize * 0.6;
           opSaida = 1 - q;
         }
 
@@ -166,7 +171,7 @@ export const TextoKinetic: React.FC<Props> = ({
               position: "relative",
               whiteSpace: "nowrap",
               opacity: opEntrada * opSaida * opacidadeMax,
-              transform: `translateY(${ySaida}px) ${transformEntrada} scale(${pulso * extra})`,
+              transform: `translateY(${ySaida}px) ${transformEntrada} scale(${pulso * extra * escalaSaida})`,
               transformOrigin: "50% 60%",
             }}
           >

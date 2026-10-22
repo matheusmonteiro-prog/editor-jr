@@ -14,6 +14,9 @@ type Pose = { x: number; y: number; largura: number }; // frações
 
 type Props = {
   src: string;
+  // Rodada 7: PNG já escurecido (brightness 0,38 + sepia 0,6, gerado uma vez com FFmpeg) para as
+  // camadas de espessura, sem filtro CSS a cada frame. Sem ele, as camadas usam `src` com o filtro.
+  srcEspessura?: string;
   inicioGiro: number; // frame global
   inicioVoo: number; // frame global: começa a ir para o canto
   inicioVolta: number; // frame global: começa a voltar ao centro
@@ -31,6 +34,7 @@ const CAMADAS_ESPESSURA = 6;
 
 export const Logo3D: React.FC<Props> = ({
   src,
+  srcEspessura,
   inicioGiro,
   inicioVoo,
   inicioVolta,
@@ -125,14 +129,14 @@ export const Logo3D: React.FC<Props> = ({
         {new Array(CAMADAS_ESPESSURA).fill(0).map((_, i) => (
           <Img
             key={i}
-            src={staticFile(src)}
+            src={staticFile(srcEspessura ?? src)}
             style={{
               position: "absolute",
               inset: 0,
               width: "100%",
               height: "100%",
               transform: `translateZ(${-(i + 1) * espessura}px)`,
-              filter: "brightness(0.38) sepia(0.6)",
+              filter: srcEspessura ? undefined : "brightness(0.38) sepia(0.6)",
             }}
           />
         ))}

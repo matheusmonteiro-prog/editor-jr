@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, Easing, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import type { CalculateMetadataFunction } from "remotion";
 import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
-import { BLOCOS, CENAS, ESCALA_FINAL_LOGO, LOGO, SONS, VOLUMES } from "./dados/apresentacao";
+import { BLOCOS, CENAS, ESCALA_FINAL_LOGO, LOGO, LOGO_ESCURO, SONS, VARIACAO_CTA, VOLUMES } from "./dados/apresentacao";
 import type { Ativo, Bloco } from "./dados/apresentacao";
 import { acharBloco, montarLinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
 import { planoMoedas } from "./utils/moedasApresentacao";
@@ -26,6 +26,7 @@ import { Logo3D } from "./components/apresentacao/Logo3D";
 import { BrilhoRadial } from "./components/apresentacao/BrilhoRadial";
 import { Moeda3D } from "./components/apresentacao/Moeda3D";
 import { CardCheckFlip } from "./components/apresentacao/CardCheckFlip";
+import { Bandeira3D } from "./components/apresentacao/Bandeira3D";
 import { ContadorImpacto } from "./components/apresentacao/ContadorImpacto";
 import { TextoRiscado } from "./components/apresentacao/TextoRiscado";
 import { Particulas } from "./components/apresentacao/Particulas";
@@ -33,7 +34,7 @@ import { WipeBloco } from "./components/apresentacao/WipeBloco";
 import { ListaAtivos } from "./components/apresentacao/ListaAtivos";
 import { IconesRedes } from "./components/apresentacao/IconesRedes";
 import { FraseIcone } from "./components/apresentacao/FraseIcone";
-import { TextoPulso } from "./components/apresentacao/TextoPulso";
+import { MarcaCta } from "./components/apresentacao/MarcaCta";
 import { PilulaCta } from "./components/apresentacao/PilulaCta";
 
 // Vídeo de apresentação do JR: pergunta e resposta, sem câmera.
@@ -45,6 +46,9 @@ export type VideoApresentacaoProps = {
   duracoes?: Record<string, number | null>;
   // Preenchido pelo calculateMetadata: lista de ativos do bloco 06 (vazia = arquivo não existe).
   ativos?: Ativo[];
+  // Rodada 7: força a variação do CTA do bloco 08 (para gerar os stills das duas). Sem ela, vale
+  // VARIACAO_CTA de src/dados/apresentacao.ts.
+  variacaoCta?: "a" | "b";
 };
 
 const FPS = 30;
@@ -126,18 +130,30 @@ const EntradaBloco: React.FC<{ direcao?: Bloco["entrada"]; children: React.React
 };
 
 // Início da saída do fecho (bloco 08), relativo ao bloco; nos outros blocos não é usado.
-const el0 = (t: BlocoNoTempo, bloco: Bloco): number => {
+const el0 = (t: BlocoNoTempo, bloco: Bloco, fps: number): number => {
   const cta = bloco.elemento;
-  return cta.tipo === "cta" ? t.respostaInicio + Math.round(cta.pilulaEmSegundos * 30) + 20 : t.duracao - 14;
+  return cta.tipo === "cta" ? t.respostaInicio + Math.round(cta.pilulaEmSegundos * fps) + 20 : t.duracao - 14;
 };
 
-const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[] }> = ({ bloco, t, ativos }) => {
+// Rodada 7: posições do CTA do bloco 08 em cada variação (fração da altura; tamanho em fração da largura).
+const LAYOUT_CTA = {
+  a: { chamada: { top: 0.215, tamanho: 0.105 }, acompanhe: 0.355, marca: 0.39 },
+  b: { chamada: { top: 0.27, tamanho: 0.07 }, acompanhe: 0.33, marca: 0.36 },
+} as const;
+
+const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; variacaoCta: "a" | "b" }> = ({
+  bloco,
+  t,
+  ativos,
+  variacaoCta,
+}) => {
+  const { fps } = useVideoConfig();
   const resp = t.respostaInicio + 2; // a resposta aparece com os primeiros 2 frames do narrador
   const fimTexto = saidaTexto(t, (bloco.texto ?? "").split(/\s+/).length);
   const fimElementos = t.duracao - 14;
   // Fecho do bloco 08 (rodada 5d): frame (relativo ao bloco) em que os elementos começam a sair,
   // um de cada vez (stagger), os de cima para cima e os de baixo para baixo.
-  const saidaCta = el0(t, bloco);
+  const saidaCta = el0(t, bloco, fps);
   const el = bloco.elemento;
 
   return (
@@ -191,6 +207,22 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[] }
               top={0.47 + i * 0.1}
             />
           ))}
+          {/* Rodada 7: bandeiras 3D dos dois lados do card, entrando logo depois dele. */}
+          {el.cards.flatMap((card, i) =>
+            (card.bandeiras ?? []).map((b, k) => (
+              <Bandeira3D
+                key={b.arquivo}
+                src={b.arquivo}
+                proporcao={b.proporcao}
+                lado={k === 0 ? "esquerda" : "direita"}
+                x={k === 0 ? 0.105 : 0.895}
+                y={0.47 + i * 0.1}
+                largura={0.15}
+                inicio={Math.round(resp + t.respostaFrames * card.emFracao) + 6 + k * 4}
+                saida={fimElementos + i * 3}
+              />
+            )),
+          )}
         </>
       ) : null}
 
@@ -267,7 +299,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[] }
           />
           {/* As frases entram uma a uma e FICAM até o fim do bloco, empilhando de baixo para cima. */}
           {(el.frases ?? []).map((f, i, todas) => {
-            const corte = (seg: number) => t.respostaInicio + Math.round(seg * 30);
+            const corte = (seg: number) => t.respostaInicio + Math.round(seg * fps);
             return (
               <FraseIcone
                 key={f.texto}
@@ -344,39 +376,62 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[] }
         <>
           {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
+          {/* Rodada 7: teaser durante a pergunta. Entra palavra por palavra em escala, fica ~1 s e
+              sai crescendo e sumindo logo antes de "SIGA ESTE CANAL". */}
+          <TextoKinetic
+            texto={el.teaser}
+            fonte="titulo"
+            entrada="escala"
+            saidaModo="escala"
+            damping={10}
+            pulsoPalavra={{ palavra: "ninguém", escala: 1.15 }}
+            inicio={el.teaserEntraFrame}
+            saida={t.respostaInicio - 25}
+            top={0.37}
+            tamanho={0.08}
+            larguraMax={0.94}
+          />
           <TextoKinetic
             texto={el.chamada}
             fonte="titulo"
             damping={12}
             inicio={t.respostaInicio}
             saida={saidaCta + 2 * FRAMES_STAGGER_SAIDA}
-            top={0.235}
-            tamanho={0.105}
+            top={LAYOUT_CTA[variacaoCta].chamada.top}
+            tamanho={LAYOUT_CTA[variacaoCta].chamada.tamanho}
           />
           <TextoKinetic
             texto={el.acompanhe}
             fonte="rotulo"
             damping={12}
-            inicio={t.respostaInicio + Math.round(el.acompanheEmSegundos * 30)}
+            inicio={t.respostaInicio + Math.round(el.acompanheEmSegundos * fps)}
             saida={saidaCta + 3 * FRAMES_STAGGER_SAIDA}
-            top={0.385}
+            top={LAYOUT_CTA[variacaoCta].acompanhe}
             tamanho={0.042}
           />
-          <TextoPulso
+          <MarcaCta
             texto={el.marca}
-            cor={COR.dourado}
-            escalaInicial={0.7}
-            damping={10}
-            brilho
-            inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * 30)}
+            variante={variacaoCta}
+            inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * fps)}
             saida={saidaCta + 4 * FRAMES_STAGGER_SAIDA}
-            top={0.415}
-            tamanho={0.115}
+            top={LAYOUT_CTA[variacaoCta].marca}
+            tamanho={0.14}
           />
+          {variacaoCta === "b" ? (
+            <Particulas
+              modo="explosao"
+              quantidade={40}
+              semente="metodo-jr"
+              inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * fps) + 4}
+              duracao={36}
+              centroY={LAYOUT_CTA.b.marca + 0.04}
+              tamanhoMax={0.009}
+            />
+          ) : null}
           {/* Rodada 6: ícones das redes abaixo do logo; saem por último, para baixo. */}
           <IconesRedes
             redes={el.redes}
-            inicio={t.respostaInicio + Math.round(el.redesEmSegundos * 30)}
+            inicio={t.respostaInicio + Math.round(el.redesEmSegundos * fps)}
             saida={saidaCta + 6 * FRAMES_STAGGER_SAIDA}
             top={0.835}
           />
@@ -386,11 +441,13 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[] }
   );
 };
 
-const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number | null>; ativos: Ativo[] }> = ({
-  linha,
-  duracoes,
-  ativos,
-}) => {
+const Camadas: React.FC<{
+  linha: LinhaDoTempo;
+  duracoes: Record<string, number | null>;
+  ativos: Ativo[];
+  variacaoCta: "a" | "b";
+}> = ({ linha, duracoes, ativos, variacaoCta }) => {
+  const { fps } = useVideoConfig();
   const b00 = acharBloco(linha, "00");
   const b01 = acharBloco(linha, "01");
   const b08 = acharBloco(linha, "08");
@@ -438,7 +495,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
         return (
           <Sequence key={bloco.id} name={`Bloco ${bloco.id}`} from={t.inicio} durationInFrames={t.duracao}>
             <EntradaBloco direcao={bloco.entrada}>
-              <ConteudoBloco bloco={bloco} t={t} ativos={ativos} />
+              <ConteudoBloco bloco={bloco} t={t} ativos={ativos} variacaoCta={variacaoCta} />
             </EntradaBloco>
           </Sequence>
         );
@@ -447,6 +504,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
       <Sequence name="Logo 3D">
         <Logo3D
           src={LOGO}
+          srcEspessura={LOGO_ESCURO}
           inicioGiro={b00.inicio + 4}
           inicioVoo={inicioVoo}
           inicioVolta={inicioVolta}
@@ -462,7 +520,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
         <Sequence name="Pílula EM BREVE" from={b08.inicio} durationInFrames={b08.duracao}>
           <PilulaCta
             texto={ctaFinal.pilula}
-            inicio={b08.respostaInicio + Math.round(ctaFinal.pilulaEmSegundos * 30)}
+            inicio={b08.respostaInicio + Math.round(ctaFinal.pilulaEmSegundos * fps)}
             saida={saidaFechoRelativa(linha) + 5 * FRAMES_STAGGER_SAIDA}
             saidaPara="baixo"
             top={0.735}
@@ -532,7 +590,9 @@ const BrilhoLogoInicial: React.FC<{ fim: number; spotlightDe: number }> = ({ fim
   return <BrilhoRadial x={0.5} y={0.33} raio={0.55 + spot * 0.2} intensidade={(base + spot) * some} />;
 };
 
-export const VideoApresentacao: React.FC<VideoApresentacaoProps> = ({ duracoes, ativos }) => {
+export const VideoApresentacao: React.FC<VideoApresentacaoProps> = ({ duracoes, ativos, variacaoCta }) => {
   const linha = montarLinhaDoTempo(BLOCOS, duracoes ?? {}, FPS);
-  return <Camadas linha={linha} duracoes={duracoes ?? {}} ativos={ativos ?? []} />;
+  return (
+    <Camadas linha={linha} duracoes={duracoes ?? {}} ativos={ativos ?? []} variacaoCta={variacaoCta ?? VARIACAO_CTA} />
+  );
 };

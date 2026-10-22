@@ -10,7 +10,12 @@ export type CardCheck = {
   destaque: string;
   // Em que ponto da fala do narrador o card entra (0 = início, 1 = fim).
   emFracao: number;
+  // Rodada 7 (bloco 02): bandeira 3D de cada lado do card, na ordem do texto (esquerda, direita).
+  bandeiras?: [Bandeira, Bandeira];
 };
+
+// Imagem da bandeira (relativa a public/) e a proporção dela (largura / altura).
+export type Bandeira = { arquivo: string; proporcao: number };
 
 export type FraseComIcone = {
   texto: string;
@@ -66,6 +71,10 @@ export type Elemento =
       // Tempos em SEGUNDOS desde o início do áudio da resposta (pausas do narrador medidas
       // com silencedetect; se o áudio for regerado, conferir).
       tipo: "cta";
+      // Rodada 7: teaser no início do bloco (durante a pergunta), com kinetic typography forte.
+      // Sai em escala/fade antes de "SIGA ESTE CANAL". "\n" = quebra de linha.
+      teaser: string;
+      teaserEntraFrame: number; // frame do bloco em que a 1ª palavra entra
       chamada: string; // "Siga este canal" (creme, grande, 2 linhas)
       acompanhe: string; // "Acompanhe a chegada do" (creme, menor)
       acompanheEmSegundos: number;
@@ -75,7 +84,8 @@ export type Elemento =
       pilula: string; // pílula chapada creme, texto #0F2A1D (entra quando a fala termina)
       pilulaEmSegundos: number;
       // Rodada 6: ícones das redes, monocromáticos, abaixo do logo. A pílula discreta
-      // "O que ninguém te mostrou antes" saiu (decisão do Matheus, 22/10/2026).
+      // "O que ninguém te mostrou antes" saiu (decisão do Matheus, 22/10/2026); na rodada 7 a frase
+      // volta como teaser (campo `teaser`).
       redes: RedeSocial[];
       redesEmSegundos: number;
     };
@@ -146,6 +156,8 @@ export type Cena = {
   transicao: TipoTransicao;
   framesTransicao: number; // 12 a 20
   escurecimento: number; // opacidade da camada #0F2A1D (0 a 1)
+  // Rodada 7: escurecimento em PRETO neutro (0 a 1), sem puxar para o verde. Cena 3.
+  escurecimentoNeutro?: number;
   posicaoY: number; // objectPosition vertical, 0 a 100 (%)
   desfoque?: number; // px; foto/vídeo de fundo desfocado
   // Dessatura (grayscale) a arte. Rodada 5: só as cenas 1 e 8; as cenas 3, 5 e 7 ficam com a
@@ -209,7 +221,18 @@ export const BLOCOS: Bloco[] = [
       rotulo: "Anos investindo",
       cards: [
         { texto: "Ações e ETFs", destaque: "ETFs", emFracao: 0.42 },
-        { texto: "Brasil e EUA", destaque: "EUA", emFracao: 0.68 },
+        {
+          texto: "Brasil e EUA",
+          destaque: "EUA",
+          emFracao: 0.68,
+          // Rodada 7: Brasil à esquerda (lado do "BRASIL"), EUA à direita (lado do "EUA").
+          // PROVISÓRIAS: SVGs simples feitos para conferir a posição. Quando o Matheus mandar os
+          // PNGs, trocar o arquivo (ex.: images/bandeiras/brasil.png) e a proporção, se mudar.
+          bandeiras: [
+            { arquivo: "images/bandeiras/brasil-provisoria.svg", proporcao: 10 / 7 },
+            { arquivo: "images/bandeiras/eua-provisoria.svg", proporcao: 19 / 10 },
+          ],
+        },
       ],
     },
     moedas: { semente: "bloco-02", aleatorias: 1, fixa: { emFracao: 0.55, x: 0.78 } },
@@ -316,6 +339,8 @@ export const BLOCOS: Bloco[] = [
     moedas: { semente: "bloco-08", aleatorias: 2 }, // caem atrás do logo
     elemento: {
       tipo: "cta",
+      teaser: "O que ninguém\nte mostrou antes",
+      teaserEntraFrame: 6,
       chamada: "Siga este canal",
       acompanhe: "Acompanhe a chegada do",
       acompanheEmSegundos: 5.05,
@@ -345,8 +370,10 @@ const ESCURECIMENTO = 0.08; // rodada 4: o mínimo para o texto ler (régua: blo
 export const CENAS: Cena[] = [
   {
     // Rodada 6: clipe Higgsfield A1 (estúdio escuro, vulto de chapéu de costas no notebook, sem
-    // rosto; suspense "em breve"). Escurecido 58% para o texto ler. Esticado em câmera lenta para
-    // cobrir os blocos 00 e 01. Sem o arquivo, a cena fica no verde-escuro liso.
+    // rosto; suspense "em breve"). Esticado em câmera lenta para cobrir os blocos 00 e 01. Sem o
+    // arquivo, a cena fica no verde-escuro liso.
+    // Rodada 7: camada verde removida (era 58%). Testado 18% e 0%: com 0% o título e a pílula
+    // continuam legíveis (o tom esverdeado que sobra é do próprio clipe).
     nome: "Cena 1: a1-estudio.mp4",
     fonte: { tipo: "video", arquivo: `${V}a1-estudio.mp4` },
     blocoInicial: "00",
@@ -354,7 +381,7 @@ export const CENAS: Cena[] = [
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "nenhuma",
     framesTransicao: 0,
-    escurecimento: 0.58,
+    escurecimento: 0,
     posicaoY: 50,
     desfoque: DESFOQUE_PADRAO,
     esticar: true,
@@ -374,7 +401,8 @@ export const CENAS: Cena[] = [
   },
   {
     // Rodada 3: vídeo da bolsa (tabela de números). Rodada 6: com 7 px ainda dava para ler os
-    // números (inventados). Agora 24 px e 62% de escurecimento: só textura de luz, nenhum número.
+    // números (inventados). Rodada 7: a tabela vira ambiente/referência e aparece NÍTIDA, sem a
+    // camada verde (era 62%) e sem desfoque (era 24 px). Só um preto neutro leve para os selos.
     nome: "Cena 3: cena-3-bolsa.mp4",
     fonte: { tipo: "video", arquivo: `${V}cena-3-bolsa.mp4` },
     blocoInicial: "03",
@@ -382,9 +410,9 @@ export const CENAS: Cena[] = [
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "empurraoVertical",
     framesTransicao: 16,
-    escurecimento: 0.62,
+    escurecimento: 0,
+    escurecimentoNeutro: 0.12,
     posicaoY: 50,
-    desfoque: 24,
   },
   {
     // Imagem de 940 px de largura (< 1170): zoom de 103% e pan menor.
@@ -483,6 +511,12 @@ export const SONS: Sons = {
 // no Studio, aumente este valor (ex.: 2).
 export const ESCALA_FINAL_LOGO = 0.95 / 0.55;
 
+// Rodada 7: variação do CTA do bloco 08 (o Matheus escolhe no Studio trocando esta letra).
+// "a" = "SIGA ESTE CANAL" grande como antes e "MÉTODO JR." maior, entrando com escala e flash.
+// "b" = "SIGA ESTE CANAL" menor (preparação) e "MÉTODO JR." revelado por máscara com traço de luz,
+//       flash largo, reflexo nas letras e estouro de partículas.
+export const VARIACAO_CTA: "a" | "b" = "a";
+
 // Volumes (0 a 1). A narração toca em 1,0.
 export const VOLUMES = {
   musica: 0.2, // blocos 00 a 07
@@ -496,6 +530,8 @@ export const VOLUMES = {
 };
 
 export const LOGO = "images/logo-jr.png";
+// Rodada 7: cópia escurecida do logo para a espessura do Logo3D (sem filtro CSS a cada frame).
+export const LOGO_ESCURO = "images/logo-jr-escuro.png";
 
 // Tempos (em frames, a 30 fps).
 export const TEMPOS = {

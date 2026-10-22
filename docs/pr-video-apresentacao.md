@@ -397,6 +397,58 @@ Nenhum entrou ainda. O Matheus gera os clipes no site e salva com estes nomes:
 - **Fonte:** a regra fala em Fraunces Bold nos títulos, mas desde a rodada 4 o vídeo usa só Inter
   (decisão anterior). Não mexi.
 
+## Rodada 7 (22/10/2026): ajustes visuais + itens da skill `remotion-best-practices`
+
+Só o que foi pedido. Formato, vozes, textos falados e tempos continuam iguais: **2465 frames (82,2 s)**.
+Stills novos em `out/stills/apresentacao/*-r7.png`. **Nada foi renderizado em vídeo** (só stills).
+
+### O que mudou por bloco
+| Bloco | O que mudou |
+|---|---|
+| 00/01 | **Camada verde-escura do clipe A1 removida** (era 58%). Testei 18% e 0%: com 0% o título "JR – O INVESTIDOR SERTANEJO", "CRIADOR DO MÉTODO JR" e a pílula continuam legíveis. O tom esverdeado que sobra é do próprio clipe. As outras cenas não mudaram. |
+| 02 | **Bandeiras 3D** dos dois lados do card "BRASIL E EUA": Brasil à esquerda (lado da palavra BRASIL), EUA à direita (lado do EUA). Entram 6 e 10 frames depois do card, girando no eixo Y com mola, sobem um pouco e crescem; param viradas ~18° para o centro e flutuam devagar. Placa em CSS 3D (como o Logo3D), com espessura escura atrás, luz baixa vinda da esquerda e acabamento fosco (sem brilho metálico). Componente novo: `Bandeira3D.tsx`. **As bandeiras são PROVISÓRIAS** (SVG simples que eu desenhei só para avaliar a posição): ver pendências. |
+| 03 | **Tabela de fundo nítida:** sem a camada verde (era 62%) e sem desfoque (era 24 px). Ficou só um **preto neutro de 12%** (campo novo `escurecimentoNeutro`) para os selos terem contraste. Os dois selos não mudaram. |
+| 08 | **Teaser "O QUE NINGUÉM TE MOSTROU ANTES"** volta, durante a pergunta: entra palavra por palavra em escala (1,8 → 1, mola solta), "NINGUÉM" dá um pulso, fica ~0,8 s e **sai crescendo e sumindo** (não é corte seco) logo antes de "SIGA ESTE CANAL". Creme, sem dourado. **CTA em 2 variações** para escolher (abaixo). Ícones das redes, logo, pílula final e fecho não mudaram. |
+
+### Bloco 08: as 2 variações do CTA
+Nas duas, "MÉTODO JR." ficou **maior** (de ~124 px para ~143 px de letra, até 90% da largura), entra em
+**escala 1,3 → 1 com overshoot**, tem um **flash dourado por trás** que estoura e baixa até um brilho
+suave, e um **pulso rápido de halo** nas letras quando assenta. Componente novo: `MarcaCta.tsx`.
+
+| | Variação **a** (peso) | Variação **b** (revelação) |
+|---|---|---|
+| "SIGA ESTE CANAL" | grande, 2 linhas (como antes) | menor, 1 linha: vira preparação |
+| "MÉTODO JR." | escala + flash redondo + halo | revelado por **máscara** da esquerda para a direita com um **traço de luz** na borda, flash largo (elíptico), **reflexo** passando nas letras e **estouro de partículas** douradas |
+| Stills | `b08a-r7.png` (final) e `b08a-flash-r7.png` (no flash) | `b08b-r7.png` (final) e `b08b-flash-r7.png` (revelando) |
+
+**Como escolher no Studio:** em `src/dados/apresentacao.ts`, `VARIACAO_CTA = "a"` (padrão) ou `"b"`.
+Teaser: `b08-teaser-r7.png`.
+
+### Itens da skill aplicados
+- **A1 (`30` → `fps`):** em `src/VideoApresentacao.tsx`, as conversões de segundos para frames do bloco 07,
+  do CTA e da pílula final usam o `fps` de `useVideoConfig()`; em `RaiosDeLuz.tsx`, `frame / fps`. Se o vídeo
+  mudar de fps, os tempos continuam certos. A 30 fps o resultado é o mesmo de antes.
+- **B1 (PNG escurecido do logo):** `public/images/logo-jr-escuro.png` (1254 × 1254, gerado uma vez com FFmpeg
+  com a mesma conta do `brightness(0.38) sepia(0.6)`). As 6 camadas de espessura do `Logo3D` usam esse PNG,
+  sem filtro CSS a cada frame. Frente e verso continuam com o logo original. Conferido: still do giro antes e
+  depois praticamente idênticos (PSNR 66 e 71 dB, só arredondamento de cor).
+
+### Pendências da rodada 7
+- **Bandeiras:** `public/images/bandeiras/` não existia. O Matheus manda os PNGs (Brasil e EUA). Para trocar:
+  em `src/dados/apresentacao.ts`, card "Brasil e EUA", mudar `arquivo` (ex.: `images/bandeiras/brasil.png`)
+  e `proporcao` se for diferente (Brasil 10/7, EUA 19/10). Os SVGs provisórios podem ser apagados depois.
+- **Escolher a variação do CTA** ("a" ou "b") no Studio.
+- **Bloco 03:** com a tabela nítida, **os números (inventados) ficam legíveis** e aparecem em vermelho e verde,
+  fora da paleta. Isso quebra a regra "nenhum número legível" usada até a rodada 6. Foi pedido assim; fica
+  registrado para o JR aprovar.
+- **Bandeiras = cores fora da paleta** (azul, vermelho, verde da bandeira). Quebra de marca para o JR aprovar.
+- **Teaser x narração:** o teaser aparece durante a **pergunta**; o narrador só fala "o que ninguém te mostrou
+  antes" depois, entre ~1,1 s e ~5 s da resposta. Se preferir que a frase apareça junto da fala, é outra posição.
+- **Teaser sem dourado:** deixei em creme para "MÉTODO JR." continuar o único dourado do bloco. Se quiser
+  "NINGUÉM" em dourado (como na rodada 5), é uma linha.
+- **`30` fixo que ficou:** `src/utils/sfxApresentacao.ts` (linhas 40, 49, 96 e 107) também converte segundos
+  com `* 30`. Não estava na lista desta rodada; ficou como estava.
+
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.
