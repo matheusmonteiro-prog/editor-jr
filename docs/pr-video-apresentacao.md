@@ -384,15 +384,14 @@ Nenhum entrou ainda. O Matheus gera os clipes no site e salva com estes nomes:
 | A4 | `public/videos/cenas/a4-soja.mp4` | bloco 05, 3ª fatia |
 
 ### Pendências da rodada 6
-- **Áudio 07:** o `07-pergunta.mp3` ainda diz o texto antigo. É preciso regerar no ElevenLabs com
-  "Ele indica o que comprar e vender?" e salvar com o mesmo nome. A duração se ajusta sozinha.
+- ~~**Áudio 07**~~ **resolvido (22/10/2026):** o `07-pergunta.mp3` novo diz "Ele indica o que comprar e
+  vender?" (conferido com o Whisper). A duração é a mesma do antigo (2,51 s), então os tempos não mudaram.
 - **Clipes A1 a A4:** faltam (ver tabela acima).
-- **Áudio 08:** o narrador ainda **fala** "aqui você vai ver o que ninguém te mostrou antes". A pílula
-  saiu da tela, mas a frase continua no áudio. Para tirar de vez, é preciso regerar o `08-resposta.mp3`
-  e conferir os tempos do bloco 08.
-- **Logos dos ativos:** os PNGs têm 132 px e são recortes com margem branca e enquadramento diferente
-  em cada um. Em alguns aparece uma faixa de outra cor embaixo (META, AVGO, TSLA). O ideal é refazer:
-  tile quadrado, sem margem e com 256 px ou mais.
+- **Áudio 08:** o narrador ainda **fala** "aqui você vai ver o que ninguém te mostrou antes", mas
+  isso não aparece na tela. **O Matheus decidiu manter assim (22/10/2026).**
+- ~~**Logos dos ativos**~~ **resolvido (22/10/2026):** entrou a versão corrigida dos PNGs (132×124,
+  enquadramento igual nos 10, sem a faixa colorida em META, AVGO e TSLA). Ficam em
+  `public/images/ativos-jr/ativos/`. Ainda são pequenos (132 px), mas aparecem a ~110 px, sem ampliar.
 - **Cena 8 (bloco 08, não mexida nesta rodada):** o fundo tem números legíveis (ex.: "2022.97").
   Isso quebra a regra "nenhum número legível".
 - **Fonte:** a regra fala em Fraunces Bold nos títulos, mas desde a rodada 4 o vídeo usa só Inter
