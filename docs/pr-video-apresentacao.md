@@ -407,7 +407,11 @@ Stills novos em `out/stills/apresentacao/*-r7.png`. **Nada foi renderizado em v�
 |---|---|
 | 00/01 | **Camada verde-escura do clipe A1 removida** (era 58%). Testei 18% e 0%: com 0% o título "JR – O INVESTIDOR SERTANEJO", "CRIADOR DO MÉTODO JR" e a pílula continuam legíveis. O tom esverdeado que sobra é do próprio clipe. As outras cenas não mudaram. |
 | 02 | **Bandeiras 3D** dos dois lados do card "BRASIL E EUA": Brasil à esquerda (lado da palavra BRASIL), EUA à direita (lado do EUA). Entram 6 e 10 frames depois do card, girando no eixo Y com mola, sobem um pouco e crescem; param viradas ~18° para o centro e flutuam devagar. Placa em CSS 3D (como o Logo3D), com espessura escura atrás, luz baixa vinda da esquerda e acabamento fosco (sem brilho metálico). Componente novo: `Bandeira3D.tsx`. **As bandeiras são PROVISÓRIAS** (SVG simples que eu desenhei só para avaliar a posição): ver pendências. |
-| 03 | **Tabela de fundo nítida:** sem a camada verde (era 62%) e sem desfoque (era 24 px). Ficou só um **preto neutro de 12%** (campo novo `escurecimentoNeutro`) para os selos terem contraste. Os dois selos não mudaram. |
+| 02 (ícone) | **Ícone de ETF** à direita do card "AÇÕES E ETFS" (lado da palavra ETFS): pizza estilizada em traço creme com **uma fatia dourada** que se afasta do centro (a "cesta" diversificada). SVG inline, ~8,5% da largura, entra com mola logo depois do card. Componente novo: `IconeEtf.tsx`. |
+| 03 | **Tabela de fundo nítida:** sem a camada verde (era 62%) e sem desfoque (era 24 px). Ficou só um **preto neutro de 12%** (campo novo `escurecimentoNeutro`) para os selos terem contraste. Os selos ficaram um pouco mais afastados (centros em 38% e 62% da altura; eram 41% e 60%) para caber a esteira entre eles. |
+| 03 (SELEÇÃO DE ATIVOS) | **Esteira de ícones genéricos** logo abaixo do selo, quando ele acende: 8 ícones (candle de alta dourado, candle de baixa creme, linha subindo, barras, %, cifrão, ação = quadrado com seta, pizza), traço de 1,5 px, creme/dourado, sem preenchimento, sobre uma faixa escura suave que some nas pontas. Passam da direita para a esquerda em velocidade constante, em loop. **Duas vezes** a esteira freia por ~0,3 s e o ícone do centro ganha **borda e brilho dourados** ("selecionado"); depois volta ao fluxo. Nenhum logo real do bloco 06. Componente novo: `EsteiraAtivos.tsx`. Stills `b03a-r7` (1ª seleção) e `b03b-r7` (2ª seleção). |
+| 03 (VALOR INTRÍNSECO) | **Convergência** logo abaixo do selo, quando ele acende: num painel escuro discreto, uma **linha dourada reta** (valor) e uma **linha creme ondulando** (preço) se desenham da esquerda para a direita; a ondulação diminui até a creme **encontrar a dourada** num **ponto dourado pulsante**. Rótulos pequenos "PREÇO" e "VALOR"; sem fórmula, número ou equação. Componente novo: `ConvergenciaValor.tsx`. Still `b03c-r7`. |
+| 04 | **Gráfico da foto animado no editor** (zero custo): a linha da foto foi redesenhada em SVG nas coordenadas exatas da imagem (`GraficoSubindo.tsx`, dentro da camada de movimento da foto, então acompanha o pan). Durante a resposta, um **traço de luz** percorre a linha da base até a seta, com easing suave; as **barras acendem** de baixo para cima conforme a varredura passa; no fim, um **brilho dourado** pulsa na seta. Stills `b04-meio-r7` (no meio) e `b04-r7` (fim). **Ver pendência: a linha original da foto continua visível o tempo todo.** |
 | 08 | **Teaser "O QUE NINGUÉM TE MOSTROU ANTES"** volta, durante a pergunta: entra palavra por palavra em escala (1,8 → 1, mola solta), "NINGUÉM" dá um pulso, fica ~0,8 s e **sai crescendo e sumindo** (não é corte seco) logo antes de "SIGA ESTE CANAL". Creme, sem dourado. **CTA em 2 variações** para escolher (abaixo). Ícones das redes, logo, pílula final e fecho não mudaram. |
 
 ### Bloco 08: as 2 variações do CTA
@@ -434,6 +438,13 @@ Teaser: `b08-teaser-r7.png`.
   depois praticamente idênticos (PSNR 66 e 71 dB, só arredondamento de cor).
 
 ### Pendências da rodada 7
+- **Bloco 04, decisão do Matheus (editor ou Higgsfield?):** o traço novo casa com a linha da foto (não parece
+  colado), mas **não dá para fazer o gráfico "nascer do zero"**: a linha e as barras fazem parte da foto e ficam
+  visíveis desde o 1º frame. O efeito lê como **o gráfico acendendo**, não subindo. Para subir de verdade, seria
+  preciso uma versão da imagem **sem** a linha e as barras (edição da imagem) ou um clipe novo. **Nada foi gerado
+  na Higgsfield**, como combinado.
+- **Esteira (bloco 03):** o traço de 1,5 px pedido fica fino sobre a tabela nítida; se ler pouco no Studio, subir
+  para 2 px é uma linha em `EsteiraAtivos.tsx`.
 - **Bandeiras:** `public/images/bandeiras/` não existia. O Matheus manda os PNGs (Brasil e EUA). Para trocar:
   em `src/dados/apresentacao.ts`, card "Brasil e EUA", mudar `arquivo` (ex.: `images/bandeiras/brasil.png`)
   e `proporcao` se for diferente (Brasil 10/7, EUA 19/10). Os SVGs provisórios podem ser apagados depois.

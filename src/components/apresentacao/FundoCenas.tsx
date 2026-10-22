@@ -16,6 +16,7 @@ import type { LinhaDoTempo } from "../../utils/linhaDoTempoApresentacao";
 import { acharBloco } from "../../utils/linhaDoTempoApresentacao";
 import { BrilhoRadial } from "./BrilhoRadial";
 import { COR, comAlfa } from "./marca";
+import { GraficoSubindo } from "./GraficoSubindo";
 import { Particulas } from "./Particulas";
 import { RaiosDeLuz } from "./RaiosDeLuz";
 
@@ -169,7 +170,8 @@ const MidiaDaCena: React.FC<{
   totalFrames: number;
   duracaoPropria: number;
   duracoes?: Record<string, number | null>;
-}> = ({ cena, t, totalFrames, duracaoPropria, duracoes }) => {
+  grafico?: { inicio: number; duracao: number }; // rodada 7: gráfico animado por cima da foto
+}> = ({ cena, t, totalFrames, duracaoPropria, duracoes, grafico }) => {
   const frame = useCurrentFrame();
   const { fonte } = cena;
   if (fonte.tipo === "solido") return null;
@@ -231,7 +233,10 @@ const MidiaDaCena: React.FC<{
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       <AbsoluteFill style={{ filter: filtros || undefined }}>
-        <AbsoluteFill style={{ transform }}>{midia}</AbsoluteFill>
+        <AbsoluteFill style={{ transform }}>
+          {midia}
+          {grafico ? <GraficoSubindo inicio={grafico.inicio} duracao={grafico.duracao} /> : null}
+        </AbsoluteFill>
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -243,7 +248,8 @@ const CenaUnica: React.FC<{
   framesSaida: number; // transição da cena seguinte (a antiga fica por baixo)
   transicaoSeguinte?: TipoTransicao;
   duracoes?: Record<string, number | null>;
-}> = ({ cena, duracaoPropria, framesSaida, transicaoSeguinte, duracoes }) => {
+  grafico?: { inicio: number; duracao: number };
+}> = ({ cena, duracaoPropria, framesSaida, transicaoSeguinte, duracoes, grafico }) => {
   const frame = useCurrentFrame();
   const total = duracaoPropria + framesSaida;
   const t = interpolate(frame, [0, total], [0, 1], clamp);
@@ -260,7 +266,14 @@ const CenaUnica: React.FC<{
         <AbsoluteFill style={{ ...saida }}>
           {/* Fundo verde-escuro da marca: base de toda cena (e a cena inteira quando é "solido"). */}
           <AbsoluteFill style={{ backgroundColor: COR.fundo }} />
-          <MidiaDaCena cena={cena} t={t} totalFrames={total} duracaoPropria={duracaoPropria} duracoes={duracoes} />
+          <MidiaDaCena
+            cena={cena}
+            t={t}
+            totalFrames={total}
+            duracaoPropria={duracaoPropria}
+            duracoes={duracoes}
+            grafico={grafico}
+          />
           {/* Tingimento verde BEM LEVE (rodada 4): mistura só o tom do verde da marca, mantendo a
               luz da arte (blend "color"). A arte já foi dessaturada em MidiaDaCena. */}
           {TINGIMENTO > 0 ? (
@@ -311,6 +324,11 @@ export const FundoCenas: React.FC<{
         const ate = ultimo.inicio + ultimo.duracao;
         const seguinte = cenas[i + 1];
         const framesSaida = seguinte ? seguinte.framesTransicao : 0;
+        // Rodada 7: o gráfico da foto cresce durante a resposta do bloco inicial da cena.
+        const blocoGrafico = cena.graficoAnimado ? acharBloco(linha, cena.blocoInicial) : null;
+        const grafico = blocoGrafico
+          ? { inicio: blocoGrafico.respostaInicio, duracao: blocoGrafico.respostaFrames }
+          : undefined;
         return (
           <Sequence key={cena.nome} name={cena.nome} from={de} durationInFrames={ate - de + framesSaida}>
             <CenaUnica
@@ -319,6 +337,7 @@ export const FundoCenas: React.FC<{
               framesSaida={framesSaida}
               transicaoSeguinte={seguinte?.transicao}
               duracoes={duracoes}
+              grafico={grafico}
             />
           </Sequence>
         );

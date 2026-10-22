@@ -27,6 +27,9 @@ import { BrilhoRadial } from "./components/apresentacao/BrilhoRadial";
 import { Moeda3D } from "./components/apresentacao/Moeda3D";
 import { CardCheckFlip } from "./components/apresentacao/CardCheckFlip";
 import { Bandeira3D } from "./components/apresentacao/Bandeira3D";
+import { IconeEtf } from "./components/apresentacao/IconeEtf";
+import { EsteiraAtivos } from "./components/apresentacao/EsteiraAtivos";
+import { ConvergenciaValor } from "./components/apresentacao/ConvergenciaValor";
 import { ContadorImpacto } from "./components/apresentacao/ContadorImpacto";
 import { TextoRiscado } from "./components/apresentacao/TextoRiscado";
 import { Particulas } from "./components/apresentacao/Particulas";
@@ -207,6 +210,19 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
               top={0.47 + i * 0.1}
             />
           ))}
+          {/* Rodada 7: ícone de ETF à direita do card "AÇÕES E ETFS" (lado da palavra ETFS). */}
+          {el.cards.map((card, i) =>
+            card.icone === "etf" ? (
+              <IconeEtf
+                key={`icone-${card.texto}`}
+                x={0.915}
+                y={0.47 + i * 0.1}
+                tamanho={0.085}
+                inicio={Math.round(resp + t.respostaFrames * card.emFracao) + 8}
+                saida={fimElementos + i * 3}
+              />
+            ) : null,
+          )}
           {/* Rodada 7: bandeiras 3D dos dois lados do card, entrando logo depois dele. */}
           {el.cards.flatMap((card, i) =>
             (card.bandeiras ?? []).map((b, k) => (
@@ -228,6 +244,28 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
 
       {el.tipo === "cards" ? (
         <>
+          {/* Rodada 7: motion de cada selo, POR TRÁS dos selos. A esteira passa entre os dois selos
+              (logo abaixo do 1º); a convergência fica logo abaixo do 2º. Começam quando o selo acende. */}
+          {el.cards.map((card) => {
+            const entra = Math.round(resp + t.respostaFrames * card.emFracao) + 10;
+            if (card.animacao === "esteira") {
+              return (
+                <EsteiraAtivos
+                  key={`esteira-${card.texto}`}
+                  y={0.5}
+                  inicio={entra}
+                  saida={fimElementos}
+                  selecoes={[entra + 30, entra + 75]}
+                />
+              );
+            }
+            if (card.animacao === "convergencia") {
+              return (
+                <ConvergenciaValor key={`convergencia-${card.texto}`} y={0.705} inicio={entra} saida={fimElementos + 3} />
+              );
+            }
+            return null;
+          })}
           {el.cards.map((card, i) => (
             <CardCheckFlip
               key={card.texto}
@@ -236,7 +274,8 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
               inicio={Math.round(resp + t.respostaFrames * card.emFracao)}
               saida={fimElementos + i * 3}
               // Rodada 6: os dois selos empilhados no centro vertical, iguais e maiores.
-              top={0.41 + i * 0.19}
+              // Rodada 7: um pouco mais afastados (0,41/0,60 → 0,38/0,62) para a esteira caber entre eles.
+              top={0.38 + i * 0.24}
               tamanho={0.09}
               largura={0.84}
               checkCheio

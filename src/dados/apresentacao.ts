@@ -12,6 +12,11 @@ export type CardCheck = {
   emFracao: number;
   // Rodada 7 (bloco 02): bandeira 3D de cada lado do card, na ordem do texto (esquerda, direita).
   bandeiras?: [Bandeira, Bandeira];
+  // Rodada 7 (bloco 02): ícone SVG ao lado do card ("etf" = pizza com uma fatia dourada).
+  icone?: "etf";
+  // Rodada 7 (bloco 03): motion próprio do selo. "esteira" = ícones de ativos passando embaixo
+  // do selo; "convergencia" = linha do preço encontrando a linha do valor, embaixo do selo.
+  animacao?: "esteira" | "convergencia";
 };
 
 // Imagem da bandeira (relativa a public/) e a proporção dela (largura / altura).
@@ -172,6 +177,9 @@ export type Cena = {
   enquadramento?: { escala: number; x: number; y: number };
   particulas?: boolean;
   raiosDeLuz?: boolean;
+  // Rodada 7: só a cena 4. A linha e as barras do gráfico da foto crescem animadas por cima
+  // (GraficoSubindo.tsx, coordenadas da imagem cena-4-dourado.png).
+  graficoAnimado?: boolean;
   brilhoLogo?: boolean;
   brilhoY?: number; // fração da altura (padrão 0,33)
 };
@@ -220,7 +228,7 @@ export const BLOCOS: Bloco[] = [
       prefixo: "+",
       rotulo: "Anos investindo",
       cards: [
-        { texto: "Ações e ETFs", destaque: "ETFs", emFracao: 0.42 },
+        { texto: "Ações e ETFs", destaque: "ETFs", emFracao: 0.42, icone: "etf" },
         {
           texto: "Brasil e EUA",
           destaque: "EUA",
@@ -247,8 +255,8 @@ export const BLOCOS: Bloco[] = [
       tipo: "cards",
       cards: [
         // Rodada 6: em duas linhas ("\n"), maiores e empilhados no centro.
-        { texto: "Seleção\nde ativos", destaque: "Seleção", emFracao: 0.12 },
-        { texto: "Valor\nintrínseco", destaque: "intrínseco", emFracao: 0.62 },
+        { texto: "Seleção\nde ativos", destaque: "Seleção", emFracao: 0.12, animacao: "esteira" },
+        { texto: "Valor\nintrínseco", destaque: "intrínseco", emFracao: 0.62, animacao: "convergencia" },
       ],
     },
   },
@@ -427,6 +435,7 @@ export const CENAS: Cena[] = [
     posicaoY: 50,
     desfoque: DESFOQUE_PADRAO,
     raiosDeLuz: true,
+    graficoAnimado: true,
   },
   {
     // Rodada 6: no lugar do trigo, três clipes Higgsfield do sertanejo em sequência, com
