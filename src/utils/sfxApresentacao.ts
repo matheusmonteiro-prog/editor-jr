@@ -1,7 +1,8 @@
 // Todos os pontos de efeito sonoro do vídeo de apresentação, num lugar só.
 // Serve para (1) marcar cada som na timeline e (2) abaixar a música quando um
 // efeito toca (ducking). Tudo em frames GLOBAIS do vídeo.
-import { BLOCOS } from "../dados/apresentacao";
+import { BLOCOS, CENAS } from "../dados/apresentacao";
+import { FRAMES_CRUZAMENTO, fatiasSequencia } from "../components/apresentacao/FundoCenas";
 import type { LinhaDoTempo } from "./linhaDoTempoApresentacao";
 import { acharBloco } from "./linhaDoTempoApresentacao";
 import { planoMoedas } from "./moedasApresentacao";
@@ -105,6 +106,17 @@ export const eventosSfx = (linha: LinhaDoTempo): EventoSfx[] => {
       ev.push({ tipo: "impacto", nome: "impacto logo", frame: inicioVoltaLogo(linha) + FRAMES_ATE_PULSO_LOGO, volume: 0.5 });
       ev.push({ tipo: "impacto", nome: "impacto MÉTODO JR", frame: audio + Math.round(el.marcaEmSegundos * 30) + FRAMES_ATE_PICO_MARCA, volume: 0.5 });
     }
+  });
+
+  // Rodada 6: whoosh mais baixo em cada troca de vídeo de uma cena "sequencia" (bloco 05).
+  CENAS.forEach((cena) => {
+    if (cena.fonte.tipo !== "sequencia") return;
+    const de = acharBloco(linha, cena.blocoInicial).inicio;
+    const ultimo = acharBloco(linha, cena.blocoFinal);
+    const inicios = fatiasSequencia(cena.fonte.arquivos.length, ultimo.inicio + ultimo.duracao - de);
+    inicios.slice(1).forEach((inicio, i) =>
+      ev.push({ tipo: "whoosh", nome: `whoosh clipe ${cena.blocoInicial}.${i + 2}`, frame: de + inicio - FRAMES_CRUZAMENTO, volume: 0.35 }),
+    );
   });
 
   // Fecho do bloco 08: whoosh no início da saída dos elementos; impacto no pulso final do logo.

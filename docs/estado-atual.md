@@ -35,6 +35,7 @@ da `noite-etapa6`; o PR/merge volta para a `noite-etapa6`, **não** para a `main
   declarado. Rodada 2: cenas com vídeo/imagem/fundo sólido, bloco 06 com contador até +400, bloco 07
   com 3 frases e ícones, bloco 08 com o CTA novo, moedas aleatórias, música de fundo e pontos de som.
   Duração pelos áudios: **2518 frames (83,9 s)**.
+- **Rodada 6 (22/10/2026):** fundo novo nos blocos 00/01 (clipe A1) e 05 (A2→A3→A4, com cross-fade); bloco 03 com os selos no centro e o fundo sem número legível; bloco 06 com a lista de ativos de referência (sem preço); bloco 07 com texto novo e fundo sem azul; bloco 08 sem "o que ninguém te mostrou antes" e com ícones das redes. 2465 frames. Stills `*-r6.png`. **Falta:** clipes A1–A4, regerar `07-pergunta.mp3`, e o Matheus aprovar no Studio. Detalhes em `docs/pr-video-apresentacao.md`.
 - **Rodada 4 (20/10/2026):** Inter em tudo, verde leve, moedas só nos blocos 02, 06 e 08, transições dinâmicas, sons de contagem e ok ligados, ordem do bloco 07 corrigida. Detalhes em `docs/pr-video-apresentacao.md`.
 - **Rodada 3 (20/10/2026):** cenas 3, 5 e 7 em vídeo, escurecimento 15%, bloco 07 empilhando, bloco 08 redesenhado (Space Grotesk), sons reais com ducking. Detalhes em `docs/pr-video-apresentacao.md`.
 - **Stills:** 9 em `out/stills/apresentacao/` (frame do meio de cada bloco), de 20/10/2026 (rodada 3).

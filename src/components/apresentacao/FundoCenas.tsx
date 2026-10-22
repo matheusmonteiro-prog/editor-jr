@@ -135,13 +135,42 @@ const efeitoSaida = (tipoSeguinte: TipoTransicao | undefined, p: number): React.
 // desfoque e tingimento. Estrutura (de fora para dentro):
 //   recorte (overflow hidden) > filtro (grayscale/blur, NÃO escalado, então o
 //   desfoque tem sempre os px pedidos) > movimento (transform) > mídia.
+// Vídeo de fundo, sempre mudo. Em loop se for mais curto que `frames`; corta no fim se for mais
+// longo. Com `esticar`, toca mais devagar (até 0,5x) para cobrir `frames` sem repetir.
+// Duração null = o arquivo não existe: não desenha nada (fica o verde-escuro).
+const VideoFundo: React.FC<{
+  arquivo: string;
+  duracaoSeg: number | null | undefined;
+  frames: number;
+  esticar?: boolean;
+  estilo: React.CSSProperties;
+}> = ({ arquivo, duracaoSeg, frames, esticar, estilo }) => {
+  const { fps } = useVideoConfig();
+  if (duracaoSeg === null) return null;
+  const framesVideo = duracaoSeg ? duracaoSeg * fps : frames;
+  const velocidade = esticar ? Math.min(1, Math.max(0.5, framesVideo / frames)) : 1;
+  return (
+    <Loop durationInFrames={Math.max(1, Math.floor(framesVideo / velocidade))}>
+      <OffthreadVideo src={staticFile(arquivo)} muted playbackRate={velocidade} style={estilo} />
+    </Loop>
+  );
+};
+
+// Frames de cross-fade entre os vídeos de uma cena "sequencia".
+export const FRAMES_CRUZAMENTO = 10;
+
+// Início (relativo à cena) de cada vídeo de uma "sequencia": fatias iguais da parte própria da cena.
+export const fatiasSequencia = (quantidade: number, duracaoPropria: number): number[] =>
+  new Array(quantidade).fill(0).map((_, i) => Math.round((i * duracaoPropria) / quantidade));
+
 const MidiaDaCena: React.FC<{
   cena: Cena;
   t: number; // 0 a 1, progresso do movimento
   totalFrames: number;
-  duracaoVideoSeg?: number | null;
-}> = ({ cena, t, totalFrames, duracaoVideoSeg }) => {
-  const { fps } = useVideoConfig();
+  duracaoPropria: number;
+  duracoes?: Record<string, number | null>;
+}> = ({ cena, t, totalFrames, duracaoPropria, duracoes }) => {
+  const frame = useCurrentFrame();
   const { fonte } = cena;
   if (fonte.tipo === "solido") return null;
 
@@ -151,6 +180,7 @@ const MidiaDaCena: React.FC<{
   }${transformMovimento(cena.movimento, t)}`;
   const filtros = [
     cena.dessaturar ? "grayscale(1) contrast(1.05)" : "saturate(0.85) contrast(1.05)",
+    cena.aquecer ? `sepia(${cena.aquecer})` : "",
     cena.desfoque ? `blur(${cena.desfoque}px)` : "",
   ]
     .filter(Boolean)
@@ -165,15 +195,37 @@ const MidiaDaCena: React.FC<{
   let midia: React.ReactNode;
   if (fonte.tipo === "imagem") {
     midia = <Img src={staticFile(fonte.arquivo)} style={estiloMidia} />;
-  } else {
-    // Vídeo sempre mudo. Em loop se for mais curto que a cena; corta no fim
-    // da cena se for mais longo (a Sequence da cena já termina nesse ponto).
-    const frames = duracaoVideoSeg ? Math.max(1, Math.floor(duracaoVideoSeg * fps)) : totalFrames;
+  } else if (fonte.tipo === "video") {
     midia = (
-      <Loop durationInFrames={frames}>
-        <OffthreadVideo src={staticFile(fonte.arquivo)} muted style={estiloMidia} />
-      </Loop>
+      <VideoFundo
+        arquivo={fonte.arquivo}
+        duracaoSeg={duracoes?.[fonte.arquivo]}
+        frames={totalFrames}
+        esticar={cena.esticar}
+        estilo={estiloMidia}
+      />
     );
+  } else {
+    // Sequência: cada vídeo entra por cima do anterior com cross-fade; o último vai até o fim.
+    const inicios = fatiasSequencia(fonte.arquivos.length, duracaoPropria);
+    midia = fonte.arquivos.map((arquivo, i) => {
+      const de = Math.max(0, inicios[i] - (i > 0 ? FRAMES_CRUZAMENTO : 0));
+      const ate = i < inicios.length - 1 ? inicios[i + 1] : totalFrames;
+      const op = i > 0 ? interpolate(frame, [de, de + FRAMES_CRUZAMENTO], [0, 1], clamp) : 1;
+      return (
+        <Sequence key={arquivo} name={arquivo} from={de} durationInFrames={ate - de}>
+          <AbsoluteFill style={{ opacity: op }}>
+            <VideoFundo
+              arquivo={arquivo}
+              duracaoSeg={duracoes?.[arquivo]}
+              frames={ate - de}
+              esticar={cena.esticar}
+              estilo={estiloMidia}
+            />
+          </AbsoluteFill>
+        </Sequence>
+      );
+    });
   }
 
   return (
@@ -190,8 +242,8 @@ const CenaUnica: React.FC<{
   duracaoPropria: number; // frames em que a cena é a principal
   framesSaida: number; // transição da cena seguinte (a antiga fica por baixo)
   transicaoSeguinte?: TipoTransicao;
-  duracaoVideoSeg?: number | null;
-}> = ({ cena, duracaoPropria, framesSaida, transicaoSeguinte, duracaoVideoSeg }) => {
+  duracoes?: Record<string, number | null>;
+}> = ({ cena, duracaoPropria, framesSaida, transicaoSeguinte, duracoes }) => {
   const frame = useCurrentFrame();
   const total = duracaoPropria + framesSaida;
   const t = interpolate(frame, [0, total], [0, 1], clamp);
@@ -208,7 +260,7 @@ const CenaUnica: React.FC<{
         <AbsoluteFill style={{ ...saida }}>
           {/* Fundo verde-escuro da marca: base de toda cena (e a cena inteira quando é "solido"). */}
           <AbsoluteFill style={{ backgroundColor: COR.fundo }} />
-          <MidiaDaCena cena={cena} t={t} totalFrames={total} duracaoVideoSeg={duracaoVideoSeg} />
+          <MidiaDaCena cena={cena} t={t} totalFrames={total} duracaoPropria={duracaoPropria} duracoes={duracoes} />
           {/* Tingimento verde BEM LEVE (rodada 4): mistura só o tom do verde da marca, mantendo a
               luz da arte (blend "color"). A arte já foi dessaturada em MidiaDaCena. */}
           {TINGIMENTO > 0 ? (
@@ -263,7 +315,7 @@ export const FundoCenas: React.FC<{
               duracaoPropria={ate - de}
               framesSaida={framesSaida}
               transicaoSeguinte={seguinte?.transicao}
-              duracaoVideoSeg={cena.fonte.tipo === "video" ? duracoes?.[cena.fonte.arquivo] : undefined}
+              duracoes={duracoes}
             />
           </Sequence>
         );

@@ -359,6 +359,45 @@ a saída do fecho.
 A pílula **"O QUE NINGUÉM TE MOSTROU ANTES"**: é uma afirmação **não verificável** e **fora do áudio** (o
 narrador do `08-resposta` ainda diz outra frase, que a gente tirou da tela).
 
+## Rodada 6 (22/10/2026): ajustes por bloco
+
+Só as mudanças pedidas. Formato (1080x1920, 30 fps), vozes e tempo pelo áudio real continuam iguais.
+Duração atual: **2465 frames (82,2 s)**. Stills novos em `out/stills/apresentacao/*-r6.png`.
+
+| Bloco | O que mudou |
+|---|---|
+| 00/01 | Fundo agora é o clipe Higgsfield **A1** (`videos/cenas/a1-estudio.mp4`), escurecido 58%. Ele é esticado em câmera lenta (até 0,5x) para cobrir os ~10,6 s dos dois blocos sem repetir. Logo 3D e título continuam iguais. **Sem o arquivo, fica o verde-escuro liso.** |
+| 03 | Tabela do fundo com desfoque de 24 px (era 7 px) e 62% de escurecimento (era 8%): nenhum número legível. Os dois selos foram para o centro, empilhados, maiores, em duas linhas e com a mesma largura (84%). Os dois têm o mesmo check: círculo dourado cheio com tique verde-escuro. |
+| 05 | No lugar do trigo, sequência de clipes **A2 boi → A3 caminhonete → A4 soja**, em fatias iguais do bloco, com cross-fade de 10 frames e whoosh mais baixo (0,35) em cada troca. Escurecimento de 45%. O DIFÍCIL → FÁCIL E PRÁTICO não mudou. |
+| 06 | Lista nova, feita no editor (`ListaAtivos.tsx`), lendo `images/ativos-jr/ativos/ativos.json` (10 ativos). Ela rola de baixo para cima **durante a pergunta**; cada linha para no centro, ganha zoom leve (1,08) e uma varredura dourada. Quando a resposta começa, a lista vira textura desfocada e entra o contador "+400" (igual a antes, batendo com o "400" falado aos ~2 s). Rótulo: **"EXEMPLOS DE ATIVOS QUE ACOMPANHAMOS"**. Só logo, ticker e nome: **nenhum preço na tela**. Tiles creme, raio de 28 px, sem sombra. Fundo do bloco escurecido 70% (era 45%). |
+| 07 | Pílula: **"ELE INDICA O QUE COMPRAR E VENDER?"**. Riscado: **"DIZ O QUE COMPRAR"**. 1ª frase: **"MOSTRA O QUE FAZ"** (MOSTRA em dourado), entrando no "mostra" da fala (2,84 s). Fundo: dessaturado, puxado para o quente (sépia 0,45) e escurecido 50%; o azul/ciano sumiu. "A DECISÃO É DE CADA INVESTIDOR" igual. |
+| 08 | Saiu a pílula "O QUE NINGUÉM TE MOSTROU ANTES" (decisão do Matheus). Entraram os ícones **YouTube, TikTok, Instagram, Facebook e X** abaixo do logo: SVG desenhado à mão, monocromático creme. Entrada com fade, sobe e escala com mola, 4 frames entre cada ícone e flutuação leve. Saem por último, para baixo, no fecho. |
+
+### Assets Higgsfield
+Nenhum entrou ainda. O Matheus gera os clipes no site e salva com estes nomes:
+
+| Asset | Arquivo | Uso |
+|---|---|---|
+| A1 | `public/videos/cenas/a1-estudio.mp4` | blocos 00 e 01 |
+| A2 | `public/videos/cenas/a2-boi.mp4` | bloco 05, 1ª fatia |
+| A3 | `public/videos/cenas/a3-picape.mp4` | bloco 05, 2ª fatia |
+| A4 | `public/videos/cenas/a4-soja.mp4` | bloco 05, 3ª fatia |
+
+### Pendências da rodada 6
+- **Áudio 07:** o `07-pergunta.mp3` ainda diz o texto antigo. É preciso regerar no ElevenLabs com
+  "Ele indica o que comprar e vender?" e salvar com o mesmo nome. A duração se ajusta sozinha.
+- **Clipes A1 a A4:** faltam (ver tabela acima).
+- **Áudio 08:** o narrador ainda **fala** "aqui você vai ver o que ninguém te mostrou antes". A pílula
+  saiu da tela, mas a frase continua no áudio. Para tirar de vez, é preciso regerar o `08-resposta.mp3`
+  e conferir os tempos do bloco 08.
+- **Logos dos ativos:** os PNGs têm 132 px e são recortes com margem branca e enquadramento diferente
+  em cada um. Em alguns aparece uma faixa de outra cor embaixo (META, AVGO, TSLA). O ideal é refazer:
+  tile quadrado, sem margem e com 256 px ou mais.
+- **Cena 8 (bloco 08, não mexida nesta rodada):** o fundo tem números legíveis (ex.: "2022.97").
+  Isso quebra a regra "nenhum número legível".
+- **Fonte:** a regra fala em Fraunces Bold nos títulos, mas desde a rodada 4 o vídeo usa só Inter
+  (decisão anterior). Não mexi.
+
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.

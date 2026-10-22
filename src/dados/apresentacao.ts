@@ -51,7 +51,11 @@ export type Elemento =
     }
   | {
       // Bloco 06 (rodada 2): lista rolando no fundo + contador grande 0 → valorFinal.
+      // Rodada 6: durante a pergunta, a lista de ativos de REFERÊNCIA rola nítida (logos de
+      // arquivoAtivos), com realce dourado na linha do centro. Nunca preço na tela.
       tipo: "contadorLista";
+      arquivoAtivos: string; // relativo a public/: lista de { ticker, nome, logo }
+      rotuloLista: string; // "Exemplos de ativos que acompanhamos" (não "carteira"/"recomendados")
       valorFinal: number;
       prefixo: string;
       folgaFinalFrames: number; // o contador para tantos frames antes do narrador terminar
@@ -69,9 +73,17 @@ export type Elemento =
       marcaEmSegundos: number;
       logoEmSegundos: number; // o logo sobe do fundo e pousa junto com a assinatura
       pilula: string; // pílula chapada creme, texto #0F2A1D (entra quando a fala termina)
-      pilulaTopo: string; // pílula discreta abaixo da pergunta (entra junto com "Siga este canal")
       pilulaEmSegundos: number;
+      // Rodada 6: ícones das redes, monocromáticos, abaixo do logo. A pílula discreta
+      // "O que ninguém te mostrou antes" saiu (decisão do Matheus, 22/10/2026).
+      redes: RedeSocial[];
+      redesEmSegundos: number;
     };
+
+export type RedeSocial = "youtube" | "tiktok" | "instagram" | "facebook" | "x";
+
+// Uma linha do ativos.json do bloco 06 (logo: nome do arquivo na mesma pasta do JSON).
+export type Ativo = { ticker: string; nome: string; logo: string };
 
 // Moedas 3D caindo no fundo (blocos 02, 03 e 06): entre 2 e 4 por bloco.
 export type MoedasBloco = {
@@ -120,6 +132,9 @@ export type Movimento =
 export type FonteCena =
   | { tipo: "imagem"; arquivo: string } // relativo a public/
   | { tipo: "video"; arquivo: string } // relativo a public/; sempre mudo, em loop
+  // Rodada 6: vários vídeos, um depois do outro na mesma cena, com cross-fade e whoosh entre eles.
+  // Cada um ocupa a mesma fatia da cena. Arquivo que faltar = fatia só com o verde-escuro.
+  | { tipo: "sequencia"; arquivos: string[] }
   | { tipo: "solido" };
 
 export type Cena = {
@@ -136,6 +151,11 @@ export type Cena = {
   // Dessatura (grayscale) a arte. Rodada 5: só as cenas 1 e 8; as cenas 3, 5 e 7 ficam com a
   // cor natural. O tingimento verde por cima é a constante TINGIMENTO em FundoCenas.tsx.
   dessaturar?: boolean;
+  // Rodada 6: puxa a cor para o quente (sépia, 0 a 1), depois do dessaturar. Cena 7: tira o azul.
+  aquecer?: number;
+  // Rodada 6: vídeo mais curto que a cena toca mais devagar (até metade da velocidade) em vez de
+  // repetir. Cena 1: o clipe de ~6 s cobre os ~10,6 s dos blocos 00 e 01 em câmera lenta.
+  esticar?: boolean;
   // Reenquadra o fundo: escala e deslocamento (fração do quadro; +y = desce).
   enquadramento?: { escala: number; x: number; y: number };
   particulas?: boolean;
@@ -203,8 +223,9 @@ export const BLOCOS: Bloco[] = [
     elemento: {
       tipo: "cards",
       cards: [
-        { texto: "Seleção de ativos", destaque: "Seleção", emFracao: 0.12 },
-        { texto: "Valor intrínseco", destaque: "intrínseco", emFracao: 0.62 },
+        // Rodada 6: em duas linhas ("\n"), maiores e empilhados no centro.
+        { texto: "Seleção\nde ativos", destaque: "Seleção", emFracao: 0.12 },
+        { texto: "Valor\nintrínseco", destaque: "intrínseco", emFracao: 0.62 },
       ],
     },
   },
@@ -247,27 +268,37 @@ export const BLOCOS: Bloco[] = [
     contador: "6/8",
     texto: "+400 ativos filtrados e calculados",
     destaque: "+400",
-    elemento: { tipo: "contadorLista", valorFinal: 400, prefixo: "+", folgaFinalFrames: 15, passoPulso: 50 },
+    elemento: {
+      tipo: "contadorLista",
+      valorFinal: 400,
+      prefixo: "+",
+      folgaFinalFrames: 15,
+      passoPulso: 50,
+      arquivoAtivos: "images/ativos-jr/ativos/ativos.json",
+      rotuloLista: "Exemplos de ativos que acompanhamos",
+    },
     moedas: { semente: "bloco-06", aleatorias: 2 },
   },
   {
     id: "07",
     entrada: "esquerda",
     pergunta: {
-      texto: "Ele recomenda ou indica comprar ou vender?",
+      // Rodada 6 (22/10/2026): texto novo. O 07-pergunta.mp3 precisa ser regerado com ele.
+      texto: "Ele indica o que comprar e vender?",
       audio: `${A}07-pergunta.mp3`,
     },
     resposta: { audio: `${A}07-resposta.mp3` },
     contador: "7/8",
     elemento: {
       tipo: "contraste",
-      riscado: "Recomenda compra\nou venda", // "\n" = quebra de linha
+      riscado: "Diz o que comprar", // "\n" = quebra de linha
       riscoAposFrames: 14,
       duracaoRisco: 8,
       depoisDoRisco: "apagar",
       particulas: false,
       frases: [
-        { texto: "O que faz", destaque: "faz", icone: "check", estiloFaz: "dourado", emSegundos: 3.25 },
+        // Rodada 6: entra no "mostra" da fala (2,84 s, pela transcrição do Whisper).
+        { texto: "Mostra o que faz", destaque: "Mostra", icone: "check", estiloFaz: "dourado", emSegundos: 2.84 },
         { texto: "Como faz", destaque: "faz", icone: "engrenagem", estiloFaz: "contorno", emSegundos: 4.32 },
         { texto: "E por que faz", destaque: "faz", icone: "lampada", estiloFaz: "pulso", emSegundos: 5.43 },
       ],
@@ -293,8 +324,9 @@ export const BLOCOS: Bloco[] = [
       // O logo sobe ~1 s antes para POUSAR (fim da mola) junto com "MÉTODO JR." (5,29 s).
       logoEmSegundos: 4.55,
       pilula: "Em breve neste canal",
-      pilulaTopo: "O que ninguém te mostrou antes",
       pilulaEmSegundos: 7.7,
+      redes: ["youtube", "tiktok", "instagram", "facebook", "x"],
+      redesEmSegundos: 6.0, // logo depois do logo pousar com "MÉTODO JR." (5,29 s)
     },
   },
 ];
@@ -312,20 +344,20 @@ const ESCURECIMENTO = 0.08; // rodada 4: o mínimo para o texto ler (régua: blo
 
 export const CENAS: Cena[] = [
   {
-    // Vídeo do notebook com gráfico (cena 1). Reenquadrado: a escala e o
-    // deslocamento para baixo tiram o notebook de trás do logo (centro, em cima).
-    nome: "Cena 1: cena-1-not.mp4",
-    fonte: { tipo: "video", arquivo: `${V}cena-1-not.mp4` },
+    // Rodada 6: clipe Higgsfield A1 (estúdio escuro, vulto de chapéu de costas no notebook, sem
+    // rosto; suspense "em breve"). Escurecido 58% para o texto ler. Esticado em câmera lenta para
+    // cobrir os blocos 00 e 01. Sem o arquivo, a cena fica no verde-escuro liso.
+    nome: "Cena 1: a1-estudio.mp4",
+    fonte: { tipo: "video", arquivo: `${V}a1-estudio.mp4` },
     blocoInicial: "00",
     blocoFinal: "01",
-    movimento: { tipo: "zoom", de: 1, para: 1.1 },
+    movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "nenhuma",
     framesTransicao: 0,
-    escurecimento: ESCURECIMENTO,
+    escurecimento: 0.58,
     posicaoY: 50,
     desfoque: DESFOQUE_PADRAO,
-    dessaturar: true,
-    enquadramento: { escala: 1.55, x: 0, y: 0.27 },
+    esticar: true,
     particulas: true,
   },
   {
@@ -341,8 +373,8 @@ export const CENAS: Cena[] = [
     desfoque: DESFOQUE_PADRAO,
   },
   {
-    // Rodada 3: vídeo da bolsa (tabela de números). Os números são legíveis no
-    // original, então o desfoque é 7 px (rodada 5).
+    // Rodada 3: vídeo da bolsa (tabela de números). Rodada 6: com 7 px ainda dava para ler os
+    // números (inventados). Agora 24 px e 62% de escurecimento: só textura de luz, nenhum número.
     nome: "Cena 3: cena-3-bolsa.mp4",
     fonte: { tipo: "video", arquivo: `${V}cena-3-bolsa.mp4` },
     blocoInicial: "03",
@@ -350,9 +382,9 @@ export const CENAS: Cena[] = [
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "empurraoVertical",
     framesTransicao: 16,
-    escurecimento: ESCURECIMENTO,
+    escurecimento: 0.62,
     posicaoY: 50,
-    desfoque: DESFOQUE_TEXTO_LEGIVEL,
+    desfoque: 24,
   },
   {
     // Imagem de 940 px de largura (< 1170): zoom de 103% e pan menor.
@@ -369,16 +401,17 @@ export const CENAS: Cena[] = [
     raiosDeLuz: true,
   },
   {
-    // Rodada 3: vídeo do campo de trigo (cópia de 14 s em 1080x1920).
-    nome: "Cena 5: cena-5-trigo.mp4",
-    fonte: { tipo: "video", arquivo: `${V}cena-5-trigo.mp4` },
+    // Rodada 6: no lugar do trigo, três clipes Higgsfield do sertanejo em sequência, com
+    // cross-fade e whoosh entre eles: boi (A2) → caminhonete (A3) → soja (A4).
+    nome: "Cena 5: boi, caminhonete e soja",
+    fonte: { tipo: "sequencia", arquivos: [`${V}a2-boi.mp4`, `${V}a3-picape.mp4`, `${V}a4-soja.mp4`] },
     blocoInicial: "05",
     blocoFinal: "05",
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "deslizeEsquerda",
     framesTransicao: 14,
-    // 12% (e não 8%): o dourado do céu do trigo compete com o "FÁCIL" dourado.
-    escurecimento: 0.12,
+    // 45%: luz de fim de tarde dourada compete com o "FÁCIL" dourado.
+    escurecimento: 0.45,
     posicaoY: 50,
     desfoque: DESFOQUE_PADRAO,
     particulas: true,
@@ -391,13 +424,16 @@ export const CENAS: Cena[] = [
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "empurraoVertical",
     framesTransicao: 18,
-    escurecimento: 0.45,
+    // Rodada 6: 70% (era 45%) para os tiles dos ativos ficarem sobre o verde-escuro.
+    escurecimento: 0.7,
     posicaoY: 50,
     desfoque: DESFOQUE_PADRAO,
   },
   {
     // Rodada 3: vídeo do celular/tablet com gráficos (aparece texto legível,
     // como "BTC-USD"): desfoque de 7 px (rodada 5).
+    // Rodada 6: as velas eram azul/ciano (fora da paleta). Dessaturado, puxado para o quente
+    // (sépia) e escurecido 50%.
     nome: "Cena 7: cena-7-celular.mp4",
     fonte: { tipo: "video", arquivo: `${V}cena-7-celular.mp4` },
     blocoInicial: "07",
@@ -405,9 +441,11 @@ export const CENAS: Cena[] = [
     movimento: { tipo: "zoom", de: 1, para: 1.06 },
     transicao: "deslizeHorizontal",
     framesTransicao: 14,
-    escurecimento: ESCURECIMENTO,
+    escurecimento: 0.5,
     posicaoY: 50,
     desfoque: DESFOQUE_TEXTO_LEGIVEL,
+    dessaturar: true,
+    aquecer: 0.45,
   },
   {
     nome: "Cena 8: cena-8-linhas.mp4",

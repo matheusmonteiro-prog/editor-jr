@@ -3,7 +3,7 @@ import { AbsoluteFill, Easing, Html5Audio, interpolate, Sequence, staticFile, us
 import type { CalculateMetadataFunction } from "remotion";
 import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
 import { BLOCOS, CENAS, ESCALA_FINAL_LOGO, LOGO, SONS, VOLUMES } from "./dados/apresentacao";
-import type { Bloco } from "./dados/apresentacao";
+import type { Ativo, Bloco } from "./dados/apresentacao";
 import { acharBloco, montarLinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
 import { planoMoedas } from "./utils/moedasApresentacao";
 import {
@@ -30,7 +30,8 @@ import { ContadorImpacto } from "./components/apresentacao/ContadorImpacto";
 import { TextoRiscado } from "./components/apresentacao/TextoRiscado";
 import { Particulas } from "./components/apresentacao/Particulas";
 import { WipeBloco } from "./components/apresentacao/WipeBloco";
-import { ListaRolando } from "./components/apresentacao/ListaRolando";
+import { ListaAtivos } from "./components/apresentacao/ListaAtivos";
+import { IconesRedes } from "./components/apresentacao/IconesRedes";
 import { FraseIcone } from "./components/apresentacao/FraseIcone";
 import { TextoPulso } from "./components/apresentacao/TextoPulso";
 import { PilulaCta } from "./components/apresentacao/PilulaCta";
@@ -42,6 +43,8 @@ export type VideoApresentacaoProps = {
   // Preenchido pelo calculateMetadata (duração de cada áudio, em segundos;
   // null = arquivo não existe).
   duracoes?: Record<string, number | null>;
+  // Preenchido pelo calculateMetadata: lista de ativos do bloco 06 (vazia = arquivo não existe).
+  ativos?: Ativo[];
 };
 
 const FPS = 30;
@@ -60,7 +63,9 @@ const medirAudio = async (caminho: string): Promise<number | null> => {
 };
 
 export const calcularApresentacao: CalculateMetadataFunction<VideoApresentacaoProps> = async ({ props }) => {
-  const videosDeFundo = CENAS.flatMap((c) => (c.fonte.tipo === "video" ? [c.fonte.arquivo] : []));
+  const videosDeFundo = CENAS.flatMap((c) =>
+    c.fonte.tipo === "video" ? [c.fonte.arquivo] : c.fonte.tipo === "sequencia" ? c.fonte.arquivos : [],
+  );
   const caminhos = [
     ...BLOCOS.flatMap((b) => [b.pergunta?.audio, b.resposta.audio]).filter((c): c is string => typeof c === "string"),
     ...videosDeFundo,
@@ -69,7 +74,21 @@ export const calcularApresentacao: CalculateMetadataFunction<VideoApresentacaoPr
   const duracoes: Record<string, number | null> = {};
   caminhos.forEach((c, i) => (duracoes[c] = medidas[i]));
   const linha = montarLinhaDoTempo(BLOCOS, duracoes, FPS);
-  return { durationInFrames: linha.total, fps: FPS, props: { ...props, duracoes } };
+  return { durationInFrames: linha.total, fps: FPS, props: { ...props, duracoes, ativos: await lerAtivos() } };
+};
+
+// Lista de ativos do bloco 06 (public/…/ativos.json). Sem o arquivo, a lista fica vazia.
+const lerAtivos = async (): Promise<Ativo[]> => {
+  const el = BLOCOS.find((b) => b.elemento.tipo === "contadorLista")?.elemento;
+  if (!el || el.tipo !== "contadorLista") return [];
+  try {
+    const resposta = await fetch(staticFile(el.arquivoAtivos));
+    if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+    return (await resposta.json()) as Ativo[];
+  } catch {
+    console.warn(`VideoApresentacao: "${el.arquivoAtivos}" não existe ou não abriu; bloco 06 sem lista.`);
+    return [];
+  }
 };
 
 // Marca na timeline do Studio onde entra um som. Sem arquivo, fica mudo.
@@ -112,7 +131,7 @@ const el0 = (t: BlocoNoTempo, bloco: Bloco): number => {
   return cta.tipo === "cta" ? t.respostaInicio + Math.round(cta.pilulaEmSegundos * 30) + 20 : t.duracao - 14;
 };
 
-const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }) => {
+const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[] }> = ({ bloco, t, ativos }) => {
   const resp = t.respostaInicio + 2; // a resposta aparece com os primeiros 2 frames do narrador
   const fimTexto = saidaTexto(t, (bloco.texto ?? "").split(/\s+/).length);
   const fimElementos = t.duracao - 14;
@@ -184,8 +203,11 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
               destaque={card.destaque}
               inicio={Math.round(resp + t.respostaFrames * card.emFracao)}
               saida={fimElementos + i * 3}
-              top={0.38 + i * 0.12}
-              tamanho={0.072}
+              // Rodada 6: os dois selos empilhados no centro vertical, iguais e maiores.
+              top={0.41 + i * 0.19}
+              tamanho={0.09}
+              largura={0.84}
+              checkCheio
             />
           ))}
         </>
@@ -276,7 +298,15 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
 
       {el.tipo === "contadorLista" && bloco.texto ? (
         <>
-          <ListaRolando />
+          {/* Rodada 6: a lista de ativos rola nítida durante a pergunta (a 1ª linha chega ao centro
+              logo depois da pílula; a última, quando a resposta começa) e vira textura atrás do contador. */}
+          <ListaAtivos
+            ativos={ativos}
+            pasta={el.arquivoAtivos.slice(0, el.arquivoAtivos.lastIndexOf("/"))}
+            primeiroNoCentro={14}
+            ultimoNoCentro={resp}
+          />
+          <TextoKinetic texto={el.rotuloLista} fonte="rotulo" inicio={4} saida={resp - 8} top={0.235} tamanho={0.036} intervalo={2} />
           {/* O contador para em +400 meio segundo (folgaFinalFrames) antes do narrador terminar. */}
           <ContadorImpacto
             valorFinal={el.valorFinal}
@@ -314,16 +344,6 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
         <>
           {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
-          {/* Pílula discreta logo abaixo da pergunta, junto com "SIGA ESTE CANAL" (sem dourado). */}
-          <PilulaCta
-            texto={el.pilulaTopo}
-            inicio={t.respostaInicio}
-            top={0.182}
-            tamanho={0.026}
-            discreta
-            saida={saidaCta + FRAMES_STAGGER_SAIDA}
-            saidaPara="cima"
-          />
           <TextoKinetic
             texto={el.chamada}
             fonte="titulo"
@@ -353,13 +373,24 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo }> = ({ bloco, t }
             top={0.415}
             tamanho={0.115}
           />
+          {/* Rodada 6: ícones das redes abaixo do logo; saem por último, para baixo. */}
+          <IconesRedes
+            redes={el.redes}
+            inicio={t.respostaInicio + Math.round(el.redesEmSegundos * 30)}
+            saida={saidaCta + 6 * FRAMES_STAGGER_SAIDA}
+            top={0.835}
+          />
         </>
       ) : null}
     </AbsoluteFill>
   );
 };
 
-const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number | null> }> = ({ linha, duracoes }) => {
+const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number | null>; ativos: Ativo[] }> = ({
+  linha,
+  duracoes,
+  ativos,
+}) => {
   const b00 = acharBloco(linha, "00");
   const b01 = acharBloco(linha, "01");
   const b08 = acharBloco(linha, "08");
@@ -407,7 +438,7 @@ const Camadas: React.FC<{ linha: LinhaDoTempo; duracoes: Record<string, number |
         return (
           <Sequence key={bloco.id} name={`Bloco ${bloco.id}`} from={t.inicio} durationInFrames={t.duracao}>
             <EntradaBloco direcao={bloco.entrada}>
-              <ConteudoBloco bloco={bloco} t={t} />
+              <ConteudoBloco bloco={bloco} t={t} ativos={ativos} />
             </EntradaBloco>
           </Sequence>
         );
@@ -501,7 +532,7 @@ const BrilhoLogoInicial: React.FC<{ fim: number; spotlightDe: number }> = ({ fim
   return <BrilhoRadial x={0.5} y={0.33} raio={0.55 + spot * 0.2} intensidade={(base + spot) * some} />;
 };
 
-export const VideoApresentacao: React.FC<VideoApresentacaoProps> = ({ duracoes }) => {
+export const VideoApresentacao: React.FC<VideoApresentacaoProps> = ({ duracoes, ativos }) => {
   const linha = montarLinhaDoTempo(BLOCOS, duracoes ?? {}, FPS);
-  return <Camadas linha={linha} duracoes={duracoes ?? {}} />;
+  return <Camadas linha={linha} duracoes={duracoes ?? {}} ativos={ativos ?? []} />;
 };
