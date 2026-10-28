@@ -9,7 +9,12 @@
 // baixa o vídeo quando ficar pronto.
 // Base: https://docs.higgsfield.ai/docs/models/kling-3/standard-text-to-video.md
 // (duração de 3 a 15 s; proporção 16:9, 9:16 ou 1:1; som "off" porque o vídeo usa só a narração).
-import { randomUUID } from "node:crypto";
+// Imagem de referência (image-to-video): node scripts/gerar-video.mjs --imagem https://... --prompt "texto" --saida a2-boi.mp4 [--duracao 3]
+//      Sem --confirmar, o modo --imagem só mostra a requisição e NÃO chama a API.
+//      Com --confirmar, envia o pedido (cobra crédito). Não aceita --proporcao (o endpoint não tem essa opção).
+// Para substituir um arquivo que já existe: --sobrescrever.
+// Base do modo imagem: https://docs.higgsfield.ai/docs/models/kling-3/standard-image-to-video.md
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -20,6 +25,7 @@ const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 dotenv.config({ path: path.join(RAIZ, ".env") });
 
 const ENDPOINT = "https://api.higgsfield.ai/kling-video/v3.0/std/text-to-video";
+const ENDPOINT_IMAGEM = "https://api.higgsfield.ai/kling-video/v3.0/std/image-to-video";
 const INTERVALO_MS = 10000;
 const LIMITE_MS = 30 * 60000; // vídeo demora: em 22/10/2026 a fila passou de 15 min
 const STATUS_FINAIS = ["completed", "failed", "nsfw", "canceled"];
@@ -63,6 +69,9 @@ async function main() {
   const saida = lerOpcao("--saida");
   const duracao = Number(lerOpcao("--duracao") ?? 3);
   const proporcao = lerOpcao("--proporcao") ?? "9:16";
+  let imagem = lerOpcao("--imagem");
+  const confirmar = process.argv.includes("--confirmar");
+  const sobrescrever = process.argv.includes("--sobrescrever");
   if (!saida || (!prompt && !retomar)) {
     console.log('Erro: passe --prompt "texto aqui" e --saida nome.mp4 (ou --saida nome.mp4 --retomar)');
     process.exit(1);
@@ -75,9 +84,28 @@ async function main() {
     console.log("Erro: --duracao precisa ser um número inteiro de 3 a 15");
     process.exit(1);
   }
+  if (process.argv.includes("--imagem") && !imagem) {
+    console.log("Erro: passe a URL depois de --imagem");
+    process.exit(1);
+  }
+  if (imagem) {
+    if (retomar) {
+      console.log("Erro: --retomar não aceita --imagem (o pedido salvo já guarda a imagem)");
+      process.exit(1);
+    }
+    if (!/^https:\/\/\S+$/.test(imagem)) {
+      console.log("Erro: --imagem precisa ser uma URL pública que comece com https://");
+      process.exit(1);
+    }
+    if (process.argv.includes("--proporcao")) {
+      console.log("Erro: --proporcao não existe no modo --imagem (esse endpoint não aceita proporção)");
+      process.exit(1);
+    }
+  }
+
   const destino = path.join(PASTA, saida);
-  if (existsSync(destino)) {
-    console.log(`Já existe: public/videos/cenas/${saida} (apague antes, se quiser gerar de novo)`);
+  if (existsSync(destino) && !sobrescrever) {
+    console.log(`Já existe: public/videos/cenas/${saida} (apague antes, ou use --sobrescrever)`);
     return;
   }
 
@@ -102,10 +130,14 @@ async function main() {
     const pedido = JSON.parse(await readFile(arquivoPedido, "utf8"));
     statusUrl = pedido.status_url;
     prompt = pedido.prompt;
+    imagem = pedido.imagem;
     console.log(`Retomando o pedido ${pedido.request_id} (sem enviar de novo)...`);
   } else {
     const catalogo = await lerCatalogo();
-    const existente = catalogo.find((entrada) => normalizar(entrada.prompt) === normalizar(prompt));
+    // No modo imagem, o mesmo prompt com outra imagem de referência é outro pedido.
+    const existente = catalogo.find(
+      (entrada) => normalizar(entrada.prompt) === normalizar(prompt) && (!imagem || entrada.referencia === imagem),
+    );
     if (existente) {
       console.log(`Já existe: ${existente.arquivo}`);
       return;
@@ -115,10 +147,29 @@ async function main() {
       return;
     }
 
-    const envio = await fetch(ENDPOINT, {
+    const corpo = imagem
+      ? { image_url: imagem, prompt, duration: duracao, sound: "off" }
+      : { prompt, duration: duracao, aspect_ratio: proporcao, sound: "off" };
+    const endpoint = imagem ? ENDPOINT_IMAGEM : ENDPOINT;
+    // No modo imagem, a chave sai de imagem + prompt: o mesmo pedido gera a mesma chave.
+    const chaveIdempotencia = imagem
+      ? createHash("sha256").update(`${imagem}\n${prompt.trim()}`).digest("hex")
+      : randomUUID();
+
+    if (imagem && !confirmar) {
+      console.log("Modo --imagem sem --confirmar: nada foi enviado. Requisição que seria feita:");
+      console.log(`POST ${endpoint}`);
+      console.log("Authorization: Key ****:**** (mesma autenticação do modo texto)");
+      console.log(`Idempotency-Key: ${chaveIdempotencia}`);
+      console.log(JSON.stringify(corpo, null, 2));
+      console.log("Para gerar de verdade, rode de novo com --confirmar (cobra crédito).");
+      return;
+    }
+
+    const envio = await fetch(endpoint, {
       method: "POST",
-      headers: { ...headers, "Idempotency-Key": randomUUID() },
-      body: JSON.stringify({ prompt, duration: duracao, aspect_ratio: proporcao, sound: "off" }),
+      headers: { ...headers, "Idempotency-Key": chaveIdempotencia },
+      body: JSON.stringify(corpo),
     });
     if (!envio.ok) {
       console.log(`Erro ao enviar: HTTP ${envio.status} ${await envio.text()}`);
@@ -133,7 +184,11 @@ async function main() {
     await mkdir(PASTA, { recursive: true });
     await writeFile(
       arquivoPedido,
-      JSON.stringify({ request_id: resposta.request_id, status_url: statusUrl, prompt: prompt.trim() }, null, 2) + "\n",
+      JSON.stringify(
+        { request_id: resposta.request_id, status_url: statusUrl, prompt: prompt.trim(), ...(imagem ? { imagem } : {}) },
+        null,
+        2,
+      ) + "\n",
     );
     console.log(`Enviado (${duracao} s, ${proporcao}). Pedido ${resposta.request_id} salvo. Aguardando...`);
   }
@@ -181,7 +236,11 @@ async function main() {
   // Relê o catálogo agora (outro processo pode ter escrito enquanto este esperava).
   if (prompt) {
     const catalogo = await lerCatalogo();
-    catalogo.push({ prompt: prompt.trim(), arquivo: `public/videos/cenas/${saida}` });
+    catalogo.push({
+      prompt: prompt.trim(),
+      arquivo: `public/videos/cenas/${saida}`,
+      ...(imagem ? { referencia: imagem } : {}),
+    });
     await writeFile(CATALOGO, JSON.stringify(catalogo, null, 2) + "\n");
   }
 

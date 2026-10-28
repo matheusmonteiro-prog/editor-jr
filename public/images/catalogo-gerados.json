@@ -1,0 +1,23 @@
+[
+  {
+    "prompt": "white background, single gold coin",
+    "arquivo": "public/images/higgsfield-1792669479529.png"
+  },
+  {
+    "prompt": "dark film studio at dusk, an elderly man around 60 wearing a wide-brim hat seen only as a silhouette from behind in a corner, typing on a laptop, face never visible, large monitor in the background glowing with blurred stock charts and candlesticks, no readable text or numbers, warm amber and deep green tones, suspense, slow dolly camera",
+    "arquivo": "public/videos/cenas/a1-estudio.mp4"
+  },
+  {
+    "prompt": "pickup truck crossing a dirt road in the countryside, golden dust in late afternoon light, no text",
+    "arquivo": "public/videos/cenas/a3-picape.mp4"
+  },
+  {
+    "prompt": "soybean field swaying in the wind at late afternoon, warm golden light, no text",
+    "arquivo": "public/videos/cenas/a4-soja.mp4"
+  },
+  {
+    "prompt": "The bull herd slowly moves forward toward the camera across the pasture. Subtle slow push-in. Natural grass movement in the light breeze. Documentary realism, no stylization, no text.",
+    "arquivo": "public/videos/cenas/a2-boi.mp4",
+    "referencia": "https://i.ibb.co/fG9Zw5HC/Cattle-Herd-Beneath-Expansive-Skies.png"
+  }
+]
