@@ -460,6 +460,41 @@ Teaser: `b08-teaser-r7.png`.
 - **`30` fixo que ficou:** `src/utils/sfxApresentacao.ts` (linhas 40, 49, 96 e 107) também converte segundos
   com `* 30`. Não estava na lista desta rodada; ficou como estava.
 
+## Rodada 8 (22/10/2026): bloco 06 com 15 ativos e CTA novo no bloco 08
+
+Só o que foi pedido. Formato, vozes e regras de marca iguais. Duração **2465 frames** com os áudios atuais (vai
+mudar quando o `08-resposta.mp3` novo entrar, porque a duração vem do áudio). Stills em
+`out/stills/apresentacao/*-r8.png`. **Nada renderizado em vídeo.**
+
+### O que mudou por bloco
+| Bloco | O que mudou |
+|---|---|
+| 06 | **15 ativos** (10 EUA + WEGE3, PETR3, VALE3, ITUB4, BBAS3). A pasta mudou para `public/images/ativos/` e o código apontava para a antiga (`images/ativos-jr/ativos/`): caminho corrigido em `src/dados/apresentacao.ts`. O `ativos.json` ainda tinha só 10 linhas; **acrescentei as 5 brasileiras** (nomes: WEG, Petrobras, Vale, Itaú Unibanco, Banco do Brasil). Para os 15 passarem durante a pergunta: a 1ª linha chega ao centro um pouco antes (frame 8; era 14), linhas mais próximas (passo 13% da largura; era 15,5%), ±5 linhas visíveis (eram ±4), área visível um pouco maior e parada no centro um pouco menor (45% do tempo de cada linha; era 55%). Cada linha fica ~8,6 frames (era ~12,7). Varredura dourada, rótulo e "sem preço" iguais. Contador e "+400 ATIVOS FILTRADOS E CALCULADOS" **não mudaram**. Stills `b06a-r8` e `b06b-r8` (rolando; o b06b mostra os brasileiros) e `b06c-r8` (contador). |
+| 08 | **CTA novo** para o áudio novo: "SIGA NAS REDES SOCIAIS" (creme, **Fraunces Bold**, grande, 2 linhas) → "E ATIVE AS NOTIFICAÇÕES" (Inter 600, pequeno e discreto, 80% de opacidade) → "EM BREVE, O" (Inter 600, pequeno) → **"MÉTODO JR"** (dourado, gigante: ~159 px de letra, era ~143 px; **sem o ponto final**). Hierarquia: MÉTODO JR > SIGA NAS REDES SOCIAIS > E ATIVE AS NOTIFICAÇÕES. As variações "a" e "b" da rodada 7 agora mudam **só o movimento** de "MÉTODO JR" (`VARIACAO_CTA`). **Teaser "O QUE NINGUÉM TE MOSTROU ANTES" removido** (o texto novo do áudio não tem essa frase). **Pílula "EM BREVE NESTE CANAL"** no padrão das outras pílulas: fundo #0F2A1D, borda dourada fina, texto creme. **Ícones das redes ~1,8x maiores** (6% → 11% da largura), mesmo estilo e mesma entrada escalonada. Stills `b08a-r8` / `b08b-r8` (CTA completo em cada variação), `b08a-flash-r8` / `b08b-flash-r8` (MÉTODO JR entrando) e `b08-inter-r8` (alternativa com a chamada em Inter, para comparar). |
+
+### Texto novo do áudio 08
+"Siga nas redes sociais e ative as notificações. Em breve, o Método JR."
+**O áudio novo ainda não está na pasta**: o `public/audio/apresentacao/08-resposta.mp3` atual é o de 20/10 (7,81 s,
+o texto antigo). Por isso **não deu para transcrever com o Whisper** nem sincronizar. Os tempos do CTA em
+`src/dados/apresentacao.ts` são **estimados** pelo ritmo do narrador (E ATIVE 1,6 s; EM BREVE 3,6 s; MÉTODO JR 4,3 s;
+logo 3,55 s; redes 5,0 s; pílula 6,3 s). Quando o áudio novo entrar, medir com o Whisper e trocar.
+
+### MT1 e MT2 (rodada 7) conferidos
+- **MT1:** nenhum `* 30` nem `/ 30` sobrou em `src/VideoApresentacao.tsx` e `RaiosDeLuz.tsx` (todos com `fps`).
+- **MT2:** `public/images/logo-jr-escuro.png` existe e o `Logo3D` usa esse PNG nas 6 camadas de espessura (sem filtro CSS).
+
+### Pendências da rodada 8
+- **Áudio `08-resposta.mp3` novo:** falta. Depois de entrar: Whisper, ajustar os segundos do CTA e refazer os stills do 08.
+- **Pílula "EM BREVE NESTE CANAL": proposta = REMOVER.** Com "EM BREVE, O MÉTODO JR" no centro, a pílula repete
+  "em breve". Ficou no novo padrão até o Matheus decidir. Removê-la mexe no fecho (a saída dos elementos e o logo
+  crescendo começam 20 frames depois da pílula): precisa de outro marco para o fecho.
+- **Fonte da chamada:** a Fraunces Bold foi pedida nesta rodada, mas o vídeo usa **só Inter desde a rodada 4**. Ela
+  aparece só nessa linha. Para voltar à Inter: tirar `familia={FONTE_FRAUNCES}` e usar `peso={800}` (still `b08-inter-r8`).
+- **"Branco" = creme #F5F0E6**, que é o branco usado em todo o vídeo.
+- **Bandeiras do bloco 02:** os PNGs não chegaram; seguem os SVGs provisórios.
+- **Variação do CTA ("a" ou "b")** continua aberta.
+- **Bloco 04:** aprovado como está (gráfico acendendo no editor). Nada gerado na Higgsfield.
+
 ## Pendências
 - **Efeitos sonoros:** ligados na rodada 3 (ver acima). A **licença** da música e dos efeitos não foi verificada por mim.
 - **`software-recorte.png`** não existe: o bloco 04 está só com texto.
