@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { clamp } from "./utils/clamp";
 import { AbsoluteFill, Easing, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import type { CalculateMetadataFunction } from "remotion";
 import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
-import { BLOCOS, CENAS, ESCALA_FINAL_LOGO, LOGO, LOGO_ESCURO, SONS, VARIACAO_CTA, VOLUMES } from "./dados/apresentacao";
-import type { Ativo, Bloco } from "./dados/apresentacao";
-import { acharBloco, montarLinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
+import { BLOCOS, CENAS, ESCALA_FINAL_LOGO, FPS, LOGO, LOGO_ESCURO, SONS, VARIACAO_CTA, VOLUMES } from "./dados/apresentacao";
+import type { Ativo, Bloco, CardCheck, MarcaDeTempo } from "./dados/apresentacao";
+import { acharBloco, frameDaMarca, montarLinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
 import { planoMoedas } from "./utils/moedasApresentacao";
 import {
   FRAMES_CRESCER_LOGO,
@@ -13,7 +14,6 @@ import {
   eventosSfx,
   inicioCrescerLogo,
   inicioVoltaLogo,
-  saidaFechoRelativa,
 } from "./utils/sfxApresentacao";
 import type { EventoSfx } from "./utils/sfxApresentacao";
 import type { BlocoNoTempo, LinhaDoTempo } from "./utils/linhaDoTempoApresentacao";
@@ -27,7 +27,8 @@ import { BrilhoRadial } from "./components/apresentacao/BrilhoRadial";
 import { Moeda3D } from "./components/apresentacao/Moeda3D";
 import { CardCheckFlip } from "./components/apresentacao/CardCheckFlip";
 import { Bandeira3D } from "./components/apresentacao/Bandeira3D";
-import { IconeEtf } from "./components/apresentacao/IconeEtf";
+import { GraficoVelas } from "./components/apresentacao/GraficoVelas";
+import { PizzaGomos } from "./components/apresentacao/PizzaGomos";
 import { EsteiraAtivos } from "./components/apresentacao/EsteiraAtivos";
 import { ConvergenciaValor } from "./components/apresentacao/ConvergenciaValor";
 import { ContadorImpacto } from "./components/apresentacao/ContadorImpacto";
@@ -38,7 +39,10 @@ import { ListaAtivos } from "./components/apresentacao/ListaAtivos";
 import { IconesRedes } from "./components/apresentacao/IconesRedes";
 import { FraseIcone } from "./components/apresentacao/FraseIcone";
 import { MarcaCta } from "./components/apresentacao/MarcaCta";
-import { PilulaCta } from "./components/apresentacao/PilulaCta";
+import { GrupoCaindo } from "./components/apresentacao/GrupoCaindo";
+import { BotaoSeguir } from "./components/apresentacao/BotaoSeguir";
+import { SinoNotificacao } from "./components/apresentacao/SinoNotificacao";
+import { CompartilharPessoas } from "./components/apresentacao/CompartilharPessoas";
 
 // Vídeo de apresentação do JR: pergunta e resposta, sem câmera.
 // Dados em src/dados/apresentacao.ts; duração calculada pelos áudios reais.
@@ -54,7 +58,6 @@ export type VideoApresentacaoProps = {
   variacaoCta?: "a" | "b";
 };
 
-const FPS = 30;
 const DURACAO_WIPE = 10;
 
 // Duração de um áudio ou vídeo de public/ com Mediabunny (forma indicada pela
@@ -74,7 +77,9 @@ export const calcularApresentacao: CalculateMetadataFunction<VideoApresentacaoPr
     c.fonte.tipo === "video" ? [c.fonte.arquivo] : c.fonte.tipo === "sequencia" ? c.fonte.arquivos : [],
   );
   const caminhos = [
-    ...BLOCOS.flatMap((b) => [b.pergunta?.audio, b.resposta.audio]).filter((c): c is string => typeof c === "string"),
+    ...BLOCOS.flatMap((b) => [b.pergunta?.audio, b.resposta.audio, ...(b.resposta.seguintes ?? []).map((x) => x.audio)]).filter(
+      (c): c is string => typeof c === "string",
+    ),
     ...videosDeFundo,
   ];
   const medidas = await Promise.all(caminhos.map(medirAudio));
@@ -108,7 +113,7 @@ const MarcaSom: React.FC<{ evento: EventoSfx }> = ({ evento }) => {
       durationInFrames={FRAMES_SFX[evento.tipo]}
       layout="none"
     >
-      {arquivo ? <Html5Audio src={staticFile(arquivo)} volume={() => evento.volume} /> : null}
+      {arquivo ? <Html5Audio src={staticFile(arquivo)} volume={() => evento.volume} playbackRate={evento.velocidade ?? 1} /> : null}
     </Sequence>
   );
 };
@@ -120,7 +125,6 @@ const saidaTexto = (b: BlocoNoTempo, palavras: number) => b.duracao - (12 + pala
 const EntradaBloco: React.FC<{ direcao?: Bloco["entrada"]; children: React.ReactNode }> = ({ direcao, children }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const e = interpolate(frame, [0, 14], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
   const d = 1 - e;
   const x = direcao === "direita" ? d * width * 0.4 : direcao === "esquerda" ? -d * width * 0.4 : 0;
@@ -133,16 +137,35 @@ const EntradaBloco: React.FC<{ direcao?: Bloco["entrada"]; children: React.React
 };
 
 // Início da saída do fecho (bloco 08), relativo ao bloco; nos outros blocos não é usado.
-const el0 = (t: BlocoNoTempo, bloco: Bloco, fps: number): number => {
+const el0 = (t: BlocoNoTempo, bloco: Bloco): number => {
   const cta = bloco.elemento;
-  return cta.tipo === "cta" ? t.respostaInicio + Math.round(cta.pilulaEmSegundos * fps) + 20 : t.duracao - 14;
+  return cta.tipo === "cta" ? t.respostaInicio + t.respostaFrames + cta.cartela.fechoDepoisFrames : t.duracao - 14;
 };
 
-// Rodada 7: posições do CTA do bloco 08 em cada variação (fração da altura; tamanho em fração da largura).
+// Rodada 9: posições do CTA do bloco 08 (topo em fração da altura; tamanho em fração da largura).
+// Tipografia em CAIXA ALTA (Anton / Alfa Slab One), pendente de aprovação do JR. Hierarquia: "MÉTODO JR"
+// (o maior texto) > "EM BREVE" > os grupos que caem. As variações "a" e "b" mudam só o movimento de "MÉTODO JR".
 const LAYOUT_CTA = {
-  a: { chamada: { top: 0.215, tamanho: 0.105 }, acompanhe: 0.355, marca: 0.39 },
-  b: { chamada: { top: 0.27, tamanho: 0.07 }, acompanhe: 0.33, marca: 0.36 },
+  // Os grupos que caem ocupam o mesmo palco, abaixo da pílula da pergunta e acima do logo.
+  grupo: {
+    top: 0.2,
+    tamanhoSiga: 0.2,
+    tamanhoTexto: 0.1,
+    tamanhoNovidade: 0.06,
+    topNovidade: 0.225,
+    iconeSiga: 0.352,
+    iconeNotificacoes: 0.335,
+    iconeCompartilhe: 0.31,
+  },
+  emBreve: { top: 0.285, tamanho: 0.1 },
+  marca: { top: 0.355, tamanho: 0.2 },
 } as const;
+// Rodada 9: posição vertical dos 3 cards do bloco 02 (fração da altura). Espaço maior entre eles; "BRASIL E EUA"
+// desce um pouco mais.
+const TOPO_CARDS_02 = [0.48, 0.6, 0.745];
+
+// Rodada 9: ponto da faixa de fundo em que a música começa (1:35), em segundos.
+const INICIO_TRILHA_SEGUNDOS = 95;
 
 const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; variacaoCta: "a" | "b" }> = ({
   bloco,
@@ -156,13 +179,23 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
   const fimElementos = t.duracao - 14;
   // Fecho do bloco 08 (rodada 5d): frame (relativo ao bloco) em que os elementos começam a sair,
   // um de cada vez (stagger), os de cima para cima e os de baixo para baixo.
-  const saidaCta = el0(t, bloco, fps);
+  const saidaCta = el0(t, bloco);
+  // Momento da fala (áudio 1, 2 ou 3, em segundos desde o início do arquivo) → frame relativo ao bloco,
+  // já descontando o silêncio cortado do começo de cada áudio.
+  const noMarca = (m: MarcaDeTempo) => frameDaMarca(t, m, fps);
+  // Frame em que um card entra: na hora da palavra (emSegundos, Whisper) ou numa fração da fala.
+  const entradaDoCard = (card: CardCheck) =>
+    card.emSegundos !== undefined
+      ? t.respostaInicio + Math.round(card.emSegundos * fps)
+      : Math.round(resp + t.respostaFrames * (card.emFracao ?? 0));
   const el = bloco.elemento;
+  // O sorteio das moedas é fixo (semente do bloco): calculado uma vez, não a cada frame.
+  const moedas = useMemo(() => planoMoedas(bloco.moedas, t), [bloco.moedas, t]);
 
   return (
     <AbsoluteFill>
       {/* Moedas caindo: por cima do fundo e por trás de todo o texto (entram primeiro). */}
-      {planoMoedas(bloco.moedas, t).map((m, i) => (
+      {moedas.map((m, i) => (
         <Moeda3D key={`moeda-${i}`} inicio={m.inicio} duracao={m.duracao} x={m.x} tamanho={m.tamanho} />
       ))}
 
@@ -190,40 +223,39 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
 
       {el.tipo === "contadorCards" ? (
         <>
+          {/* Rodada 9: o contador chega a 15 durante a palavra "15" da fala (1,34–1,75 s). */}
           <ContadorImpacto
             valorFinal={el.valorFinal}
             prefixo={el.prefixo}
             rotulo={el.rotulo}
             inicio={resp}
-            duracaoContagem={SONS.contador ? FRAMES_SFX.contador : 30}
+            duracaoContagem={45}
             curva="linear"
             saida={fimElementos}
             top={0.2}
           />
+          {/* 3 linhas (AÇÕES, ETFs, BRASIL E EUA), cada uma entra na hora da palavra. AÇÕES e ETFs ficam
+              alinhadas à ESQUERDA, com o ícone de gráfico saindo da borda direita do card; "BRASIL E EUA"
+              continua centralizado (com as bandeiras). */}
           {el.cards.map((card, i) => (
             <CardCheckFlip
               key={card.texto}
               texto={card.texto}
               destaque={card.destaque}
-              inicio={Math.round(resp + t.respostaFrames * card.emFracao)}
+              inicio={entradaDoCard(card)}
               saida={fimElementos + i * 3}
-              top={0.47 + i * 0.1}
+              top={TOPO_CARDS_02[i] ?? 0.74}
+              alinhar={card.icone ? "esquerda" : "centro"}
+              lateral={
+                card.icone === "velas" ? (
+                  <GraficoVelas largura={0.27} inicio={entradaDoCard(card) + 6} />
+                ) : card.icone === "pizza" ? (
+                  <PizzaGomos tamanho={0.2} inicio={entradaDoCard(card) + 6} />
+                ) : null
+              }
             />
           ))}
-          {/* Rodada 7: ícone de ETF à direita do card "AÇÕES E ETFS" (lado da palavra ETFS). */}
-          {el.cards.map((card, i) =>
-            card.icone === "etf" ? (
-              <IconeEtf
-                key={`icone-${card.texto}`}
-                x={0.915}
-                y={0.47 + i * 0.1}
-                tamanho={0.085}
-                inicio={Math.round(resp + t.respostaFrames * card.emFracao) + 8}
-                saida={fimElementos + i * 3}
-              />
-            ) : null,
-          )}
-          {/* Rodada 7: bandeiras 3D dos dois lados do card, entrando logo depois dele. */}
+          {/* Bandeiras 3D dos dois lados da linha, entrando logo depois dela. */}
           {el.cards.flatMap((card, i) =>
             (card.bandeiras ?? []).map((b, k) => (
               <Bandeira3D
@@ -232,9 +264,9 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
                 proporcao={b.proporcao}
                 lado={k === 0 ? "esquerda" : "direita"}
                 x={k === 0 ? 0.105 : 0.895}
-                y={0.47 + i * 0.1}
+                y={TOPO_CARDS_02[i] ?? 0.74}
                 largura={0.15}
-                inicio={Math.round(resp + t.respostaFrames * card.emFracao) + 6 + k * 4}
+                inicio={entradaDoCard(card) + 6 + k * 4}
                 saida={fimElementos + i * 3}
               />
             )),
@@ -247,7 +279,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
           {/* Rodada 7: motion de cada selo, POR TRÁS dos selos. A esteira passa entre os dois selos
               (logo abaixo do 1º); a convergência fica logo abaixo do 2º. Começam quando o selo acende. */}
           {el.cards.map((card) => {
-            const entra = Math.round(resp + t.respostaFrames * card.emFracao) + 10;
+            const entra = entradaDoCard(card) + 10;
             if (card.animacao === "esteira") {
               return (
                 <EsteiraAtivos
@@ -271,7 +303,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
               key={card.texto}
               texto={card.texto}
               destaque={card.destaque}
-              inicio={Math.round(resp + t.respostaFrames * card.emFracao)}
+              inicio={entradaDoCard(card)}
               saida={fimElementos + i * 3}
               // Rodada 6: os dois selos empilhados no centro vertical, iguais e maiores.
               // Rodada 7: um pouco mais afastados (0,41/0,60 → 0,38/0,62) para a esteira caber entre eles.
@@ -374,7 +406,7 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
           <ListaAtivos
             ativos={ativos}
             pasta={el.arquivoAtivos.slice(0, el.arquivoAtivos.lastIndexOf("/"))}
-            primeiroNoCentro={14}
+            primeiroNoCentro={8}
             ultimoNoCentro={resp}
           />
           <TextoKinetic texto={el.rotuloLista} fonte="rotulo" inicio={4} saida={resp - 8} top={0.235} tamanho={0.036} intervalo={2} />
@@ -410,69 +442,101 @@ const ConteudoBloco: React.FC<{ bloco: Bloco; t: BlocoNoTempo; ativos: Ativo[]; 
       ) : null}
 
       {el.tipo === "cta" ? (
-        // Bloco 08: chamada final. Cada parte entra no momento da fala (tempos em segundos
-        // desde o início do áudio da resposta). Só "MÉTODO JR." é dourado.
+        // Bloco 08: a chamada vem em grupos que caem de cima e saem caindo, cada um no tempo da fala
+        // (dois áudios). Depois da fala, sem áudio: "EM BREVE", "MÉTODO JR" e o fecho.
         <>
           {/* Partículas douradas SUBINDO, leves, o bloco todo (único bloco com partículas subindo). */}
           <Particulas semente="cta-subindo" quantidade={34} opacidade={0.75} tamanhoMax={0.0065} />
-          {/* Rodada 7: teaser durante a pergunta. Entra palavra por palavra em escala, fica ~1 s e
-              sai crescendo e sumindo logo antes de "SIGA ESTE CANAL". */}
-          <TextoKinetic
-            texto={el.teaser}
-            fonte="titulo"
-            entrada="escala"
-            saidaModo="escala"
-            damping={10}
-            pulsoPalavra={{ palavra: "ninguém", escala: 1.15 }}
-            inicio={el.teaserEntraFrame}
-            saida={t.respostaInicio - 25}
-            top={0.37}
-            tamanho={0.08}
-            larguraMax={0.94}
+          {/* 1. SIGA (áudio 1) + botão SEGUIR → SEGUINDO. */}
+          <GrupoCaindo
+            texto={el.siga.texto}
+            inicio={noMarca(el.siga.entra)}
+            saida={noMarca(el.siga.sai)}
+            top={LAYOUT_CTA.grupo.top}
+            tamanho={LAYOUT_CTA.grupo.tamanhoSiga}
+          >
+            <BotaoSeguir y={LAYOUT_CTA.grupo.iconeSiga} toque={noMarca(el.siga.toque)} />
+          </GrupoCaindo>
+          {/* 2. AS REDES SOCIAIS (áudio 2); os ícones do rodapé pulsam em "sociais". */}
+          <GrupoCaindo
+            texto={el.redes.texto}
+            destaque={el.redes.destaque}
+            inicio={noMarca(el.redes.entra)}
+            saida={noMarca(el.redes.sai)}
+            top={LAYOUT_CTA.grupo.top}
+            tamanho={LAYOUT_CTA.grupo.tamanhoTexto}
           />
-          <TextoKinetic
-            texto={el.chamada}
-            fonte="titulo"
-            damping={12}
-            inicio={t.respostaInicio}
-            saida={saidaCta + 2 * FRAMES_STAGGER_SAIDA}
-            top={LAYOUT_CTA[variacaoCta].chamada.top}
-            tamanho={LAYOUT_CTA[variacaoCta].chamada.tamanho}
+          {/* 3. COMPARTILHE: ícone de compartilhar, seta e 3 pessoas. */}
+          <GrupoCaindo
+            texto={el.compartilhe.texto}
+            inicio={noMarca(el.compartilhe.entra)}
+            saida={noMarca(el.compartilhe.sai)}
+            top={LAYOUT_CTA.grupo.top}
+            tamanho={LAYOUT_CTA.grupo.tamanhoTexto}
+          >
+            <CompartilharPessoas
+              y={LAYOUT_CTA.grupo.iconeCompartilhe}
+              seta={noMarca(el.compartilhe.seta)}
+              pessoas={el.compartilhe.pessoas.map(noMarca)}
+            />
+          </GrupoCaindo>
+          {/* 4. ATIVE AS NOTIFICAÇÕES: sino que balança. */}
+          <GrupoCaindo
+            texto={el.notificacoes.texto}
+            destaque={el.notificacoes.destaque}
+            inicio={noMarca(el.notificacoes.entra)}
+            saida={noMarca(el.notificacoes.sai)}
+            top={LAYOUT_CTA.grupo.top}
+            tamanho={LAYOUT_CTA.grupo.tamanhoTexto}
+          >
+            <SinoNotificacao y={LAYOUT_CTA.grupo.iconeNotificacoes} balanco={noMarca(el.notificacoes.balanco)} />
+          </GrupoCaindo>
+          {/* 5. PARA NÃO PERDER NENHUMA NOVIDADE: linha menor, sai ao fim do áudio 2. */}
+          <GrupoCaindo
+            texto={el.novidade.texto}
+            inicio={noMarca(el.novidade.entra)}
+            saida={noMarca(el.novidade.sai)}
+            top={LAYOUT_CTA.grupo.topNovidade}
+            tamanho={LAYOUT_CTA.grupo.tamanhoNovidade}
           />
-          <TextoKinetic
-            texto={el.acompanhe}
-            fonte="rotulo"
-            damping={12}
-            inicio={t.respostaInicio + Math.round(el.acompanheEmSegundos * fps)}
+          {/* 6. Cartela final (áudio 3): "EM BREVE" cai na palavra "Em breve"; "MÉTODO JR" entra com impacto em "Método JR". */}
+          <GrupoCaindo
+            texto={el.cartela.emBreve}
+            inicio={noMarca(el.cartela.emBreveEm)}
             saida={saidaCta + 3 * FRAMES_STAGGER_SAIDA}
-            top={LAYOUT_CTA[variacaoCta].acompanhe}
-            tamanho={0.042}
+            framesSaida={10}
+            saidaPara="cima"
+            espaco="0.1em"
+            top={LAYOUT_CTA.emBreve.top}
+            tamanho={LAYOUT_CTA.emBreve.tamanho}
           />
           <MarcaCta
-            texto={el.marca}
+            texto={el.cartela.marca}
             variante={variacaoCta}
-            inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * fps)}
+            inicio={noMarca(el.cartela.marcaEm)}
             saida={saidaCta + 4 * FRAMES_STAGGER_SAIDA}
-            top={LAYOUT_CTA[variacaoCta].marca}
-            tamanho={0.14}
+            top={LAYOUT_CTA.marca.top}
+            tamanho={LAYOUT_CTA.marca.tamanho}
           />
           {variacaoCta === "b" ? (
             <Particulas
               modo="explosao"
               quantidade={40}
               semente="metodo-jr"
-              inicio={t.respostaInicio + Math.round(el.marcaEmSegundos * fps) + 4}
+              inicio={noMarca(el.cartela.marcaEm) + 4}
               duracao={36}
-              centroY={LAYOUT_CTA.b.marca + 0.04}
+              centroY={LAYOUT_CTA.marca.top + 0.05}
               tamanhoMax={0.009}
             />
           ) : null}
-          {/* Rodada 6: ícones das redes abaixo do logo; saem por último, para baixo. */}
+          {/* Ícones das redes: entram em "redes sociais", pulsam em "sociais" e ficam até o fecho. */}
           <IconesRedes
-            redes={el.redes}
-            inicio={t.respostaInicio + Math.round(el.redesEmSegundos * fps)}
+            redes={el.redesSociais}
+            inicio={noMarca(el.redes.entra)}
+            pulsoEm={noMarca(el.redes.pulsoIcones)}
             saida={saidaCta + 6 * FRAMES_STAGGER_SAIDA}
-            top={0.835}
+            top={0.845}
+            tamanho={0.11}
           />
         </>
       ) : null}
@@ -491,11 +555,18 @@ const Camadas: React.FC<{
   const b01 = acharBloco(linha, "01");
   const b08 = acharBloco(linha, "08");
   const inicioVoo = b01.inicio + b01.duracao - 22;
-  const eventos = eventosSfx(linha);
+  // Pontos de som e marcos do fecho dependem só da linha do tempo: calculados uma vez, não a cada frame.
+  const { eventos, inicioVolta, inicioCrescer } = useMemo(
+    () => ({
+      eventos: eventosSfx(linha, fps),
+      inicioVolta: inicioVoltaLogo(linha, fps),
+      inicioCrescer: inicioCrescerLogo(linha),
+    }),
+    [linha, fps],
+  );
   // Volume da música: fade-in, 0,20 até o bloco 07, 0,35 no bloco 08, fade-out no fim, e
   // ducking: baixa para 0,15 (na proporção) enquanto qualquer efeito toca.
   const volumeMusica = (f: number) => {
-    const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
     const entrada = interpolate(f, [0, VOLUMES.fadeInMusicaFrames], [0, 1], clamp);
     const saida = interpolate(f, [linha.total - VOLUMES.fadeOutMusicaFrames, linha.total], [1, 0], clamp);
     // Bloco 08: 0,12 durante a fala; depois que ela termina, sobe devagar até o máximo de 0,28.
@@ -513,8 +584,6 @@ const Camadas: React.FC<{
     return base * fator * entrada * saida;
   };
 
-  const inicioVolta = inicioVoltaLogo(linha);
-  const ctaFinal = BLOCOS.find((b) => b.id === "08")?.elemento;
 
   return (
     <AbsoluteFill
@@ -548,24 +617,11 @@ const Camadas: React.FC<{
           inicioVoo={inicioVoo}
           inicioVolta={inicioVolta}
           centroFinal={{ x: 0.5, y: 0.585, largura: 0.55 }}
-          crescerInicio={inicioCrescerLogo(linha)}
-          crescerFim={inicioCrescerLogo(linha) + FRAMES_CRESCER_LOGO}
+          crescerInicio={inicioCrescer}
+          crescerFim={inicioCrescer + FRAMES_CRESCER_LOGO}
           escalaFinal={ESCALA_FINAL_LOGO}
         />
       </Sequence>
-
-      {/* Pílula "EM BREVE NESTE CANAL": fica POR CIMA do logo, que cresce por trás dela no fim. */}
-      {ctaFinal && ctaFinal.tipo === "cta" ? (
-        <Sequence name="Pílula EM BREVE" from={b08.inicio} durationInFrames={b08.duracao}>
-          <PilulaCta
-            texto={ctaFinal.pilula}
-            inicio={b08.respostaInicio + Math.round(ctaFinal.pilulaEmSegundos * fps)}
-            saida={saidaFechoRelativa(linha) + 5 * FRAMES_STAGGER_SAIDA}
-            saidaPara="baixo"
-            top={0.735}
-          />
-        </Sequence>
-      ) : null}
 
       {/* Wipe diagonal em cada troca de bloco, encavalado com a pílula seguinte. */}
       {linha.blocos.slice(1).map((t) => (
@@ -586,15 +642,19 @@ const Camadas: React.FC<{
                 <Html5Audio src={staticFile(bloco.pergunta.audio)} />
               </Sequence>
             ) : null}
-            {t.respostaExiste ? (
-              <Sequence name={`Voz resposta ${bloco.id}`} from={t.inicio + t.respostaInicio} durationInFrames={t.respostaFrames}>
-                <Html5Audio src={staticFile(bloco.resposta.audio)} />
+            {/* Cada áudio da resposta: o silêncio do começo é cortado por código (startFrom) e o do fim,
+                pela duração da Sequence; os arquivos originais não são editados. */}
+            {t.partes.map((parte, k) => (
+              <Sequence
+                key={parte.audio}
+                name={`Voz resposta ${k + 1} ${bloco.id}${parte.existe ? "" : " (FALTA ARQUIVO, mudo)"}`}
+                from={t.inicio + parte.inicio}
+                durationInFrames={parte.frames}
+                layout={parte.existe ? undefined : "none"}
+              >
+                {parte.existe ? <Html5Audio src={staticFile(parte.audio)} startFrom={Math.round(parte.corteDe * fps)} /> : null}
               </Sequence>
-            ) : (
-              <Sequence name={`Voz resposta ${bloco.id} (FALTA ARQUIVO, mudo)`} from={t.inicio + t.respostaInicio} durationInFrames={t.respostaFrames} layout="none">
-                {null}
-              </Sequence>
-            )}
+            ))}
           </React.Fragment>
         );
       })}
@@ -607,7 +667,8 @@ const Camadas: React.FC<{
       {/* Música de fundo: do frame 0, sem loop (é mais longa que o vídeo), fade-in e fade-out. */}
       {SONS.trilha ? (
         <Sequence name="Música de fundo">
-          <Html5Audio src={staticFile(SONS.trilha)} volume={volumeMusica} />
+          {/* Rodada 9: a faixa começa no ponto 1:35 (95 s), não no início do arquivo. */}
+          <Html5Audio src={staticFile(SONS.trilha)} volume={volumeMusica} startFrom={Math.round(INICIO_TRILHA_SEGUNDOS * FPS)} />
         </Sequence>
       ) : (
         <Sequence name="SOM trilha (sem arquivo)" durationInFrames={1} layout="none">
@@ -622,7 +683,6 @@ const Camadas: React.FC<{
 // no bloco 01 e some quando o logo voa para o canto.
 const BrilhoLogoInicial: React.FC<{ fim: number; spotlightDe: number }> = ({ fim, spotlightDe }) => {
   const frame = useCurrentFrame();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const base = interpolate(frame, [20, 50], [0, 0.55], clamp);
   const spot = interpolate(frame, [spotlightDe, spotlightDe + 15], [0, 0.45], clamp);
   const some = interpolate(frame, [fim - 24, fim - 8], [1, 0], clamp);
@@ -630,7 +690,9 @@ const BrilhoLogoInicial: React.FC<{ fim: number; spotlightDe: number }> = ({ fim
 };
 
 export const VideoApresentacao: React.FC<VideoApresentacaoProps> = ({ duracoes, ativos, variacaoCta }) => {
-  const linha = montarLinhaDoTempo(BLOCOS, duracoes ?? {}, FPS);
+  const { fps } = useVideoConfig();
+  // A linha do tempo só muda quando as durações dos áudios mudam: calculada uma vez, não a cada frame.
+  const linha = useMemo(() => montarLinhaDoTempo(BLOCOS, duracoes ?? {}, fps), [duracoes, fps]);
   return (
     <Camadas linha={linha} duracoes={duracoes ?? {}} ativos={ativos ?? []} variacaoCta={variacaoCta ?? VARIACAO_CTA} />
   );

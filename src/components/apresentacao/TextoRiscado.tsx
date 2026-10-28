@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, ESPACO_TITULO, FONTE_TITULO, PESO_TITULO, MOLA, comAlfa } from "./marca";
 
@@ -31,7 +32,6 @@ export const TextoRiscado: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const linhas = texto.split("\n"); // quebra de linha manual: "\n" no texto
   // Linha longa diminui para caber em larguraMax (~0,74em por letra em caixa alta).
   const maiorLinha = Math.max(...linhas.map((l) => l.length));

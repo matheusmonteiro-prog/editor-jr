@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, comAlfa } from "./marca";
 
@@ -19,8 +20,7 @@ export const Moeda3D: React.FC<Props> = ({ inicio, duracao = 28, x = 0.72, taman
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
   const t = interpolate(frame - inicio, [0, duracao], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+    ...clamp,
     easing: Easing.in(Easing.quad),
   });
   if (frame < inicio || t >= 1) return null;

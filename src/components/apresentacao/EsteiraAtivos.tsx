@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, comAlfa } from "./marca";
 
@@ -112,7 +113,6 @@ const RAMPA = 5; // frames para frear e para voltar
 export const EsteiraAtivos: React.FC<Props> = ({ y, inicio, saida, selecoes }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
   const tamanho = width * 0.075; // ícone
   const passo = width * 0.16; // distância entre ícones

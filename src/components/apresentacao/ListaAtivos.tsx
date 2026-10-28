@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import type { Ativo } from "../../dados/apresentacao";
 import { COR, ESPACO_ROTULO, FONTE_ROTULO, comAlfa } from "./marca";
@@ -16,8 +17,10 @@ type Props = {
   focoY?: number; // fração da altura da linha em foco
 };
 
-const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
-const PARADA = 0.55; // fração do tempo de cada linha em que ela fica parada no centro
+// Rodada 8 (15 ativos no mesmo tempo): parada um pouco menor (era 0,55), linhas mais próximas
+// (passo 0,13 da largura; era 0,155) e mais linhas visíveis ao mesmo tempo (±5; eram ±4).
+const PARADA = 0.45; // fração do tempo de cada linha em que ela fica parada no centro
+const LINHAS_VISIVEIS = 5; // para cima e para baixo da linha do centro
 
 export const ListaAtivos: React.FC<Props> = ({ ativos, pasta, primeiroNoCentro, ultimoNoCentro, focoY = 0.56 }) => {
   const frame = useCurrentFrame();
@@ -25,7 +28,7 @@ export const ListaAtivos: React.FC<Props> = ({ ativos, pasta, primeiroNoCentro, 
   const n = ativos.length;
   if (n === 0) return null;
 
-  const passo = width * 0.155; // distância entre linhas
+  const passo = width * 0.13; // distância entre linhas
   const framesPorLinha = n > 1 ? (ultimoNoCentro - primeiroNoCentro) / (n - 1) : 20;
 
   // Posição da rolagem em "linhas": k = n significa a linha n no centro.
@@ -48,7 +51,7 @@ export const ListaAtivos: React.FC<Props> = ({ ativos, pasta, primeiroNoCentro, 
   const borda = Math.max(2, width * 0.0024);
 
   const linhas: React.ReactNode[] = [];
-  for (let r = Math.max(0, Math.floor(pos) - 4); r <= Math.floor(pos) + 4; r++) {
+  for (let r = Math.max(0, Math.floor(pos) - LINHAS_VISIVEIS); r <= Math.floor(pos) + LINHAS_VISIVEIS; r++) {
     // Na fase nítida a lista acaba no último ativo; na textura, repete.
     if (textura === 0 && r >= n) continue;
     const ativo = ativos[r % n];
@@ -75,7 +78,7 @@ export const ListaAtivos: React.FC<Props> = ({ ativos, pasta, primeiroNoCentro, 
           overflow: "hidden",
           backgroundColor: comAlfa(COR.fundo, 0.9),
           border: `${borda}px solid ${comAlfa(foco > 0 ? COR.dourado : COR.creme, foco > 0 ? 0.25 + 0.75 * foco : 0.14)}`,
-          opacity: interpolate(dist, [0, 1, 3, 4], [1, 0.7, 0.3, 0], clamp),
+          opacity: interpolate(dist, [0, 1, LINHAS_VISIVEIS - 1, LINHAS_VISIVEIS], [1, 0.7, 0.3, 0], clamp),
           transform: `scale(${1 + 0.08 * foco})`,
         }}
       >
@@ -147,7 +150,8 @@ export const ListaAtivos: React.FC<Props> = ({ ativos, pasta, primeiroNoCentro, 
     );
   }
 
-  const mascara = "linear-gradient(180deg, transparent 0%, transparent 29%, #000 37%, #000 82%, transparent 96%)";
+  // Rodada 8: área visível um pouco maior (era 37% a 82%).
+  const mascara = "linear-gradient(180deg, transparent 0%, transparent 29%, #000 35%, #000 86%, transparent 97%)";
   return (
     <div
       style={{

@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, MOLA, comAlfa } from "./marca";
 
@@ -23,7 +24,6 @@ const ponto = (r: number, graus: number) => {
 export const IconeEtf: React.FC<Props> = ({ x, y, tamanho, inicio, saida }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
   const p = spring({ frame: frame - inicio, fps, config: MOLA, durationInFrames: 14 });
   const op = interpolate(frame - inicio, [0, 5], [0, 1], clamp);

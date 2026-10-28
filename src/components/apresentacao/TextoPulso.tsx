@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, ESPACO_ROTULO, ESPACO_TITULO, FONTE_ROTULO, FONTE_TITULO, PESO_TITULO, comAlfa } from "./marca";
 
@@ -38,7 +39,6 @@ export const TextoPulso: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const alto = texto.toLocaleUpperCase("pt-BR");
   const fontSize = Math.min(width * tamanho, (width * larguraMax) / (alto.length * 0.78));
 

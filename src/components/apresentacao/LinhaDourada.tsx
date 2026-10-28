@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, comAlfa } from "./marca";
 
@@ -12,7 +13,6 @@ export const LinhaDourada: React.FC<{
 }> = ({ inicio, duracao = 12, top, saida }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const p = interpolate(frame - inicio, [0, duracao], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
   const q = saida === undefined ? 0 : interpolate(frame - saida, [0, 10], [0, 1], clamp);
   if (p <= 0 || q >= 1) return null;

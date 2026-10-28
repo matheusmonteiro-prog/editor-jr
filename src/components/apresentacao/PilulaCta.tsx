@@ -1,9 +1,11 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { COR, ESPACO_ROTULO, FONTE_ROTULO } from "./marca";
+import { COR, ESPACO_ROTULO, FONTE_ROTULO, comAlfa } from "./marca";
 
-// Pílula chapada do CTA final (bloco 08): fundo creme #F5F0E6, texto #0F2A1D, raio de
-// 28 px, SEM sombra, SEM borda e SEM transparência. Entra com mola (escala 0,7 → 1).
+// Pílula do CTA final (bloco 08). Rodada 8: mesmo padrão das pílulas de pergunta
+// (PilulaPergunta): fundo #0F2A1D, borda dourada fina, texto creme (antes era creme chapado).
+// Entra com mola (escala 0,7 → 1).
 type Props = {
   texto: string;
   inicio: number; // frame (relativo à Sequence)
@@ -23,7 +25,6 @@ export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04,
   if (frame < inicio) return null;
   const fontSize = width * tamanho;
   // Opacidade só do movimento de entrada (a pílula em si é opaca).
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const q = saida === undefined ? 0 : interpolate(frame - saida, [0, 10], [0, 1], clamp);
   const op = interpolate(frame - inicio, [0, 3], [0, 1], clamp) * (1 - q);
   const deslocY = (saidaPara === "cima" ? -1 : 1) * q * height * 0.03;
@@ -43,10 +44,12 @@ export const PilulaCta: React.FC<Props> = ({ texto, inicio, top, tamanho = 0.04,
     >
       <div
         style={{
-          backgroundColor: discreta ? COR.fundo : COR.creme,
-          color: discreta ? COR.creme : COR.fundo,
-          borderRadius: 28,
-          padding: discreta ? `${fontSize * 0.5}px ${fontSize * 1.1}px` : `${fontSize * 0.6}px ${fontSize * 1.3}px`,
+          backgroundColor: discreta ? COR.fundo : comAlfa(COR.fundo, 0.82),
+          color: COR.creme,
+          borderRadius: discreta ? 28 : fontSize * 2,
+          border: discreta ? undefined : `${Math.max(1, width * 0.0016)}px solid ${comAlfa(COR.dourado, 0.7)}`,
+          boxShadow: discreta ? undefined : `0 ${fontSize * 0.3}px ${fontSize}px ${comAlfa(COR.fundo, 0.6)}`,
+          padding: discreta ? `${fontSize * 0.5}px ${fontSize * 1.1}px` : `${fontSize * 0.55}px ${fontSize * 0.9}px`,
           fontFamily: FONTE_ROTULO,
           fontWeight: 600,
           letterSpacing: ESPACO_ROTULO,

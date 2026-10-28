@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, interpolate, useCurrentFrame } from "remotion";
 import { COR, comAlfa } from "./marca";
 
@@ -53,7 +54,6 @@ const pontoNa = (e: number): [number, number] => {
 
 export const GraficoSubindo: React.FC<Props> = ({ inicio, duracao }) => {
   const frame = useCurrentFrame();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const e = interpolate(frame, [inicio, inicio + duracao], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   const visivel = interpolate(frame, [inicio - 6, inicio], [0, 1], clamp);
   const [px, py] = pontoNa(e);

@@ -17,6 +17,7 @@ import "./index.css";
 import { MyComposition } from "./Composition";
 import { PlanoComposicao } from "./PlanoComposicao";
 import { VideoApresentacao, calcularApresentacao } from "./VideoApresentacao";
+import { FPS } from "./dados/apresentacao";
 import { CamadaVideo } from "./components/v2/CamadaVideo";
 import { LegendaAnimada } from "./components/v2/LegendaAnimada";
 import plano0926 from "../planos/0926.plano.json";
@@ -171,7 +172,7 @@ export const RemotionRoot: React.FC = () => {
           id="VideoApresentacao"
           component={VideoApresentacao}
           durationInFrames={300}
-          fps={30}
+          fps={FPS}
           width={1080}
           height={1920}
           defaultProps={{}}

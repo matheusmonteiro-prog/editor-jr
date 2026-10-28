@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, random, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, comAlfa } from "./marca";
 
@@ -31,7 +32,6 @@ export const Particulas: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
   return (
     <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>

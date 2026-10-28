@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, ESPACO_ROTULO, ESPACO_TITULO, FONTE_ROTULO, FONTE_TITULO, MOLA, PESO_TITULO } from "./marca";
 
@@ -15,6 +16,7 @@ type Props = {
   top: number; // fração da altura (topo do bloco de texto)
   tamanho: number; // fração da largura
   fonte?: "titulo" | "rotulo";
+  familia?: string; // rodada 8: troca a família da fonte (ex.: Fraunces na chamada do bloco 08)
   damping?: number; // mola da entrada (padrão 12)
   deslocamentoY?: number; // fração da largura: quanto a palavra sobe ao entrar (padrão: 0,7 do corpo da letra)
   cor?: string;
@@ -29,6 +31,12 @@ type Props = {
   // Pulso extra em uma palavra (ex.: NINGUÉM 1 → 1,2 → 1). emFrame = quando
   // pulsa (padrão: logo que a palavra entra).
   pulsoPalavra?: { palavra: string; escala: number; emFrame?: number };
+  // Rodada 9: "frase" = mantém o texto como foi escrito (caixa de frase), sem o espaçamento extra
+  // das letras. Padrão "alta" (tudo maiúsculo, como no resto do vídeo).
+  caixa?: "alta" | "frase";
+  // Rodada 9: frame de entrada de CADA palavra (sincronia com a fala). Quando existe, substitui
+  // inicio + ordem × intervalo.
+  temposPalavras?: number[];
 };
 
 const normalizar = (s: string) => s.toLocaleUpperCase("pt-BR").replace(/[.,:;!?]/g, "");
@@ -57,6 +65,7 @@ export const TextoKinetic: React.FC<Props> = ({
   top,
   tamanho,
   fonte = "titulo",
+  familia,
   cor = COR.creme,
   corDestaque = COR.dourado,
   larguraMax = 0.86,
@@ -68,12 +77,13 @@ export const TextoKinetic: React.FC<Props> = ({
   pulsoPalavra,
   damping = MOLA.damping,
   deslocamentoY,
+  caixa = "alta",
+  temposPalavras,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   // "\n" no texto = quebra de linha manual (vira a peça "\n").
-  const soltas = texto
-    .toLocaleUpperCase("pt-BR")
+  const soltas = (caixa === "alta" ? texto.toLocaleUpperCase("pt-BR") : texto)
     .replace(/\n/g, " \n ")
     .split(/[ \t]+/)
     .filter((p) => p.length > 0);
@@ -98,7 +108,6 @@ export const TextoKinetic: React.FC<Props> = ({
     if (p !== "\n") contadas++;
   });
   const fontSize = width * tamanho;
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
   return (
     <div
@@ -112,9 +121,9 @@ export const TextoKinetic: React.FC<Props> = ({
         justifyContent: "center",
         columnGap: fontSize * 0.34,
         rowGap: fontSize * 0.05,
-        fontFamily: fonte === "titulo" ? FONTE_TITULO : FONTE_ROTULO,
+        fontFamily: familia ?? (fonte === "titulo" ? FONTE_TITULO : FONTE_ROTULO),
         fontWeight: fonte === "titulo" ? peso : 600,
-        letterSpacing: fonte === "titulo" ? ESPACO_TITULO : ESPACO_ROTULO,
+        letterSpacing: caixa === "frase" ? "normal" : fonte === "titulo" ? ESPACO_TITULO : ESPACO_ROTULO,
         fontSize,
         lineHeight: 1.08,
         color: cor,
@@ -125,7 +134,7 @@ export const TextoKinetic: React.FC<Props> = ({
         if (palavra === "\n") {
           return <div key={i} style={{ flexBasis: "100%", height: 0 }} />;
         }
-        const t0 = inicio + ordem[i] * intervalo;
+        const t0 = temposPalavras?.[ordem[i]] ?? inicio + ordem[i] * intervalo;
         const p = spring({ frame: frame - t0, fps, config: { ...MOLA, damping }, durationInFrames: DURACAO_ENTRADA });
         const opEntrada = interpolate(frame - t0, [0, 5], [0, 1], clamp);
 

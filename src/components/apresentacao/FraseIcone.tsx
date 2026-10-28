@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, ESPACO_TITULO, FONTE_TITULO, PESO_TITULO, comAlfa } from "./marca";
 
@@ -106,7 +107,6 @@ export const FraseIcone: React.FC<Props> = ({
   const { width, height } = useVideoConfig();
   if (frame < inicio) return null;
 
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const local = frame - inicio;
   const alto = texto.toLocaleUpperCase("pt-BR");
   const alvo = destaque.toLocaleUpperCase("pt-BR");

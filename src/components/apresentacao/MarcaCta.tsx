@@ -1,8 +1,9 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { COR, ESPACO_TITULO, FONTE_TITULO, PESO_TITULO, comAlfa } from "./marca";
+import { COR, TIPOGRAFIA_CTA, comAlfa } from "./marca";
 
-// "MÉTODO JR." do bloco 08 (rodada 7): a frase que fecha o CTA com força.
+// "MÉTODO JR" do bloco 08 (rodada 7; sem ponto desde a rodada 8): a frase que fecha o CTA com força.
 // Nas duas variações: entra em escala 1,3 → 1 com overshoot (mola solta), flash de brilho dourado
 // POR TRÁS do texto e um pulso rápido de halo quando assenta.
 // - "a" (peso): só a entrada com escala, flash redondo e halo.
@@ -23,14 +24,17 @@ type Props = {
 export const MarcaCta: React.FC<Props> = ({ texto, inicio, saida, top, tamanho, larguraMax = 0.9, variante }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+  // Rodada 9: CAIXA ALTA na fonte de destaque do par de tipografia (pendente de aprovação do JR).
+  const fonte = TIPOGRAFIA_CTA.destaque;
   const alto = texto.toLocaleUpperCase("pt-BR");
-  // Inter 800 em caixa alta com +0,04em: ~0,66em por letra (medido no still da rodada 6).
-  const fontSize = Math.min(width * tamanho, (width * larguraMax) / (alto.length * 0.68));
+  const fontSize = Math.min(width * tamanho, (width * larguraMax) / (alto.length * fonte.larguraEm));
+  const contorno = fonte.engrossar ? `${fontSize * fonte.engrossar}px ${COR.dourado}` : undefined;
   const f = frame - inicio;
 
-  const p = spring({ frame: f, fps, config: { damping: 8, mass: 1 }, durationInFrames: 16 });
-  const escala = interpolate(p, [0, 1], [1.3, 1]);
+  // Rodada 9: entra em escala 1,15 → 1 com mola firme (pouco quique) e um tremor curto ao assentar.
+  const p = spring({ frame: f, fps, config: { damping: 14, stiffness: 220, mass: 0.8 }, durationInFrames: 12 });
+  const escala = interpolate(p, [0, 1], [1.15, 1]);
+  const tremor = Math.sin(f * 2.6) * 1.6 * interpolate(f, [3, 12], [1, 0], clamp) * interpolate(f, [0, 3], [0, 1], clamp);
   const op = interpolate(f, [0, 3], [0, 1], clamp);
   const q = saida === undefined ? 0 : interpolate(frame - saida, [0, 10], [0, 1], clamp);
 
@@ -81,16 +85,17 @@ export const MarcaCta: React.FC<Props> = ({ texto, inicio, saida, top, tamanho, 
       <div
         style={{
           position: "relative",
-          transform: `scale(${escala})`,
+          transform: `translateX(${tremor}px) rotate(${tremor * 0.35}deg) scale(${escala})`,
           transformOrigin: "50% 55%",
           clipPath: revela < 1 ? `inset(-20% ${(1 - revela) * 100}% -20% -5%)` : undefined,
         }}
       >
         <span
           style={{
-            fontFamily: FONTE_TITULO,
-            fontWeight: PESO_TITULO,
-            letterSpacing: ESPACO_TITULO,
+            fontFamily: fonte.familia,
+            fontWeight: fonte.peso,
+            letterSpacing: fonte.espaco,
+            WebkitTextStroke: contorno,
             fontSize,
             lineHeight: 1.1,
             color: COR.dourado,
@@ -108,9 +113,10 @@ export const MarcaCta: React.FC<Props> = ({ texto, inicio, saida, top, tamanho, 
                 position: "absolute",
                 left: 0,
                 top: 0,
-                fontFamily: FONTE_TITULO,
-                fontWeight: PESO_TITULO,
-                letterSpacing: ESPACO_TITULO,
+                fontFamily: fonte.familia,
+                fontWeight: fonte.peso,
+                letterSpacing: fonte.espaco,
+                WebkitTextStroke: contorno,
                 fontSize,
                 lineHeight: 1.1,
                 whiteSpace: "nowrap",

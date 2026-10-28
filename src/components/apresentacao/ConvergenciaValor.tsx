@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, ESPACO_ROTULO, FONTE_ROTULO, comAlfa } from "./marca";
 
@@ -24,7 +25,6 @@ const Y_VALOR = 58;
 export const ConvergenciaValor: React.FC<Props> = ({ y, inicio, saida, duracaoDesenho = 36 }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const f = frame - inicio;
 
   const op = interpolate(f, [0, 8], [0, 1], clamp);

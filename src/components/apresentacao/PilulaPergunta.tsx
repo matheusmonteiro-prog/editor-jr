@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, ESPACO_ROTULO, FONTE_ROTULO, MOLA, comAlfa } from "./marca";
 
@@ -28,7 +29,6 @@ export const PilulaPergunta: React.FC<Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   const fontSize = width * tamanho;
 
   const p = spring({ frame: frame - inicio, fps, config: MOLA, durationInFrames: 10 });

@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, comAlfa } from "./marca";
 import { FRAMES_ATE_PULSO_LOGO } from "../../utils/sfxApresentacao";
@@ -48,7 +49,6 @@ export const Logo3D: React.FC<Props> = ({
   const fim = centroFinal ?? centro;
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
   // Entrada girando: 360° → 0°, com spring (desacelera e assenta).
   const pGiro = spring({ frame: frame - inicioGiro, fps, config: { damping: 14, mass: 1 }, durationInFrames: 45 });

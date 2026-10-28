@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, comAlfa } from "./marca";
 
@@ -10,8 +11,7 @@ export const WipeBloco: React.FC<{ duracao?: number }> = ({ duracao = 10 }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
   const p = interpolate(frame, [0, duracao], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+    ...clamp,
     easing: Easing.inOut(Easing.cubic),
   });
   if (p <= 0 || p >= 1) return null;

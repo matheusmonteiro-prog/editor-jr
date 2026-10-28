@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import {
   AbsoluteFill,
   Easing,
@@ -19,6 +20,7 @@ import { COR, comAlfa } from "./marca";
 import { GraficoSubindo } from "./GraficoSubindo";
 import { Particulas } from "./Particulas";
 import { RaiosDeLuz } from "./RaiosDeLuz";
+import { SolEReflexo } from "./SolEReflexo";
 
 // Fundo do vídeo: uma foto por cena, com movimento lento (zoom ou pan),
 // escurecimento #0F2A1D e a transição de entrada de cada cena.
@@ -26,15 +28,18 @@ import { RaiosDeLuz } from "./RaiosDeLuz";
 // sumir: nunca aparece tela preta. A cena antiga também recebe o "empurrão"
 // da transição seguinte (empurrão vertical, deslize, zoom atravessando).
 
-// Intensidade do tingimento verde por cima da arte (0 a 1). Rodada 4: 0,3. Rodada 5: 0 (sem tingimento).
-export const TINGIMENTO = 0;
+// Sem tingimento verde por cima da arte desde a rodada 5 (na rodada 4 era uma camada de 30% em modo
+// "color"); a constante e a camada saíram na auditoria de 22/10/2026.
 
-const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const suave = Easing.bezier(0.65, 0, 0.35, 1);
 
 const transformMovimento = (m: Movimento, t: number): string => {
   if (m.tipo === "zoom") {
     return `scale(${interpolate(t, [0, 1], [m.de, m.para])})`;
+  }
+  if (m.tipo === "zoomEDeslocamento") {
+    const y = interpolate(t, [0, 1], [m.deY, m.paraY]) * 100;
+    return `translateY(${y}%) scale(${interpolate(t, [0, 1], [m.de, m.para])})`;
   }
   if (m.tipo === "panVertical") {
     const y = interpolate(t, [0, 1], [m.deY, m.paraY]) * 100;
@@ -133,7 +138,7 @@ const efeitoSaida = (tipoSeguinte: TipoTransicao | undefined, p: number): React.
 };
 
 // Mídia da cena (imagem, vídeo em loop ou nada) com movimento, reenquadramento,
-// desfoque e tingimento. Estrutura (de fora para dentro):
+// e desfoque. Estrutura (de fora para dentro):
 //   recorte (overflow hidden) > filtro (grayscale/blur, NÃO escalado, então o
 //   desfoque tem sempre os px pedidos) > movimento (transform) > mídia.
 // Vídeo de fundo, sempre mudo. Em loop se for mais curto que `frames`; corta no fim se for mais
@@ -181,7 +186,7 @@ const MidiaDaCena: React.FC<{
     enq ? `translate(${enq.x * 100}%, ${enq.y * 100}%) scale(${enq.escala}) ` : ""
   }${transformMovimento(cena.movimento, t)}`;
   const filtros = [
-    cena.dessaturar ? "grayscale(1) contrast(1.05)" : "saturate(0.85) contrast(1.05)",
+    cena.corNatural ? "" : cena.dessaturar ? "grayscale(1) contrast(1.05)" : "saturate(0.85) contrast(1.05)",
     cena.aquecer ? `sepia(${cena.aquecer})` : "",
     cena.desfoque ? `blur(${cena.desfoque}px)` : "",
   ]
@@ -274,11 +279,6 @@ const CenaUnica: React.FC<{
             duracoes={duracoes}
             grafico={grafico}
           />
-          {/* Tingimento verde BEM LEVE (rodada 4): mistura só o tom do verde da marca, mantendo a
-              luz da arte (blend "color"). A arte já foi dessaturada em MidiaDaCena. */}
-          {TINGIMENTO > 0 ? (
-            <AbsoluteFill style={{ backgroundColor: COR.fundo, mixBlendMode: "color", opacity: TINGIMENTO }} />
-          ) : null}
           {/* Escurecimento chapado + reforço em alfa atrás da pílula e do texto. */}
           {cena.escurecimento > 0 ? (
             <AbsoluteFill style={{ backgroundColor: COR.fundo, opacity: cena.escurecimento }} />
@@ -286,7 +286,7 @@ const CenaUnica: React.FC<{
           {cena.escurecimentoNeutro ? (
             <AbsoluteFill style={{ backgroundColor: "#000", opacity: cena.escurecimentoNeutro }} />
           ) : null}
-          {cena.fonte.tipo !== "solido" ? (
+          {cena.fonte.tipo !== "solido" && !cena.semDegrade ? (
             <AbsoluteFill
               style={{
                 background: `linear-gradient(180deg, ${comAlfa(COR.fundo, 0.35)} 0%, ${comAlfa(
@@ -299,8 +299,21 @@ const CenaUnica: React.FC<{
               }}
             />
           ) : null}
+          {/* Rodada 9: vinheta radial verde-escura no canto superior direito (cenas 7 e 8). */}
+          {cena.vinhetaTopoDireito ? (
+            <AbsoluteFill
+              style={{
+                background: `radial-gradient(circle at top right, ${comAlfa(COR.fundo, 0.55)} 0%, ${comAlfa(
+                  COR.fundo,
+                  0,
+                )} 55%)`,
+              }}
+            />
+          ) : null}
           {cena.raiosDeLuz ? <RaiosDeLuz /> : null}
-          {cena.particulas ? <Particulas semente={cena.nome} opacidade={0.8} /> : null}
+          {cena.particulas ? <Particulas semente={cena.nome} opacidade={cena.particulasOpacidade ?? 0.8} /> : null}
+          {/* Rodada 9 (cena 2): brilho do sol que respira e reflexo nas moedas. Pendente de aprovação do JR. */}
+          {cena.solEReflexo ? <SolEReflexo /> : null}
           {cena.brilhoLogo ? (
             <BrilhoRadial x={0.5} y={cena.brilhoY ?? 0.33} raio={0.6} intensidade={brilhoLogo} />
           ) : null}

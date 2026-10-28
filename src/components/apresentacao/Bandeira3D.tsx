@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, MOLA, comAlfa } from "./marca";
 
@@ -23,7 +24,6 @@ type Props = {
 export const Bandeira3D: React.FC<Props> = ({ src, proporcao, x, y, largura, lado, inicio, saida }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
   const sinal = lado === "esquerda" ? 1 : -1; // a da esquerda vira para a direita e vice-versa
   const p = spring({ frame: frame - inicio, fps, config: MOLA, durationInFrames: 18 });

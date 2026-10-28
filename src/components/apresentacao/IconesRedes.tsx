@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import type { RedeSocial } from "../../dados/apresentacao";
 import { COR } from "./marca";
@@ -15,6 +16,8 @@ type Props = {
   tamanho?: number; // fração da largura de cada ícone
   cor?: string;
   stagger?: number; // frames entre um ícone e o próximo
+  pulsoEm?: number; // frame (relativo à Sequence) em que o 1º ícone dá o pulso de escala
+  staggerPulso?: number; // frames entre o pulso de um ícone e o do próximo (padrão 3)
 };
 
 const TRACO = 1.7; // no viewBox de 24
@@ -58,10 +61,9 @@ const Desenho: React.FC<{ rede: RedeSocial; cor: string }> = ({ rede, cor }) => 
   );
 };
 
-export const IconesRedes: React.FC<Props> = ({ redes, inicio, saida, top, tamanho = 0.06, cor = COR.creme, stagger = 4 }) => {
+export const IconesRedes: React.FC<Props> = ({ redes, inicio, saida, top, tamanho = 0.06, cor = COR.creme, stagger = 4, pulsoEm, staggerPulso = 3 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   if (frame < inicio) return null;
   const lado = width * tamanho;
 
@@ -86,13 +88,15 @@ export const IconesRedes: React.FC<Props> = ({ redes, inicio, saida, top, tamanh
         const q = saida === undefined ? 0 : interpolate(frame - saida - i * 2, [0, 10], [0, 1], clamp);
         const flutua = Math.sin((frame + i * 9) / 18) * lado * 0.05;
         const y = (1 - p) * lado * 0.5 + flutua + q * height * 0.03;
+        // Rodada 9: pulso de escala (1 → 1,3 → 1) em "redes sociais", ícone por ícone, a cada `staggerPulso` frames.
+        const pulso = pulsoEm === undefined ? 1 : interpolate(frame - pulsoEm - i * staggerPulso, [0, 5, 11], [1, 1.3, 1], clamp);
         return (
           <svg
             key={rede}
             width={lado}
             height={lado}
             viewBox="0 0 24 24"
-            style={{ opacity: op * (1 - q), transform: `translateY(${y}px) scale(${interpolate(p, [0, 1], [0.8, 1])})` }}
+            style={{ opacity: op * (1 - q), transform: `translateY(${y}px) scale(${interpolate(p, [0, 1], [0.8, 1]) * pulso})` }}
           >
             <Desenho rede={rede} cor={cor} />
           </svg>

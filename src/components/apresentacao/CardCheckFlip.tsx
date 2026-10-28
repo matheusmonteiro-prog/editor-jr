@@ -1,4 +1,5 @@
 import React from "react";
+import { clamp } from "../../utils/clamp";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { COR, ESPACO_TITULO, FONTE_TITULO, PESO_TITULO, MOLA, comAlfa } from "./marca";
 
@@ -18,10 +19,16 @@ type Props = {
   largura?: number;
   // Rodada 6 (bloco 03): círculo dourado cheio com o tique em verde-escuro.
   checkCheio?: boolean;
+  // Rodada 9 (bloco 02): "esquerda" encosta a linha na margem esquerda da tela (margemEsquerda, fração da
+  // largura); "centro" é o padrão.
+  alinhar?: "centro" | "esquerda";
+  margemEsquerda?: number;
+  // Rodada 9 (bloco 02): ícone que sai da borda direita do card (na mesma linha, logo depois dele).
+  lateral?: React.ReactNode;
 };
 
 const CheckDesenhado: React.FC<{ frame: number; tamanho: number; cheio?: boolean }> = ({ frame, tamanho, cheio }) => {
-  const progresso = interpolate(frame, [0, 10], [0, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const progresso = interpolate(frame, [0, 10], [0, 100], clamp);
   return (
     <svg width={tamanho} height={tamanho} viewBox="0 0 100 100" style={{ flexShrink: 0 }}>
       {cheio ? (
@@ -44,10 +51,21 @@ const CheckDesenhado: React.FC<{ frame: number; tamanho: number; cheio?: boolean
   );
 };
 
-export const CardCheckFlip: React.FC<Props> = ({ texto, destaque, inicio, saida, top, tamanho = 0.068, largura, checkCheio }) => {
+export const CardCheckFlip: React.FC<Props> = ({
+  texto,
+  destaque,
+  inicio,
+  saida,
+  top,
+  tamanho = 0.068,
+  largura,
+  checkCheio,
+  alinhar = "centro",
+  margemEsquerda = 0.06,
+  lateral,
+}) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
   // Texto longo diminui para o card caber em 86% da largura (estimativa:
   // ~0,74em por letra em caixa alta + check + margens ≈ 3,4em). "\n" = quebra de linha.
   const maiorLinha = Math.max(...texto.split("\n").map((l) => l.length));
@@ -75,7 +93,11 @@ export const CardCheckFlip: React.FC<Props> = ({ texto, destaque, inicio, saida,
         width: "100%",
         top: height * top,
         display: "flex",
-        justifyContent: "center",
+        justifyContent: alinhar === "esquerda" ? "flex-start" : "center",
+        alignItems: "center",
+        boxSizing: "border-box",
+        paddingLeft: alinhar === "esquerda" ? width * margemEsquerda : 0,
+        gap: fontSize * 0.5,
         perspective: width * 1.2,
         opacity: op * (1 - q),
         transform: `translateY(calc(-50% - ${q * height * 0.03}px))`,
@@ -117,6 +139,7 @@ export const CardCheckFlip: React.FC<Props> = ({ texto, destaque, inicio, saida,
           {depois}
         </span>
       </div>
+      {lateral}
     </div>
   );
 };
