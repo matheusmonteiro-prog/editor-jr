@@ -19,8 +19,14 @@ videos/
 # ferramenta quando a skill é usada — não precisa ir pro Git.
 # Exceção: .claude/skills/editor-jr/ não é link nenhum, é a skill própria
 # do projeto, escrita à mão — essa precisa ir pro Git.
+# Exceção: as 3 skills do bônus do curso (meia-*) também não são link — vieram
+# de um zip fora do Git (skills-bonus-completo.zip) e não dá pra reinstalar
+# com um comando, então ficam versionadas igual ao editor-jr.
 .claude/skills/*
 !.claude/skills/editor-jr/
+!.claude/skills/meia-briefing-de-edicao/
+!.claude/skills/meia-legendas-e-enquadramento/
+!.claude/skills/meia-revisao-economia/
 
 # Configuração local de permissões do Claude Code, específica da máquina.
 .claude/settings.local.json
