@@ -64,3 +64,6 @@ Sem espaço. Ex.: `selic-setembro.png`, `dinheiro-tim.mp3`.
   `docs/estado-atual.md` a que chat/etapa voltar.
 - Nunca escrever "validado" sem o Matheus ter visto no Studio.
 - Ao fim de cada sessão, atualizar o `docs/estado-atual.md` por etapa.
+
+## Kit visual
+- Todo plano de edição e todo prompt-roteiro devem ser conferidos contra `docs/kit-visual-video.md`.
