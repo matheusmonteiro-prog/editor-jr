@@ -41,6 +41,7 @@ por mim nos arquivos do projeto):
 - Existe uma cópia do projeto em `~/editor-jr` **sem `.git`**, dentro do Linux.
 - O script `~/render.sh` sincroniza o projeto do Windows pro Linux e renderiza
   (uso: `~/render.sh Composicao nome-do-arquivo [flags]`).
+- O render do WSL precisa do nvm carregado (desde 03/11/2026 o próprio `render.sh` faz isso) e usa `npx --no-install`. A cópia versionada do script está em `scripts/render-wsl.sh`.
 - Os vídeos renderizados ficam em `~/editor-jr/out`, dentro do Linux, e
   precisam ser copiados pra uma pasta do Windows.
 - Em casa o render continua bloqueado e o WSL não está instalado.
