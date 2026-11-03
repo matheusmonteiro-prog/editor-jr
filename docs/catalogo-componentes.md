@@ -593,3 +593,45 @@ Registrado em `src/Composition.tsx` (pasta Catalogo, 1080x1920) e no `CATALOGO` 
 | `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
 | `framesSaida` | `number` (min 1) | não (tem `.default()`) | `12` |
 | `corFundo` | `zColor()` | **sim** | transparente |
+
+## Componentes de src/components/apresentacao/ (inventário de 03/11/2026)
+
+33 arquivos `.tsx` e 1 `marca.ts`, mais 1 componente de `src/components/laboratorio/`. Descrição lida do comentário de cabeçalho de cada arquivo. **Status visual de todos: [NÃO VISTO NO STUDIO] até o Matheus confirmar.**
+
+| Nome | Arquivo | O que é |
+|---|---|---|
+| `Bandeira3D` | `apresentacao/Bandeira3D.tsx` | Bandeira como placa em CSS 3D, no estilo do `Logo3D` (rodada 7, bloco 02). |
+| `BotaoSeguir` | `apresentacao/BotaoSeguir.tsx` | Botão genérico de seguir (rodada 9, bloco 08): pílula "SEGUIR" que vira "SEGUINDO". |
+| `BrilhoRadial` | `apresentacao/BrilhoRadial.tsx` | Brilho dourado radial atrás do logo, do spotlight do bloco 01 e da cartela. |
+| `CardCheckFlip` | `apresentacao/CardCheckFlip.tsx` | Card de check no visual do `ListaCheck`, entrando com flip 3D no eixo X. |
+| `CompartilharPessoas` | `apresentacao/CompartilharPessoas.tsx` | Ícone de compartilhar (rodada 9, bloco 08), com setinha que acende 3 círculos de pessoas. |
+| `ContadorImpacto` | `apresentacao/ContadorImpacto.tsx` | Contador com pulso a cada número e borrão vertical (`feGaussianBlur`). |
+| `ConvergenciaValor` | `apresentacao/ConvergenciaValor.tsx` | Linha de preço que ondula até encontrar a linha de valor (rodada 7, bloco 03). |
+| `EsteiraAtivos` | `apresentacao/EsteiraAtivos.tsx` | Esteira de ícones genéricos de ativos, com parada e seleção (rodada 7, bloco 03). |
+| `FioProgresso` | `apresentacao/FioProgresso.tsx` | Fio dourado no topo da zona segura, enchendo do início ao fim do vídeo. |
+| `FraseIcone` | `apresentacao/FraseIcone.tsx` | Frase inteira com ícone ao lado, em corte seco, que sobe um degrau quando entra a próxima. |
+| `FundoCenas` | `apresentacao/FundoCenas.tsx` | Fundo do vídeo: uma foto por cena, com movimento lento, escurecimento e transição. |
+| `GraficoSubindo` | `apresentacao/GraficoSubindo.tsx` | Anima o gráfico que já está na foto `images/cena-4-dourado.png` (rodada 7, bloco 04). |
+| `GraficoVelas` | `apresentacao/GraficoVelas.tsx` | Velas ilustrativas do bloco 02 (rodada 9), sem tendência, eixo ou número. |
+| `GrupoCaindo` | `apresentacao/GrupoCaindo.tsx` | Grupo do CTA do bloco 08 (rodada 9): texto e ícones que caem de cima e saem para baixo. |
+| `IconeEtf` | `apresentacao/IconeEtf.tsx` | Ícone de ETF (rodada 7, bloco 02): cesta em forma de pizza, com uma fatia dourada. |
+| `IconesRedes` | `apresentacao/IconesRedes.tsx` | Ícones das redes em linha, monocromáticos, desenhados à mão em SVG (rodada 6, bloco 08). |
+| `LinhaDourada` | `apresentacao/LinhaDourada.tsx` | Linha dourada fina que atravessa a tela e fica como divisória. |
+| `ListaAtivos` | `apresentacao/ListaAtivos.tsx` | Lista de ativos de referência rolando (rodada 6, bloco 06): logo, ticker e nome, sem preço. |
+| `ListaRolando` | `apresentacao/ListaRolando.tsx` | Lista genérica rolando no fundo, desfocada: textura, sem nome nem número. |
+| `Logo3D` | `apresentacao/Logo3D.tsx` | Logo do JR como placa em CSS 3D: gira, voa até o canto e volta ao centro. |
+| `MarcaCta` | `apresentacao/MarcaCta.tsx` | "MÉTODO JR" do bloco 08 (rodada 7), com variações de movimento "a" e "b". |
+| `Moeda3D` | `apresentacao/Moeda3D.tsx` | Moeda dourada em CSS 3D caindo pelo fundo, girando, sem texto. |
+| `Particulas` | `apresentacao/Particulas.tsx` | Poeira dourada subindo, sorteada com `random(semente)`; modo "explosao" no bloco 05. |
+| `PilulaCta` | `apresentacao/PilulaCta.tsx` | Pílula do CTA final (bloco 08), no padrão das pílulas de pergunta. |
+| `PilulaPergunta` | `apresentacao/PilulaPergunta.tsx` | Pílula no topo da zona segura: pergunta em caixa alta e contador "1/8". |
+| `PizzaGomos` | `apresentacao/PizzaGomos.tsx` | Pizza segmentada do bloco 02 (rodada 9), com gomos acendendo em sequência. |
+| `RaiosDeLuz` | `apresentacao/RaiosDeLuz.tsx` | Raios de luz leves saindo do canto superior esquerdo, balançando devagar. |
+| `SinoNotificacao` | `apresentacao/SinoNotificacao.tsx` | Sino vetorial dourado que balança, com bolinha de notificação (rodada 9, bloco 08). |
+| `SolEReflexo` | `apresentacao/SolEReflexo.tsx` | Brilho do sol e reflexo nas moedas no fundo da cena 2 (rodada 9). Pendente de aprovação do JR. |
+| `TextoKinetic` | `apresentacao/TextoKinetic.tsx` | Tipografia cinética, palavra por palavra, com destaque em dourado. |
+| `TextoPulso` | `apresentacao/TextoPulso.tsx` | Frase inteira que entra de uma vez e pode dar uma batida de pulso. |
+| `TextoRiscado` | `apresentacao/TextoRiscado.tsx` | Palavra cortada por uma risca dourada, que depois recua ou apaga. |
+| `WipeBloco` | `apresentacao/WipeBloco.tsx` | Troca de bloco: faixa verde-escura varrendo a tela na diagonal, com fio dourado. |
+| `marca` (não é componente) | `apresentacao/marca.ts` | Cores e fontes da marca do vídeo de apresentação, num lugar só. |
+| `JurosCompostosLab` | `laboratorio/JurosCompostosLab.tsx` | Laboratório, fora do catálogo e de qualquer plano: moedas que dobram a cada "ano". |

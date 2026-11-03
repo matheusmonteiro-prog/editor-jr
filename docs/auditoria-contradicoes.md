@@ -122,3 +122,11 @@ Gravidade: **TRAVA** (impede compilar/rodar) · **ATRAPALHA** (confunde ou induz
 
 **NÃO MEXIDO**
 - Kit visual, vídeos, merge de `kit-visual-video`, caminhos do `ARQUITETURA.md`.
+
+---
+
+## Correção de 03/11/2026 (2)
+
+1. São 33 `.tsx` + `marca.ts` em `src/components/apresentacao/`, não 34 (o "34" do item B e da seção "Atualização de 03/11/2026" está errado).
+2. O verde do método **NÃO está resolvido**. O kit v3 em `origin/kit-visual-video` diz `#1DD41E` (decisão do Matheus de 02/11/2026, segundo o próprio texto). O kit local (`docs/kit-visual-video.md`, alterado em 03/11/2026 às 16:46; autoria não identificada, não foi o Claude Code nesta sessão) diz `#39A96B`. Decisão do Matheus pendente. O que a seção "Atualização de 03/11/2026" afirma sobre `#1DD41E` fica sem efeito até lá.
+3. O Matheus confirmou em 03/11/2026 que este PC (`PC-EDICAO`, pasta `C:\Users\zerob`) é o do trabalho.

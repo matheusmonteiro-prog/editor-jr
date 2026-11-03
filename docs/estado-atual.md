@@ -1,3 +1,116 @@
+> **As seções abaixo desta são fotos antigas; vale o retrato de 03/11/2026.**
+
+## Retrato de 03/11/2026
+
+Lido no repositório e no git em 03/11/2026, no PC do trabalho (decisão do Matheus: `PC-EDICAO`, `C:\Users\zerob\editor-jr`). Sem abrir o Studio. O que não tem prova de comando está como [NÃO VERIFICADO].
+
+### Branch e HEAD
+- Branch `video-apresentacao`, HEAD `168aaad`, igual a `origin/video-apresentacao` (`git status -sb`).
+- 42 commits depois de `noite-etapa6` e 152 depois de `origin/main`. A `main` segue em `9432337`.
+- `noite-etapa6` local está em `7a28e6c` (`origin/noite-etapa6` está em `98867ec`, 4 atrás); esses 4 commits já estão em `origin/video-apresentacao`.
+- Branches que a seção "Branches" abaixo não lista: `video-apresentacao`, `kit-visual-video` (só no remoto), `teste-visao` (só local), `etapa4-legendas` e `backup-stash-0/1` (só no remoto).
+
+### Etapas
+Marcas como no `ARQUITETURA.md`. As aprovações são registros de que o Matheus viu; nenhum comando prova isso: [NÃO VERIFICADO] hoje.
+- [x] Etapa 0: infraestrutura. Render no WSL deste PC provado em 2 renders curtos (ver "Render WSL").
+- [x] Etapa 1: organizar a casa.
+- [x] Etapa 2: cortes, gancho e limpeza de voz.
+- [x] Etapa 3: 3a fechada (13/10/2026); **3b aberta** (par real, sincronia, vídeo de 10 a 20 min, vídeos de referência).
+- [x] Etapa 4: 4a fechada (14/10/2026); **4b aberta** (glossário e gravações reais).
+- [ ] Etapa 5: sem marca no `ARQUITETURA.md`; o `CLAUDE.md` diz "em alinhamento". Existe só o kit visual (sem `LogoAnimada` em `src/`; `public/brand` não existe).
+- [x] Etapa 6: 6a cumprida (09/10/2026); **6b não começou**. `PlanoComposicao0926` segue 2160×3872 (`remotion compositions`).
+- [ ] Etapa 7: interface própria.
+- [ ] Etapa 8: `scripts/render-final.mjs` existe; ter o script não marca a etapa como iniciada.
+
+### O que mudou desde 16/10
+**Vídeo de apresentação**
+- Rodadas 1 a 8 registradas em `docs/pr-video-apresentacao.md`. **O código vai até a rodada 9** (47 menções em `src/`), e nenhum doc a registra.
+- Duração: 2588 quadros (86,27 s), **medida no WSL** (`remotion compositions`).
+- Bloco 08 com 3 áudios: `08-resposta-1`, `-2` e `-3-embreve` (`src/dados/apresentacao.ts:397-402`).
+- Clipes `a1` a `a4` existem em `public/videos/cenas/`. Bandeiras seguem provisórias em SVG (`apresentacao.ts:285-286`). `VARIACAO_CTA` está em `"a"` (`apresentacao.ts:644`).
+- Auditoria de boas práticas: M1 e M5 aplicados (0 ocorrências de `* 30` no sfx e de `TINGIMENTO`); M4 em parte (30 arquivos importam `utils/clamp`; restam cópias em `JurosCompostosLab`, `CamadaVideo`, `GradeAtivos3D`, `LegendaAnimada` e `PlanoComposicao`). Em qual commit e com qual aprovação: [NÃO VERIFICADO].
+- 95 stills em `out/stills/apresentacao/`, o mais recente de 26/10.
+- Áudios, imagens e vídeos seguem fora do Git (decisão do Matheus), sem cópia no GitHub.
+
+**Higgsfield**
+- `scripts/gerar-video.mjs` (desde `a9510f4`; modo imagem, retomar pedido e catálogo em `f5cd6fa`) e `docs/higgsfield.md`.
+- `public/images/catalogo-gerados.json` tem 5 entradas. `docs/higgsfield.md:3` diz que nada foi testado contra a API: leitura do código, não o estado de uso.
+
+**Kit visual: duas versões diferentes, nenhuma na branch atual**
+- Local, sem commit (`docs/kit-visual-video.md`, alterado em 03/11/2026 às 16:46): título "v3, rascunho de 03/11/2026", verde do método `#39A96B`/`#1F7A47`, com seções novas (6.1, 4.8 a 4.11, 13 e 14).
+- Remoto (`origin/kit-visual-video`, `d639758`): título "v2", rodapé "v3: verde do método decidido", verde `#1DD41E`/`#1F7A47` como decisão do Matheus de 02/11/2026, com o zoom de abertura.
+- `docs/auditoria-contradicoes.md` ("v3 no remoto, v2 local"; verde `#1DD41E`) foi escrito antes dessa alteração local. Qual vale: decisão do Matheus.
+- Merge de teste calculado em 03/11/2026 (`merge-tree`, antes dos commits `d4c6390`, `1a4b28e` e `168aaad`): conflitos em `docs/catalogo-componentes.md` e `src/PlanoComposicao.tsx`.
+
+**Configuração**
+- `bbe14d7`: `dotenv` 17.3.1 como dependência direta; `.gitignore` libera `videos/0926.cortes.json` e ignora `public/videos/` e `backup-videos/`.
+- `79e521c`: versiona `videos/0926.cortes.json`, importado pelo `Root.tsx`. Causa do erro em clone novo removida; **clone novo não testado**.
+- `d4c6390`: `docs/higgsfield.md` e `docs/auditoria-contradicoes.md`. `1a4b28e`: caminhos dos PCs. `168aaad`: `.gitattributes` com `*.sh text eol=lf`.
+
+**Render WSL**
+- `~/render.sh` carrega o nvm e usa `npx --no-install`; cópia em `scripts/render-wsl.sh`; backup em `~/render.sh.bak-03-11-2026`.
+- 2 renders de 30 quadros de `CirculoDestaque`, por `bash -ic` e por `bash -lc`: exit 0, h264, 1080×1920, 30 quadros. **Composição completa e `VideoApresentacao` não renderizados.**
+- O `rsync` do script exclui `public/videos`, e a cópia do WSL não tem `public/videos/cenas/`: 7 vídeos de cena deram 404 em `remotion compositions`.
+- O script fixa `--width 1080 --height 1920`, que ganha do plano.
+- Node v24.22.0 (nvm), ffmpeg 8.0.1.
+
+**Validador**
+- `scripts/testar-validador.mjs`: 72/72 casos OK. `planos/0926.plano.json`: 0 erro, 0 aviso. `planos/teste-audio.plano.json`: 1 erro, porque `music/musica-teste.mp3` não está neste PC.
+
+### Divergências provadas com as seções abaixo
+Linhas de `estado-atual.md` conforme o commit `168aaad`, antes deste retrato.
+
+| Diz | Repositório prova | Prova |
+|---|---|---|
+| `:5`, `:318`: branch atual `noite-etapa6` | `video-apresentacao`, `168aaad` | `git status -sb` |
+| `:328-335`: 4 commits parados sem push | `b42ae1f` está em `origin/noite-etapa6` | `git merge-base --is-ancestor` |
+| `:321`: 3 commits de Matheus Monteiro | JR EDICOES 165, Matheus Monteiro 46 | `git log --format=%an` |
+| `:39`: última rodada é a 8 | Código vai até a 9 | `grep -i "rodada 9" src docs` |
+| `:40-41`: 2465 quadros | 2588, medida no WSL | `remotion compositions` |
+| `:39`: falta `08-resposta.mp3` | Código usa 3 áudios, que existem | `apresentacao.ts:397-402` |
+| `:41`: faltam clipes A1 a A4 | Existem | `ls public/videos/cenas` |
+| `:46`: 4 efeitos mudos | 6 arquivos em `public/audio/apresentacao/sfx`; que tocam: [NÃO VERIFICADO] | `ls`, commit `60be05f` |
+| `:44`: 9 stills da rodada 3 | 95, até 26/10 | `ls out/stills/apresentacao` |
+| `:38`: M1, M4 e M5 aguardando | M1 e M5 aplicados; M4 em parte | `grep` |
+| `:84`, `:141`: sem commit | `8485cf8`; `a048f7e` no remoto | `git log` |
+| `:296`: validador 52/52 | 72/72 | `testar-validador.mjs` |
+| `:273`: clone novo não compila | `79e521c` versiona o arquivo; clone não testado | `git show --stat` |
+| `:298`, `:365`: código 1 por `explorer.exe` no script | Sem `explorer` no script e no backup; 2 renders com exit 0 | `grep -c`, renders |
+| `:295`: `musica-teste.mp3` | Não está neste PC | validador |
+| `:114`: `C:\Users\edica\Videos` | Este PC não tem usuário `edica` (só `inves` e `zerob`) | `ls /c/Users` |
+| `ARQUITETURA.md:48`: Git só no Windows | `~/editor-jr/.git` existe no WSL, em `noite-etapa6`/`98867ec`, com arquivos modificados | `git log` no WSL |
+| `ARQUITETURA.md:118`: `explorer.exe` no fim do script | Idem acima | `grep -c` |
+| `ARQUITETURA.md:369`: `GraficoSubindo` descartado | Existe em `src/components/apresentacao/` | `ls` |
+| `docs/criterios-fechamento.md:100`: `public/brand` vazia | Não existe | `ls` |
+
+### Pendências abertas
+**Matheus**
+- Qual versão do kit visual vale, e o verde do método (`#39A96B` local x `#1DD41E` no remoto).
+- "Sinal de compra" no código e nos docs.
+- Merge de `kit-visual-video` (2 conflitos).
+- Testar clone novo (compila e abre o Studio).
+- Backup de `public/audio/`, `public/images/` e dos vídeos, que estão fora do Git.
+- Ver o `VideoApresentacao` no Studio e aprovar. Variação do CTA, PNGs das bandeiras e rodada 9.
+- Etapas 3b e 4b (gravações reais). Licença da música.
+- `skills-lock.json`, modificado e fora dos commits.
+- Levar os vídeos de cena ao WSL, se for renderizar `VideoApresentacao` lá.
+- Regras do validador para o kit (proposta da rodada de 03/11/2026).
+
+**Claude Code (quando o Matheus pedir)**
+- Registrar a rodada 9 em `docs/pr-video-apresentacao.md`.
+- `ARQUITETURA.md:48` e `:118`; `criterios-fechamento.md:100`; "34 componentes" em `docs/auditoria-contradicoes.md` (são 33 `.tsx` + `marca.ts`).
+- Terminar o M4.
+- Renomear `aviso-camera-deslocamento` e arquivos com espaço ou extensão dupla (`EM BREVE.mp3`, `musica-fundo.mp3.mp3`, `logo-chapeu.png.png`, `teste-real-camera.mp4.mp4`), se ele aprovar.
+
+### Decisões do Matheus nesta rodada (03/11/2026)
+- Este PC é o do trabalho. O caminho do PC de casa fica a confirmar.
+- `dotenv` como dependência direta; `videos/0926.cortes.json` versionado; `public/videos/` e `backup-videos/` ignorados.
+- `~/render.sh` com nvm e `--no-install`, com cópia versionada e `.gitattributes`.
+- `CLAUDE.md` não muda nesta rodada.
+- Kit visual, vídeos e merge de `kit-visual-video` não foram mexidos.
+
+---
+
 # Estado atual — editor-jr (02/10 a 16/10/2026)
 
 Gerado a partir do `ARQUITETURA.md`, do `git log`/`git branch -a` e de testes

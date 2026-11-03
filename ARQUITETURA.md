@@ -37,15 +37,15 @@ Se validar bem, pode virar produto no futuro. Isso é outro projeto (ver seção
 ### Ambiente de render (WSL) — informado em 01/10/2026, ainda NÃO confirmado pelo repositório
 Fatos relatados pelo Matheus, registrados aqui como informados (não verificados
 por mim nos arquivos do projeto):
-- No PC do trabalho, o Remotion roda **dentro do WSL (Ubuntu)**, Node v24.21.0.
-- Existe uma cópia do projeto em `~/editor-jr` **sem `.git`**, dentro do Linux.
+- No PC do trabalho, o Remotion roda **dentro do WSL (Ubuntu)**, Node v24.22.0 (conferido em 03/11/2026).
+- Existe uma cópia do projeto em `~/editor-jr`, dentro do Linux, **com `.git`** (na `noite-etapa6`, conferido em 03/11/2026).
 - O script `~/render.sh` sincroniza o projeto do Windows pro Linux e renderiza
   (uso: `~/render.sh Composicao nome-do-arquivo [flags]`).
 - O render do WSL precisa do nvm carregado (desde 03/11/2026 o próprio `render.sh` faz isso) e usa `npx --no-install`. A cópia versionada do script está em `scripts/render-wsl.sh`.
 - Os vídeos renderizados ficam em `~/editor-jr/out`, dentro do Linux, e
   precisam ser copiados pra uma pasta do Windows.
-- Em casa o render continua bloqueado e o WSL não está instalado.
-- O Git continua só no Windows.
+- [A CONFIRMAR no PC de casa] Em casa o render continua bloqueado e o WSL não está instalado.
+- Existe `.git` também em `~/editor-jr`, no WSL, na `noite-etapa6`, com arquivos modificados (ao menos `.agents/skills/remotion-markup/3d.md`; conferido em 03/11/2026).
 
 **Superado por este caminho:** o experimento discutido (nunca registrado
 aqui antes) de copiar o FFmpeg completo do Gyan pra dentro de
@@ -608,7 +608,7 @@ para os detalhes e a decisão pendente.
   10/10) **não foi decidido** (o modo de 2 arquivos do `cortar-silencio.mjs`, opção A, existe no
   código desde o commit `6b83f36`).
 - **`LogoAnimada`: não existe em `src/`.** `ArrobaInstagram` e a lista `audio` (Fase 1 do áudio)
-  existem desde o commit `36fff8d`. `public/music` e `public/sfx` têm hoje sons de teste e uma música real **neste PC, fora do Git** (13/10/2026); `public/brand` segue vazia (12/10/2026); `public/music/` e `public/sfx/` estão no `.gitignore`.
+  existem desde o commit `36fff8d`. `public/music` e `public/sfx` têm hoje sons de teste e uma música real **neste PC, fora do Git** (13/10/2026); `public/brand` não existe (conferido em 03/11/2026); `public/music/` e `public/sfx/` estão no `.gitignore`.
 - **Orientação, Fase 1 (commit `ccfd5ed`):** o campo `"orientacao"` do plano manda o tamanho via
   `calculateMetadata` (`src/utils/tamanhoDoPlano.ts`, `src/Root.tsx`): `"vertical"` → 1080×1920,
   `"horizontal"` → 1920×1080; outro valor dá aviso no console e vale o `width`/`height` literal da
