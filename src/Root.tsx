@@ -21,6 +21,9 @@ import { LegendaAnimada } from "./components/v2/LegendaAnimada";
 import plano0926 from "../planos/0926.plano.json";
 import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
 import planoTesteCamera from "../planos/teste-camera.plano.json";
+import planoPainelFundo from "../planos/testes/painel-fundo.plano.json";
+import plano20261028 from "../planos/2026-10-28.plano.json";
+import cortes20261028 from "../videos/2026-10-28.cortes.json";
 import planoTesteAudio from "../planos/teste-audio.plano.json";
 import planoLegendaTeste0926 from "../planos/teste-legenda-0926.resolvido.json";
 import cortes0926 from "../videos/0926.cortes.json";
@@ -297,6 +300,38 @@ export const RemotionRoot: React.FC = () => {
             cortes: cortes0926,
             cameraSrc: "videos/teste2-camera.mp4",
             cameraRepetirFrames: 211,
+          }}
+        />
+        {/* Apresentação do JR (28/10), vídeo inteiro. */}
+        <Composition
+          id="Apresentacao-2026-10-28"
+          component={PlanoComposicao}
+          durationInFrames={7427}
+          fps={30}
+          width={1920}
+          height={1080}
+          calculateMetadata={calcularTamanhoDoPlano}
+          defaultProps={{
+            videoSrc: "videos/2026-10-28-fundo.mp4",
+            plano: plano20261028,
+            cortes: cortes20261028,
+            cameraSrc: "videos/2026-10-28-camera.mp4",
+          }}
+        />
+        {/* PainelFundo: 8 s do JR real (tela e câmera recortadas do vídeo de 28/10), dividida e tela pequena. */}
+        <Composition
+          id="PainelFundoTeste"
+          component={PlanoComposicao}
+          durationInFrames={240}
+          fps={30}
+          width={1920}
+          height={1080}
+          calculateMetadata={calcularTamanhoDoPlano}
+          defaultProps={{
+            videoSrc: "videos/painel-teste-tela.mp4",
+            plano: planoPainelFundo,
+            cortes: { trechos: [{ inicio: 0, fim: 8 }] },
+            cameraSrc: "videos/painel-teste-camera.mp4",
           }}
         />
         {/* Tamanho literal 1080x1920 de propósito: o plano horizontal faz o calculateMetadata

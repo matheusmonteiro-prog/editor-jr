@@ -918,7 +918,7 @@ for (const el of elementos) {
 // 10. lista "camera" (opcional). Não usa texto/posicao/slot/ilustrativo e não
 // entra no respiro nem na colisão dos elementos. O validador NÃO prova o visual
 // (câmera cobrir rosto, sincronia): isso é conferência no Studio.
-const CHAVES_CAMERA = ['id', 'inicio', 'duracao', 'x', 'y', 'largura', 'altura', 'ajuste', 'framesEntrada', 'framesSaida'];
+const CHAVES_CAMERA = ['id', 'inicio', 'duracao', 'x', 'y', 'largura', 'altura', 'ajuste', 'framesEntrada', 'framesSaida', 'raio', 'framesTransicao', 'zoomDe', 'zoomPara', 'framesZoom'];
 const numeroNaFaixa = (v, min, max) => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
 const inteiroNaoNegativo = (v) => Number.isInteger(v) && v >= 0;
 

@@ -157,6 +157,7 @@ Curva cubic-bezier(.2,.7,.2,1). No Remotion: spring() para entrada, interpolate(
 | Contador | Número sobe até o valor e para | 1,5 s |
 | Risco vermelho | Palavra errada riscada, a certa entra logo abaixo | 0,5 s + entrada |
 | Batida | Explosão do JR (seção 4.4) | 0,4 s |
+| Zoom de abertura (aprovado pelo Matheus em 02/11/2026) | Início do vídeo e de cada bloco: o vídeo começa aproximado e vem para trás, de 125% a 100%, curva `Easing.out(Easing.cubic)`. No plano: `zoomDe: 1.25, zoomPara: 1, framesZoom: 45` no trecho de câmera | 1,5 s |
 | Pop | Card de empresa entrando | 0,45 s, cascata de 0,2 s |
 
 Sem bounce longo, sem partículas além das cédulas, sem 3D, sem brilho.

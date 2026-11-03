@@ -93,8 +93,10 @@ REGRAS DO FORMATO (não inventar nada fora disso):
    validador dá erro). NUNCA preencha "deslocamentoCamera": quem mede o atraso
    é o Matheus (o efeito existe desde o commit `1cc8211`). A janelinha não pode
    cobrir o rosto do JR nem texto importante da tela, e o validador NÃO confere
-   isso: é conferência minha no Studio. Zoom e tela/câmera meio a meio (cada
-   um com moldura) NÃO existem como componente: me avise, não invente.
+   isso: é conferência minha no Studio. Tela dividida e tela pequena: `PainelFundo`
+   mais um trecho de câmera (coordenadas em `docs/catalogo-componentes.md`). Zoom e
+   tela/câmera meio a meio (cada um com moldura) NÃO existem como componente: me
+   avise, não invente.
 
 12. ARROBA DO INSTAGRAM: o componente "ArrobaInstagram" só entra no plano se
    o roteiro pedir. O @ vem SEMPRE do meu pedido: copie em "props"."usuario"
@@ -142,7 +144,7 @@ AVISOs você pode comentar comigo, mas ERROs têm que estar zerados.
 
 Gerado em 01/10/2026 lendo o AST dos schemas Zod reais (mesma técnica usada por
 `scripts/validar-plano.mjs`) e o `CATALOGO` real de `src/PlanoComposicao.tsx` — são os únicos
-21 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026, o `ArrobaInstagram` em 12/10/2026 e a `LegendaAnimada` em 14/10/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
+25 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026, o `ArrobaInstagram` em 12/10/2026, a `LegendaAnimada` em 14/10/2026 e o `PainelFundo`, o `TextoImpacto`, o `ElementoHistoria` e o `Escurecimento` em 02/11/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
 no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada uma).
 
 | Componente | Props obrigatórias |
@@ -164,6 +166,10 @@ no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada um
 | `CallToAction` | nenhuma (todas têm padrão) |
 | `CirculoDestaque` | nenhuma (todas têm padrão) |
 | `Spotlight` | nenhuma (todas têm padrão) |
+| `PainelFundo` | nenhuma (todas têm padrão) |
+| `TextoImpacto` | nenhuma (todas têm padrão) |
+| `ElementoHistoria` | nenhuma (todas têm padrão) |
+| `Escurecimento` | nenhuma (todas têm padrão) |
 | `Contador` | `valorInicial`, `valorFinal` |
 | `AvisoCVM` | nenhuma (todas têm padrão) |
 | `ArrobaInstagram` | `usuario` |
@@ -321,8 +327,9 @@ ela o plano funciona como antes. O caminho do arquivo da câmera **não vai no p
   desconhecido dentro de um trecho.
 - **Fora do alcance do validador:** a janelinha cobrir o rosto do JR ou texto da tela, a
   sincronia entre tela e câmera e o aspecto visual. Isso é conferência no Studio.
-- **O que não existe:** zoom e tela/câmera meio a meio **não são componente**; hoje só existem
-  como teste em `src/testes/`.
+- **O que não existe:** zoom e tela/câmera meio a meio (cada um com moldura) **não são
+  componente**; hoje só existem como teste em `src/testes/`. JR com painel ao lado é o
+  `PainelFundo` mais um trecho de câmera.
 
 ---
 

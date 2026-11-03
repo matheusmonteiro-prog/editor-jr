@@ -161,6 +161,21 @@ pendências no `ARQUITETURA.md`, seção 7, Etapa 6.
   - `bc97c6e` (B3c): a `duracao` preenchida pelo resolvedor vai até o fim da última palavra,
     arredondada para cima ao décimo.
 
+## Sessão de 02/11/2026 (branch `kit-visual-video`, sem commit)
+
+- `PainelFundo` criado, com a composição de teste `PainelFundoTeste` (8 s do vídeo de 28/10,
+  recortes em `public/videos/painel-teste-*.mp4`, fora do Git). **Falta o Matheus ver e aprovar.**
+- `npx remotion render` e `still` funcionaram no Windows neste PC em 02/11/2026; o bloqueio
+  registrado em `ARQUITETURA.md` não apareceu aqui.
+- Ainda não feito: `LinhaDoTempo`, plano JSON do vídeo real e correção do roteiro v1.
+- A que voltar: esta branch; depois da aprovação do painel, decidir o `LinhaDoTempo`.
+
+- Vídeo de 28/10 em edição, por blocos (notas em `roteiros/2026-10-28.etapa1-editada.md`). B1 e B2 montados e renderizados, **aguardando o Matheus ver**: `out/2026-10-28-b1-b2.mp4`, composição `Apresentacao-2026-10-28`, plano `planos/2026-10-28.plano.json`. Depois da aprovação, seguir B3 a B8, um por vez.
+- Bases geradas por `scripts/montar-corte-final.mjs` (novo): `public/videos/2026-10-28-fundo.mp4` (verde + voz tratada) e `-camera.mp4`; cortes em `videos/2026-10-28.cortes.json` (tira o erro e a primeira versão da frase da factory, 100,09 s a 123,21 s). 4:07.6 no total.
+- Em aberto: sincronia da imagem (clipes `out/sincronia-A-como-gravado.mp4` e `out/sincronia-B-imagem-adiantada-033s.mp4`). Se ele escolher B, regerar as bases com `--atraso 0.33`.
+- B1 a B8 montados no plano (7.427 quadros). Zoom de abertura aprovado pelo Matheus e padronizado no kit; fundo da câmera com desfoque leve por máscara fixa (`videos/2026-10-28-mascara-fundo.png`, opção `--mascara`). **Render do vídeo inteiro parado por disco cheio:** cada `remotion still` deixa uma cópia de 269 MB em `%TEMP%\remotion-v4.0.527-assets*`; aguardando o Matheus autorizar apagar as 39 pastas.
+- `TextoImpacto`, `ElementoHistoria` e `Escurecimento` criados; câmera ganhou `framesTransicao` e zoom. Nada disso visto no Studio ainda.
+
 ## Falta
 
 - Etapa 3: **não testados** — render do Remotion com as cópias leves do par de 25/09 e com a

@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import {
   AbsoluteFill,
+  Easing,
   Html5Audio,
   interpolate,
   OffthreadVideo,
@@ -31,6 +32,10 @@ import { Contador } from "./components/v2/Contador";
 import { AvisoCVM } from "./components/v2/AvisoCVM";
 import { ArrobaInstagram } from "./components/v2/ArrobaInstagram";
 import { LegendaAnimada } from "./components/v2/LegendaAnimada";
+import { PainelFundo } from "./components/v2/PainelFundo";
+import { TextoImpacto } from "./components/v2/TextoImpacto";
+import { ElementoHistoria } from "./components/v2/ElementoHistoria";
+import { Escurecimento } from "./components/v2/Escurecimento";
 import { criarParaFrameCortado, type TrechoCortado } from "./utils/tempoCortado";
 import { converterPalavrasMs } from "./utils/legenda";
 
@@ -61,6 +66,10 @@ const CATALOGO: Record<string, React.ComponentType<any>> = {
   AvisoCVM,
   ArrobaInstagram,
   LegendaAnimada,
+  PainelFundo,
+  TextoImpacto,
+  ElementoHistoria,
+  Escurecimento,
 };
 
 type ElementoPlano = {
@@ -85,6 +94,11 @@ type TrechoCamera = {
   ajuste?: string; // "cobrir" (padrão) ou "conter"; string porque o JSON importado não guarda o literal
   framesEntrada?: number;
   framesSaida?: number;
+  raio?: number; // canto arredondado da caixa, fração da largura
+  framesTransicao?: number; // a caixa desliza a partir do trecho anterior
+  zoomDe?: number; // zoom do vídeo dentro da caixa, de zoomDe a zoomPara em framesZoom
+  zoomPara?: number;
+  framesZoom?: number;
 };
 
 // Item da lista "audio" do plano (fora de "elementos"). Música: toca o vídeo todo,
@@ -185,12 +199,32 @@ const CameraDoPlano: React.FC<{
     [trechos, paraFrameCortado],
   );
 
-  const atual = janelas.find((j) => frame >= j.de && frame < j.ate);
+  const indice = janelas.findIndex((j) => frame >= j.de && frame < j.ate);
+  const atual = indice === -1 ? undefined : janelas[indice];
+  const anterior = indice > 0 ? janelas[indice - 1] : undefined;
   const caixa = atual ?? janelas[0];
+  const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+
+  const progresso =
+    anterior && caixa.framesTransicao
+      ? interpolate(frame, [caixa.de, caixa.de + caixa.framesTransicao], [0, 1], {
+          ...clamp,
+          easing: Easing.bezier(0.2, 0.7, 0.2, 1),
+        })
+      : 1;
+  const deslizar = (campo: "x" | "y" | "largura" | "altura" | "raio", padrao: number) => {
+    const fim = caixa[campo] ?? padrao;
+    return anterior ? (anterior[campo] ?? padrao) + (fim - (anterior[campo] ?? padrao)) * progresso : fim;
+  };
+  const zoom = caixa.framesZoom
+    ? interpolate(frame, [caixa.de, caixa.de + caixa.framesZoom], [caixa.zoomDe ?? 1, caixa.zoomPara ?? 1], {
+        ...clamp,
+        easing: Easing.out(Easing.cubic),
+      })
+    : (caixa.zoomPara ?? 1);
 
   let opacidade = 0;
   if (atual) {
-    const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
     const entrada = atual.framesEntrada ?? 0;
     const saida = atual.framesSaida ?? 0;
     const fadeIn = entrada > 0 ? interpolate(frame, [atual.de, atual.de + entrada], [0, 1], clamp) : 1;
@@ -206,10 +240,12 @@ const CameraDoPlano: React.FC<{
         mudo
         volume={0}
         repetirFrames={repetirFrames}
-        x={caixa.x ?? 0.5}
-        y={caixa.y ?? 0.5}
-        largura={caixa.largura ?? 1}
-        altura={caixa.altura ?? 1}
+        x={deslizar("x", 0.5)}
+        y={deslizar("y", 0.5)}
+        largura={deslizar("largura", 1)}
+        altura={deslizar("altura", 1)}
+        zoom={zoom}
+        raio={deslizar("raio", 0)}
         ajuste={caixa.ajuste === "conter" ? "conter" : "cobrir"}
         opacidade={opacidade}
         pularFrames={pularFrames > 0 ? pularFrames : undefined}

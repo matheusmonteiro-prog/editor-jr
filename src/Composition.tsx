@@ -30,6 +30,10 @@ import {
 } from "./components/v2/PersonagemImagem";
 import { Contador, contadorSchema } from "./components/v2/Contador";
 import { Spotlight, spotlightSchema } from "./components/v2/Spotlight";
+import { PainelFundo, painelFundoSchema } from "./components/v2/PainelFundo";
+import { TextoImpacto, textoImpactoSchema } from "./components/v2/TextoImpacto";
+import { ElementoHistoria, elementoHistoriaSchema } from "./components/v2/ElementoHistoria";
+import { Escurecimento, escurecimentoSchema } from "./components/v2/Escurecimento";
 import { CallToAction, callToActionSchema } from "./components/v2/CallToAction";
 import {
   CirculoDestaque,
@@ -385,6 +389,85 @@ export const MyComposition = () => {
           duracaoFrames: 90,
           tamanhoFonte: 0.09,
           top: 0.38,
+        }}
+      />
+      <Composition
+        id="TextoImpacto"
+        component={TextoImpacto}
+        durationInFrames={90}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={textoImpactoSchema}
+        defaultProps={{
+          texto: "Minha paixão é números",
+          destaque: "números",
+          y: 0.8,
+          tamanhoFonte: 0.06,
+          corTexto: "#F5F0E6",
+          corDestaque: "#EFAF20",
+          corContorno: "#0F2A1D",
+          duracaoFrames: 90,
+          framesEntrada: 12,
+          framesSaida: 8,
+        }}
+      />
+      <Composition
+        id="ElementoHistoria"
+        component={ElementoHistoria}
+        durationInFrames={150}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={elementoHistoriaSchema}
+        defaultProps={{
+          icone: "arvore" as const,
+          titulo: "Criado no sítio",
+          destaque: "sítio",
+          x: 0.25,
+          y: 0.5,
+          cartao: false,
+          direcao: "esquerda" as const,
+          tamanhoIcone: 0.13,
+          tamanhoFonte: 0.04,
+          corTitulo: "#F5F0E6",
+          corDestaque: "#EFAF20",
+          corIcone: "#EFAF20",
+          corCartao: "#0F2A1D",
+          duracaoFrames: 150,
+          framesEntrada: 17,
+          framesDesenho: 24,
+          framesSaida: 10,
+        }}
+      />
+      <Composition
+        id="Escurecimento"
+        component={Escurecimento}
+        durationInFrames={90}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={escurecimentoSchema}
+        defaultProps={{
+          cor: "#0F2A1D",
+          opacidade: 0.45,
+          framesEntrada: 60,
+        }}
+      />
+      <Composition
+        id="PainelFundo"
+        component={PainelFundo}
+        durationInFrames={150}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={painelFundoSchema}
+        defaultProps={{
+          formato: "dividida-direita" as const,
+          cor: "#0F2A1D" as const,
+          duracaoFrames: 150,
+          framesEntrada: 21,
+          framesSaida: 21,
         }}
       />
       <Composition

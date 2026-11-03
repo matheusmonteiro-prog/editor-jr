@@ -1,0 +1,29 @@
+{
+  "video": "painel-teste",
+  "orientacao": "horizontal",
+  "fps": 30,
+  "deslocamentoCamera": 0,
+  "camera": [
+    { "id": "cam-cheia-1", "inicio": "0:00", "duracao": 2, "x": 0.5, "y": 0.5, "largura": 1, "altura": 1, "ajuste": "cobrir", "framesEntrada": 0, "framesSaida": 0 },
+    { "id": "cam-dividida", "inicio": "0:02", "duracao": 1.5, "x": 0.25, "y": 0.5, "largura": 0.5, "altura": 1, "ajuste": "cobrir", "framesEntrada": 0, "framesSaida": 0 },
+    { "id": "cam-cheia-2", "inicio": "0:03.5", "duracao": 1.8, "x": 0.5, "y": 0.5, "largura": 1, "altura": 1, "ajuste": "cobrir", "framesEntrada": 0, "framesSaida": 0 },
+    { "id": "cam-janela", "inicio": "0:05.3", "duracao": 1.7, "x": 0.14, "y": 0.75, "largura": 0.204, "altura": 0.364, "ajuste": "cobrir", "framesEntrada": 0, "framesSaida": 0 },
+    { "id": "cam-cheia-3", "inicio": "0:07", "duracao": 1, "x": 0.5, "y": 0.5, "largura": 1, "altura": 1, "ajuste": "cobrir", "framesEntrada": 0, "framesSaida": 0 }
+  ],
+  "elementos": [
+    {
+      "id": "painel-dividida",
+      "componente": "PainelFundo",
+      "descricao": "painel verde na metade direita", "texto": "sem texto", "posicao": "base", "slot": 1, "ilustrativo": false, "tempo_estimado": false,
+      "inicio": "0:01.3", "duracao": 2.9, "duracaoFrames": 87,
+      "props": { "formato": "dividida-direita", "cor": "#0F2A1D", "duracaoFrames": 87, "framesEntrada": 21, "framesSaida": 21 }
+    },
+    {
+      "id": "painel-tela-pequena",
+      "componente": "PainelFundo",
+      "descricao": "folha verde com janela do JR no canto esquerdo", "texto": "sem texto", "posicao": "base", "slot": 1, "ilustrativo": false, "tempo_estimado": false,
+      "inicio": "0:04.6", "duracao": 3.1, "duracaoFrames": 93,
+      "props": { "formato": "tela-pequena-esquerda", "cor": "#0F2A1D", "duracaoFrames": 93, "framesEntrada": 21, "framesSaida": 21 }
+    }
+  ]
+}

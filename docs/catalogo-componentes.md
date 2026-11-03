@@ -559,3 +559,102 @@ não visto no Studio com palavras reais** nem com o rosto do JR.
 | `maiusculas` | `boolean` | não (tem `.default()`) | `true` |
 | `maxPalavrasPorFrase` | `number` (1 a 12) | não (tem `.default()`) | `4` |
 | `pausaQuebraMs` | `number` (min 0) | não (tem `.default()`) | `700` |
+
+---
+
+### PainelFundo (v2)
+**Arquivo:** `src/components/v2/PainelFundo.tsx`
+**O que faz:** folha chapada que tampa o vídeo base (a tela do OBS) enquanto a câmera está numa
+caixa menor. Dividida: painel na metade da tela. Tela pequena: folha inteira com uma janela de
+cantos arredondados no canto inferior, por onde a câmera aparece. Tela cheia: folha inteira. Entra
+e sai deslizando pela lateral, com `interpolate()` (chega a 100% no quadro exato da troca da
+câmera). Sem blur e sem sombra difusa: a folha da tela pequena é uma `box-shadow` de desfoque zero.
+**Status:** Implementado, não confirmado pelo Matheus (registrado em doc em 02/11/2026). Teste:
+composição `PainelFundoTeste` (pasta Testes), plano `planos/testes/painel-fundo.plano.json`.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `formato` | `enum` (`dividida-direita`, `dividida-esquerda`, `tela-pequena-esquerda`, `tela-pequena-direita`, `tela-cheia`) | não (tem `.default()`) | `"dividida-direita"` |
+| `cor` | `enum` (`#0F2A1D`, `#F5F0E6`) | não (tem `.default()`) | `"#0F2A1D"` |
+| `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
+| `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `21` |
+| `framesSaida` | `number` (min 1) | não (tem `.default()`) | `21` |
+
+**Como usar no plano:**
+- Em `elementos`, o painel vem antes de gráficos e cards, e a legenda por último.
+- A câmera troca de caixa de uma vez. O painel começa 0,7 s antes da troca e termina 0,7 s depois
+  da volta, com `framesEntrada` e `framesSaida` da câmera em 0.
+- Trecho de câmera em vídeo 16:9 (`ajuste` `"cobrir"`). A caixa da janela é um pouco maior que o
+  buraco de propósito, para não sobrar fresta:
+
+| Formato do painel | `x` | `y` | `largura` | `altura` |
+|---|---|---|---|---|
+| `dividida-direita` | 0.25 | 0.5 | 0.5 | 1 |
+| `dividida-esquerda` | 0.75 | 0.5 | 0.5 | 1 |
+| `tela-pequena-esquerda` | 0.14 | 0.75 | 0.204 | 0.364 |
+| `tela-pequena-direita` | 0.86 | 0.75 | 0.204 | 0.364 |
+
+### TextoImpacto (v2)
+**Arquivo:** `src/components/v2/TextoImpacto.tsx`
+**O que faz:** palavra de impacto do kit (4.4): Anton inclinada, caixa alta, contorno verde-escuro,
+trecho em dourado, entra de 170% a 100%. Anton segue provisória até o Matheus escolher a fonte.
+**Status:** Implementado, não confirmado pelo Matheus (02/11/2026). Usado em `planos/2026-10-28.plano.json`.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `texto` | `string` | não (tem `.default()`) | `"Minha paixão é números"` |
+| `destaque` | `string` | não (tem `.default()`) | `"números"` |
+| `y` | `number` (0 a 1) | não (tem `.default()`) | `0.8` |
+| `tamanhoFonte` | `number` (0.01 a 0.2) | não (tem `.default()`) | `0.06` |
+| `corTexto` | `zColor` | não (tem `.default()`) | `"#F5F0E6"` |
+| `corDestaque` | `zColor` | não (tem `.default()`) | `"#EFAF20"` |
+| `corContorno` | `zColor` | não (tem `.default()`) | `"#0F2A1D"` |
+| `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `90` |
+| `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `12` |
+| `framesSaida` | `number` (min 1) | não (tem `.default()`) | `8` |
+
+### ElementoHistoria (v2)
+**Arquivo:** `src/components/v2/ElementoHistoria.tsx`
+**O que faz:** ícone de linha que se desenha, com um título em Fraunces embaixo, deslizando de lado.
+Para o JR contar a história e os elementos entrarem e saírem ao lado dele. Ícones desenhados no
+próprio arquivo, sem pacote novo.
+**Status:** Implementado, não confirmado pelo Matheus (02/11/2026). Usado em `planos/2026-10-28.plano.json`.
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `icone` | `enum` (`arvore`, `predio`, `broto`, `banco`, `maleta`) | não (tem `.default()`) | `"arvore"` |
+| `titulo` | `string` | não (tem `.default()`) | `"Criado no sítio"` |
+| `destaque` | `string` | não (tem `.default()`) | `"sítio"` |
+| `x` | `number` (0 a 1) | não (tem `.default()`) | `0.25` |
+| `y` | `number` (0 a 1) | não (tem `.default()`) | `0.5` |
+| `tamanhoIcone` | `number` (0.02 a 0.4) | não (tem `.default()`) | `0.13` |
+| `tamanhoFonte` | `number` (0.01 a 0.1) | não (tem `.default()`) | `0.04` |
+| `corTitulo` | `zColor` | não (tem `.default()`) | `"#F5F0E6"` |
+| `corDestaque` | `zColor` | não (tem `.default()`) | `"#EFAF20"` |
+| `corIcone` | `zColor` | não (tem `.default()`) | `"#EFAF20"` |
+| `duracaoFrames` | `number` (min 10) | não (tem `.default()`) | `150` |
+| `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `17` |
+| `framesDesenho` | `number` (min 1) | não (tem `.default()`) | `24` |
+| `framesSaida` | `number` (min 1) | não (tem `.default()`) | `10` |
+
+### Escurecimento (v2)
+**Arquivo:** `src/components/v2/Escurecimento.tsx`
+**O que faz:** véu chapado que escurece a tela aos poucos, para fechar o vídeo. No plano, vem antes dos
+elementos que devem continuar claros.
+**Status:** Implementado, não confirmado pelo Matheus (02/11/2026).
+
+| Prop | Tipo (zod) | Opcional | Valor padrão |
+|---|---|---|---|
+| `cor` | `zColor` | não (tem `.default()`) | `"#0F2A1D"` |
+| `opacidade` | `number` (0 a 1) | não (tem `.default()`) | `0.45` |
+| `framesEntrada` | `number` (min 1) | não (tem `.default()`) | `60` |
+
+**ElementoHistoria, além da tabela acima:** `cartao` (boolean, padrão `false`) vira placa chapada em linha,
+para ficar sobre o vídeo; `direcao` (`esquerda` ou `direita`) diz de que lado entra; `corCartao` (padrão
+`"#0F2A1D"`). Ícones também: `camisa`, `caminhao`, `carro`, `martelo`, `boi`, `pino`, `fabrica`, `grafico`,
+`soja`, `moedas`, `terra`, `bilhete`.
+
+**Câmera no plano (campos novos, opcionais, em cada trecho):** `raio` arredonda a caixa. `framesTransicao` faz a caixa deslizar
+a partir do trecho anterior. `zoomDe`, `zoomPara` e `framesZoom` aproximam ou afastam o vídeo dentro
+da caixa. Com fundo verde chapado como vídeo base, não é preciso `PainelFundo` para fundo verde.
+

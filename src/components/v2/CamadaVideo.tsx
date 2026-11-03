@@ -31,6 +31,8 @@ export const camadaVideoSchema = z.object({
   ajuste: z.enum(["cobrir", "conter"]).optional(),
   // Pula esses frames do começo do arquivo (trimBefore do Remotion). Sem ele: como antes.
   pularFrames: z.number().int().min(0).optional(),
+  zoom: z.number().min(1).max(3).default(1), // aproxima o vídeo dentro da caixa, a caixa não muda
+  raio: z.number().min(0).max(0.1).default(0), // canto arredondado, fração da largura
 });
 
 // z.input: as props com .default() podem ser omitidas ao usar o componente.
@@ -51,6 +53,8 @@ export const CamadaVideo: React.FC<Props> = ({
   framesSaida = 0,
   ajuste = undefined,
   pularFrames = undefined,
+  zoom = 1,
+  raio = 0,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, durationInFrames } = useVideoConfig();
@@ -78,6 +82,7 @@ export const CamadaVideo: React.FC<Props> = ({
         width: "100%",
         height: "100%",
         ...(ajuste ? { objectFit: ajuste === "conter" ? "contain" : "cover" } : {}),
+        ...(zoom !== 1 ? { transform: `scale(${zoom})` } : {}),
       }}
     />
   );
@@ -90,6 +95,8 @@ export const CamadaVideo: React.FC<Props> = ({
         top: height * y - alturaPx / 2,
         width: larguraPx,
         height: alturaPx,
+        overflow: "hidden",
+        borderRadius: width * raio,
         opacity: Math.min(entrada, saida) * opacidade,
       }}
     >
