@@ -24,8 +24,8 @@ Se validar bem, pode virar produto no futuro. Isso é outro projeto (ver seção
 
 ## 2. Ambiente
 - Repositório: `git@github.com:matheusmonteiro-prog/editor-jr.git` — branch `main`
-- Pasta em casa: `C:\Users\zerob\editor-jr`
-- Pasta no trabalho: `C:\Users\edica\editor-jr`
+- Pasta deste PC (PC-EDICAO, trabalho, WSL Ubuntu): `C:\Users\zerob\editor-jr`
+- Pasta do outro PC (casa): caminho a confirmar (não verificado em 03/11/2026)
 - Node v24, npm 11, Remotion (template Blank, sem Tailwind)
 - Sincronização: `git pull` ao começar, commit + push ao terminar
 - **FFmpeg:** o Remotion traz o dele em `node_modules/@remotion/compositor-win32-x64-msvc/`.
