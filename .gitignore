@@ -7,11 +7,17 @@ dist
 out
 
 # Vídeos nunca vão para o Git (brutos ou exportados)
-videos/
+videos/*
+!videos/0926.cortes.json
+# vídeos de trabalho dentro de public/ também ficam fora do Git
+public/videos/
 *.mp4
 *.mov
 *.mkv
 *.webm
+
+# Cópias de segurança dos vídeos brutos (ficam só no PC)
+backup-videos/
 
 # .claude/skills/* em geral são links simbólicos para .agents/skills/ (o
 # conteúdo real, que fica versionado). Com core.symlinks=false o Git não
