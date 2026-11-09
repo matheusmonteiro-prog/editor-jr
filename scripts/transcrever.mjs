@@ -54,6 +54,7 @@
 
 import {spawnSync} from 'node:child_process';
 import {existsSync, mkdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
+import {cpus} from 'node:os';
 import {basename, dirname, extname, isAbsolute, join, relative, resolve} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {toCaptions, transcribe} from '@remotion/install-whisper-cpp';
@@ -76,6 +77,16 @@ const MODELOS_ACEITOS = [
 const MAX_PALAVRAS_POR_LINHA = 12;
 const MIN_PALAVRAS_PARA_QUEBRAR_NA_PONTUACAO = 5;
 const PAUSA_QUEBRA_MS = 700;
+// Núcleos do processador para o Whisper. O pacote, sem esta opção, usa só 4. Medido em 07/11/2026
+// (PC de 12 núcleos, modelo small, 180 s de voz do JR): 4 núcleos = 155 s; 10 núcleos = 86 s
+// (1,8x mais rápido), com as 471 palavras, o texto e os tempos IDÊNTICOS. Deixa 2 núcleos livres
+// para o Windows não travar, mas nunca usa menos de 4 (o que o pacote já usava).
+// Testado e descartado: cortar o áudio em pedaços e rodar 2-3 Whispers juntos (ganho de ~10%,
+// mas mudou 5-7% das palavras e deslocou tempos em até 1,4 s).
+const NUCLEOS_LIVRES = 2;
+const NUCLEOS_MINIMO = 4;
+export const nucleosDoWhisper = (nucleosDoPc = cpus().length) =>
+  Math.max(1, Math.min(nucleosDoPc, Math.max(NUCLEOS_MINIMO, nucleosDoPc - NUCLEOS_LIVRES)));
 const PASTA_AUDIO = join(RAIZ, 'out');
 const PASTA_SAIDA = join(RAIZ, 'videos');
 const ARQUIVO_CONFIG = join(RAIZ, 'config.local.json');
@@ -401,7 +412,11 @@ const main = async () => {
     `áudio:  ${paraRelativo(wav)} (${reaproveitado ? 'já existia, reaproveitado' : 'extraído agora'}; ` +
       `${(duracaoMs / 1000).toFixed(1)} s)`,
   );
-  console.log('Rodando o Whisper (leva em torno de 1x a duração do áudio na CPU)...');
+  const nucleos = nucleosDoWhisper();
+  console.log(
+    `Rodando o Whisper com ${nucleos} de ${cpus().length} núcleos ` +
+      '(cerca de 0,5x a duração do áudio num PC de 12 núcleos)...',
+  );
 
   // O pacote grava um tmp.json na pasta de trabalho; com ela em out/, ele não cai na raiz.
   mkdirSync(PASTA_AUDIO, {recursive: true});
@@ -418,6 +433,7 @@ const main = async () => {
     tokenLevelTimestamps: true,
     splitOnWord: true,
     printOutput: false,
+    additionalArgs: ['-t', String(nucleos)],
   });
   const segundos = (Date.now() - inicio) / 1000;
 
