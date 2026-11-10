@@ -7,12 +7,12 @@
   - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
   - [x] 2b — Redução de ruído e equalização da voz (aprovado em 23/09/2026, amostra A/B)
   - [x] Gancho (reordenar trechos), incluindo teaser com múltiplos trechos — testado e aprovado (23/09/2026)
-- [x] Etapa 3 — Montagem sobre vídeo real (3a fechada em 13/10/2026 (código); 3b aprovada pelo Matheus em 10/11/2026, teste dele; arquivos não estão neste PC)
-- [x] Etapa 4 — Legendas automáticas (4a fechada em 14/10/2026; **4b aguarda confirmação do Matheus: termos financeiros e glossário em vídeo real**; 4b não está fechada)
+- [x] Etapa 3 — Montagem sobre vídeo real (aprovada por decisão do Matheus em 10/11/2026; 3a fechada em 13/10/2026 (código); 3b aprovada no teste dele, arquivos não estão neste PC; o que falta será validado por ele na prática, não é pendência)
+- [x] Etapa 4 — Legendas automáticas (aprovada por decisão do Matheus em 10/11/2026; 4a fechada em 14/10/2026; 4b (termos financeiros e glossário em vídeo real) será validada por ele na prática, não é pendência)
 - [ ] Etapa 5 — Identidade visual (**dispensada por decisão do Matheus em 10/11/2026**. Motivo: o kit visual v3 atende; a cor do método fica `#1DD41E` por decisão dele; a proibição de "sinal de compra" foi desconsiderada por ele, porque no canal o termo é narrativo. Não é bloqueio)
-- [x] Etapa 6 — Leitor de prompt (6a cumprida em 09/10/2026, critérios 6.1 a 6.6 de `docs/criterios-fechamento.md`; **6b não iniciada, só começa por ordem do Matheus**; pendências na seção 7, Etapa 6)
-- [ ] Etapa 7 — Interface própria (futuro, fora do escopo atual)
-- [ ] Etapa 8 — Exportação e entrega (parcial. Fechar depois do primeiro vídeo real. Pendências: resolução 2160×3872 (exige `--props` em `Root.tsx`), `render-final.mjs` sem `--props` e sem `--concurrency`, sem critério escrito em `docs/criterios-fechamento.md`)
+- [x] Etapa 6 — Leitor de prompt (6a feita: cumprida em 09/10/2026, critérios 6.1 a 6.6 de `docs/criterios-fechamento.md`; AvisoCVM e resolvedor de legenda serão validados por ele na prática; **6b só por ordem do Matheus (não iniciada)**; pendências na seção 7, Etapa 6)
+- [ ] Etapa 7 — Interface própria (em discussão: controle manual das edições (arrastar, soltar imagem))
+- [ ] Etapa 8 — Exportação e entrega (por último, por decisão do Matheus (10/11/2026). Parcial. Pendências: resolução 2160×3872 (exige `--props` em `Root.tsx`), `render-final.mjs` sem `--props` e sem `--concurrency`, sem critério escrito em `docs/criterios-fechamento.md`)
 
 ---
 
@@ -860,8 +860,8 @@ no Remotion (ex.: via `OffthreadVideo`) sem conversão.
   marca (Etapa 5).
 
 ## 9. Pendências do Matheus (fora do código)
-- [ ] Finalizar Emparelhamento (fontes e cores) no Claude Design
-- [ ] Logo em PNG com fundo transparente
-- [ ] Baixar músicas e efeitos iniciais
-- [ ] Vídeo bruto de teste
-- [ ] Chave da API da Anthropic (etapa 6b)
+- [ ] Finalizar Emparelhamento (fontes e cores) no Claude Design — **dispensado pelo Matheus**
+- [ ] Logo em PNG com fundo transparente — **dispensado pelo Matheus**
+- [ ] Baixar músicas e efeitos iniciais — validação na prática
+- [ ] Vídeo bruto de teste — validação na prática
+- [ ] Chave da API da Anthropic (etapa 6b) — validação na prática
