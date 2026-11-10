@@ -41,7 +41,7 @@ import {
 // final (4:05).
 //
 // Tempos em SEGUNDOS DA LINHA FINAL (4:07,6), iguais aos do v1.
-// Voz: public/videos/2026-10-28-voz-wpe8-completa.wav (aprovada pelo Matheus em 04/11: WPE força máxima + tratar-voz preset jr) a partir de
+// Voz: public/videos/2026-10-28-voz-wpe8-calma20.wav (aprovada pelo Matheus em 06/11: WPE força máxima + tratar-voz preset jr) a partir de
 // 2026-10-28-fundo.mp4 (voz limpa e cortada). Para voltar à voz antiga, troque o arquivo na tag <Audio>.
 // Fora de propósito, por regra do kit: "De 50 reais a bilhões", "Valorização extremamente boa",
 // "Assim como o S&P 500" e "Valoriza bem perante o real" (promessa ou desempenho sem fonte).
