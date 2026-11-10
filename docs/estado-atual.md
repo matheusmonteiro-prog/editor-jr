@@ -31,14 +31,14 @@ Só a marca de cada etapa; vale sobre as listas "Etapas" dos retratos mais antig
 - `out/2026-10-28-final-v3b.mp4`: 1920×1080, 30 fps, 251,6 s, H.264 + AAC, 188 MB, −14,0 LUFS, pico −1,1 dBTP. Inclui os ajustes A-001 a A-016, a voz da amostra 8 e a trilha baixa.
 - Fora do Git (pasta `out/`). O `out/2026-10-28-final-v3.mp4` antigo foi mantido.
 - Como renderizei: as 2 primeiras tentativas (6 processos) caíram no quadro ~1345 com código 4 e sem erro claro; a 3ª, com `--concurrency=2` e pasta pública pequena (`--public-dir`), terminou sem falha. Suspeita (não confirmada): falta de memória.
-- Conferi 12 quadros (0:02 a 4:09) numa folha de contato: impactos, trajetória, janelas escuras e claras, encerramento. **O Matheus ainda não assistiu ao arquivo.** Nada pode ser dito "validado" até ele ver.
+- Conferi 12 quadros (0:02 a 4:09) numa folha de contato: impactos, trajetória, janelas escuras e claras, encerramento. **O Matheus aprovou o v3b em 06/11** (arquivo salvo por ele como `out/TESTE 2.mp4`; ver a seção de 06/11, tarde). Nada pode ser dito "validado" até ele ver.
 
 ## Retrato de 04/11/2026, fim do dia (ajustes A-001 a A-013)
 
 Nada commitado. Pedidos e estado de cada um em `docs/alteracoes.md`; regras novas já no kit.
 - **Áudio:** voz da amostra 8 (WPE + tom, −14 LUFS) e trilha "Sertão Caboclo" ~23 dB abaixo. Eco de sala segue como limite (guia 5d). Ferramentas de IA de áudio guardadas (skill `tratar-audio`).
 - **Kit:** sem logo; janela com câmera inteira e borda fina; fundo explicativo em movimento; tema claro (bege); faixa do impacto leve + véu sobre texto antigo; fundo da câmera com desfoque leve (`CameraJR`); ponto nas descrições; trajetória da história (`LinhaTrajetoria`); regras de acabamento das transições (4.12).
-- **Video2810V3:** todos os ajustes aplicados; conferido por mim em quadros renderizados (`remotion still`). **O Matheus ainda não viu no Studio.** Nenhum render final novo.
+- **Video2810V3:** todos os ajustes aplicados; conferido por mim em quadros renderizados (`remotion still`). **O Matheus aprovou o v3b em 06/11** (ver a seção de 06/11, tarde). Nenhum render final novo.
 - Fora do Git: `public/music/sertao-caboclo-quincas-moreira.mp3`, `public/videos/2026-10-28-voz-wpe8-completa.wav`, `.vc-audio/` (210 MB) e `.vc-enhance/` (~2 GB).
 
 ## Retrato de 04/11/2026 (organização da casa)
