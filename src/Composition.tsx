@@ -48,6 +48,35 @@ import {
   GradeAtivos3D,
   gradeAtivos3DSchema,
 } from "./components/v2/GradeAtivos3D";
+// Kit visual v3 (docs/kit-visual-video.md, 03/11/2026)
+import {
+  FundoExplicativo,
+  fundoExplicativoSchema,
+} from "./components/v2/FundoExplicativo";
+import { CameraJR, cameraJRSchema } from "./components/v2/CameraJR";
+import { LinhaTrajetoria, linhaTrajetoriaSchema } from "./components/v2/LinhaTrajetoria";
+import {
+  PainelDiagonal,
+  painelDiagonalSchema,
+} from "./components/v2/PainelDiagonal";
+import {
+  TransicaoJanela,
+  transicaoJanelaSchema,
+} from "./components/v2/TransicaoJanela";
+import {
+  ComparacaoNumeros,
+  comparacaoNumerosSchema,
+} from "./components/v2/ComparacaoNumeros";
+import { Pauta, pautaSchema } from "./components/v2/Pauta";
+import {
+  AberturaCapitulo,
+  aberturaCapituloSchema,
+} from "./components/v2/AberturaCapitulo";
+import { ArrobaCanal, arrobaCanalSchema } from "./components/v2/ArrobaCanal";
+import {
+  DestaqueSolto,
+  destaqueSoltoSchema,
+} from "./components/v2/DestaqueSolto";
 
 // Os defaultProps ficam como objeto literal aqui (não importados de outro
 // arquivo) porque é assim que o Remotion Studio consegue salvar de volta no
@@ -571,6 +600,285 @@ export const MyComposition = () => {
           duracaoFrames: 150,
           framesSaida: 12,
           corFundo: "#0F2A1D",
+        }}
+      />
+      {/* ---------- Kit visual v3 ---------- */}
+      <Composition
+        id="FundoExplicativo"
+        component={FundoExplicativo}
+        durationInFrames={150}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={fundoExplicativoSchema}
+        defaultProps={{
+          imagem: "images/kit-v3/fundo-explicativo-provisorio.jpg",
+          zoomFinal: 1.08,
+          escurecer: 0.62,
+          mostrarLinha: true,
+          opacidadeLinha: 0.15,
+          corLinha: "#FFC629",
+          framesLinha: 50,
+          movimento: 1,
+          cicloSegundos: 16,
+          duracaoFrames: 150,
+        }}
+      />
+      {/* Kit v3, 4.10 (04/11): trajetória do JR, linha que se desenha etapa por etapa */}
+      <Composition
+        id="LinhaTrajetoria"
+        component={LinhaTrajetoria}
+        durationInFrames={180}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={linhaTrajetoriaSchema}
+        defaultProps={{
+          capitulos: [
+            {
+              titulo: "Do sítio à cidade",
+              marcos: [
+                { icone: "terra" as const, texto: "Criado no sítio", em: 15 },
+                { icone: "predio" as const, texto: "Vida de cidade", em: 45 },
+              ],
+            },
+            {
+              titulo: "Por conta própria",
+              marcos: [
+                { icone: "maleta" as const, texto: "Por conta própria", em: 85 },
+                { icone: "caminhao" as const, texto: "Transportadora", em: 115 },
+              ],
+            },
+          ],
+          x: 0.05,
+          y: 0.1,
+          largura: 0.42,
+          altura: 0.8,
+          tamanhoTexto: 0.024,
+          framesLinha: 14,
+          tema: "escuro" as const,
+          corLinha: "#FFC629",
+          duracaoFrames: 180,
+          framesEntrada: 10,
+          framesSaida: 12,
+        }}
+      />
+      {/* Kit v3, 4.15 (04/11): câmera com fundo desfocado e JR nítido */}
+      <Composition
+        id="CameraJR"
+        component={CameraJR}
+        durationInFrames={90}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={cameraJRSchema}
+        defaultProps={{
+          src: "images/kit-v3/jr-quadro-teste.jpg",
+          tipo: "imagem" as const,
+          mudo: true,
+          inicio: 0,
+          desfoque: 0.0015,
+          escurecerFundo: 0.04,
+          focos: [
+            { x: 0.5, y: 0.27, raioX: 0.3, raioY: 0.42 },
+            { x: 0.5, y: 0.86, raioX: 0.56, raioY: 0.56 },
+          ],
+          remendos: [],
+          veus: [],
+        }}
+      />
+      <Composition
+        id="PainelDiagonal"
+        component={PainelDiagonal}
+        durationInFrames={120}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={painelDiagonalSchema}
+        defaultProps={{
+          jrSrc: "images/kit-v3/jr-quadro-teste.jpg",
+          jrTipo: "imagem" as const,
+          jrMudo: true,
+          logo: "",
+          modo: "titulo" as const,
+          icone: "predio" as const,
+          titulo: "Vida de cidade",
+          destaque: "cidade",
+          rotulo: "",
+          itens: [],
+          framesEntreItens: 14,
+          topoDiagonal: 0.52,
+          baseDiagonal: 0.46,
+          corDestaque: "#FFC629",
+          duracaoFrames: 120,
+          framesEntrada: 15,
+          framesSaida: 12,
+        }}
+      />
+      <Composition
+        id="PainelDiagonalLista"
+        component={PainelDiagonal}
+        durationInFrames={150}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={painelDiagonalSchema}
+        defaultProps={{
+          jrSrc: "images/kit-v3/jr-quadro-teste.jpg",
+          jrTipo: "imagem" as const,
+          jrMudo: true,
+          logo: "",
+          modo: "lista" as const,
+          icone: "nenhum" as const,
+          titulo: "",
+          destaque: "",
+          rotulo: "Onde atuo hoje",
+          itens: [
+            { icone: "soja" as const, texto: "Soja" },
+            { icone: "boi" as const, texto: "Boi" },
+            { icone: "grafico" as const, texto: "Bolsa de valores" },
+          ],
+          framesEntreItens: 14,
+          topoDiagonal: 0.52,
+          baseDiagonal: 0.46,
+          corDestaque: "#FFC629",
+          duracaoFrames: 150,
+          framesEntrada: 15,
+          framesSaida: 12,
+        }}
+      />
+      <Composition
+        id="TransicaoJanela"
+        component={TransicaoJanela}
+        durationInFrames={120}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={transicaoJanelaSchema}
+        defaultProps={{
+          jrSrc: "images/kit-v3/jr-quadro-teste.jpg",
+          jrTipo: "imagem" as const,
+          jrMudo: true,
+          logo: "",
+          arroba: "jroinvestidorsertanejo",
+          frameTransicao: 30,
+          duracaoTransicao: 15,
+          frameVolta: 95,
+          duracaoVolta: 12,
+          larguraJanela: 0.22,
+          topoJanela: 0.04,
+          corDestaque: "#FFC629",
+          duracaoFrames: 120,
+        }}
+      />
+      <Composition
+        id="ComparacaoNumeros"
+        component={ComparacaoNumeros}
+        durationInFrames={120}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={comparacaoNumerosSchema}
+        defaultProps={{
+          rotulo: "Ação exemplo · ilustrativo",
+          titulo: "Preço x valor calculado",
+          rotuloAntes: "Preço hoje",
+          valorAntes: 32.4,
+          rotuloDepois: "Valor calculado",
+          valorDepois: 38.1,
+          prefixo: "R$ ",
+          casasDecimais: 2,
+          corDepois: "amarelo" as const,
+          fonte: "Fonte: [fonte] · [data]",
+          ilustrativo: true,
+          comFundo: true,
+          topo: 0.33,
+          framesContador: 45,
+          corDestaque: "#FFC629",
+          duracaoFrames: 120,
+          framesSaida: 12,
+        }}
+      />
+      <Composition
+        id="Pauta"
+        component={Pauta}
+        durationInFrames={120}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={pautaSchema}
+        defaultProps={{
+          titulo: "Duas partes:",
+          itens: [
+            { texto: "Quem é o JR", complemento: "(do sítio à Bolsa de Valores)" },
+            { texto: "A terra como régua", complemento: "(valorização x dividendo)" },
+          ],
+          comFundo: true,
+          logo: "",
+          corDestaque: "#FFC629",
+          framesEntreItens: 12,
+          duracaoFrames: 120,
+          framesSaida: 12,
+        }}
+      />
+      <Composition
+        id="AberturaCapitulo"
+        component={AberturaCapitulo}
+        durationInFrames={90}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={aberturaCapituloSchema}
+        defaultProps={{
+          rotulo: "Parte 1",
+          titulo: "Terra x Bolsa",
+          subtitulo: "valorização, dividendo e a régua do canal",
+          comFundo: true,
+          logo: "",
+          corDestaque: "#FFC629",
+          duracaoFrames: 90,
+          framesSaida: 12,
+        }}
+      />
+      <Composition
+        id="ArrobaCanal"
+        component={ArrobaCanal}
+        durationInFrames={120}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={arrobaCanalSchema}
+        defaultProps={{
+          usuario: "jroinvestidorsertanejo",
+          tamanhoFonte: 0.0208,
+          margemTopo: 0.04,
+          margemDireita: 0.05,
+          corTexto: "#F5F0E6",
+          duracaoFrames: 120,
+          framesEntrada: 10,
+          framesSaida: 10,
+        }}
+      />
+      <Composition
+        id="DestaqueSolto"
+        component={DestaqueSolto}
+        durationInFrames={120}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={destaqueSoltoSchema}
+        defaultProps={{
+          icone: "predio" as const,
+          texto: "Fundo imobiliário",
+          destaque: "imobiliário",
+          tamanhoFonte: 0.025,
+          margemEsquerda: 0.05,
+          margemBase: 0.16,
+          escurecerCanto: 0.78,
+          corDestaque: "#FFC629",
+          duracaoFrames: 120,
+          framesEntrada: 14,
+          framesSaida: 12,
         }}
       />
     </Folder>

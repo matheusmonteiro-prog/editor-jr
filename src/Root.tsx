@@ -9,7 +9,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { Naruto } from "./Naruto";
 import { TesteVideoReal } from "./TesteVideoReal";
 import { TesteRoteiro01 } from "./TesteRoteiro01";
 import { TesteRoteiro02 } from "./TesteRoteiro02";
@@ -17,6 +16,8 @@ import "./index.css";
 import { MyComposition } from "./Composition";
 import { PlanoComposicao } from "./PlanoComposicao";
 import { VideoApresentacao, calcularApresentacao } from "./VideoApresentacao";
+import { KitV3Demo, KIT_V3_DEMO_FRAMES } from "./KitV3Demo";
+import { Video2810V3, DURACAO_2810_V3 } from "./Video2810V3";
 import { FPS } from "./dados/apresentacao";
 import { CamadaVideo } from "./components/v2/CamadaVideo";
 import { LegendaAnimada } from "./components/v2/LegendaAnimada";
@@ -178,15 +179,34 @@ export const RemotionRoot: React.FC = () => {
           defaultProps={{}}
           calculateMetadata={calcularApresentacao}
         />
+        {/* Vídeo de 28/10 reeditado com o kit v3 (04/11/2026), usando o próprio v1 como fonte da
+            imagem (decisão do Matheus). Com a gravação original: cameraSrc
+            "videos/2026-10-28-camera.mp4" e aplicarZoom true. */}
+        <Composition
+          id="Video2810V3"
+          component={Video2810V3}
+          durationInFrames={DURACAO_2810_V3}
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{
+            // 06/11 (A-018): o filtro forte (videos/2026-10-28-final-v1-filtro.mp4) foi reprovado
+            // ("cara de boneca"). Sem filtro até o Matheus escolher a dose do filtro por área.
+            cameraSrc: "videos/2026-10-28-final-v1.mp4",
+            cameraTipo: "video" as const,
+            aplicarZoom: false,
+          }}
+        />
       </Folder>
       <Folder name="Testes">
+        {/* Kit visual v3: todos os componentes novos encadeados (03/11/2026) */}
         <Composition
-          id="naruto"
-          component={Naruto}
-          durationInFrames={150}
+          id="KitV3Demo"
+          component={KitV3Demo}
+          durationInFrames={KIT_V3_DEMO_FRAMES}
           fps={30}
-          width={1280}
-          height={720}
+          width={1920}
+          height={1080}
         />
         <Composition
           id="TesteVideoReal"
