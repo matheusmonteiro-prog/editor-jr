@@ -60,7 +60,7 @@ A regra do Design System continua valendo para o conteúdo: o método é mostrad
 | Amarelo JR (novo, vídeo) | A escolher: **A #FFC629** (recomendado), B #FFD43B, C #FFB800 | Único amarelo do vídeo: palavra em destaque, números, rótulos, linha diagonal, borda da janela do JR, ícones. Só sobre escuro |
 | Dourado | #EFAF20 | Fica nas artes. No vídeo é substituído pelo Amarelo JR |
 | Marrom | #8E4813 | Destaque só sobre claro |
-| Verde do método | #39A96B (escuro) / #1F7A47 (claro) | Exclusivo: o preço tocou o valor calculado. Nunca decorativo, nunca em check ou barra genérica. Nunca chamar de "sinal de compra" |
+| Verde do método | #39A96B (escuro) / #1F7A47 (claro) | Exclusivo: o preço tocou o valor calculado. Nunca decorativo, nunca em check ou barra genérica. Nunca chamar de "sinal de compra". **Decisão do Matheus (10/11/2026): o verde do método no código é #1DD41E (src/components/apresentacao/marca.ts:15). Não trocar para #39A96B.** |
 | Vermelho-terra (novo) | #E4573D (escuro) / #A8321C (claro) | Queda, erro, alerta, palavra errada riscada |
 
 Transparências permitidas (só alfa das mesmas cores): texto secundário 72%, bordas 16–20%, grade 8–10%.

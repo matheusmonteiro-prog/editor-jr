@@ -7,7 +7,7 @@
   - [x] 2a — Corte de silêncios (aprovado em 23/09/2026)
   - [x] 2b — Redução de ruído e equalização da voz (aprovado em 23/09/2026, amostra A/B)
   - [x] Gancho (reordenar trechos), incluindo teaser com múltiplos trechos — testado e aprovado (23/09/2026)
-- [x] Etapa 3 — Montagem sobre vídeo real (3a fechada em 13/10/2026 (código); 3b aprovada pelo Matheus em 10/11/2026 (teste dele; arquivos não estão neste PC), para validar o material real (par com o JR, sincronia, vídeo de 10 a 20 min, vídeos de referência); não é etapa de código)
+- [x] Etapa 3 — Montagem sobre vídeo real (3a fechada em 13/10/2026 (código); 3b aprovada pelo Matheus em 10/11/2026, teste dele; arquivos não estão neste PC)
 - [x] Etapa 4 — Legendas automáticas (4a fechada em 14/10/2026; **4b aguarda confirmação do Matheus: termos financeiros e glossário em vídeo real**; 4b não está fechada)
 - [ ] Etapa 5 — Identidade visual (**dispensada por decisão do Matheus em 10/11/2026**. Motivo: o kit visual v3 atende; a cor do método fica `#1DD41E` por decisão dele; a proibição de "sinal de compra" foi desconsiderada por ele, porque no canal o termo é narrativo. Não é bloqueio)
 - [x] Etapa 6 — Leitor de prompt (6a cumprida em 09/10/2026, critérios 6.1 a 6.6 de `docs/criterios-fechamento.md`; **6b não iniciada, só começa por ordem do Matheus**; pendências na seção 7, Etapa 6)

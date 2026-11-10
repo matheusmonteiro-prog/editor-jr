@@ -142,7 +142,7 @@ AVISOs você pode comentar comigo, mas ERROs têm que estar zerados.
 
 Gerado em 01/10/2026 lendo o AST dos schemas Zod reais (mesma técnica usada por
 `scripts/validar-plano.mjs`) e o `CATALOGO` real de `src/PlanoComposicao.tsx` — são os únicos
-21 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026, o `ArrobaInstagram` em 12/10/2026 e a `LegendaAnimada` em 14/10/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
+22 nomes válidos em `"componente"` hoje (o `AvisoCVM` foi acrescentado em 02/10/2026, o `ArrobaInstagram` em 12/10/2026, a `LegendaAnimada` em 14/10/2026 e o `GradeAtivos3D` a esta lista em 10/11/2026, lendo o `CATALOGO` real). Prop **não** citada aqui tem `.default()`/`.optional()`
 no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada uma).
 
 | Componente | Props obrigatórias |
@@ -168,6 +168,7 @@ no schema (ver `docs/catalogo-componentes.md` pra ver o valor padrão de cada um
 | `AvisoCVM` | nenhuma (todas têm padrão) |
 | `ArrobaInstagram` | `usuario` |
 | `LegendaAnimada` | nenhuma no schema (todas têm padrão), mas o validador exige palavras: use `legendaPalavras` no elemento (ver "Como pedir a `LegendaAnimada`") |
+| `GradeAtivos3D` | nenhuma (todas têm padrão) |
 
 Pra detalhe completo de cada prop (tipo, opcional ou não, valor padrão), ver
 `docs/catalogo-componentes.md`.
