@@ -29,9 +29,9 @@ de o Studio reescrever código, regra do `.default()`) estão em
   composição que lê o plano de edição direto (sem rodar isso) recebe
   `undefined` em vez do padrão (risco confirmado no `CallToAction`, ver
   ARQUITETURA.md seção 6).
-- Cores só do design system da marca: **`#0F2A1D`** (verde-escuro),
-  **`#F5F0E6`** (creme), **`#EFAF20`** (dourado). Não inventar cor nova sem
-  perguntar.
+- Cores, fonte e curva de movimento: importar de `src/components/v2/kitV3.tsx`
+  (`KIT`, `FONTE_KIT`, `CURVA`) e seguir `docs/kit-visual-video.md` (kit v3: Montserrat,
+  Amarelo JR no lugar do dourado no vídeo). Não inventar cor nova sem perguntar.
 - Quando o componente tiver `corFundo`, ele é `zColor().optional()` no
   schema e `corFundo = "transparent"` na desestruturação — para não tampar
   o vídeo por engano quando usado como camada sobre ele.

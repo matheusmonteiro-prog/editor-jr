@@ -12,6 +12,18 @@ Os planos de edição (JSON, Etapa 6) passam as cores da marca explicitamente
 via props; esses padrões nunca deveriam aparecer no vídeo final sem serem
 sobrescritos.
 
+## Mapa rápido (04/11/2026): qual peça usar
+
+Leia isto antes de montar um vídeo novo. A lista completa e as propriedades estão nas seções abaixo.
+
+| Grupo | Pasta | Quando usar |
+|---|---|---|
+| **Padrão do kit v3** (use estes em vídeo novo) | `src/components/v2/` | `PainelDiagonal`, `TransicaoJanela`, `ImpactoKit`, `AberturaCapitulo`, `ComparacaoNumeros`, `Pauta`, `DestaqueSolto`, `ArrobaCanal`, `FundoExplicativo`, `CameraJR` (câmera com fundo desfocado), `LinhaTrajetoria` (história em trajetória). Telas explicativas aceitam `tema: "claro"` (bege). Cores, fonte, curva e ícones comuns ficam em `kitV3.tsx` |
+| **Ainda valem junto do v3** | `src/components/v2/` | `CamadaVideo` (vídeo de câmera), `LegendaAnimada` (legenda), `AvisoCVM` (aviso legal) |
+| **Geração anterior (v2)** | `src/components/v2/` | `ListaCheck`, `BarrasDuelo`, `Contador`, `CallToAction`, `Spotlight`, `CirculoDestaque` e os outros. Funcionam, mas usam a fonte e o dourado antigos. Antes de usar num vídeo novo, adaptar ao kit v3 |
+| **Originais (v1)** | `src/components/` (sem subpasta) | Só para os planos e testes antigos. Não usar em vídeo novo |
+| **Vídeo de apresentação** | `src/components/apresentacao/` | Exclusivos do `VideoApresentacao`. Seis deles não são usados por nada (`IconeEtf`, `LinhaDourada`, `ListaRolando`, `PilulaCta`, `TextoPulso`, e `laboratorio/JurosCompostosLab`): ficam guardados como reserva |
+
 ## ⚠️ Dois padrões de personagem, ainda não unificados
 
 O projeto tem **dois jeitos diferentes** de mostrar a imagem de um "personagem"
@@ -635,3 +647,24 @@ Registrado em `src/Composition.tsx` (pasta Catalogo, 1080x1920) e no `CATALOGO` 
 | `WipeBloco` | `apresentacao/WipeBloco.tsx` | Troca de bloco: faixa verde-escura varrendo a tela na diagonal, com fio dourado. |
 | `marca` (não é componente) | `apresentacao/marca.ts` | Cores e fontes da marca do vídeo de apresentação, num lugar só. |
 | `JurosCompostosLab` | `laboratorio/JurosCompostosLab.tsx` | Laboratório, fora do catálogo e de qualquer plano: moedas que dobram a cada "ano". |
+
+## Componentes do kit visual v3 (03/11/2026)
+
+Regras em `docs/kit-visual-video.md` (v3). Todos em `src/components/v2/`, com Montserrat, tamanhos em fração da tela e o Amarelo JR **provisório** `#FFC629` (opção A, ainda a escolher pelo Matheus). Base comum em `kitV3.tsx` (cores, fonte, curva `cubic-bezier(.2,.7,.2,1)`, ícones, `MidiaJR`, `TextoComDestaque`). **Desde 04/11 (pedido A-004), nenhuma peça mostra logo por padrão** (`logo` vazio). Composição de teste com todos encadeados: `KitV3Demo` (pasta "Testes"). Status: os 11 componentes do kit v3 em src/components/v2/ estão criados, com tsc ok e render de teste feito (ImpactoKit ainda não tem linha na tabela abaixo). Usados em src/Video2810V3.tsx: CameraJR, ArrobaCanal, PainelDiagonal, LinhaTrajetoria, AberturaCapitulo, TransicaoJanela, Pauta e ImpactoKit. O Matheus aprovou o v3b inteiro em 06/11 (docs/estado-atual.md); não há registro por componente, e o arquivo foi editado depois. Sem registro de visualização direta: FundoExplicativo (só aparece dentro de outros componentes). Só no KitV3Demo: ComparacaoNumeros e DestaqueSolto.
+
+| Componente | Kit | O que faz | Props principais |
+|---|---|---|---|
+| `FundoExplicativo` | 2.1 | Lavoura com velas, bem escura, zoom lento 100→108%, **flutuação contínua em ciclos, brilho que atravessa e linha que se redesenha** (04/11, A-003). Imagem padrão provisória `images/kit-v3/fundo-explicativo-provisorio.jpg` | `imagem`, `zoomFinal`, `escurecer`, `mostrarLinha`, `opacidadeLinha`, `corLinha`, `framesLinha`, `movimento` (0 a 2), `cicloSegundos`, `tema` (`escuro`/`claro`), `corFundoClaro`, `duracaoFrames` |
+| `LinhaTrajetoria` | 4.10 | **Novo (04/11, A-013).** História do JR como trajetória: tronco dourado que se desenha, capítulos em losango e etapas em galhos, com a "câmera" subindo para a etapa nova. Pode continuar uma trajetória anterior (`em` <= 0 = já desenhado) | `capitulos[]` (`titulo`, `em`, `marcos[]` com `icone`, `texto`, `em`), `x`, `y`, `largura`, `altura`, `tamanhoTexto`, `framesLinha`, `tema`, `corLinha`, `duracaoFrames`, `framesEntrada`, `framesSaida` |
+| `CameraJR` | 4.15 | **Novo (04/11, A-007).** Câmera do JR com fundo desfocado e o JR nítido dentro de focos (elipses). Também cobre logo antigo gravado com "remendo" (estica uma coluna de parede limpa). Usada dentro de `TransicaoJanela` e `PainelDiagonal` | `src`, `tipo`, `mudo`, `inicio`, `desfoque` (fração da largura, padrão leve 0.0015), `escurecerFundo`, `focos[]`, `remendos[]`, `veus[]` (desfoque forte sobre texto antigo; `forma`, `suaveX`, `suaveY`), `placas[]` (pedaço de quadro limpo da mesma câmera); no código: `recorte`, `larguraCaixa` |
+| `PainelDiagonal` | 4.1, 6.2 | Painel à esquerda com divisa diagonal e linha amarela, JR à direita. Entra com o JR deslizando da tela cheia. Modo `titulo` (ícone + título com destaque) ou `lista` (grade: ícone em coluna fixa, itens acumulando, sem caixa) | `jrSrc`, `jrTipo` (`imagem`/`video`), `jrMudo`, `logo`, `modo`, `icone`, `titulo`, `destaque`, `rotulo`, `itens[]` (até 4), `framesEntreItens`, `topoDiagonal`, `baseDiagonal`, `corDestaque`, `duracaoFrames`, `framesEntrada`, `framesSaida` |
+| `TransicaoJanela` | 4.2, 4.12 | JR em tela cheia (com @) encolhe para a janela no centro superior em 0,5 s, com varredura diagonal revelando o fundo; volta opcional. Desde 04/11: câmera inteira na janela, borda fina de 2 px por cima do vídeo, fundo da câmera desfocado e sem logo. Conteúdo vai como `children` | `jrSrc`, `jrTipo`, `jrMudo`, `logo`, `arroba`, `frameTransicao`, `duracaoTransicao`, `frameVolta` (0 = não volta), `duracaoVolta`, `larguraJanela`, `topoJanela`, `recorteJanela`, `bordaJanela`, `desfoqueFundo`, `corDestaque`, `duracaoFrames`; no código: `focos`, `remendos` |
+| `ComparacaoNumeros` | 4.13 | Rótulo, título, dois números grandes com seta se desenhando; o segundo sobe com contador; rodapé com fonte e "ilustrativo" | `rotulo`, `titulo`, `rotuloAntes`, `valorAntes`, `rotuloDepois`, `valorDepois`, `prefixo`, `casasDecimais`, `corDepois` (`creme`/`amarelo`/`vermelho`), `fonte`, `ilustrativo`, `comFundo`, `topo`, `framesContador`, `corDestaque`, `duracaoFrames`, `framesSaida` |
+| `Pauta` | 4.14 | "DUAS PARTES:" e até 3 itens numerados com complemento | `titulo`, `itens[]` (`texto`, `complemento`), `comFundo`, `numerado`, `marcador` (padrão "•"), `tema`, `corFundoClaro`, `logo`, `corDestaque`, `framesEntreItens`, `duracaoFrames`, `framesSaida` |
+| `AberturaCapitulo` | 4.5 | "PARTE N", título em Montserrat Black e subtítulo, centralizados | `rotulo`, `titulo`, `subtitulo`, `comFundo`, `logo`, `corDestaque`, `duracaoFrames`, `framesSaida` |
+| `ArrobaCanal` | 5 | @ do canal no canto superior direito, sem card, sombra suave. Grafia do @ a confirmar | `usuario`, `tamanhoFonte`, `margemTopo`, `margemDireita`, `corTexto`, `duracaoFrames`, `framesEntrada` (0 = já visível), `framesSaida` |
+| `DestaqueSolto` | 6.2 | Um item sobre o vídeo, sem caixa, sempre no canto inferior esquerdo, com escurecimento só naquele canto | `icone`, `texto`, `destaque`, `tamanhoFonte`, `margemEsquerda`, `margemBase`, `escurecerCanto`, `corDestaque`, `duracaoFrames`, `framesEntrada`, `framesSaida` |
+
+Ícones disponíveis (`IconeKit`): `nenhum`, `soja`, `boi`, `grafico`, `predio`, `moedas`, `terra`, `caminhao`, `pino`, `maleta`.
+
+Ainda não feito: `TextoImpacto` em Montserrat (está na branch `kit-visual-video`) e ligação destes componentes ao plano de edição (`PlanoComposicao`/`validar-plano.mjs`).
