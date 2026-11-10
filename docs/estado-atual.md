@@ -1,5 +1,15 @@
 > **Fotos antigas (02/10 a 16/10/2026) foram para `docs/arquivo/estado-atual-ate-16-10.md`. Vale o retrato mais novo abaixo.**
 
+## Status das etapas em 10/11/2026 (decisões do Matheus)
+
+Só a marca de cada etapa; vale sobre as listas "Etapas" dos retratos mais antigos abaixo, que ficam como histórico. "Decisão do Matheus" não é "validado": nenhuma prova nova de comando entrou aqui.
+- **Etapa 3:** 3a fechada (13/10/2026). **3b aberta**, depende de gravação nova com o JR (tela + câmera em arquivos separados). Não é etapa de código.
+- **Etapa 4:** 4a fechada (14/10/2026). **4b aguarda confirmação do Matheus**: termos financeiros e glossário em vídeo real. Não está fechada.
+- **Etapa 5:** **dispensada por decisão do Matheus em 10/11/2026.** Motivo: o kit visual v3 atende; a cor do método fica `#1DD41E` por decisão dele; a proibição de "sinal de compra" foi desconsiderada por ele, porque no canal o termo é narrativo. Não é bloqueio.
+- **Etapa 6:** 6a fechada (09/10/2026). **6b não iniciada**; só começa por ordem do Matheus.
+- **Etapa 7:** futuro, fora do escopo atual.
+- **Etapa 8:** parcial. Fechar depois do primeiro vídeo real. Pendências: resolução 2160×3872 (exige `--props` em `Root.tsx`), `render-final.mjs` sem `--props` e sem `--concurrency`, sem critério escrito em `docs/criterios-fechamento.md`.
+
 ## Atualização de 07/11/2026: transcrição mais rápida (`scripts/transcrever.mjs`)
 
 - O script usava só 4 dos 12 núcleos do PC. Agora usa 10 (deixa 2 livres para o Windows). Medido em 180 s da voz do JR: **155 s antes, 86 s agora (1,8x mais rápido)**, com as 471 palavras, o texto e os tempos **idênticos** nos dois.
