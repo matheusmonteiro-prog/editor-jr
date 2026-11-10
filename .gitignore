@@ -27,6 +27,13 @@ backup-videos/
 # do projeto, escrita à mão — essa precisa ir pro Git.
 .claude/skills/*
 !.claude/skills/editor-jr/
+# Skills próprias do fluxo de edição (04/11/2026), escritas à mão.
+!.claude/skills/editar-video/
+!.claude/skills/pedido-de-ajustes/
+!.claude/skills/ajustar-kit-visual/
+!.claude/skills/renderizar/
+!.claude/skills/gerar-midia-ia/
+!.claude/skills/tratar-audio/
 
 # Configuração local de permissões do Claude Code, específica da máquina.
 .claude/settings.local.json
@@ -38,3 +45,10 @@ config.local.json
 # Áudio fora do Git (licença de cada faixa; ver ARQUITETURA.md)
 public/music/
 public/sfx/
+
+# Itens separados para apagar (só o Matheus manda apagar; ver _para-apagar/LEIA.md)
+_para-apagar/
+
+# Python local do teste de eco (WPE), 04/11/2026
+.vc-audio/
+.vc-enhance/
