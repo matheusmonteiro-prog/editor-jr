@@ -54,7 +54,7 @@ Matheus é iniciante em programação, Git e Remotion. Explique em português do
 Sem espaço. Ex.: `selic-setembro.png`, `dinheiro-tim.mp3`.
 
 ## Protocolo de etapas
-- Etapas: 0 a 8, conforme o `ARQUITETURA.md`. Hoje (decisões do Matheus em 10/11/2026): Etapa 3: 3a fechada; 3b aprovada pelo Matheus em 10/11/2026. Etapa 4: 4a fechada; 4b aguarda confirmação do Matheus (termos financeiros e glossário em vídeo real). Etapa 5: dispensada por decisão do Matheus. Etapa 6: 6a cumprida em 09/10/2026; 6b só por ordem do Matheus. Etapa 7: futuro, fora do escopo atual. Etapa 8: parcial, fecha depois do primeiro vídeo real. Detalhes em ARQUITETURA.md (Status) e docs/estado-atual.md.
+- Etapas: 0 a 8, conforme o `ARQUITETURA.md`. Hoje (decisões do Matheus em 10/11/2026): Etapa 3: 3a fechada; 3b aprovada pelo Matheus (o que falta será validado por ele na prática, não é pendência). Etapa 4: aprovada pelo Matheus; 4a fechada em 14/10/2026; 4b (termos financeiros e glossário em vídeo real) será validada por ele na prática, não é pendência. Etapa 5: dispensada por decisão do Matheus. Etapa 6: aprovada pelo Matheus; 6a cumprida em 09/10/2026; AvisoCVM e resolvedor de legenda serão validados por ele na prática; 6b só por ordem dele. Etapa 7: em discussão (controle manual das edições, arrastar e soltar imagem). Etapa 8: por último, por decisão do Matheus. Detalhes em ARQUITETURA.md (Status) e docs/estado-atual.md.
 - Cada etapa precisa de critério de fechamento escrito. Se faltar,
   proponha antes de dar a etapa como fechada.
 - Quando todos os critérios de uma etapa forem cumpridos, avise o Matheus

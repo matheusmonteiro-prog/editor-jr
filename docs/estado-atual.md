@@ -3,12 +3,12 @@
 ## Status das etapas em 10/11/2026 (decisões do Matheus)
 
 Só a marca de cada etapa; vale sobre as listas "Etapas" dos retratos mais antigos abaixo, que ficam como histórico. "Decisão do Matheus" não é "validado": nenhuma prova nova de comando entrou aqui.
-- **Etapa 3:** 3a fechada (13/10/2026). 3b aprovada pelo Matheus em 10/11/2026 (teste dele; arquivos não estão neste PC). Não é etapa de código.
-- **Etapa 4:** 4a fechada (14/10/2026). **4b aguarda confirmação do Matheus**: termos financeiros e glossário em vídeo real. Não está fechada.
+- **Etapa 3:** 3a fechada (13/10/2026). 3b aprovada pelo Matheus em 10/11/2026 (teste dele; arquivos não estão neste PC). O que falta será validado por ele na prática, não é pendência. Não é etapa de código.
+- **Etapa 4:** aprovada pelo Matheus em 10/11/2026; 4a fechada (14/10/2026). 4b (termos financeiros e glossário em vídeo real) será validada por ele na prática, não é pendência.
 - **Etapa 5:** **dispensada por decisão do Matheus em 10/11/2026.** Motivo: o kit visual v3 atende; a cor do método fica `#1DD41E` por decisão dele; a proibição de "sinal de compra" foi desconsiderada por ele, porque no canal o termo é narrativo. Não é bloqueio.
-- **Etapa 6:** 6a fechada (09/10/2026). **6b não iniciada**; só começa por ordem do Matheus.
-- **Etapa 7:** futuro, fora do escopo atual.
-- **Etapa 8:** parcial. Fechar depois do primeiro vídeo real. Pendências: resolução 2160×3872 (exige `--props` em `Root.tsx`), `render-final.mjs` sem `--props` e sem `--concurrency`, sem critério escrito em `docs/criterios-fechamento.md`.
+- **Etapa 6:** aprovada pelo Matheus em 10/11/2026; 6a fechada (09/10/2026). AvisoCVM e resolvedor de legenda serão validados por ele na prática. **6b não iniciada**; só começa por ordem do Matheus.
+- **Etapa 7:** em discussão: controle manual das edições (arrastar, soltar imagem). Não iniciada.
+- **Etapa 8:** por último, por decisão do Matheus (10/11/2026). Pendências técnicas: resolução 2160×3872 (exige `--props` em `Root.tsx`), `render-final.mjs` sem `--props` e sem `--concurrency`, sem critério escrito em `docs/criterios-fechamento.md`.
 
 ## Atualização de 07/11/2026: transcrição mais rápida (`scripts/transcrever.mjs`)
 
@@ -72,10 +72,10 @@ Marcas como no `ARQUITETURA.md`. As aprovações são registros de que o Matheus
 - [x] Etapa 0: infraestrutura. Render no WSL deste PC provado em 2 renders curtos (ver "Render WSL").
 - [x] Etapa 1: organizar a casa.
 - [x] Etapa 2: cortes, gancho e limpeza de voz.
-- [x] Etapa 3: 3a fechada (13/10/2026); **3b aberta** (par real, sincronia, vídeo de 10 a 20 min, vídeos de referência).
-- [x] Etapa 4: 4a fechada (14/10/2026); **4b aberta** (glossário e gravações reais).
+- [x] Etapa 3: 3a fechada (13/10/2026); **3b aberta em 03/11** (par real, sincronia, vídeo de 10 a 20 min, vídeos de referência). Em 10/11: 3b aprovada pelo Matheus; validação na prática, não é pendência.
+- [x] Etapa 4: 4a fechada (14/10/2026); **4b aberta em 03/11** (glossário e gravações reais). Em 10/11: aprovada pelo Matheus; 4b será validada por ele na prática, não é pendência.
 - [ ] Etapa 5: sem marca no `ARQUITETURA.md`; o `CLAUDE.md` diz "em alinhamento". Existe só o kit visual (sem `LogoAnimada` em `src/`; `public/brand` não existe).
-- [x] Etapa 6: 6a cumprida (09/10/2026); **6b não começou**. `PlanoComposicao0926` segue 2160×3872 (`remotion compositions`).
+- [x] Etapa 6: 6a cumprida (09/10/2026); **6b não começou** (em 03/11). Em 10/11: aprovada pelo Matheus; AvisoCVM e resolvedor de legenda serão validados por ele na prática; 6b só por ordem dele. `PlanoComposicao0926` segue 2160×3872 (`remotion compositions`).
 - [ ] Etapa 7: interface própria.
 - [ ] Etapa 8: `scripts/render-final.mjs` existe; ter o script não marca a etapa como iniciada.
 

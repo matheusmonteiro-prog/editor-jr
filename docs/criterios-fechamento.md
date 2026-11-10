@@ -5,7 +5,7 @@
 visto por ele em 07/10/2026. A Etapa 3 está fechada em **3a (código)** desde 13/10/2026; **3b (material real)**: aprovada pelo Matheus em 10/11/2026 (decisão dele, sem prova de render neste PC).
 
 Por que existe: o `CLAUDE.md` exige um critério de fechamento escrito por etapa. Hoje:
-Etapa 3 concluída em 3a (13/10/2026); Etapa 6 com a 6a cumprida (09/10/2026); Etapa 4 com 4a fechada em 14/10/2026 e 4b aberta (seção ao final deste arquivo).
+Etapa 3 concluída em 3a (13/10/2026); Etapa 6 com a 6a cumprida (09/10/2026); Etapa 4 com 4a fechada em 14/10/2026. Em 10/11/2026 o Matheus aprovou as Etapas 3, 4 e 6: o que falta na 4b (seção ao final deste arquivo) será validado por ele na prática, não é pendência.
 
 Como ler: cada item vem de uma tarefa que já está no `ARQUITETURA.md` (seção 7, Etapas 3 e 6),
 exceto onde está escrito o contrário. Marcas:
@@ -122,7 +122,7 @@ Matheus). 4.1 e 4.5 foram aprovados pelo Matheus em 14/10/2026. Mesmas marcas da
 **[E]** depende de outra etapa; **[C]** só código.
 
 Divisão como na Etapa 3: **4a (código)** e **4b (material real)**. **4a fechada em 14/10/2026;
-4b aberta (depende de gravações reais).**
+4b: validação do Matheus na prática, com gravações reais; não é pendência (decisão dele, 10/11/2026).**
 
 ### 4a — Código
 
@@ -136,7 +136,7 @@ Divisão como na Etapa 3: **4a (código)** e **4b (material real)**. **4a fechad
 
 ### 4b — Material real
 
-Mesma ideia da 3b: só se prova com gravações reais, na prática.
+Mesma ideia da 3b: a validação na prática, com gravações reais, é do Matheus; não é pendência (decisão dele, 10/11/2026). A coluna "Situação hoje" abaixo continua registrando o que tem prova escrita e o que não tem; essa decisão não preenche essas provas.
 
 | # | Critério | Tipo | Situação hoje (segundo os docs) |
 |---|---|---|---|
