@@ -3,7 +3,7 @@
 ## Status das etapas em 10/11/2026 (decisões do Matheus)
 
 Só a marca de cada etapa; vale sobre as listas "Etapas" dos retratos mais antigos abaixo, que ficam como histórico. "Decisão do Matheus" não é "validado": nenhuma prova nova de comando entrou aqui.
-- **Etapa 3:** 3a fechada (13/10/2026). **3b aberta**, depende de gravação nova com o JR (tela + câmera em arquivos separados). Não é etapa de código.
+- **Etapa 3:** 3a fechada (13/10/2026). 3b aprovada pelo Matheus em 10/11/2026 (teste dele; arquivos não estão neste PC). Não é etapa de código.
 - **Etapa 4:** 4a fechada (14/10/2026). **4b aguarda confirmação do Matheus**: termos financeiros e glossário em vídeo real. Não está fechada.
 - **Etapa 5:** **dispensada por decisão do Matheus em 10/11/2026.** Motivo: o kit visual v3 atende; a cor do método fica `#1DD41E` por decisão dele; a proibição de "sinal de compra" foi desconsiderada por ele, porque no canal o termo é narrativo. Não é bloqueio.
 - **Etapa 6:** 6a fechada (09/10/2026). **6b não iniciada**; só começa por ordem do Matheus.
