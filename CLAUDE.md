@@ -54,7 +54,7 @@ Matheus é iniciante em programação, Git e Remotion. Explique em português do
 Sem espaço. Ex.: `selic-setembro.png`, `dinheiro-tim.mp3`.
 
 ## Protocolo de etapas
-- Etapas: 0 a 8, conforme o `ARQUITETURA.md`. Hoje: Etapa 6 (6a) cumprida em 09/10/2026; Etapa 3 concluída em 3a (13/10/2026; 3b a validar no material real); Etapa 4 com 4a fechada em 14/10/2026 (4b aberta, depende de gravações reais); Etapa 5 em alinhamento, sem código.
+- Etapas: 0 a 8, conforme o `ARQUITETURA.md`. Hoje (decisões do Matheus em 10/11/2026): Etapa 3: 3a fechada; 3b depende de gravação nova com o JR (tela + câmera em arquivos separados). Etapa 4: 4a fechada; 4b aguarda confirmação do Matheus (termos financeiros e glossário em vídeo real). Etapa 5: dispensada por decisão do Matheus. Etapa 6: 6a cumprida em 09/10/2026; 6b só por ordem do Matheus. Etapa 7: futuro, fora do escopo atual. Etapa 8: parcial, fecha depois do primeiro vídeo real. Detalhes em ARQUITETURA.md (Status) e docs/estado-atual.md.
 - Cada etapa precisa de critério de fechamento escrito. Se faltar,
   proponha antes de dar a etapa como fechada.
 - Quando todos os critérios de uma etapa forem cumpridos, avise o Matheus
@@ -64,3 +64,13 @@ Sem espaço. Ex.: `selic-setembro.png`, `dinheiro-tim.mp3`.
   `docs/estado-atual.md` a que chat/etapa voltar.
 - Nunca escrever "validado" sem o Matheus ter visto no Studio.
 - Ao fim de cada sessão, atualizar o `docs/estado-atual.md` por etapa.
+
+## Mapa da casa (04/11/2026): o que ler em cada tarefa
+- **Sempre:** este arquivo e o retrato mais novo de `docs/estado-atual.md`.
+- **Editar vídeo / ajustes / kit / render / IA:** as skills do projeto em `.claude/skills/`
+  entram sozinhas pelo assunto (tabela "Quem chama o quê" em `docs/guia-edicao.md`).
+- **Fluxo de edição:** `docs/guia-edicao.md`. **Regras visuais:** `docs/kit-visual-video.md`.
+  **Peças:** "Mapa rápido" de `docs/catalogo-componentes.md`. **Áudio:** skill `tratar-audio`. **Pedidos do Matheus:** `docs/alteracoes.md`.
+- **Etapas e decisões de arquitetura:** `ARQUITETURA.md` (leitura obrigatória, regra do topo deste arquivo).
+- **Não ler sem motivo:** `docs/arquivo/` (histórico), `_para-apagar/` (aguardando o Matheus
+  mandar apagar), `out/`, `videos/`, `backup-videos/`, `node_modules/`, `planos/testes/` (casos do validador).
