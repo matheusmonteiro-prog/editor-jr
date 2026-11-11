@@ -52,3 +52,6 @@ _para-apagar/
 # Python local do teste de eco (WPE), 04/11/2026
 .vc-audio/
 .vc-enhance/
+
+# Cópias de plano baixadas pelo editor local (editor/), 11/11/2026
+planos/copias/
