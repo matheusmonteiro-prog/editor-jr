@@ -23,6 +23,7 @@ import { CamadaVideo } from "./components/v2/CamadaVideo";
 import { LegendaAnimada } from "./components/v2/LegendaAnimada";
 import plano0926 from "../planos/0926.plano.json";
 import planoTeste4Componentes from "../planos/teste-4-componentes.plano.json";
+import planoKitV3 from "../planos/teste-kit-v3.json";
 import planoTesteCamera from "../planos/teste-camera.plano.json";
 import planoTesteAudio from "../planos/teste-audio.plano.json";
 import planoLegendaTeste0926 from "../planos/teste-legenda-0926.resolvido.json";
@@ -243,6 +244,23 @@ export const RemotionRoot: React.FC = () => {
             videoSrc: "videos/0926-cortado-v1.mp4",
             plano: plano0926,
             cortes: cortes0926,
+          }}
+        />
+        {/* Teste das 8 peças do kit v3 no plano JSON (planos/teste-kit-v3.json). Fundo: 0926 cortado,
+            só como base. Um único trecho de cortes (0 a 37,8 s) deixa os tempos do plano iguais aos
+            do vídeo, sem o deslocamento do 0926. */}
+        <Composition
+          id="TesteKitV3"
+          component={PlanoComposicao}
+          durationInFrames={1134}
+          fps={30}
+          width={1920}
+          height={1080}
+          calculateMetadata={calcularTamanhoDoPlano}
+          defaultProps={{
+            videoSrc: "videos/0926-cortado-v1.mp4",
+            plano: planoKitV3,
+            cortes: { trechos: [{ inicio: 0, fim: 37.8 }] },
           }}
         />
         <Composition

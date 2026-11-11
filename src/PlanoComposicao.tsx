@@ -32,6 +32,14 @@ import { AvisoCVM } from "./components/v2/AvisoCVM";
 import { ArrobaInstagram } from "./components/v2/ArrobaInstagram";
 import { LegendaAnimada } from "./components/v2/LegendaAnimada";
 import { GradeAtivos3D } from "./components/v2/GradeAtivos3D";
+import { ImpactoKit } from "./components/v2/ImpactoKit";
+import { ArrobaCanal } from "./components/v2/ArrobaCanal";
+import { DestaqueSolto } from "./components/v2/DestaqueSolto";
+import { LinhaTrajetoria } from "./components/v2/LinhaTrajetoria";
+import { FundoExplicativo } from "./components/v2/FundoExplicativo";
+import { AberturaCapitulo } from "./components/v2/AberturaCapitulo";
+import { ComparacaoNumeros } from "./components/v2/ComparacaoNumeros";
+import { Pauta } from "./components/v2/Pauta";
 import { criarParaFrameCortado, type TrechoCortado } from "./utils/tempoCortado";
 import { converterPalavrasMs } from "./utils/legenda";
 
@@ -63,6 +71,15 @@ const CATALOGO: Record<string, React.ComponentType<any>> = {
   ArrobaInstagram,
   LegendaAnimada,
   GradeAtivos3D,
+  // Kit visual v3 (peças sem câmera e sem peça-filha).
+  ImpactoKit,
+  ArrobaCanal,
+  DestaqueSolto,
+  LinhaTrajetoria,
+  FundoExplicativo,
+  AberturaCapitulo,
+  ComparacaoNumeros,
+  Pauta,
 };
 
 type ElementoPlano = {

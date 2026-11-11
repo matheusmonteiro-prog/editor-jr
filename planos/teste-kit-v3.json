@@ -1,0 +1,139 @@
+{
+  "video": "teste-kit-v3",
+  "orientacao": "horizontal",
+  "fps": 30,
+  "elementos": [
+    {
+      "id": "kit-impacto",
+      "componente": "ImpactoKit",
+      "descricao": "palavra de impacto em duas linhas, sem faixa",
+      "texto": "Quem é o investidor Sertanejo?",
+      "inicio": "0:01", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "linha1": "Quem é o investidor", "linha2": "Sertanejo?",
+        "faixa": false, "corDestaque": "#EFAF20", "duracaoFrames": 90
+      }
+    },
+    {
+      "id": "kit-arroba",
+      "componente": "ArrobaCanal",
+      "descricao": "@ do canal no canto superior direito",
+      "texto": "@jroinvestidorsertanejo",
+      "inicio": "0:05", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "topo", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "usuario": "jroinvestidorsertanejo", "corTexto": "#F5F0E6",
+        "framesEntrada": 10, "framesSaida": 10, "duracaoFrames": 90
+      }
+    },
+    {
+      "id": "kit-destaque-solto",
+      "componente": "DestaqueSolto",
+      "descricao": "ícone com palavra em destaque no canto inferior esquerdo",
+      "texto": "Fundo imobiliário",
+      "inicio": "0:09", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "icone": "predio", "texto": "Fundo imobiliário", "destaque": "imobiliário",
+        "corDestaque": "#EFAF20", "framesEntrada": 14, "framesSaida": 12, "duracaoFrames": 90
+      }
+    },
+    {
+      "id": "kit-trajetoria",
+      "componente": "LinhaTrajetoria",
+      "descricao": "linha dourada que se desenha etapa por etapa (2 capítulos)",
+      "texto": "Do sítio à cidade; Por conta própria",
+      "inicio": "0:13", "duracao": 5, "duracaoFrames": 150,
+      "posicao": "topo", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "capitulos": [
+          {
+            "titulo": "Do sítio à cidade", "em": 6,
+            "marcos": [
+              { "icone": "terra", "texto": "Criado no sítio", "em": 16 },
+              { "icone": "predio", "texto": "Vida de cidade", "em": 40 }
+            ]
+          },
+          {
+            "titulo": "Por conta própria", "em": 66,
+            "marcos": [
+              { "icone": "maleta", "texto": "Por conta própria", "em": 76 },
+              { "icone": "caminhao", "texto": "Transportadora", "em": 100 }
+            ]
+          }
+        ],
+        "x": 0.05, "y": 0.1, "largura": 0.42, "altura": 0.8,
+        "corLinha": "#EFAF20", "framesEntrada": 10, "framesSaida": 12, "duracaoFrames": 150
+      }
+    },
+    {
+      "id": "kit-fundo-explicativo",
+      "componente": "FundoExplicativo",
+      "descricao": "fundo explicativo claro (papel bege), tela cheia",
+      "texto": "Fundo explicativo (tema claro)",
+      "inicio": "0:19", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "tema": "claro", "corFundoClaro": "#F5F0E6", "corLinha": "#EFAF20",
+        "duracaoFrames": 90
+      }
+    },
+    {
+      "id": "kit-abertura-capitulo",
+      "componente": "AberturaCapitulo",
+      "descricao": "abertura de capítulo com fundo explicativo",
+      "texto": "Terra x Bolsa",
+      "inicio": "0:23", "duracao": 3, "duracaoFrames": 90,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "rotulo": "O que vem pela frente", "titulo": "Terra x Bolsa",
+        "subtitulo": "o que cada caminho entrega e a régua do canal",
+        "comFundo": true, "corDestaque": "#EFAF20", "framesSaida": 12, "duracaoFrames": 90
+      }
+    },
+    {
+      "id": "kit-comparacao-numeros",
+      "componente": "ComparacaoNumeros",
+      "descricao": "dois números lado a lado com contador (exemplo ilustrativo)",
+      "texto": "Preço hoje x valor calculado, exemplo ilustrativo",
+      "inicio": "0:27", "duracao": 4, "duracaoFrames": 120,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": true, "tempo_estimado": true,
+      "props": {
+        "rotulo": "Ação exemplo · ilustrativo", "titulo": "Preço x valor calculado",
+        "rotuloAntes": "Preço hoje", "valorAntes": 32.4,
+        "rotuloDepois": "Valor calculado", "valorDepois": 38.1,
+        "prefixo": "R$ ", "casasDecimais": 2, "corDepois": "amarelo",
+        "fonte": "Fonte: exemplo didático · sem dado real", "ilustrativo": true,
+        "comFundo": true, "corDestaque": "#EFAF20", "framesContador": 45,
+        "framesSaida": 12, "duracaoFrames": 120
+      }
+    },
+    {
+      "id": "kit-pauta",
+      "componente": "Pauta",
+      "descricao": "lista de pauta com 2 itens, tema claro",
+      "texto": "Duas partes: Quem é o JR; A terra como régua",
+      "inicio": "0:32", "duracao": 5, "duracaoFrames": 150,
+      "posicao": "base", "slot": 1,
+      "ilustrativo": false, "tempo_estimado": true,
+      "props": {
+        "titulo": "Duas partes:",
+        "itens": [
+          { "texto": "Quem é o JR", "complemento": "(do sítio à Bolsa de Valores)" },
+          { "texto": "A terra como régua", "complemento": "(o que ela rende x o que a ação rende)" }
+        ],
+        "comFundo": true, "numerado": true, "tema": "claro",
+        "corFundoClaro": "#F5F0E6", "corDestaque": "#EFAF20",
+        "inicioItens": [20, 50], "framesSaida": 12, "duracaoFrames": 150
+      }
+    }
+  ]
+}
