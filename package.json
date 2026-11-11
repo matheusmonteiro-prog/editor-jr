@@ -32,7 +32,8 @@
   },
   "scripts": {
     "dev": "remotion studio",
-    "editor": "vite --port 5173 --strictPort",
+    "editor": "node editor/servidor.mjs",
+    "editor:vite": "vite --port 5173 --strictPort",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
