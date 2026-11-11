@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Editor JR</title>
     <style>
-      body { margin: 0; background: #0F2A1D; color: #F5F0E6; font-family: system-ui, sans-serif; }
+      /* Tamanhos em rem: o texto cresce e encolhe com a largura da tela (notebook ou monitor). */
+      html { font-size: clamp(13px, 0.9vw + 4px, 17px); }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #0F2A1D; color: #F5F0E6; font-family: system-ui, sans-serif; overflow: hidden; }
+      button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid #EFAF20; outline-offset: 1px; }
+      button:disabled { opacity: 0.45; cursor: default !important; }
     </style>
   </head>
   <body>

@@ -4,26 +4,38 @@
 // /api/* e passa todo o resto ao Vite, ligado aqui dentro em modo middleware
 // (https://vite.dev/config/server-options#server-middlewaremode). Sem pacote novo.
 //
-// Rotas (só POST, só JSON, só de uma página aberta em 127.0.0.1:5173 ou localhost:5173):
+// Rotas de gravar (só POST, só JSON, só de uma página aberta em 127.0.0.1:5173 ou localhost:5173):
 //   POST /api/copias   { plano: "teste-kit-v3", conteudo: {...} } → grava planos/copias/<nome gerado aqui>
 //   POST /api/validar  { arquivo: "<nome de uma cópia>" }         → roda scripts/validar-plano.mjs nela
+// Rotas de ler (só GET; fatia 5):
+//   GET /api/planos              → nomes de planos/*.json, com fps, orientação e "completo"
+//   GET /api/plano?nome=<nome>   → o plano (nome sem ".json", tem de estar na lista)
+//   GET /api/fundo?nome=<nome>   → vídeo de fundo (public/videos/<video>-cortado-vN.mp4, N mais alto)
+//                                  e cortes (videos/<video>.cortes.json), achados AQUI pelo campo
+//                                  "video" do plano; o navegador nunca manda caminho
 //
 // Travas: o navegador nunca manda caminho; o nome da cópia é gerado aqui; só grava em
 // planos/copias/; nunca sobrescreve (flag "wx"); corpo até 1 MB; validador sem shell.
+// GET: o navegador NÃO manda Origin num GET da própria página, então a trava é: Host certo,
+// Origin (se vier) certo e Sec-Fetch-Site (se vier) "same-origin" ou "none".
 
 import http from "node:http";
-import { mkdir, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createServer as criarVite } from "vite";
+import { escolherVideoCortado, nomeDePlanoSeguro, resumirCortes, resumirPlano } from "./regrasServidor.mjs";
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ENDERECO = "127.0.0.1";
-const PORTA = 5173;
+// 5173 sempre; EDITOR_PORTA só para teste com outro editor já aberto (continua só em 127.0.0.1).
+const PORTA = /^\d{4,5}$/.test(process.env.EDITOR_PORTA ?? "") ? Number(process.env.EDITOR_PORTA) : 5173;
 const PASTA_PLANOS = path.join(RAIZ, "planos");
 const PASTA_COPIAS = path.join(PASTA_PLANOS, "copias");
 const VALIDADOR = path.join(RAIZ, "scripts", "validar-plano.mjs");
+const PASTA_VIDEOS_PUBLICOS = path.join(RAIZ, "public", "videos"); // vídeo de fundo
+const PASTA_CORTES = path.join(RAIZ, "videos"); // <video>.cortes.json
 const LIMITE_CORPO = 1024 * 1024; // 1 MB
 const LIMITE_SAIDA = 200 * 1024; // texto do validador devolvido à página
 const TEMPO_VALIDADOR_MS = 60_000;
@@ -154,11 +166,90 @@ const validarCopia = async (dados, res) => {
   });
 };
 
+// ---------- Rotas de ler (GET) ----------
+
+// Lista de planos/*.json (só arquivos, só nomes que passam na regra).
+const listarPlanos = async () => {
+  const lista = [];
+  for (const arquivo of (await arquivosDa(PASTA_PLANOS)).sort()) {
+    if (!arquivo.toLowerCase().endsWith(".json")) continue;
+    const nome = arquivo.slice(0, -".json".length);
+    if (!nomeDePlanoSeguro(nome)) continue;
+    let resumo;
+    try {
+      resumo = resumirPlano(await readFile(path.join(PASTA_PLANOS, arquivo), "utf8"));
+    } catch {
+      resumo = { completo: false, motivo: "não consegui ler", fps: null, orientacao: null, video: null };
+    }
+    lista.push({ nome, arquivo, ...resumo });
+  }
+  return lista;
+};
+
+// Acha o plano pelo nome, só se ele estiver na lista (nunca monta caminho com o que veio).
+const acharPlano = async (nome) => {
+  if (!nomeDePlanoSeguro(nome)) return null;
+  const item = (await listarPlanos()).find((p) => p.nome === nome);
+  if (!item) return null;
+  const caminho = path.join(PASTA_PLANOS, item.arquivo);
+  return dentroDe(PASTA_PLANOS, caminho) ? { item, caminho } : null;
+};
+
+const lerPlano = async (url, res) => {
+  const achado = await acharPlano(url.searchParams.get("nome"));
+  if (!achado) return responder(res, 400, { erro: "Plano inválido ou não existe em planos/." });
+  if (!achado.item.completo) return responder(res, 400, { erro: `Plano incompleto: ${achado.item.motivo}.` });
+  const plano = JSON.parse(await readFile(achado.caminho, "utf8"));
+  return responder(res, 200, { nome: achado.item.nome, arquivo: achado.item.arquivo, plano });
+};
+
+const lerFundo = async (url, res) => {
+  const achado = await acharPlano(url.searchParams.get("nome"));
+  if (!achado) return responder(res, 400, { erro: "Plano inválido ou não existe em planos/." });
+  const { video } = achado.item;
+  const escolhido = escolherVideoCortado(await arquivosDa(PASTA_VIDEOS_PUBLICOS), video);
+  let cortes = null;
+  let cortesArquivo = null;
+  if (typeof video === "string" && /^[a-z0-9][a-z0-9-]*$/i.test(video)) {
+    const nomeCortes = `${video}.cortes.json`;
+    if ((await arquivosDa(PASTA_CORTES)).includes(nomeCortes) && dentroDe(PASTA_CORTES, path.join(PASTA_CORTES, nomeCortes))) {
+      cortes = resumirCortes(await readFile(path.join(PASTA_CORTES, nomeCortes), "utf8"));
+      if (cortes) cortesArquivo = `videos/${nomeCortes}`;
+    }
+  }
+  return responder(res, 200, {
+    video,
+    procurado: typeof video === "string" ? `public/videos/${video}-cortado-v*.mp4` : null,
+    videoSrc: escolhido ? `videos/${escolhido.arquivo}` : null, // relativo a public/ (staticFile)
+    versao: escolhido?.versao ?? null,
+    cortesArquivo,
+    cortes,
+  });
+};
+
+const ROTAS_GET = {
+  "/api/planos": async (_url, res) => responder(res, 200, { planos: await listarPlanos() }),
+  "/api/plano": lerPlano,
+  "/api/fundo": lerFundo,
+};
+
 const ROTAS = { "/api/copias": salvarCopia, "/api/validar": validarCopia };
 
 const tratarApi = async (req, res, caminhoUrl) => {
   if (req.method === "OPTIONS") return responder(res, 403, { erro: "Pedido de permissão (CORS) recusado." });
-  if (req.method !== "POST") return responder(res, 405, { erro: "Só POST." });
+
+  if (req.method === "GET") {
+    const rotaGet = ROTAS_GET[caminhoUrl];
+    if (!rotaGet) return responder(res, ROTAS[caminhoUrl] ? 405 : 404, { erro: ROTAS[caminhoUrl] ? "Esta rota é só POST." : "Rota não existe." });
+    const origem = req.headers.origin;
+    if (origem !== undefined && !ORIGENS_OK.has(origem)) return responder(res, 403, { erro: "Origem não permitida." });
+    const site = req.headers["sec-fetch-site"];
+    if (site !== undefined && site !== "same-origin" && site !== "none") return responder(res, 403, { erro: "Pedido de outro site recusado." });
+    return rotaGet(new URL(req.url ?? "/", `http://${req.headers.host}`), res);
+  }
+
+  if (req.method !== "POST") return responder(res, 405, { erro: "Método não permitido." });
+  if (ROTAS_GET[caminhoUrl]) return responder(res, 405, { erro: "Esta rota é só GET." });
   if (!ORIGENS_OK.has(req.headers.origin ?? "")) return responder(res, 403, { erro: "Origem não permitida." });
   const rota = ROTAS[caminhoUrl];
   if (!rota) return responder(res, 404, { erro: "Rota não existe." });

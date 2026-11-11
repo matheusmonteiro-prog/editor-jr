@@ -1,8 +1,9 @@
 import React from "react";
 import { marcasDaRegua, type Bloco } from "./regrasLinhaDoTempo";
+import { COR, VEU } from "./tema";
 
-// Linha do tempo (fatia 4): só visualização. Uma faixa por camada, um bloco por elemento.
-// Clicar num bloco pula o Player para o início dele. Não arrasta (ainda).
+// Linha do tempo compacta: só visualização. Uma faixa por camada, um bloco por elemento.
+// Clicar num bloco seleciona o elemento e o Player pula para o início dele. Não arrasta (ainda).
 
 type Props = {
   blocos: Bloco[];
@@ -13,30 +14,37 @@ type Props = {
   aoClicar: (indice: number) => void;
 };
 
-const COR = { verde: "#0F2A1D", creme: "#F5F0E6", amarelo: "#EFAF20", vermelho: "#E4573D" };
-const ALTURA_FAIXA = 30;
+const ALTURA_FAIXA = "1.7rem";
+const ALTURA_REGUA = "1.3rem";
 
 export const LinhaDoTempo: React.FC<Props> = ({ blocos, faixas, regua, agulhaSeg, selecionado, aoClicar }) => {
   const marcas = marcasDaRegua(regua);
   const agulhaPct = Math.min(100, Math.max(0, (agulhaSeg / regua) * 100));
+  const nFaixas = Math.max(1, faixas);
   return (
-    <div style={{ marginTop: 16 }}>
-      <p style={{ background: COR.amarelo, color: COR.verde, padding: "6px 10px", borderRadius: 4, fontWeight: 700, margin: "0 0 8px" }}>
-        Linha do tempo em tempo ORIGINAL (antes dos cortes). Neste teste o corte é de um trecho só, então original = vídeo.
-      </p>
-      <div style={{ position: "relative", background: "rgba(245,240,230,0.06)", borderRadius: 4, padding: "0 0 4px" }}>
+    <div>
+      <div style={{ fontSize: "0.75rem", opacity: 0.8, marginBottom: "0.25rem" }}>
+        Régua em tempo ORIGINAL (antes dos cortes). Com cortes, ela não bate com a barra do Player.
+      </div>
+      <div style={{ position: "relative", background: VEU.leve, borderRadius: "0.25rem", paddingBottom: "0.2rem" }}>
         {/* Régua */}
-        <div style={{ position: "relative", height: 22, borderBottom: "1px solid rgba(245,240,230,0.3)" }}>
+        <div style={{ position: "relative", height: ALTURA_REGUA, borderBottom: `1px solid ${VEU.linha}` }}>
           {marcas.map((m) => (
-            <div key={m.seg} style={{ position: "absolute", left: `${m.pct}%`, bottom: 0, height: m.rotulo ? 10 : 5, borderLeft: "1px solid rgba(245,240,230,0.5)" }}>
-              {m.rotulo ? <span style={{ position: "absolute", bottom: 10, left: 2, fontSize: 11, whiteSpace: "nowrap" }}>{m.rotulo}</span> : null}
+            <div
+              key={m.seg}
+              style={{ position: "absolute", left: `${m.pct}%`, bottom: 0, height: m.rotulo ? "0.55rem" : "0.3rem", borderLeft: `1px solid ${VEU.linha}` }}
+            >
+              {m.rotulo ? <span style={{ position: "absolute", bottom: "0.55rem", left: "0.15rem", fontSize: "0.7rem", whiteSpace: "nowrap" }}>{m.rotulo}</span> : null}
             </div>
           ))}
         </div>
         {/* Faixas */}
-        <div style={{ position: "relative", height: Math.max(1, faixas) * ALTURA_FAIXA + 4 }}>
-          {Array.from({ length: faixas }, (_, f) => (
-            <div key={f} style={{ position: "absolute", left: 0, right: 0, top: f * ALTURA_FAIXA + 2, height: ALTURA_FAIXA - 4, background: "rgba(245,240,230,0.04)" }} />
+        <div style={{ position: "relative", height: `calc(${nFaixas} * ${ALTURA_FAIXA} + 0.25rem)` }}>
+          {Array.from({ length: nFaixas }, (_, f) => (
+            <div
+              key={f}
+              style={{ position: "absolute", left: 0, right: 0, top: `calc(${f} * ${ALTURA_FAIXA} + 0.1rem)`, height: `calc(${ALTURA_FAIXA} - 0.2rem)`, background: VEU.leve }}
+            />
           ))}
           {blocos.map((b) => {
             const ativo = b.indice === selecionado;
@@ -49,20 +57,20 @@ export const LinhaDoTempo: React.FC<Props> = ({ blocos, faixas, regua, agulhaSeg
                 style={{
                   position: "absolute",
                   left: `${b.esquerdaPct}%`,
-                  width: `max(${b.larguraPct}%, 4px)`,
-                  top: b.faixa * ALTURA_FAIXA + 4,
-                  height: ALTURA_FAIXA - 8,
-                  padding: "0 6px",
+                  width: `max(${b.larguraPct}%, 0.3rem)`,
+                  top: `calc(${b.faixa} * ${ALTURA_FAIXA} + 0.2rem)`,
+                  height: `calc(${ALTURA_FAIXA} - 0.4rem)`,
+                  padding: "0 0.4rem",
                   overflow: "hidden",
                   whiteSpace: "nowrap",
                   textOverflow: "ellipsis",
                   textAlign: "left",
                   font: "inherit",
-                  fontSize: 12,
+                  fontSize: "0.75rem",
                   color: COR.verde,
                   background: ativo ? COR.amarelo : COR.creme,
-                  border: ativo ? `2px solid ${COR.creme}` : "1px solid rgba(15,42,29,0.4)",
-                  borderRadius: 4,
+                  border: ativo ? `2px solid ${COR.creme}` : `1px solid ${VEU.linha}`,
+                  borderRadius: "0.25rem",
                   cursor: "pointer",
                 }}
               >
@@ -71,7 +79,7 @@ export const LinhaDoTempo: React.FC<Props> = ({ blocos, faixas, regua, agulhaSeg
             );
           })}
           {/* Agulha */}
-          <div style={{ position: "absolute", top: -22, bottom: 0, left: `${agulhaPct}%`, width: 2, background: COR.vermelho, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: `calc(-1 * ${ALTURA_REGUA})`, bottom: 0, left: `${agulhaPct}%`, width: 2, background: COR.vermelho, pointerEvents: "none" }} />
         </div>
       </div>
     </div>
