@@ -8,6 +8,7 @@ import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
 import { criarHistorico, desfazer, podeDesfazer, podeRefazer, refazer, registrar } from "./historico";
 import { acaoDoAtalho, ehEditavel } from "./atalhos";
 import { aplicarPropriedade } from "./regrasPropriedades";
+import { audiosQueUsam, quadroComPasso, removerElemento } from "./regrasInteracao";
 import { montarComposicao, type Composicao, type Fundo } from "./regrasAbrir";
 import { PainelLateral, type ChaveSecao, type SecoesAbertas } from "./PainelLateral";
 import { ALTURA_RODAPE, AvisoNoPalco, Casca, Palco } from "./Casca";
@@ -287,7 +288,9 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
     return () => player.removeEventListener("frameupdate", aoMudarQuadro);
   }, [player]);
 
-  // Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z (Cmd no Mac), só com o foco FORA de caixa de texto.
+  // Teclado, só com o foco FORA de caixa de texto (regra em atalhos.ts):
+  // Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z, espaço, ← →, Shift+← →, Delete.
+  const totalQuadros = composicao.pronta ? composicao.durationInFrames : 0;
   useEffect(() => {
     const aoTeclar = (e: KeyboardEvent) => {
       const acao = acaoDoAtalho({
@@ -300,12 +303,45 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       });
       if (acao === null) return;
       e.preventDefault();
-      setHistorico((h) => (acao === "desfazer" ? desfazer(h) : refazer(h)));
-      setVersaoExterna((v) => v + 1);
+      if (acao === "desfazer" || acao === "refazer") {
+        setHistorico((h) => (acao === "desfazer" ? desfazer(h) : refazer(h)));
+        setVersaoExterna((v) => v + 1);
+        return;
+      }
+      if (acao === "tocar") {
+        // Tira o foco do botão clicado antes, senão o espaço também "aperta" o botão.
+        if (e.target instanceof HTMLElement && e.target !== document.body) e.target.blur();
+        player?.toggle();
+        return;
+      }
+      if (acao === "remover") {
+        if (selecionado === null) return;
+        const el = plano.elementos[selecionado];
+        if (!el) return;
+        const usam = audiosQueUsam(plano, el.id);
+        if (usam.length > 0) {
+          setResultado({ tipo: "erro", texto: `Não apaguei "${el.id}": o efeito de áudio ${usam.map((a) => `"${a}"`).join(", ")} começa junto dele (audio[].elemento). Mude o áudio primeiro.` });
+          return;
+        }
+        setHistorico((h) => registrar(h, removerElemento(h.presente, selecionado), null));
+        setSelecionado(null);
+        setVersaoExterna((v) => v + 1);
+        return;
+      }
+      // Setas: 1 quadro; com Shift, 1 segundo (o fps do plano).
+      if (!player || totalQuadros === 0) return;
+      const passo = acao === "quadroAntes" ? -1 : acao === "quadroDepois" ? 1 : acao === "segundoAntes" ? -fps : fps;
+      player.seekTo(quadroComPasso(player.getCurrentFrame(), passo, totalQuadros));
     };
     window.addEventListener("keydown", aoTeclar);
     return () => window.removeEventListener("keydown", aoTeclar);
-  }, []);
+  }, [player, selecionado, plano, fps, totalQuadros]);
+
+  // Régua e agulha: tempo original → quadro do vídeo cortado → seekTo.
+  const procurar = (segundoOriginal: number) => {
+    if (!player || paraFrameCortado === null || totalQuadros === 0) return;
+    player.seekTo(quadroComPasso(paraFrameCortado(segundoOriginal), 0, totalQuadros));
+  };
 
   // digitando = mesma "chave" junta as teclas num passo só do desfazer
   const mudar = (transformar: (p: PlanoEditor) => PlanoEditor, chave: string | null, externo: boolean) => {
@@ -423,6 +459,8 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
               compositionHeight={composicao.height}
               fps={composicao.fps}
               controls
+              // O espaço é tratado pelo editor (atalhos.ts); desligado aqui para não alternar 2 vezes.
+              spaceKeyToPlayOrPause={false}
               acknowledgeRemotionLicense
               style={{ width: largura, height: altura }}
             />
@@ -446,7 +484,21 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       </div>
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0.5rem 0.75rem" }}>
         {aba === "linha" ? (
-          <LinhaDoTempo blocos={blocos} faixas={faixas} regua={regua} agulhaSeg={agulhaSeg} selecionado={selecionado} aoClicar={irPara} />
+          <LinhaDoTempo
+            blocos={blocos}
+            faixas={faixas}
+            regua={regua}
+            agulhaSeg={agulhaSeg}
+            selecionado={selecionado}
+            fps={fpsDoPlano(plano)}
+            aoClicar={irPara}
+            aoSelecionar={setSelecionado}
+            aoProcurar={procurar}
+            // Um arraste inteiro = um passo do desfazer (mesma "chave" durante o arraste).
+            aoArrastarInicio={(i, inicio, sessao) => mudar((p) => aplicarInicio(p, i, inicio), `arraste:${sessao}`, false)}
+            aoArrastarDuracao={(i, segundos, sessao) => mudar((p) => aplicarDuracao(p, i, segundos), `arraste:${sessao}`, false)}
+            aoFimArraste={() => setVersaoExterna((v) => v + 1)}
+          />
         ) : (
           <TabelaElementos
             key={versaoExterna}

@@ -45,7 +45,9 @@ export const camposEditaveis = (esquema: EsquemaJson | null): Campo[] => {
 
 // Confere um valor contra os limites do campo. Cor: aceita #rgb, #rrggbb ou #rrggbbaa (o
 // seletor do navegador só entende #rrggbb; outras formas, ex. rgba(), ficam no campo de texto).
+// Cor VAZIA não é erro: quer dizer "usar o padrão da peça" (há peças cujo padrão de cor é "").
 export const conferirValor = (c: Campo, valor: string): { ok: true } | { ok: false; erro: string } => {
+  if (c.tipo === "cor" && valor === "") return { ok: true };
   if (c.minimo !== undefined && valor.length < c.minimo) return { ok: false, erro: `Precisa de pelo menos ${c.minimo} caractere(s).` };
   if (c.maximo !== undefined && valor.length > c.maximo) return { ok: false, erro: `No máximo ${c.maximo} caracteres.` };
   if (c.tipo === "cor" && !/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(valor) && !/^rgba?\(/i.test(valor)) {
@@ -84,13 +86,18 @@ export const aplicarPropriedade = (
   const el = plano.elementos[indice];
   if (!el || !ehObjeto(el.props) || !conferirValor(c, valor).ok) return plano;
   const props = JSON.parse(JSON.stringify(el.props)) as Record<string, unknown>;
+  // Cor vazia = tirar a chave das props: a peça volta a usar o próprio padrão.
+  const tirar = c.tipo === "cor" && valor === "";
   if (dentroDe === null) {
-    if (props[c.campo] === valor) return plano;
-    props[c.campo] = valor;
+    if (tirar ? !(c.campo in props) : props[c.campo] === valor) return plano;
+    if (tirar) delete props[c.campo];
+    else props[c.campo] = valor;
   } else {
-    const sub = ehObjeto(props[dentroDe]) ? (props[dentroDe] as Record<string, unknown>) : {};
-    if (sub[c.campo] === valor) return plano;
-    props[dentroDe] = { ...sub, [c.campo]: valor };
+    const sub = ehObjeto(props[dentroDe]) ? { ...(props[dentroDe] as Record<string, unknown>) } : {};
+    if (tirar ? !(c.campo in sub) : sub[c.campo] === valor) return plano;
+    if (tirar) delete sub[c.campo];
+    else sub[c.campo] = valor;
+    props[dentroDe] = sub;
   }
   return { ...plano, elementos: plano.elementos.map((e, i) => (i === indice ? { ...e, props } : e)) };
 };

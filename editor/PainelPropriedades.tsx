@@ -91,7 +91,13 @@ export const PainelPropriedades: React.FC<Props> = ({ plano, indice, tipo, aoMud
                         ))}
                       </div>
                     ) : null}
-                    <input aria-label={c.campo} value={texto} style={caixaTexto(!conferido.ok)} onChange={(e) => escrever(e.target.value, true)} />
+                    <input
+                      aria-label={c.campo}
+                      value={texto}
+                      placeholder={c.tipo === "cor" ? "vazio = padrão da peça" : undefined}
+                      style={caixaTexto(!conferido.ok)}
+                      onChange={(e) => escrever(e.target.value, true)}
+                    />
                   </label>
                   {!conferido.ok ? <div style={mensagemErro}>{conferido.erro} O vídeo continua com "{atual}".</div> : null}
                 </div>
