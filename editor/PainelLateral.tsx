@@ -4,7 +4,8 @@ import { CampoDuracao, CampoInicio } from "./CamposTempo";
 import { PainelPropriedades } from "./PainelPropriedades";
 import { fpsDoPlano, situacaoDosElementos, type PlanoEditor } from "./regrasPlano";
 import type { Campo } from "./regrasPropriedades";
-import { COR, VEU } from "./tema";
+import { COR, VEU, botaoContorno } from "./tema";
+import { rotuloDoComponente } from "./nomes";
 
 // Painel lateral direito. Nada selecionado: o aviso "clique num bloco". Com um elemento
 // selecionado: só as ferramentas dele, em seções que abrem e fecham: Tempo, Texto e Cor.
@@ -21,6 +22,11 @@ type Props = {
   abertas: SecoesAbertas;
   aoAlternar: (chave: ChaveSecao) => void;
   aoLimpar: () => void;
+  // Camadas: a ordem do elemento na lista decide quem fica na frente. Os botões só funcionam
+  // se existir outro elemento que se cruze no tempo naquela direção (senão a ordem não muda nada).
+  podeFrente: boolean;
+  podeTras: boolean;
+  aoCamada: (direcao: "frente" | "tras") => void;
   aoMudarInicio: (indice: number, inicio: string) => void;
   aoMudarDuracao: (indice: number, segundos: number) => void;
   aoPassoInicio: (indice: number, passo: number) => void;
@@ -36,6 +42,9 @@ export const PainelLateral: React.FC<Props> = ({
   abertas,
   aoAlternar,
   aoLimpar,
+  podeFrente,
+  podeTras,
+  aoCamada,
   aoMudarInicio,
   aoMudarDuracao,
   aoPassoInicio,
@@ -62,12 +71,34 @@ export const PainelLateral: React.FC<Props> = ({
                 limpar seleção
               </button>
             </div>
-            <div style={{ fontSize: "0.8rem", opacity: 0.85 }}>{Array.isArray(el.componente) ? el.componente.join(" + ") : el.componente}</div>
+            <div style={{ fontSize: "0.8rem", opacity: 0.85 }} title={Array.isArray(el.componente) ? el.componente.join(" + ") : el.componente}>
+              {rotuloDoComponente(el.componente)}
+            </div>
             {avisos.map((a) => (
               <div key={a} style={{ fontSize: "0.8rem", color: COR.amarelo, marginTop: "0.2rem" }}>
                 ⚠️ {a}
               </div>
             ))}
+            <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+              <button
+                type="button"
+                style={{ ...botaoContorno, padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
+                disabled={!podeFrente}
+                onClick={() => aoCamada("frente")}
+                title={podeFrente ? "Passa este elemento para cima do próximo que aparece junto com ele (Ctrl+])" : "Nenhum elemento mais à frente aparece ao mesmo tempo: a ordem não mudaria nada"}
+              >
+                ↑ Trazer para frente
+              </button>
+              <button
+                type="button"
+                style={{ ...botaoContorno, padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
+                disabled={!podeTras}
+                onClick={() => aoCamada("tras")}
+                title={podeTras ? "Passa este elemento para baixo do anterior que aparece junto com ele (Ctrl+[)" : "Nenhum elemento mais atrás aparece ao mesmo tempo: a ordem não mudaria nada"}
+              >
+                ↓ Enviar para trás
+              </button>
+            </div>
           </div>
 
           <Secao titulo="Tempo" aberta={abertas.tempo} aoAlternar={() => aoAlternar("tempo")}>

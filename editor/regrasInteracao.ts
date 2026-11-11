@@ -1,4 +1,5 @@
 import { conferirDuracao, conferirInicio, formatarInicio, type PlanoEditor } from "./regrasPlano";
+import { intervalosDosElementos, seCruzam } from "./regrasLinhaDoTempo";
 
 // Regras de interação com a linha do tempo e com o teclado (pacote A). Sem React: dá para
 // testar pelo Node. Reaproveitam as regras de regrasPlano.ts (início com 1 casa, duração
@@ -68,4 +69,39 @@ export const removerElemento = (plano: PlanoEditor, indice: number): PlanoEditor
   const el = plano.elementos[indice];
   if (!el || audiosQueUsam(plano, el.id).length > 0) return plano;
   return { ...plano, elementos: plano.elementos.filter((_, i) => i !== indice) };
+};
+
+// ---------- Ordem das camadas ----------
+// A ORDEM DO ARRAY plano.elementos define quem fica na frente: o PlanoComposicao desenha os
+// elementos nessa ordem, cada um numa <Sequence> de tela cheia, e o último desenhado fica por
+// cima (src/PlanoComposicao.tsx, plano.elementos.map). Trocar a camada = trocar a posição na lista.
+
+export type DirecaoCamada = "frente" | "tras";
+
+// O elemento com quem a troca faz diferença: o mais próximo, na direção pedida, que se cruza no
+// tempo com este. Sem cruzamento, a ordem não muda nada na tela, então não há alvo (null).
+export const alvoDaCamada = (plano: PlanoEditor, indice: number, direcao: DirecaoCamada): number | null => {
+  const iv = intervalosDosElementos(plano);
+  const meu = iv[indice];
+  if (!meu) return null;
+  const passo = direcao === "frente" ? 1 : -1;
+  for (let j = indice + passo; j >= 0 && j < plano.elementos.length; j += passo) {
+    const outro = iv[j];
+    if (outro && seCruzam(meu, outro)) return j;
+  }
+  return null;
+};
+
+// "Trazer para frente": o elemento passa para logo DEPOIS do alvo (fica por cima dele).
+// "Enviar para trás": passa para logo ANTES do alvo. Devolve o plano novo e a nova posição do
+// elemento (para a seleção acompanhar), ou null se não houver alvo.
+export const moverCamada = (plano: PlanoEditor, indice: number, direcao: DirecaoCamada): { plano: PlanoEditor; indice: number } | null => {
+  const alvo = alvoDaCamada(plano, indice, direcao);
+  if (alvo === null) return null;
+  const el = plano.elementos[indice];
+  const resto = plano.elementos.filter((_, i) => i !== indice);
+  // Depois de tirar o elemento, quem estava em "alvo" (se alvo > indice) passou a estar em alvo-1.
+  const novoIndice = alvo;
+  resto.splice(novoIndice, 0, el);
+  return { plano: { ...plano, elementos: resto }, indice: novoIndice };
 };

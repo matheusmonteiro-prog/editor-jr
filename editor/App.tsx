@@ -8,7 +8,7 @@ import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
 import { criarHistorico, desfazer, podeDesfazer, podeRefazer, refazer, registrar } from "./historico";
 import { acaoDoAtalho, ehEditavel } from "./atalhos";
 import { aplicarPropriedade } from "./regrasPropriedades";
-import { audiosQueUsam, quadroComPasso, removerElemento } from "./regrasInteracao";
+import { alvoDaCamada, audiosQueUsam, moverCamada, quadroComPasso, removerElemento, type DirecaoCamada } from "./regrasInteracao";
 import { montarComposicao, type Composicao, type Fundo } from "./regrasAbrir";
 import { PainelLateral, type ChaveSecao, type SecoesAbertas } from "./PainelLateral";
 import { ALTURA_RODAPE, AvisoNoPalco, Casca, Palco } from "./Casca";
@@ -288,8 +288,21 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
     return () => player.removeEventListener("frameupdate", aoMudarQuadro);
   }, [player]);
 
+  // Camadas: a ordem do elemento na lista decide quem fica na frente (PlanoComposicao desenha na
+  // ordem do array). Trocar = mudar a posição na lista, passando pelo histórico (desfazer);
+  // a seleção acompanha o elemento, e a linha do tempo e a lista se redesenham.
+  const podeCamada = (direcao: DirecaoCamada) => selecionado !== null && alvoDaCamada(plano, selecionado, direcao) !== null;
+  const trocarCamada = (direcao: DirecaoCamada) => {
+    if (selecionado === null) return;
+    const r = moverCamada(plano, selecionado, direcao);
+    if (r === null) return;
+    setHistorico((h) => registrar(h, r.plano, null));
+    setSelecionado(r.indice);
+    setVersaoExterna((v) => v + 1);
+  };
+
   // Teclado, só com o foco FORA de caixa de texto (regra em atalhos.ts):
-  // Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z, espaço, ← →, Shift+← →, Delete.
+  // Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z, espaço, ← →, Shift+← →, Delete, Ctrl+] e Ctrl+[.
   const totalQuadros = composicao.pronta ? composicao.durationInFrames : 0;
   useEffect(() => {
     const aoTeclar = (e: KeyboardEvent) => {
@@ -306,6 +319,10 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       if (acao === "desfazer" || acao === "refazer") {
         setHistorico((h) => (acao === "desfazer" ? desfazer(h) : refazer(h)));
         setVersaoExterna((v) => v + 1);
+        return;
+      }
+      if (acao === "paraFrente" || acao === "paraTras") {
+        trocarCamada(acao === "paraFrente" ? "frente" : "tras");
         return;
       }
       if (acao === "tocar") {
@@ -523,6 +540,9 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       abertas={abertas}
       aoAlternar={alternar}
       aoLimpar={() => setSelecionado(null)}
+      podeFrente={podeCamada("frente")}
+      podeTras={podeCamada("tras")}
+      aoCamada={trocarCamada}
       aoMudarInicio={(i, inicio) => mudar((p) => aplicarInicio(p, i, inicio), `${plano.elementos[i].id}:inicio`, false)}
       aoMudarDuracao={(i, segundos) => mudar((p) => aplicarDuracao(p, i, segundos), `${plano.elementos[i].id}:duracao`, false)}
       aoPassoInicio={passoInicio}

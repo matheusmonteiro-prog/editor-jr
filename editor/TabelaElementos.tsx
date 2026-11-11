@@ -2,6 +2,7 @@ import React from "react";
 import { fpsDoPlano, situacaoDosElementos, type PlanoEditor } from "./regrasPlano";
 import { CampoDuracao, CampoInicio } from "./CamposTempo";
 import { COR, VEU } from "./tema";
+import { rotuloDoComponente } from "./nomes";
 
 // Aba "Lista": uma linha por elemento (id e componente só leitura; início e duração editáveis,
 // com os mesmos campos do painel lateral). Clicar na linha seleciona o elemento e o Player pula
@@ -63,7 +64,9 @@ export const TabelaElementos: React.FC<Props> = ({
                 }}
               >
                 <td style={{ ...celula, fontWeight: ativo ? 700 : 400 }}>{el.id}</td>
-                <td style={celula}>{Array.isArray(el.componente) ? el.componente.join(" + ") : el.componente}</td>
+                <td style={celula} title={Array.isArray(el.componente) ? el.componente.join(" + ") : el.componente}>
+                  {rotuloDoComponente(el.componente)}
+                </td>
                 <td style={{ ...celula, minWidth: "9rem" }}>
                   <CampoInicio el={el} aoMudar={(inicio) => aoMudarInicio(i, inicio)} aoPasso={(passo) => aoPassoInicio(i, passo)} />
                 </td>

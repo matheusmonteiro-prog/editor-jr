@@ -4,8 +4,19 @@
 //   Espaço = tocar/pausar
 //   ← / → = 1 quadro para trás/frente; Shift+← / Shift+→ = 1 segundo
 //   Delete = apagar o elemento selecionado (dá para desfazer)
+//   Ctrl+] = trazer o elemento para a frente; Ctrl+[ = enviar para trás (camadas)
 
-export type AcaoAtalho = "desfazer" | "refazer" | "tocar" | "quadroAntes" | "quadroDepois" | "segundoAntes" | "segundoDepois" | "remover";
+export type AcaoAtalho =
+  | "desfazer"
+  | "refazer"
+  | "tocar"
+  | "quadroAntes"
+  | "quadroDepois"
+  | "segundoAntes"
+  | "segundoDepois"
+  | "remover"
+  | "paraFrente"
+  | "paraTras";
 
 export type Tecla = {
   key: string;
@@ -22,6 +33,8 @@ export const acaoDoAtalho = (t: Tecla): AcaoAtalho | null => {
     const k = t.key.toLowerCase();
     if (k === "z") return t.shiftKey ? "refazer" : "desfazer";
     if (k === "y" && !t.shiftKey) return "refazer";
+    if (k === "]" && !t.shiftKey) return "paraFrente";
+    if (k === "[" && !t.shiftKey) return "paraTras";
     return null; // Ctrl + outra tecla fica com o navegador
   }
   if (t.key === " " || t.key === "Spacebar") return t.shiftKey ? null : "tocar";

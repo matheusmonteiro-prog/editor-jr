@@ -11,6 +11,7 @@ import {
 } from "./regrasPropriedades";
 import type { PlanoEditor } from "./regrasPlano";
 import { COR, caixaTexto, mensagemErro } from "./tema";
+import { rotuloDoCampo, rotuloDoComponente } from "./nomes";
 
 // Campos de TEXTO ou de COR do elemento escolhido (a seção "Texto" ou "Cor" do painel lateral).
 // Os campos vêm do schema zod de cada peça. O valor só vai para o plano se for válido; tudo
@@ -51,7 +52,7 @@ export const PainelPropriedades: React.FC<Props> = ({ plano, indice, tipo, aoMud
         .filter((p) => p.campos.length > 0)
         .map(({ nome, dentroDe, campos }) => (
           <div key={nome} style={{ marginBottom: "0.6rem" }}>
-            {!umaSo ? <div style={{ fontWeight: 700, color: COR.amarelo, marginBottom: "0.3rem" }}>{nome}</div> : null}
+            {!umaSo ? <div style={{ fontWeight: 700, color: COR.amarelo, marginBottom: "0.3rem" }} title={nome}>{rotuloDoComponente(nome)}</div> : null}
             {campos.map((c) => {
               const chave = `${nome}:${c.campo}`;
               const atual = valorAtual(el, dentroDe, c);
@@ -64,12 +65,12 @@ export const PainelPropriedades: React.FC<Props> = ({ plano, indice, tipo, aoMud
               return (
                 <div key={c.campo} style={{ marginBottom: "0.5rem" }}>
                   <label>
-                    <span style={rotuloCampo}>{c.campo}</span>
+                    <span style={rotuloCampo} title={`nome técnico: ${c.campo}`}>{rotuloDoCampo(nome, c.campo)}</span>
                     {c.tipo === "cor" ? (
                       <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", marginBottom: "0.3rem" }}>
                         <input
                           type="color"
-                          aria-label={`${c.campo} (seletor)`}
+                          aria-label={`${rotuloDoCampo(nome, c.campo)} (seletor)`}
                           value={ehHexSeis(texto) ? texto : "#000000"}
                           onChange={(e) => escrever(e.target.value.toUpperCase(), true)}
                         />
@@ -92,7 +93,7 @@ export const PainelPropriedades: React.FC<Props> = ({ plano, indice, tipo, aoMud
                       </div>
                     ) : null}
                     <input
-                      aria-label={c.campo}
+                      aria-label={rotuloDoCampo(nome, c.campo)}
                       value={texto}
                       placeholder={c.tipo === "cor" ? "vazio = padrão da peça" : undefined}
                       style={caixaTexto(!conferido.ok)}

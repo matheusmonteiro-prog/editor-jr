@@ -175,7 +175,10 @@ export const LinhaDoTempo: React.FC<Props> = ({
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap", fontSize: "0.75rem", marginBottom: "0.3rem" }}>
-        <span style={{ opacity: 0.8 }}>Régua em tempo ORIGINAL (antes dos cortes). Arraste o bloco para mudar o início; puxe a ponta direita para a duração.</span>
+        <span style={{ opacity: 0.8 }}>
+          Régua em tempo ORIGINAL (antes dos cortes). Arraste o bloco para mudar o início; puxe a ponta direita para a duração. Faixa mais
+          alta = mais à frente do vídeo.
+        </span>
         <span style={{ flex: 1 }} />
         <span style={{ opacity: 0.8 }}>Zoom</span>
         <button type="button" style={{ ...botaoContorno, padding: "0 0.5rem" }} disabled={zoom <= ZOOM_MIN} onClick={() => setZoom((z) => proximoZoom(z, -1))} title="Afastar (Ctrl + roda do mouse)">
@@ -231,11 +234,13 @@ export const LinhaDoTempo: React.FC<Props> = ({
             ))}
             {blocos.map((b) => {
               const ativo = b.indice === selecionado;
+              // faixa maior = mais à frente = mais perto do topo da área
+              const fila = nFaixas - 1 - b.faixa;
               return (
                 <button
                   key={b.id}
                   type="button"
-                  title={`${b.id} · ${b.rotulo} · início ${b.inicioSeg.toFixed(1)} s · ${b.duracaoSeg.toFixed(2)} s`}
+                  title={`${b.rotulo} · ${b.id} · início ${b.inicioSeg.toFixed(1)} s · ${b.duracaoSeg.toFixed(2)} s · camada ${b.faixa + 1} de ${nFaixas}`}
                   onPointerDown={(e) => blocoDown(e, b)}
                   onPointerMove={blocoMove}
                   onPointerUp={blocoUp}
@@ -251,7 +256,7 @@ export const LinhaDoTempo: React.FC<Props> = ({
                     position: "absolute",
                     left: `${b.esquerdaPct}%`,
                     width: `max(${b.larguraPct}%, 0.6rem)`,
-                    top: `calc(${b.faixa} * ${ALTURA_FAIXA} + 0.2rem)`,
+                    top: `calc(${fila} * ${ALTURA_FAIXA} + 0.2rem)`,
                     height: `calc(${ALTURA_FAIXA} - 0.4rem)`,
                     padding: "0 0.6rem 0 0.4rem",
                     overflow: "hidden",
@@ -269,7 +274,7 @@ export const LinhaDoTempo: React.FC<Props> = ({
                     userSelect: "none",
                   }}
                 >
-                  {b.id}
+                  {b.rotulo} · {b.id}
                   {/* Alça da ponta direita: puxar muda a duração */}
                   <span
                     data-alca="1"
