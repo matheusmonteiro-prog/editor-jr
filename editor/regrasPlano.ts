@@ -135,3 +135,32 @@ export const nomeDaCopia = (nomeOriginal: string, agora: Date): string => {
 };
 
 export const planoParaTexto = (plano: PlanoEditor): string => `${JSON.stringify(plano, null, 2)}\n`;
+
+// ---------- Botões − e + (fatia 4) ----------
+
+// Segundos → "m:ss" ou "m:ss.d" (1 casa, a mesma regra do início). Sempre passa no conferirInicio.
+export const formatarInicio = (segundos: number): string => {
+  const decimos = Math.round(segundos * 10);
+  const m = Math.floor(decimos / 600);
+  const s = Math.floor((decimos % 600) / 10);
+  const d = decimos % 10;
+  return `${m}:${String(s).padStart(2, "0")}${d === 0 ? "" : `.${d}`}`;
+};
+
+// Início + passo (ex.: ±0,5 s). Devolve o texto novo, ou null se o atual for inválido
+// ou se o resultado ficaria negativo. Quem chama usa aplicarInicio, que confere de novo.
+export const somarAoInicio = (inicio: string, passo: number): string | null => {
+  const atual = conferirInicio(inicio);
+  if (!atual.ok) return null;
+  const novo = Math.round((atual.segundos + passo) * 10) / 10;
+  if (novo < 0) return null;
+  const texto = formatarInicio(novo);
+  return conferirInicio(texto).ok ? texto : null;
+};
+
+// Duração + passo, em segundos com 1 casa. null se ficaria <= 0 ou com menos de 1 quadro.
+// Quem chama usa aplicarDuracao (as 3 vias).
+export const somarADuracao = (duracao: number, passo: number, fps: number): number | null => {
+  const novo = Math.round((duracao + passo) * 10) / 10;
+  return conferirDuracao(String(novo), fps).ok ? novo : null;
+};

@@ -1,11 +1,26 @@
-import React, { useMemo, useState } from "react";
-import { Player } from "@remotion/player";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Player, type CallbackListener, type PlayerRef } from "@remotion/player";
 import { PlanoComposicao, type PlanoComposicaoProps } from "../src/PlanoComposicao";
+import { criarParaFrameCortado } from "../src/utils/tempoCortado";
 import planoKitV3 from "../planos/teste-kit-v3.json";
 import { TabelaElementos } from "./TabelaElementos";
-import { aplicarDuracao, aplicarInicio, nomeDaCopia, planoParaTexto, type PlanoEditor } from "./regrasPlano";
+import { LinhaDoTempo } from "./LinhaDoTempo";
+import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
+import { criarHistorico, desfazer, podeDesfazer, podeRefazer, refazer, registrar } from "./historico";
+import {
+  aplicarDuracao,
+  aplicarInicio,
+  conferirInicio,
+  fpsDoPlano,
+  nomeDaCopia,
+  planoParaTexto,
+  somarADuracao,
+  somarAoInicio,
+  type PlanoEditor,
+} from "./regrasPlano";
 
-// Editor (fatia 2): o Player tocando o plano + tabela de início e duração.
+// Editor (fatias 2 a 4): o Player tocando o plano, linha do tempo, tabela de início e duração
+// (digitando ou com − e +), desfazer/refazer (só memória) e Salvar.
 // O Vite roda na raiz do projeto, então public/ é servida em "/" e o
 // staticFile("videos/...") do PlanoComposicao vira "/videos/...".
 // O plano editado fica SÓ na memória da página. "Baixar cópia" gera um arquivo novo no
@@ -14,6 +29,9 @@ import { aplicarDuracao, aplicarInicio, nomeDaCopia, planoParaTexto, type PlanoE
 const NOME_PLANO = "teste-kit-v3.json";
 const NOME_BASE = "teste-kit-v3"; // o que o servidor recebe: só o nome, nunca caminho
 const PLANO_INICIAL: PlanoEditor = planoKitV3;
+const FPS_PLAYER = 30; // o mesmo fps passado ao <Player> abaixo
+// Um único trecho (0 a 37,8 s): tempos do plano iguais aos do vídeo.
+const CORTES = { trechos: [{ inicio: 0, fim: 37.8 }] };
 
 type Resultado = { tipo: "ok" | "erro"; texto: string };
 
@@ -72,8 +90,76 @@ const botao: React.CSSProperties = {
 };
 
 export const App: React.FC = () => {
-  const [plano, setPlano] = useState<PlanoEditor>(PLANO_INICIAL);
+  const [historico, setHistorico] = useState(() => criarHistorico<PlanoEditor>(PLANO_INICIAL));
+  const plano = historico.presente;
+  // Sobe a cada mudança vinda de fora da caixa de texto (−/+, desfazer, refazer): remonta a
+  // tabela para os rascunhos mostrarem o valor novo.
+  const [versaoExterna, setVersaoExterna] = useState(0);
+  const [selecionado, setSelecionado] = useState<number | null>(null);
+  const [frameAtual, setFrameAtual] = useState(0);
+  const playerRef = useRef<PlayerRef>(null);
   const [salvando, setSalvando] = useState(false);
+
+  const paraFrameCortado = useMemo(() => criarParaFrameCortado(CORTES.trechos, FPS_PLAYER), []);
+
+  // Agulha: "frameupdate" dispara a cada mudança de tempo, tocando ou procurando
+  // (https://www.remotion.dev/docs/player/player#frameupdate).
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    const aoMudarQuadro: CallbackListener<"frameupdate"> = (e) => setFrameAtual(e.detail.frame);
+    player.addEventListener("frameupdate", aoMudarQuadro);
+    return () => player.removeEventListener("frameupdate", aoMudarQuadro);
+  }, []);
+
+  // digitando = mesma "chave" junta as teclas num passo só do desfazer
+  const mudar = (transformar: (p: PlanoEditor) => PlanoEditor, chave: string | null, externo: boolean) => {
+    setHistorico((h) => registrar(h, transformar(h.presente), chave));
+    if (externo) setVersaoExterna((v) => v + 1);
+  };
+
+  const passoInicio = (i: number, passo: number) =>
+    mudar(
+      (p) => {
+        const texto = somarAoInicio(p.elementos[i].inicio, passo);
+        return texto === null ? p : aplicarInicio(p, i, texto);
+      },
+      null,
+      true,
+    );
+
+  const passoDuracao = (i: number, passo: number) =>
+    mudar(
+      (p) => {
+        const fps = fpsDoPlano(p);
+        if (fps === null) return p;
+        const segundos = somarADuracao(p.elementos[i].duracao, passo, fps);
+        return segundos === null ? p : aplicarDuracao(p, i, segundos);
+      },
+      null,
+      true,
+    );
+
+  // Pular para o início do elemento: tempo original → quadro do vídeo cortado → seekTo
+  // (https://www.remotion.dev/docs/player/player#playerref).
+  const irPara = (i: number) => {
+    setSelecionado(i);
+    const inicio = conferirInicio(plano.elementos[i].inicio);
+    if (!inicio.ok) return;
+    playerRef.current?.seekTo(paraFrameCortado(inicio.segundos));
+  };
+
+  const voltar = () => {
+    setHistorico((h) => desfazer(h));
+    setVersaoExterna((v) => v + 1);
+  };
+  const avancar = () => {
+    setHistorico((h) => refazer(h));
+    setVersaoExterna((v) => v + 1);
+  };
+
+  const { blocos, faixas, regua } = useMemo(() => calcularBlocos(plano, CORTES.trechos), [plano]);
+  const agulhaSeg = paraSegundoOriginal(CORTES.trechos, frameAtual, FPS_PLAYER);
   const [resultado, setResultado] = useState<Resultado | null>(null);
 
   const salvar = async () => {
@@ -92,8 +178,7 @@ export const App: React.FC = () => {
     () => ({
       videoSrc: "videos/0926-cortado-v1.mp4",
       plano,
-      // Um único trecho (0 a 37,8 s): tempos do plano iguais aos do vídeo.
-      cortes: { trechos: [{ inicio: 0, fim: 37.8 }] },
+      cortes: CORTES,
     }),
     [plano],
   );
@@ -102,20 +187,45 @@ export const App: React.FC = () => {
     <div style={{ maxWidth: 1280, margin: "0 auto", padding: 16 }}>
       <h1 style={{ fontSize: 20 }}>Editor JR: {NOME_PLANO}</h1>
       <Player
+        ref={playerRef}
         component={PlanoComposicao}
         inputProps={props}
         durationInFrames={1134}
         compositionWidth={1920}
         compositionHeight={1080}
-        fps={30}
+        fps={FPS_PLAYER}
         controls
         acknowledgeRemotionLicense
         style={{ width: "100%" }}
       />
+      <LinhaDoTempo
+        blocos={blocos}
+        faixas={faixas}
+        regua={regua}
+        agulhaSeg={agulhaSeg}
+        selecionado={selecionado}
+        aoClicar={irPara}
+      />
+      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <button type="button" style={{ ...botao, marginTop: 0 }} disabled={!podeDesfazer(historico)} onClick={voltar}>
+          ↶ Desfazer
+        </button>
+        <button type="button" style={{ ...botao, marginTop: 0 }} disabled={!podeRefazer(historico)} onClick={avancar}>
+          ↷ Refazer
+        </button>
+        <span style={{ alignSelf: "center", fontSize: 13, opacity: 0.8 }}>
+          {historico.passado.length} passo(s) para desfazer · só na memória, nada é gravado
+        </span>
+      </div>
       <TabelaElementos
+        key={versaoExterna}
         plano={plano}
-        aoMudarInicio={(i, inicio) => setPlano((p) => aplicarInicio(p, i, inicio))}
-        aoMudarDuracao={(i, segundos) => setPlano((p) => aplicarDuracao(p, i, segundos))}
+        selecionado={selecionado}
+        aoMudarInicio={(i, inicio) => mudar((p) => aplicarInicio(p, i, inicio), `${plano.elementos[i].id}:inicio`, false)}
+        aoMudarDuracao={(i, segundos) => mudar((p) => aplicarDuracao(p, i, segundos), `${plano.elementos[i].id}:duracao`, false)}
+        aoPassoInicio={passoInicio}
+        aoPassoDuracao={passoDuracao}
+        aoSelecionar={irPara}
       />
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <button type="button" style={botao} disabled={salvando} onClick={salvar}>
