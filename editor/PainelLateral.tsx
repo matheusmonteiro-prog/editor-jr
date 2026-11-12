@@ -6,13 +6,16 @@ import { fpsDoPlano, situacaoDosElementos, type PlanoEditor } from "./regrasPlan
 import type { Campo } from "./regrasPropriedades";
 import { COR, VEU, botaoContorno } from "./tema";
 import { rotuloDoComponente } from "./nomes";
+import { PainelTransformar } from "./PainelTransformar";
+import type { CampoTransformar } from "./regrasTransformar";
+import type { Desenho } from "./regrasDesenho";
 
 // Painel lateral direito. Nada selecionado: o aviso "clique num bloco". Com um elemento
-// selecionado: só as ferramentas dele, em seções que abrem e fecham: Tempo, Texto e Cor.
+// selecionado: só as ferramentas dele, em seções que abrem e fecham: Tempo, Transformar, Texto e Cor.
 // A seção "Plano e vídeo" (de onde veio cada coisa) fica sempre no fim.
 // Não tem regra própria: usa CamposTempo, PainelPropriedades e regrasPlano.
 
-export type ChaveSecao = "tempo" | "texto" | "cor" | "plano";
+export type ChaveSecao = "tempo" | "transformar" | "texto" | "cor" | "plano";
 export type SecoesAbertas = Record<ChaveSecao, boolean>;
 
 type Props = {
@@ -32,6 +35,13 @@ type Props = {
   aoPassoInicio: (indice: number, passo: number) => void;
   aoPassoDuracao: (indice: number, passo: number) => void;
   aoMudarPropriedade: (indice: number, dentroDe: string | null, campo: Campo, valor: string, digitando: boolean) => void;
+  aoMudarTransformar: (indice: number, campo: CampoTransformar, valor: number) => void;
+  aoPassoTransformar: (indice: number, campo: CampoTransformar, sinal: 1 | -1) => void;
+  aoResetarTransformar: (indice: number) => void;
+  aoMoverNoMinimapa: (indice: number, x: number, y: number, sessao: string) => void;
+  aoEscalarNoMinimapa: (indice: number, escala: number, sessao: string) => void;
+  aoTerminarMinimapa: () => void;
+  desenho: Desenho; // desenho real do elemento escolhido, medido no Player
   ficha: React.ReactNode;
 };
 
@@ -50,6 +60,13 @@ export const PainelLateral: React.FC<Props> = ({
   aoPassoInicio,
   aoPassoDuracao,
   aoMudarPropriedade,
+  aoMudarTransformar,
+  aoPassoTransformar,
+  aoResetarTransformar,
+  aoMoverNoMinimapa,
+  aoEscalarNoMinimapa,
+  aoTerminarMinimapa,
+  desenho,
   ficha,
 }) => {
   const el = indice === null ? undefined : plano.elementos[indice];
@@ -113,6 +130,21 @@ export const PainelLateral: React.FC<Props> = ({
             </div>
           </Secao>
 
+          <Secao titulo="Transformar" aberta={abertas.transformar} aoAlternar={() => aoAlternar("transformar")}>
+            <PainelTransformar
+              key={`transformar-${indice}-${versaoExterna}`}
+              plano={plano}
+              el={el}
+              aoMoverNoMinimapa={(x, y, sessao) => aoMoverNoMinimapa(indice, x, y, sessao)}
+              aoEscalarNoMinimapa={(escala, sessao) => aoEscalarNoMinimapa(indice, escala, sessao)}
+              aoTerminarMinimapa={aoTerminarMinimapa}
+              desenho={desenho}
+              aoMudar={(campo, valor) => aoMudarTransformar(indice, campo, valor)}
+              aoPasso={(campo, sinal) => aoPassoTransformar(indice, campo, sinal)}
+              aoResetar={() => aoResetarTransformar(indice)}
+            />
+          </Secao>
+
           <Secao titulo="Texto" aberta={abertas.texto} aoAlternar={() => aoAlternar("texto")}>
             <PainelPropriedades key={`texto-${indice}-${versaoExterna}`} plano={plano} indice={indice} tipo="texto" aoMudar={aoMudarPropriedade} />
           </Secao>
@@ -122,7 +154,7 @@ export const PainelLateral: React.FC<Props> = ({
           </Secao>
         </>
       ) : (
-        <p style={{ margin: 0, padding: "1rem 0.75rem", opacity: 0.85 }}>Clique num bloco da linha do tempo (ou numa linha da aba Lista) para editar o tempo, o texto e as cores.</p>
+        <p style={{ margin: 0, padding: "1rem 0.75rem", opacity: 0.85 }}>Clique num bloco da linha do tempo (ou numa linha da aba Lista) para editar o tempo, a escala e a posição, o texto e as cores.</p>
       )}
 
       <Secao titulo="Plano e vídeo" aberta={abertas.plano} aoAlternar={() => aoAlternar("plano")}>

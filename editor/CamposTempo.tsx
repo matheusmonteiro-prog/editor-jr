@@ -10,7 +10,7 @@ import { COR, caixaTexto, mensagemErro } from "./tema";
 
 export const PASSO_SEG = 0.5;
 
-const botaoPasso: React.CSSProperties = {
+export const botaoPasso: React.CSSProperties = {
   flex: "none",
   width: "1.8rem",
   padding: "0.25rem 0",

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Player, type CallbackListener, type PlayerRef } from "@remotion/player";
 import { PlanoComposicao, type PlanoComposicaoProps } from "../src/PlanoComposicao";
 import { criarParaFrameCortado } from "../src/utils/tempoCortado";
@@ -8,6 +8,11 @@ import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
 import { criarHistorico, desfazer, podeDesfazer, podeRefazer, refazer, registrar } from "./historico";
 import { acaoDoAtalho, ehEditavel } from "./atalhos";
 import { aplicarPropriedade } from "./regrasPropriedades";
+import { aplicarTransformar, passoTransformar, resetarTransformar } from "./regrasTransformar";
+import { aplicarDeslocamento } from "./regrasMinimapa";
+import { chaveDoDesenho, juntarMedida, semTransformacao, type Desenho, type EstadoMedida } from "./regrasDesenho";
+import { medirDesenho } from "./medirDesenho";
+import { valorTransformar } from "./regrasTransformar";
 import { alvoDaCamada, audiosQueUsam, moverCamada, quadroComPasso, removerElemento, type DirecaoCamada } from "./regrasInteracao";
 import { montarComposicao, type Composicao, type Fundo } from "./regrasAbrir";
 import { PainelLateral, type ChaveSecao, type SecoesAbertas } from "./PainelLateral";
@@ -270,7 +275,7 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
   const [salvando, setSalvando] = useState(false);
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [aba, setAba] = useState<"linha" | "lista">("linha"); // Lista fica fechada por padrão
-  const [abertas, setAbertas] = useState<SecoesAbertas>({ tempo: true, texto: true, cor: true, plano: true });
+  const [abertas, setAbertas] = useState<SecoesAbertas>({ tempo: true, transformar: true, texto: true, cor: true, plano: true });
 
   // fps, tamanho e duração vêm do plano ABERTO (o original), não da edição: mudar um
   // elemento não muda o tamanho do vídeo.
@@ -287,6 +292,39 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
     player.addEventListener("frameupdate", aoMudarQuadro);
     return () => player.removeEventListener("frameupdate", aoMudarQuadro);
   }, [player]);
+
+  // Desenho real do elemento escolhido, medido no DOM do Player (medirDesenho.ts) depois de cada
+  // quadro e de cada mudança no plano. Dois requestAnimationFrame: mede depois que o Player já
+  // desenhou o quadro/plano novo. A medida vira "base" (sem a escala/posição atual) e fica
+  // estável quando dois quadros diferentes seguidos batem (regrasDesenho.ts, juntarMedida).
+  const [desenho, setDesenho] = useState<Desenho>({ estado: "sem-player", base: null });
+  const memoriaDesenho = useRef(new Map<string, EstadoMedida & { chave: string }>());
+  const elEscolhido = selecionado === null ? undefined : historico.presente.elementos[selecionado];
+  useEffect(() => {
+    if (!elEscolhido) return;
+    let a = 0;
+    let b = 0;
+    a = requestAnimationFrame(() => {
+      b = requestAnimationFrame(() => {
+        const r = medirDesenho(player?.getContainerNode() ?? null, elEscolhido.id);
+        const chave = chaveDoDesenho(elEscolhido as unknown as Record<string, unknown>);
+        const guardada = memoriaDesenho.current.get(elEscolhido.id);
+        const atual = guardada && guardada.chave === chave ? guardada : { chave, anterior: null, estavel: null };
+        if (r.estado !== "medido") {
+          setDesenho({ estado: r.estado, base: atual.estavel });
+          return;
+        }
+        const base = semTransformacao(r.desenho, valorTransformar(elEscolhido, "escala"), valorTransformar(elEscolhido, "x"), valorTransformar(elEscolhido, "y"));
+        const novo = { chave, ...juntarMedida(atual, { quadro: frameAtual, base }) };
+        memoriaDesenho.current.set(elEscolhido.id, novo);
+        setDesenho(novo.estavel ? { estado: "estavel", base: novo.estavel } : { estado: "animando", base });
+      });
+    });
+    return () => {
+      cancelAnimationFrame(a);
+      cancelAnimationFrame(b);
+    };
+  }, [player, elEscolhido, frameAtual]);
 
   // Camadas: a ordem do elemento na lista decide quem fica na frente (PlanoComposicao desenha na
   // ordem do array). Trocar = mudar a posição na lista, passando pelo histórico (desfazer);
@@ -554,6 +592,14 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
           !digitando,
         )
       }
+      aoMudarTransformar={(i, campo, valor) => mudar((p) => aplicarTransformar(p, i, campo, valor), `${plano.elementos[i].id}:transformar:${campo}`, false)}
+      aoPassoTransformar={(i, campo, sinal) => mudar((p) => passoTransformar(p, i, campo, sinal), null, true)}
+      aoResetarTransformar={(i) => mudar((p) => resetarTransformar(p, i), null, true)}
+      // Minimapa: um arraste inteiro = um passo do desfazer (mesma sessão); no fim, os campos remontam.
+      aoMoverNoMinimapa={(i, x, y, sessao) => mudar((p) => aplicarDeslocamento(p, i, x, y), `arraste:${sessao}`, false)}
+      aoEscalarNoMinimapa={(i, escala, sessao) => mudar((p) => aplicarTransformar(p, i, "escala", escala), `arraste:${sessao}`, false)}
+      aoTerminarMinimapa={() => setVersaoExterna((v) => v + 1)}
+      desenho={desenho}
       ficha={<Ficha aberto={aberto} plano={plano} composicao={composicao} />}
     />
   );
