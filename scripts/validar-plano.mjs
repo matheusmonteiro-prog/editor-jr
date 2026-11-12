@@ -1177,20 +1177,16 @@ for (const el of elementos) {
 // 13. entrada e saída (opcionais; src/PlanoComposicao.tsx aplica só com o campo presente).
 // { tipo: "fade"|"deslizar"|"zoom", frames: inteiro > 0, direcao (só deslizar) }.
 // entrada.frames + saida.frames <= duração do elemento em quadros (senão o motor não aplica).
-// AVISO quando a peça já se anima sozinha: hoje isso = o arquivo dela usa useCurrentFrame
-// (lido na hora, sem lista fixa); as duas animações se somam.
+// AVISO quando a peça tem entrada fixa conhecida (lista explícita abaixo, conferida no código
+// de cada uma em 12/11/2026): a entrada/saída do elemento soma por cima da dela.
+const PECAS_COM_ENTRADA_PROPRIA = [
+  'ImpactoKit', 'ArrobaCanal', 'DestaqueSolto', 'LinhaTrajetoria', 'AberturaCapitulo',
+  'ComparacaoNumeros', 'Pauta', 'PersonagemImagem', 'ListaCheck',
+];
 const TIPOS_ANIMACAO = ['fade', 'deslizar', 'zoom'];
 const DIRECOES_ANIMACAO = ['esquerda', 'direita', 'cima', 'baixo'];
 const CHAVES_ANIMACAO = ['tipo', 'frames', 'direcao'];
 const fpsAnimacao = typeof dados.fps === 'number' && dados.fps > 0 ? dados.fps : 30;
-const animaSozinho = {};
-for (const caminho of listarArquivosComponentes()) {
-  try {
-    animaSozinho[path.basename(caminho, '.tsx')] = /useCurrentFrame\(/.test(readFileSync(caminho, 'utf8'));
-  } catch {
-    // arquivo ilegível: sem aviso
-  }
-}
 for (const el of elementos) {
   const o = el.original;
   if (o.entrada === undefined && o.saida === undefined) continue;
@@ -1227,11 +1223,11 @@ for (const el of elementos) {
       el.label,
       `animacao: entrada + saída = ${soma} quadros, mas o elemento dura ${duracaoQuadros} — o vídeo não aplicaria nenhuma das duas; diminua os frames`,
     );
-  const nomes = (Array.isArray(o.componente) ? o.componente : [o.componente]).filter((n) => animaSozinho[n]);
+  const nomes = (Array.isArray(o.componente) ? o.componente : [o.componente]).filter((n) => PECAS_COM_ENTRADA_PROPRIA.includes(n));
   if (nomes.length > 0)
     aviso(
       el.label,
-      `animacao: ${nomes.join(', ')} já tem animação própria — a entrada/saída do elemento soma por cima; confira no Studio`,
+      `animacao: ${nomes.join(', ')} já tem entrada própria — a entrada/saída do elemento soma por cima; confira no Studio`,
     );
 }
 

@@ -675,11 +675,11 @@ const casos = [
   },
   // entrada e saída (animação por elemento, opcionais)
   {
-    nome: "entrada/saída válidas (fade, deslizar, zoom; soma = duração) passam sem erro, com AVISO de animação própria",
+    nome: "entrada/saída válidas (fade, deslizar, zoom; soma = duração) passam limpo em peça sem entrada própria (Checkmark)",
     arquivo: fixture('valido-animacao.plano.json'),
     args: [],
     esperaFalha: false,
-    trechoEsperado: 'Resumo: 0 erro(s), 2 aviso(s)',
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
   },
   {
     nome: "tipo de animação desconhecido",
@@ -736,6 +736,20 @@ const casos = [
     args: [],
     esperaFalha: true,
     trechoEsperado: 'animacao: entrada só aceita tipo, frames e direcao (veio o campo \"velocidade\")',
+  },
+  {
+    nome: 'ImagemFade animada: fora da lista de entrada própria, 0 aviso',
+    arquivo: fixture('valido-animacao-imagem-fade.plano.json'),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'ImpactoKit animada: AVISO de entrada própria (1 aviso)',
+    arquivo: fixture('aviso-animacao-impacto-kit.plano.json'),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 1 aviso(s)',
   },
 ];
 

@@ -1,0 +1,34 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "kit-impacto",
+      "componente": "ImpactoKit",
+      "texto": "Quem é o investidor Sertanejo?",
+      "descricao": "teste de aviso",
+      "inicio": "0:02",
+      "duracao": 3,
+      "duracaoFrames": 90,
+      "posicao": "base",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "entrada": {
+        "tipo": "fade",
+        "frames": 10
+      },
+      "saida": {
+        "tipo": "zoom",
+        "frames": 10
+      },
+      "props": {
+        "linha1": "Quem é o investidor",
+        "linha2": "Sertanejo?",
+        "faixa": false,
+        "corDestaque": "#EFAF20",
+        "duracaoFrames": 90
+      }
+    }
+  ]
+}

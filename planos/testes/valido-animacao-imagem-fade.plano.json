@@ -1,0 +1,32 @@
+{
+  "video": "fixture",
+  "orientacao": "vertical",
+  "elementos": [
+    {
+      "id": "img-1",
+      "componente": "ImagemFade",
+      "texto": "imagem",
+      "descricao": "teste de aviso",
+      "inicio": "0:02",
+      "duracao": 3,
+      "duracaoFrames": 90,
+      "posicao": "base",
+      "slot": 1,
+      "ilustrativo": false,
+      "tempo_estimado": true,
+      "entrada": {
+        "tipo": "fade",
+        "frames": 10
+      },
+      "saida": {
+        "tipo": "zoom",
+        "frames": 10
+      },
+      "props": {
+        "src": "images/logo-jr.png",
+        "larguraPorcentagem": 50,
+        "frameEntrada": 10
+      }
+    }
+  ]
+}
