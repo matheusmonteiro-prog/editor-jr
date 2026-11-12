@@ -42,6 +42,8 @@ type Props = {
   aoEscalarNoMinimapa: (indice: number, escala: number, sessao: string) => void;
   aoTerminarMinimapa: () => void;
   desenho: Desenho; // desenho real do elemento escolhido, medido no Player
+  podeDuplicar: boolean;
+  aoDuplicar: () => void; // Ctrl+D: cópia logo acima, 0,5 s depois
   ficha: React.ReactNode;
 };
 
@@ -67,6 +69,8 @@ export const PainelLateral: React.FC<Props> = ({
   aoEscalarNoMinimapa,
   aoTerminarMinimapa,
   desenho,
+  podeDuplicar,
+  aoDuplicar,
   ficha,
 }) => {
   const el = indice === null ? undefined : plano.elementos[indice];
@@ -114,6 +118,15 @@ export const PainelLateral: React.FC<Props> = ({
                 title={podeTras ? "Passa este elemento para baixo do anterior que aparece junto com ele (Ctrl+[)" : "Nenhum elemento mais atrás aparece ao mesmo tempo: a ordem não mudaria nada"}
               >
                 ↓ Enviar para trás
+              </button>
+              <button
+                type="button"
+                style={{ ...botaoContorno, padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
+                disabled={!podeDuplicar}
+                onClick={aoDuplicar}
+                title="Cria uma cópia deste elemento logo acima dele, 0,5 s depois, com um id novo (Ctrl+D)"
+              >
+                ⧉ Duplicar
               </button>
             </div>
           </div>

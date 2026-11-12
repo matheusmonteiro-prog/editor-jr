@@ -1,4 +1,5 @@
 import { classeDoElemento, paraFracao, uniao, type Retangulo, type RetanguloPx } from "./regrasDesenho";
+import type { CaixaAtiva } from "./regrasVideo";
 
 // Mede no DOM do Player o retângulo do DESENHO de um elemento (não a camada de tela cheia).
 // Como acha a camada: src/PlanoComposicao.tsx põe className "plano-elemento plano-elemento-<id
@@ -53,9 +54,33 @@ export const medirDesenho = (container: HTMLElement | null, id: string): Resulta
   if (!composicao) return { estado: "sem-player" };
   const camada = composicao.querySelector(`.${classeDoElemento(id)}`);
   if (!camada) return { estado: "fora" };
-  const tela = px(composicao.getBoundingClientRect());
+  const desenho = medirCamada(camada, px(composicao.getBoundingClientRect()));
+  return desenho ? { estado: "medido", desenho } : { estado: "vazio" };
+};
+
+const medirCamada = (camada: Element, tela: RetanguloPx): Retangulo | null => {
   const partes: (Retangulo | null)[] = [];
   coletar(camada, tela, partes, true);
-  const desenho = uniao(partes);
-  return desenho ? { estado: "medido", desenho } : { estado: "vazio" };
+  return uniao(partes);
+};
+
+// Todos os elementos que estão na tela NESTE quadro (para o overlay do vídeo: clicar numa peça
+// escolhe o elemento). tela = onde a composição está, em px relativos ao container do Player.
+export type MedidaDoQuadro = { tela: { left: number; top: number; width: number; height: number }; caixas: CaixaAtiva[] };
+
+export const medirTodos = (container: HTMLElement | null, ids: string[]): MedidaDoQuadro | null => {
+  if (!container) return null;
+  const composicao = container.querySelector(".__remotion-player");
+  if (!composicao) return null;
+  const c = container.getBoundingClientRect();
+  const r = composicao.getBoundingClientRect();
+  const tela = px(r);
+  const caixas: CaixaAtiva[] = [];
+  ids.forEach((id, indice) => {
+    const camada = composicao.querySelector(`.${classeDoElemento(id)}`);
+    if (!camada) return;
+    const desenho = medirCamada(camada, tela);
+    if (desenho) caixas.push({ indice, desenho });
+  });
+  return { tela: { left: r.left - c.left, top: r.top - c.top, width: r.width, height: r.height }, caixas };
 };

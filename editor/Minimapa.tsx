@@ -3,6 +3,7 @@ import type { ElementoEditor, PlanoEditor } from "./regrasPlano";
 import { valorTransformar } from "./regrasTransformar";
 import { caixaDaPeca, caixaDoDesenho, deslocamentoArrastado, escalaDoCanto, geometria, origemDaEscala, tamanhoDaTela } from "./regrasMinimapa";
 import type { Desenho } from "./regrasDesenho";
+import { encaixeMagnetico } from "./regrasVideo";
 import { COR, VEU } from "./tema";
 
 // Minimapa da tela (seção "Transformar"): a tela na proporção do plano e a caixa do elemento
@@ -84,7 +85,9 @@ export const Minimapa: React.FC<{
     const p = ponto(e);
     if (arraste.tipo === "mover") {
       const d = deslocamentoArrastado(g, arraste.x0, arraste.y0, p.x - arraste.px0, p.y - arraste.py0);
-      aoMover(d.x, d.y, arraste.sessao);
+      // Ímã nas bordas/centro da tela (mesma regra do vídeo; 4 px aqui, porque o minimapa é pequeno). Alt desliga.
+      const m = desenho.base ? encaixeMagnetico(desenho.base, escala, d.x, d.y, 4 / g.telaL, 4 / g.telaA, !e.altKey) : d;
+      aoMover(m.x, m.y, arraste.sessao);
     } else {
       aoEscalar(escalaDoCanto(arraste.escala0, { x: arraste.centroX, y: arraste.centroY }, { x: arraste.px0, y: arraste.py0 }, p), arraste.sessao);
     }

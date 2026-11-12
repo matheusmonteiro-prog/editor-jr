@@ -1,4 +1,4 @@
-import { conferirDuracao, conferirInicio, formatarInicio, type PlanoEditor } from "./regrasPlano";
+import { conferirDuracao, conferirInicio, formatarInicio, somarAoInicio, type PlanoEditor } from "./regrasPlano";
 import { intervalosDosElementos, seCruzam } from "./regrasLinhaDoTempo";
 
 // Regras de interação com a linha do tempo e com o teclado (pacote A). Sem React: dá para
@@ -104,4 +104,28 @@ export const moverCamada = (plano: PlanoEditor, indice: number, direcao: Direcao
   const novoIndice = alvo;
   resto.splice(novoIndice, 0, el);
   return { plano: { ...plano, elementos: resto }, indice: novoIndice };
+};
+
+// Duplicar (Ctrl+D / botão): cópia inteira do elemento (props, escala, posição…) com id NOVO e
+// único ("<id>-copia", "<id>-copia-2", …), início 0,5 s depois, logo ACIMA do original na
+// lista (= uma camada à frente dele). Efeitos de áudio presos ao original não são copiados.
+// Início inválido = null (nada acontece). Devolve o índice da cópia para a seleção ir para ela.
+export const DESLOCAMENTO_DUPLICAR = 0.5;
+
+export const idDaCopia = (plano: PlanoEditor, id: string): string => {
+  const usados = new Set(plano.elementos.map((e) => e.id));
+  let candidato = `${id}-copia`;
+  for (let n = 2; usados.has(candidato); n++) candidato = `${id}-copia-${n}`;
+  return candidato;
+};
+
+export const duplicarElemento = (plano: PlanoEditor, indice: number): { plano: PlanoEditor; indice: number } | null => {
+  const el = plano.elementos[indice];
+  if (!el) return null;
+  const inicio = somarAoInicio(el.inicio, DESLOCAMENTO_DUPLICAR);
+  if (inicio === null) return null;
+  const copia = { ...structuredClone(el), id: idDaCopia(plano, el.id), inicio };
+  const elementos = [...plano.elementos];
+  elementos.splice(indice + 1, 0, copia);
+  return { plano: { ...plano, elementos }, indice: indice + 1 };
 };

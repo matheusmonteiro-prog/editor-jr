@@ -5,6 +5,7 @@
 //   ← / → = 1 quadro para trás/frente; Shift+← / Shift+→ = 1 segundo
 //   Delete = apagar o elemento selecionado (dá para desfazer)
 //   Ctrl+] = trazer o elemento para a frente; Ctrl+[ = enviar para trás (camadas)
+//   Ctrl+D = duplicar o elemento selecionado (o navegador usaria para "favoritar")
 
 export type AcaoAtalho =
   | "desfazer"
@@ -16,7 +17,8 @@ export type AcaoAtalho =
   | "segundoDepois"
   | "remover"
   | "paraFrente"
-  | "paraTras";
+  | "paraTras"
+  | "duplicar";
 
 export type Tecla = {
   key: string;
@@ -35,6 +37,7 @@ export const acaoDoAtalho = (t: Tecla): AcaoAtalho | null => {
     if (k === "y" && !t.shiftKey) return "refazer";
     if (k === "]" && !t.shiftKey) return "paraFrente";
     if (k === "[" && !t.shiftKey) return "paraTras";
+    if (k === "d" && !t.shiftKey) return "duplicar";
     return null; // Ctrl + outra tecla fica com o navegador
   }
   if (t.key === " " || t.key === "Spacebar") return t.shiftKey ? null : "tocar";

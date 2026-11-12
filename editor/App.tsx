@@ -11,9 +11,10 @@ import { aplicarPropriedade } from "./regrasPropriedades";
 import { aplicarTransformar, passoTransformar, resetarTransformar } from "./regrasTransformar";
 import { aplicarDeslocamento } from "./regrasMinimapa";
 import { chaveDoDesenho, juntarMedida, semTransformacao, type Desenho, type EstadoMedida } from "./regrasDesenho";
-import { medirDesenho } from "./medirDesenho";
+import { medirDesenho, medirTodos, type MedidaDoQuadro } from "./medirDesenho";
+import { CamadaDeEdicao } from "./CamadaDeEdicao";
 import { valorTransformar } from "./regrasTransformar";
-import { alvoDaCamada, audiosQueUsam, moverCamada, quadroComPasso, removerElemento, type DirecaoCamada } from "./regrasInteracao";
+import { alvoDaCamada, audiosQueUsam, duplicarElemento, moverCamada, quadroComPasso, removerElemento, type DirecaoCamada } from "./regrasInteracao";
 import { montarComposicao, type Composicao, type Fundo } from "./regrasAbrir";
 import { PainelLateral, type ChaveSecao, type SecoesAbertas } from "./PainelLateral";
 import { ALTURA_RODAPE, AvisoNoPalco, Casca, Palco } from "./Casca";
@@ -298,14 +299,19 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
   // desenhou o quadro/plano novo. A medida vira "base" (sem a escala/posição atual) e fica
   // estável quando dois quadros diferentes seguidos batem (regrasDesenho.ts, juntarMedida).
   const [desenho, setDesenho] = useState<Desenho>({ estado: "sem-player", base: null });
+  const [desenhoDoId, setDesenhoDoId] = useState<string | null>(null); // de qual elemento é a medida
   const memoriaDesenho = useRef(new Map<string, EstadoMedida & { chave: string }>());
   const elEscolhido = selecionado === null ? undefined : historico.presente.elementos[selecionado];
+  // Overlay do vídeo: caixas de TODOS os elementos na tela neste quadro (medirTodos).
+  const [medidaQuadro, setMedidaQuadro] = useState<MedidaDoQuadro | null>(null);
   useEffect(() => {
-    if (!elEscolhido) return;
     let a = 0;
     let b = 0;
     a = requestAnimationFrame(() => {
       b = requestAnimationFrame(() => {
+        setMedidaQuadro(medirTodos(player?.getContainerNode() ?? null, historico.presente.elementos.map((e) => e.id)));
+        if (!elEscolhido) return;
+        setDesenhoDoId(elEscolhido.id);
         const r = medirDesenho(player?.getContainerNode() ?? null, elEscolhido.id);
         const chave = chaveDoDesenho(elEscolhido as unknown as Record<string, unknown>);
         const guardada = memoriaDesenho.current.get(elEscolhido.id);
@@ -324,12 +330,22 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       cancelAnimationFrame(a);
       cancelAnimationFrame(b);
     };
-  }, [player, elEscolhido, frameAtual]);
+  }, [player, elEscolhido, frameAtual, historico.presente]);
 
   // Camadas: a ordem do elemento na lista decide quem fica na frente (PlanoComposicao desenha na
   // ordem do array). Trocar = mudar a posição na lista, passando pelo histórico (desfazer);
   // a seleção acompanha o elemento, e a linha do tempo e a lista se redesenham.
   const podeCamada = (direcao: DirecaoCamada) => selecionado !== null && alvoDaCamada(plano, selecionado, direcao) !== null;
+  // Duplicar (Ctrl+D / botão): cópia logo acima, 0,5 s depois, id novo (regrasInteracao.ts).
+  const duplicar = () => {
+    if (selecionado === null) return;
+    const r = duplicarElemento(plano, selecionado);
+    if (r === null) return;
+    setHistorico((h) => registrar(h, r.plano, null));
+    setSelecionado(r.indice);
+    setVersaoExterna((v) => v + 1);
+  };
+
   const trocarCamada = (direcao: DirecaoCamada) => {
     if (selecionado === null) return;
     const r = moverCamada(plano, selecionado, direcao);
@@ -357,6 +373,10 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       if (acao === "desfazer" || acao === "refazer") {
         setHistorico((h) => (acao === "desfazer" ? desfazer(h) : refazer(h)));
         setVersaoExterna((v) => v + 1);
+        return;
+      }
+      if (acao === "duplicar") {
+        duplicar();
         return;
       }
       if (acao === "paraFrente" || acao === "paraTras") {
@@ -505,6 +525,8 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       {composicao.pronta && props ? (
         <Palco proporcao={composicao.width / composicao.height}>
           {(largura, altura) => (
+            // O overlay fica no MESMO quadrado do Player, por cima (CamadaDeEdicao.tsx).
+            <div style={{ position: "relative", width: largura, height: altura }}>
             <Player
               ref={setPlayer}
               component={PlanoComposicao}
@@ -519,6 +541,17 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
               acknowledgeRemotionLicense
               style={{ width: largura, height: altura }}
             />
+            <CamadaDeEdicao
+              plano={plano}
+              medida={medidaQuadro}
+              selecionado={selecionado}
+              baseDoEscolhido={desenho.estado === "estavel" && desenhoDoId === elEscolhido?.id ? desenho.base : null}
+              aoSelecionar={setSelecionado}
+              aoMover={(i, x, y, sessao) => mudar((p) => aplicarDeslocamento(p, i, x, y), `arraste:${sessao}`, false)}
+              aoEscalar={(i, escala, sessao) => mudar((p) => aplicarTransformar(p, i, "escala", escala), `arraste:${sessao}`, false)}
+              aoTerminar={() => setVersaoExterna((v) => v + 1)}
+            />
+            </div>
           )}
         </Palco>
       ) : (
@@ -599,7 +632,9 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       aoMoverNoMinimapa={(i, x, y, sessao) => mudar((p) => aplicarDeslocamento(p, i, x, y), `arraste:${sessao}`, false)}
       aoEscalarNoMinimapa={(i, escala, sessao) => mudar((p) => aplicarTransformar(p, i, "escala", escala), `arraste:${sessao}`, false)}
       aoTerminarMinimapa={() => setVersaoExterna((v) => v + 1)}
-      desenho={desenho}
+      desenho={desenhoDoId === elEscolhido?.id ? desenho : { estado: "fora", base: null }}
+      podeDuplicar={selecionado !== null}
+      aoDuplicar={duplicar}
       ficha={<Ficha aberto={aberto} plano={plano} composicao={composicao} />}
     />
   );
