@@ -93,7 +93,12 @@ type ElementoPlano = {
   escala?: number; // 1 = tamanho normal; origem no centro da camada do elemento
   opacidade?: number; // 0 (invisível) a 1 (normal)
   deslocamento?: { x?: number; y?: number }; // fração da tela; x>0 direita, y>0 para baixo
+  entrada?: Animacao; // animação de entrada (começa no 1º quadro do elemento)
+  saida?: Animacao; // animação de saída (termina no último quadro do elemento)
 };
+
+// "fade" = opacidade; "deslizar" = vem de / vai para fora da tela na direção; "zoom" = escala 0 ↔ 1.
+type Animacao = { tipo: "fade" | "deslizar" | "zoom"; frames: number; direcao?: "esquerda" | "direita" | "cima" | "baixo" };
 
 // Um trecho em que a câmera aparece. Tempos no vídeo ORIGINAL; caixa em
 // fração de width/height (centro em x, y).
@@ -202,6 +207,43 @@ const estiloDaTransformacao = (el: ElementoPlano): React.CSSProperties | null =>
   if (mexeForma) estilo.transform = `translate(${x * 100}%, ${y * 100}%) scale(${escala})`;
   if (opacidade !== 1) estilo.opacity = opacidade;
   return estilo;
+};
+
+// Entrada e saída do elemento: só com o campo presente. Entrada vai do quadro 0 ao quadro
+// "frames"; a saída termina no ÚLTIMO quadro (duração − 1). Se entrada + saída passar da
+// duração (o validador acusa), nenhuma das duas é aplicada.
+const clampAnim = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+const animacaoValida = (a: Animacao | undefined): a is Animacao =>
+  !!a && (a.tipo === "fade" || a.tipo === "deslizar" || a.tipo === "zoom") && Number.isInteger(a.frames) && a.frames > 0;
+// progresso p: 0 = fora (invisível / fora da tela / encolhido), 1 = no lugar.
+const efeitoDaAnimacao = (a: Animacao, p: number) => {
+  if (a.tipo === "fade") return { opacidade: p, x: 0, y: 0, escala: 1 };
+  if (a.tipo === "zoom") return { opacidade: 1, x: 0, y: 0, escala: p };
+  const longe = 1 - p; // fração da tela
+  const d = a.direcao ?? "esquerda";
+  return { opacidade: 1, x: d === "esquerda" ? -longe : d === "direita" ? longe : 0, y: d === "cima" ? -longe : d === "baixo" ? longe : 0, escala: 1 };
+};
+const ElementoAnimado: React.FC<{ el: ElementoPlano; duracao: number; estilo: React.CSSProperties | null; children: React.ReactNode }> = ({ el, duracao, estilo, children }) => {
+  const frame = useCurrentFrame(); // relativo à Sequence do elemento
+  const ent = animacaoValida(el.entrada) ? el.entrada : null;
+  const sai = animacaoValida(el.saida) ? el.saida : null;
+  const cabe = (ent?.frames ?? 0) + (sai?.frames ?? 0) <= duracao;
+  const efeitos = cabe
+    ? [
+        ent ? efeitoDaAnimacao(ent, interpolate(frame, [0, ent.frames], [0, 1], clampAnim)) : null,
+        sai ? efeitoDaAnimacao(sai, interpolate(frame, [duracao - 1 - sai.frames, duracao - 1], [1, 0], clampAnim)) : null,
+      ].filter((e) => e !== null)
+    : [];
+  if (efeitos.length === 0) return estilo ? <AbsoluteFill style={estilo}>{children}</AbsoluteFill> : <>{children}</>;
+  const escala = (el.escala ?? 1) * efeitos.reduce((m, e) => m * e.escala, 1);
+  const opacidade = (el.opacidade ?? 1) * efeitos.reduce((m, e) => m * e.opacidade, 1);
+  const ax = efeitos.reduce((m, e) => m + e.x, 0);
+  const ay = efeitos.reduce((m, e) => m + e.y, 0);
+  const x = el.deslocamento?.x ?? 0;
+  const y = el.deslocamento?.y ?? 0;
+  return (
+    <AbsoluteFill style={{ transform: `translate(${(x + ax) * 100}%, ${(y + ay) * 100}%) scale(${escala})`, opacity: opacidade }}>{children}</AbsoluteFill>
+  );
 };
 
 // UMA instância da câmera pela composição inteira (nunca uma Sequence por
@@ -381,7 +423,15 @@ export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
         const estilo = estiloDaTransformacao(el);
         return (
           <Sequence key={el.id} name={el.id} className={`plano-elemento plano-elemento-${el.id.replace(/[^A-Za-z0-9-]/g, (c) => `_${c.charCodeAt(0).toString(16)}_`)}`} from={from} durationInFrames={durationInFrames}>
-            {estilo ? <AbsoluteFill style={estilo}>{conteudo}</AbsoluteFill> : conteudo}
+            {el.entrada || el.saida ? (
+              <ElementoAnimado el={el} duracao={durationInFrames} estilo={estilo}>
+                {conteudo}
+              </ElementoAnimado>
+            ) : estilo ? (
+              <AbsoluteFill style={estilo}>{conteudo}</AbsoluteFill>
+            ) : (
+              conteudo
+            )}
           </Sequence>
         );
       })}

@@ -673,6 +673,70 @@ const casos = [
     esperaFalha: true,
     trechoEsperado: 'campos: campo desconhecido "escla" no elemento — você quis dizer "escala"?',
   },
+  // entrada e saída (animação por elemento, opcionais)
+  {
+    nome: "entrada/saída válidas (fade, deslizar, zoom; soma = duração) passam sem erro, com AVISO de animação própria",
+    arquivo: fixture('valido-animacao.plano.json'),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 2 aviso(s)',
+  },
+  {
+    nome: "tipo de animação desconhecido",
+    arquivo: fixture('animacao-tipo-invalido.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'animacao: entrada.tipo deve ser fade, deslizar, zoom (veio \"girar\")',
+  },
+  {
+    nome: "frames 0",
+    arquivo: fixture('animacao-frames-zero.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'animacao: entrada.frames deve ser número inteiro maior que 0 (veio 0)',
+  },
+  {
+    nome: "frames quebrado (1.5)",
+    arquivo: fixture('animacao-frames-quebrado.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'animacao: saida.frames deve ser número inteiro maior que 0 (veio 1.5)',
+  },
+  {
+    nome: "entrada + saída passa da duração",
+    arquivo: fixture('animacao-passa-da-duracao.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'animacao: entrada + saída = 70 quadros, mas o elemento dura 60',
+  },
+  {
+    nome: "direcao fora do deslizar",
+    arquivo: fixture('animacao-direcao-sem-deslizar.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'animacao: entrada.direcao só vale com tipo \"deslizar\"',
+  },
+  {
+    nome: "direcao desconhecida",
+    arquivo: fixture('animacao-direcao-invalida.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'animacao: saida.direcao deve ser esquerda, direita, cima, baixo (veio \"diagonal\")',
+  },
+  {
+    nome: "entrada que não é objeto",
+    arquivo: fixture('animacao-nao-objeto.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'animacao: entrada deve ser um objeto',
+  },
+  {
+    nome: "campo extra na animação",
+    arquivo: fixture('animacao-campo-extra.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'animacao: entrada só aceita tipo, frames e direcao (veio o campo \"velocidade\")',
+  },
 ];
 
 let falhas = 0;

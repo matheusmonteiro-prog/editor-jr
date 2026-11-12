@@ -1125,7 +1125,7 @@ if (dados.audio !== undefined) {
 const CHAVES_ELEMENTO = [
   'id', 'componente', 'descricao', 'texto', 'inicio', 'duracao', 'duracaoFrames', 'posicao', 'slot',
   'ilustrativo', 'tempo_estimado', 'props', 'fim', 'fala', 'naPalavra', 'ocorrencia', 'legendaPalavras',
-  'destaques', 'escala', 'opacidade', 'deslocamento',
+  'destaques', 'escala', 'opacidade', 'deslocamento', 'entrada', 'saida',
 ];
 const LIMITES_TRANSFORMAR = { escala: [0.1, 5], opacidade: [0, 1], deslocamento: [-1, 1] };
 
@@ -1172,6 +1172,67 @@ for (const el of elementos) {
         `— o render ignoraria esse campo; corrija o nome ou tire (cor, texto etc. da peça vão dentro de "props")`,
     );
   }
+}
+
+// 13. entrada e saída (opcionais; src/PlanoComposicao.tsx aplica só com o campo presente).
+// { tipo: "fade"|"deslizar"|"zoom", frames: inteiro > 0, direcao (só deslizar) }.
+// entrada.frames + saida.frames <= duração do elemento em quadros (senão o motor não aplica).
+// AVISO quando a peça já se anima sozinha: hoje isso = o arquivo dela usa useCurrentFrame
+// (lido na hora, sem lista fixa); as duas animações se somam.
+const TIPOS_ANIMACAO = ['fade', 'deslizar', 'zoom'];
+const DIRECOES_ANIMACAO = ['esquerda', 'direita', 'cima', 'baixo'];
+const CHAVES_ANIMACAO = ['tipo', 'frames', 'direcao'];
+const fpsAnimacao = typeof dados.fps === 'number' && dados.fps > 0 ? dados.fps : 30;
+const animaSozinho = {};
+for (const caminho of listarArquivosComponentes()) {
+  try {
+    animaSozinho[path.basename(caminho, '.tsx')] = /useCurrentFrame\(/.test(readFileSync(caminho, 'utf8'));
+  } catch {
+    // arquivo ilegível: sem aviso
+  }
+}
+for (const el of elementos) {
+  const o = el.original;
+  if (o.entrada === undefined && o.saida === undefined) continue;
+  const frames = {};
+  for (const campo of ['entrada', 'saida']) {
+    const a = o[campo];
+    if (a === undefined) continue;
+    if (a === null || typeof a !== 'object' || Array.isArray(a)) {
+      erro(el.label, `animacao: ${campo} deve ser um objeto { "tipo": "fade", "frames": 10 } (veio ${JSON.stringify(a)})`);
+      continue;
+    }
+    if (!TIPOS_ANIMACAO.includes(a.tipo))
+      erro(el.label, `animacao: ${campo}.tipo deve ser ${TIPOS_ANIMACAO.join(', ')} (veio ${JSON.stringify(a.tipo)})`);
+    if (!Number.isInteger(a.frames) || a.frames <= 0)
+      erro(el.label, `animacao: ${campo}.frames deve ser número inteiro maior que 0 (veio ${JSON.stringify(a.frames)})`);
+    else frames[campo] = a.frames;
+    if (a.direcao !== undefined && a.tipo !== 'deslizar')
+      erro(el.label, `animacao: ${campo}.direcao só vale com tipo "deslizar" (o tipo é ${JSON.stringify(a.tipo)}) — tire "direcao"`);
+    else if (a.direcao !== undefined && !DIRECOES_ANIMACAO.includes(a.direcao))
+      erro(el.label, `animacao: ${campo}.direcao deve ser ${DIRECOES_ANIMACAO.join(', ')} (veio ${JSON.stringify(a.direcao)})`);
+    for (const chave of Object.keys(a)) {
+      if (!CHAVES_ANIMACAO.includes(chave))
+        erro(el.label, `animacao: ${campo} só aceita tipo, frames e direcao (veio o campo ${JSON.stringify(chave)})`);
+    }
+  }
+  const duracaoQuadros = Number.isInteger(o.duracaoFrames)
+    ? o.duracaoFrames
+    : typeof o.duracao === 'number' && o.duracao > 0
+      ? Math.round(o.duracao * fpsAnimacao)
+      : null;
+  const soma = (frames.entrada ?? 0) + (frames.saida ?? 0);
+  if (duracaoQuadros !== null && soma > duracaoQuadros)
+    erro(
+      el.label,
+      `animacao: entrada + saída = ${soma} quadros, mas o elemento dura ${duracaoQuadros} — o vídeo não aplicaria nenhuma das duas; diminua os frames`,
+    );
+  const nomes = (Array.isArray(o.componente) ? o.componente : [o.componente]).filter((n) => animaSozinho[n]);
+  if (nomes.length > 0)
+    aviso(
+      el.label,
+      `animacao: ${nomes.join(', ')} já tem animação própria — a entrada/saída do elemento soma por cima; confira no Studio`,
+    );
 }
 
 // ---------------------------------------------------------------- saída
