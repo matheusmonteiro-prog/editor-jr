@@ -124,8 +124,36 @@ export const duplicarElemento = (plano: PlanoEditor, indice: number): { plano: P
   if (!el) return null;
   const inicio = somarAoInicio(el.inicio, DESLOCAMENTO_DUPLICAR);
   if (inicio === null) return null;
-  const copia = { ...structuredClone(el), id: idDaCopia(plano, el.id), inicio };
+  const copia = { ...structuredClone(el), id: idDaCopia(plano, el.id), inicio } as typeof el & { slot?: unknown };
+  // Slot novo: a cópia cruza o original no tempo, então o mesmo posicao+slot daria o aviso
+  // "colisao" do validador (checagem 3 em scripts/validar-plano.mjs). Só mexe se o slot for
+  // inteiro >= 1 (a regra do validador, sem limite de cima).
+  const novoSlot = proximoSlotLivre(plano, copia);
+  if (novoSlot !== null) copia.slot = novoSlot;
   const elementos = [...plano.elementos];
   elementos.splice(indice + 1, 0, copia);
   return { plano: { ...plano, elementos }, indice: indice + 1 };
+};
+
+type ComSlot = { posicao?: unknown; slot?: unknown };
+
+// Menor slot livre (>= 1) entre os elementos de MESMA posicao ("topo"/"base") cujo tempo se
+// cruza com o da cópia (encostar não é cruzar, igual ao validador). null = não precisa/não dá.
+export const proximoSlotLivre = (plano: PlanoEditor, copia: PlanoEditor["elementos"][number]): number | null => {
+  const c = copia as unknown as ComSlot;
+  if (!Number.isInteger(c.slot) || (c.slot as number) < 1 || (c.posicao !== "topo" && c.posicao !== "base")) return null;
+  const intervalos = intervalosDosElementos({ ...plano, elementos: [...plano.elementos, copia] });
+  const doCopia = intervalos[intervalos.length - 1];
+  if (!doCopia) return null;
+  const usados = new Set<number>();
+  plano.elementos.forEach((e, i) => {
+    const o = e as unknown as ComSlot;
+    const it = intervalos[i];
+    if (o.posicao !== c.posicao || !Number.isInteger(o.slot) || !it) return;
+    if (seCruzam(it, doCopia)) usados.add(o.slot as number);
+  });
+  if (!usados.has(c.slot as number)) return null;
+  let n = 1;
+  while (usados.has(n)) n++;
+  return n;
 };
