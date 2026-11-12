@@ -3,6 +3,9 @@ import { Player, type CallbackListener, type PlayerRef } from "@remotion/player"
 import { PlanoComposicao, type PlanoComposicaoProps } from "../src/PlanoComposicao";
 import { criarParaFrameCortado } from "../src/utils/tempoCortado";
 import { TabelaElementos } from "./TabelaElementos";
+import { Biblioteca } from "./Biblioteca";
+import { adicionarAudio, adicionarImagem, blocosDeAudio, removerAudio, type ItemBiblioteca } from "./regrasBiblioteca";
+import { formatarInicio } from "./regrasPlano";
 import { LinhaDoTempo } from "./LinhaDoTempo";
 import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
 import { criarHistorico, desfazer, podeDesfazer, podeRefazer, refazer, registrar } from "./historico";
@@ -275,7 +278,12 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
   const [player, setPlayer] = useState<PlayerRef | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [resultado, setResultado] = useState<Resultado | null>(null);
-  const [aba, setAba] = useState<"linha" | "lista">("linha"); // Lista fica fechada por padrão
+  const [aba, setAba] = useState<"linha" | "lista" | "biblioteca">("linha"); // Lista fica fechada por padrão
+  // Item de audio[] escolhido na faixa de áudio (Delete apaga). Escolher um elemento limpa.
+  const [audioSelecionado, setAudioSelecionado] = useState<number | null>(null);
+  useEffect(() => {
+    if (selecionado !== null) setAudioSelecionado(null);
+  }, [selecionado]);
   const [abertas, setAbertas] = useState<SecoesAbertas>({ tempo: true, transformar: true, texto: true, cor: true, plano: true });
 
   // fps, tamanho e duração vêm do plano ABERTO (o original), não da edição: mudar um
@@ -372,6 +380,7 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       e.preventDefault();
       if (acao === "desfazer" || acao === "refazer") {
         setHistorico((h) => (acao === "desfazer" ? desfazer(h) : refazer(h)));
+        setAudioSelecionado(null);
         setVersaoExterna((v) => v + 1);
         return;
       }
@@ -390,6 +399,12 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
         return;
       }
       if (acao === "remover") {
+        if (audioSelecionado !== null) {
+          setHistorico((h) => registrar(h, removerAudio(h.presente, audioSelecionado), null));
+          setAudioSelecionado(null);
+          setVersaoExterna((v) => v + 1);
+          return;
+        }
         if (selecionado === null) return;
         const el = plano.elementos[selecionado];
         if (!el) return;
@@ -410,7 +425,7 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
     };
     window.addEventListener("keydown", aoTeclar);
     return () => window.removeEventListener("keydown", aoTeclar);
-  }, [player, selecionado, plano, fps, totalQuadros]);
+  }, [player, selecionado, audioSelecionado, plano, fps, totalQuadros]);
 
   // Régua e agulha: tempo original → quadro do vídeo cortado → seekTo.
   const procurar = (segundoOriginal: number) => {
@@ -457,10 +472,12 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
 
   const voltar = () => {
     setHistorico((h) => desfazer(h));
+    setAudioSelecionado(null);
     setVersaoExterna((v) => v + 1);
   };
   const avancar = () => {
     setHistorico((h) => refazer(h));
+    setAudioSelecionado(null);
     setVersaoExterna((v) => v + 1);
   };
 
@@ -485,6 +502,23 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
 
   const { blocos, faixas, regua } = useMemo(() => calcularBlocos(plano, trechos), [plano, trechos]);
   const agulhaSeg = trechos.length > 0 ? paraSegundoOriginal(trechos, frameAtual, fps) : 0;
+
+  // Biblioteca → plano, no ponto da agulha (tempo ORIGINAL). Um passo do desfazer cada.
+  const adicionarImagemNaAgulha = (item: ItemBiblioteca) => {
+    const r = adicionarImagem(plano, item, agulhaSeg);
+    if (r === null) return;
+    setHistorico((h) => registrar(h, r.plano, null));
+    setSelecionado(r.indice);
+    setVersaoExterna((v) => v + 1);
+  };
+  const adicionarAudioNaAgulha = (item: ItemBiblioteca, tipo: "efeito" | "musica") => {
+    const r = adicionarAudio(plano, item, tipo, agulhaSeg);
+    if (r === null) return;
+    setHistorico((h) => registrar(h, r.plano, null));
+    setSelecionado(null);
+    setAudioSelecionado(r.indice);
+    setVersaoExterna((v) => v + 1);
+  };
 
   const barra = (
     <>
@@ -569,6 +603,9 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
         <Aba ativa={aba === "lista"} aoClicar={() => setAba("lista")}>
           Lista ({plano.elementos.length})
         </Aba>
+        <Aba ativa={aba === "biblioteca"} aoClicar={() => setAba("biblioteca")}>
+          Biblioteca
+        </Aba>
       </div>
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0.5rem 0.75rem" }}>
         {aba === "linha" ? (
@@ -586,6 +623,19 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
             aoArrastarInicio={(i, inicio, sessao) => mudar((p) => aplicarInicio(p, i, inicio), `arraste:${sessao}`, false)}
             aoArrastarDuracao={(i, segundos, sessao) => mudar((p) => aplicarDuracao(p, i, segundos), `arraste:${sessao}`, false)}
             aoFimArraste={() => setVersaoExterna((v) => v + 1)}
+            audios={blocosDeAudio(plano, regua)}
+            audioSelecionado={audioSelecionado}
+            aoSelecionarAudio={(i) => {
+              setSelecionado(null);
+              setAudioSelecionado(i);
+            }}
+          />
+        ) : aba === "biblioteca" ? (
+          <Biblioteca
+            agulhaTexto={formatarInicio(Math.round(agulhaSeg * 10) / 10)}
+            podeAdicionar={trechos.length > 0 && fpsDoPlano(plano) !== null}
+            aoAdicionarImagem={adicionarImagemNaAgulha}
+            aoAdicionarAudio={adicionarAudioNaAgulha}
           />
         ) : (
           <TabelaElementos

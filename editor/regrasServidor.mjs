@@ -65,3 +65,23 @@ export const resumirCortes = (texto) => {
   const duracaoFinal = Number.isFinite(c.duracaoFinal) && c.duracaoFinal > 0 ? c.duracaoFinal : null;
   return { trechos, duracaoFinal };
 };
+
+// Biblioteca (pacote B): só LEITURA de pastas fixas de public/. O navegador nunca manda caminho.
+// Tipo pela extensão; o que não for mídia conhecida (ex.: .json, .gitkeep, .pedido.json) fica de fora.
+// Áudio: as mesmas extensões que scripts/validar-plano.mjs aceita sem aviso (EXTENSOES_AUDIO).
+export const PASTAS_BIBLIOTECA = ["images", "sfx", "music", "videos/cenas", "audio"];
+const EXTENSOES = {
+  imagem: [".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"],
+  audio: [".mp3", ".wav", ".m4a", ".ogg", ".aac"],
+  video: [".mp4", ".webm", ".mov"],
+};
+export const tipoDeMidia = (nome) => {
+  if (typeof nome !== "string") return null;
+  const baixo = nome.toLowerCase();
+  for (const [tipo, lista] of Object.entries(EXTENSOES)) if (lista.some((e) => baixo.endsWith(e))) return tipo;
+  return null;
+};
+// Caminho relativo a public/ (com "/") que dá para usar no plano e no navegador: sem "..", sem
+// "\", sem começar com "/" e só com caracteres que o validador aceita em arquivo de áudio.
+export const caminhoDeMidiaSeguro = (caminho) =>
+  typeof caminho === "string" && caminho.length <= 300 && /^[A-Za-z0-9._\-/]+$/.test(caminho) && !caminho.startsWith("/") && !caminho.split("/").includes("..");

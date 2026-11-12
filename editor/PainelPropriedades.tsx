@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { esquemaJsonDa } from "./esquemasPecas";
 import {
   CORES_DA_MARCA,
+  baseDoArquivo,
   camposEditaveis,
   conferirValor,
   ehHexSeis,
@@ -12,6 +13,8 @@ import {
 import type { PlanoEditor } from "./regrasPlano";
 import { COR, caixaTexto, mensagemErro } from "./tema";
 import { rotuloDoCampo, rotuloDoComponente } from "./nomes";
+import { usarBiblioteca } from "./Biblioteca";
+import { opcoesDoCampo } from "./regrasBiblioteca";
 
 // Campos de TEXTO ou de COR do elemento escolhido (a seção "Texto" ou "Cor" do painel lateral).
 // Os campos vêm do schema zod de cada peça. O valor só vai para o plano se for válido; tudo
@@ -29,6 +32,7 @@ const rotuloCampo: React.CSSProperties = { display: "block", fontSize: "0.8rem",
 
 export const PainelPropriedades: React.FC<Props> = ({ plano, indice, tipo, aoMudar }) => {
   const [rascunhos, setRascunhos] = useState<Record<string, string>>({});
+  const biblioteca = usarBiblioteca(); // campos de ARQUIVO: escolha da biblioteca, não texto livre
   const el = plano.elementos[indice];
   if (!el) return null;
   if (el.props === "a confirmar") {
@@ -40,7 +44,8 @@ export const PainelPropriedades: React.FC<Props> = ({ plano, indice, tipo, aoMud
   const porPeca = pecas.map(({ nome, dentroDe }) => ({
     nome,
     dentroDe,
-    campos: camposEditaveis(esquemaJsonDa(nome)).filter((c) => c.tipo === tipo),
+    // A seção "Texto" mostra também os campos de arquivo (imagem, logo…).
+    campos: camposEditaveis(esquemaJsonDa(nome), nome).filter((c) => c.tipo === tipo || (tipo === "texto" && c.tipo === "arquivo")),
   }));
   if (porPeca.every((p) => p.campos.length === 0)) {
     return <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.8 }}>Esta peça não tem campo de {tipo === "texto" ? "texto" : "cor"}.</p>;
@@ -66,6 +71,30 @@ export const PainelPropriedades: React.FC<Props> = ({ plano, indice, tipo, aoMud
                 <div key={c.campo} style={{ marginBottom: "0.5rem" }}>
                   <label>
                     <span style={rotuloCampo} title={`nome técnico: ${c.campo}`}>{rotuloDoCampo(nome, c.campo)}</span>
+                    {c.tipo === "arquivo" ? (
+                      (() => {
+                        const base = baseDoArquivo(nome, c.campo) ?? "";
+                        const opcoes = opcoesDoCampo(biblioteca.itens, base);
+                        const conhecido = opcoes.some((o) => o.valor === atual);
+                        return (
+                          <select
+                            aria-label={rotuloDoCampo(nome, c.campo)}
+                            value={atual}
+                            onChange={(e) => escrever(e.target.value, false)}
+                            style={caixaTexto(atual !== "" && !conhecido && !biblioteca.carregando)}
+                            title={base ? `arquivos de public/${base}` : "arquivos de public/"}
+                          >
+                            {c.padrao === "" || atual === "" ? <option value="">(nenhum)</option> : null}
+                            {atual !== "" && !conhecido ? <option value={atual}>{atual} (não está na biblioteca)</option> : null}
+                            {opcoes.map((o) => (
+                              <option key={o.caminho} value={o.valor}>
+                                {o.valor}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      })()
+                    ) : null}
                     {c.tipo === "cor" ? (
                       <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", marginBottom: "0.3rem" }}>
                         <input
@@ -92,13 +121,13 @@ export const PainelPropriedades: React.FC<Props> = ({ plano, indice, tipo, aoMud
                         ))}
                       </div>
                     ) : null}
-                    <input
+                    {c.tipo === "arquivo" ? null : <input
                       aria-label={rotuloDoCampo(nome, c.campo)}
                       value={texto}
                       placeholder={c.tipo === "cor" ? "vazio = padrão da peça" : undefined}
                       style={caixaTexto(!conferido.ok)}
                       onChange={(e) => escrever(e.target.value, true)}
-                    />
+                    />}
                   </label>
                   {!conferido.ok ? <div style={mensagemErro}>{conferido.erro} O vídeo continua com "{atual}".</div> : null}
                 </div>

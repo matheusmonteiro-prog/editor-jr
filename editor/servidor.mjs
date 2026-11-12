@@ -13,6 +13,8 @@
 //   GET /api/fundo?nome=<nome>   → vídeo de fundo (public/videos/<video>-cortado-vN.mp4, N mais alto)
 //                                  e cortes (videos/<video>.cortes.json), achados AQUI pelo campo
 //                                  "video" do plano; o navegador nunca manda caminho
+//   GET /api/biblioteca          → arquivos de mídia de public/{images,sfx,music,videos/cenas,audio}
+//                                  (pasta, tipo, tamanho). Só leitura; não existe rota de apagar.
 //
 // Travas: o navegador nunca manda caminho; o nome da cópia é gerado aqui; só grava em
 // planos/copias/; nunca sobrescreve (flag "wx"); corpo até 1 MB; validador sem shell.
@@ -20,12 +22,12 @@
 // Origin (se vier) certo e Sec-Fetch-Site (se vier) "same-origin" ou "none".
 
 import http from "node:http";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createServer as criarVite } from "vite";
-import { escolherVideoCortado, nomeDePlanoSeguro, resumirCortes, resumirPlano } from "./regrasServidor.mjs";
+import { PASTAS_BIBLIOTECA, caminhoDeMidiaSeguro, escolherVideoCortado, nomeDePlanoSeguro, resumirCortes, resumirPlano, tipoDeMidia } from "./regrasServidor.mjs";
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ENDERECO = "127.0.0.1";
@@ -227,7 +229,44 @@ const lerFundo = async (url, res) => {
   });
 };
 
+// Biblioteca: varre SÓ as pastas fixas de public/, até 4 níveis, sem seguir atalho (symlink),
+// no máximo 3000 arquivos. Devolve caminhos relativos a public/ (com "/"), que o Vite já serve.
+const PASTA_PUBLIC = path.join(RAIZ, "public");
+const LIMITE_BIBLIOTECA = 3000;
+const listarBiblioteca = async () => {
+  const itens = [];
+  const varrer = async (relativa, nivel) => {
+    if (nivel > 4 || itens.length >= LIMITE_BIBLIOTECA) return;
+    const absoluta = path.join(PASTA_PUBLIC, ...relativa.split("/"));
+    if (!dentroDe(PASTA_PUBLIC, absoluta)) return;
+    let entradas;
+    try {
+      entradas = await readdir(absoluta, { withFileTypes: true });
+    } catch {
+      return; // pasta que não existe: fica de fora
+    }
+    entradas.sort((a, b) => a.name.localeCompare(b.name));
+    for (const e of entradas) {
+      if (itens.length >= LIMITE_BIBLIOTECA) return;
+      const caminho = `${relativa}/${e.name}`;
+      if (e.isDirectory()) await varrer(caminho, nivel + 1);
+      else if (e.isFile()) {
+        const tipo = tipoDeMidia(e.name);
+        if (!tipo || !caminhoDeMidiaSeguro(caminho)) continue;
+        let tamanho = null;
+        try {
+          tamanho = (await stat(path.join(PASTA_PUBLIC, ...caminho.split("/")))).size;
+        } catch {}
+        itens.push({ caminho, pasta: relativa.split("/")[0], nome: e.name, tipo, tamanho });
+      }
+    }
+  };
+  for (const pasta of PASTAS_BIBLIOTECA) await varrer(pasta, 1);
+  return itens;
+};
+
 const ROTAS_GET = {
+  "/api/biblioteca": async (_url, res) => responder(res, 200, { itens: await listarBiblioteca(), limite: LIMITE_BIBLIOTECA }),
   "/api/planos": async (_url, res) => responder(res, 200, { planos: await listarPlanos() }),
   "/api/plano": lerPlano,
   "/api/fundo": lerFundo,

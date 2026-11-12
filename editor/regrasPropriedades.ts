@@ -12,7 +12,7 @@ export const CORES_DA_MARCA = ["#0F2A1D", "#F5F0E6", "#EFAF20"] as const;
 
 export type Campo = {
   campo: string;
-  tipo: "texto" | "cor";
+  tipo: "texto" | "cor" | "arquivo";
   padrao: string | undefined; // o .default() do schema
   minimo: number | undefined; // minLength (ex.: ArrobaCanal.usuario precisa de 1 letra)
   maximo: number | undefined;
@@ -20,15 +20,38 @@ export type Campo = {
 
 type EsquemaJson = { type?: unknown; properties?: Record<string, Record<string, unknown>> };
 
-// Caminhos de arquivo: escondidos do painel (decisão do Matheus, 11/11/2026). Um nome errado ali
-// quebra a imagem e o validador não confere. Voltam quando houver a biblioteca de arquivos.
+// Caminhos de arquivo: eram escondidos (decisão do Matheus, 11/11/2026) até existir a biblioteca.
+// Agora voltam como tipo "arquivo" (escolhido na biblioteca, nunca digitado), MAS só nos campos
+// cuja pasta-base foi conferida no código da peça (como ela monta o caminho no staticFile):
+//   ""                    = relativo a public/        (ex.: ImagemFade: staticFile(src))
+//   "images/personagens/" = só o nome do arquivo      (ex.: PersonagemImagem: staticFile(`images/personagens/${imagem}`))
+// Campo de arquivo de peça fora desta tabela continua ESCONDIDO.
 export const CAMPOS_DE_ARQUIVO = new Set(["imagem", "src", "logo", "imagemPersonagem"]);
+const PERSONAGENS = "images/personagens/";
+export const BASE_DOS_ARQUIVOS: Record<string, Record<string, string>> = {
+  PersonagemImagem: { imagem: PERSONAGENS }, // PersonagemImagem.tsx:70
+  BarrasDuelo: { imagemPersonagem: PERSONAGENS }, // BarrasDuelo.tsx:210
+  ColagemFotos: { imagemPersonagem: PERSONAGENS }, // ColagemFotos.tsx:196
+  GraficoCrescimento: { imagemPersonagem: PERSONAGENS }, // GraficoCrescimento.tsx:236
+  TextoContraste: { imagemPersonagem: PERSONAGENS }, // TextoContraste.tsx:155
+  ImagemFade: { src: "" }, // ImagemFade.tsx:47
+  AberturaCapitulo: { logo: "" }, // AberturaCapitulo.tsx:47
+  Pauta: { logo: "" }, // Pauta.tsx:80
+  FundoExplicativo: { imagem: "" }, // FundoExplicativo.tsx:139
+};
+export const baseDoArquivo = (peca: string, campo: string): string | null => BASE_DOS_ARQUIVOS[peca]?.[campo] ?? null;
 
-export const camposEditaveis = (esquema: EsquemaJson | null): Campo[] => {
+export const camposEditaveis = (esquema: EsquemaJson | null, peca?: string): Campo[] => {
   if (!esquema || typeof esquema.properties !== "object" || esquema.properties === null) return [];
   const campos: Campo[] = [];
   for (const [campo, def] of Object.entries(esquema.properties)) {
-    if (def.type !== "string" || Array.isArray(def.enum) || CAMPOS_DE_ARQUIVO.has(campo)) continue;
+    if (def.type !== "string" || Array.isArray(def.enum)) continue;
+    if (CAMPOS_DE_ARQUIVO.has(campo)) {
+      if (peca !== undefined && baseDoArquivo(peca, campo) !== null) {
+        campos.push({ campo, tipo: "arquivo", padrao: typeof def.default === "string" ? def.default : undefined, minimo: undefined, maximo: undefined });
+      }
+      continue;
+    }
     // Cor: nome começa com "cor" (regra do Matheus) ou o schema usa zColor() do Remotion, que o
     // z.toJSONSchema marca com description "__remotion-color" (visto no zod 4.5.4 instalado).
     const ehCor = /^cor/i.test(campo) || def.description === "__remotion-color";

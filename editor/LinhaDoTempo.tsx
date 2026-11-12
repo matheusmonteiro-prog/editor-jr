@@ -11,6 +11,7 @@ import {
   segundosDoDeslocamento,
 } from "./regrasInteracao";
 import { COR, VEU, botaoContorno } from "./tema";
+import type { BlocoAudio } from "./regrasBiblioteca";
 
 // Linha do tempo (pacote A). Uma faixa por camada, um bloco por elemento.
 //   - clicar no bloco: seleciona e o Player pula para o início dele
@@ -33,6 +34,10 @@ type Props = {
   aoArrastarInicio: (indice: number, inicio: string, sessao: string) => void;
   aoArrastarDuracao: (indice: number, segundos: number, sessao: string) => void;
   aoFimArraste: () => void;
+  // Faixa de áudio (pacote B): só ver e selecionar (Delete apaga, pelo histórico). Sem arrastar.
+  audios: BlocoAudio[];
+  audioSelecionado: number | null;
+  aoSelecionarAudio: (indice: number) => void;
 };
 
 const ALTURA_FAIXA = "1.7rem";
@@ -56,6 +61,9 @@ export const LinhaDoTempo: React.FC<Props> = ({
   aoArrastarInicio,
   aoArrastarDuracao,
   aoFimArraste,
+  audios,
+  audioSelecionado,
+  aoSelecionarAudio,
 }) => {
   const [zoom, setZoom] = useState(1);
   const [largura, setLargura] = useState(0);
@@ -286,6 +294,44 @@ export const LinhaDoTempo: React.FC<Props> = ({
             })}
             {/* Agulha */}
             <div style={{ position: "absolute", top: 0, bottom: 0, left: `${agulhaPct}%`, width: 2, background: COR.vermelho, pointerEvents: "none" }} />
+          </div>
+          {/* Faixa de áudio: música = a régua toda; efeito = marcador no início dele */}
+          <div style={{ position: "relative", height: ALTURA_FAIXA, marginTop: "0.2rem", background: VEU.leve }} title="Áudio do plano (audio[])">
+            {audios.length === 0 ? (
+              <span style={{ position: "absolute", left: "0.4rem", top: "0.2rem", fontSize: "0.7rem", opacity: 0.6 }}>♪ sem áudio (adicione pela aba Biblioteca)</span>
+            ) : null}
+            {audios.map((a) => {
+              const escolhido = a.indice === audioSelecionado;
+              return (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => aoSelecionarAudio(a.indice)}
+                  title={`${a.tipo === "musica" ? "música" : "efeito"} · ${a.id} · ${a.arquivo}${a.tipo === "musica" ? "" : ` · início ${a.inicioSeg.toFixed(1)} s`} · Delete apaga`}
+                  style={{
+                    position: "absolute",
+                    left: `${a.esquerdaPct}%`,
+                    width: `${a.larguraPct}%`,
+                    top: a.tipo === "musica" ? "55%" : "0.15rem",
+                    bottom: a.tipo === "musica" ? "0.15rem" : "45%",
+                    minWidth: "0.5rem",
+                    padding: "0 0.25rem",
+                    font: "inherit",
+                    fontSize: "0.65rem",
+                    textAlign: "left",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                    color: COR.verde,
+                    background: a.tipo === "musica" ? "rgba(245,240,230,0.55)" : "#8FD3FF",
+                    border: escolhido ? `2px solid ${COR.amarelo}` : "1px solid rgba(0,0,0,0.3)",
+                    borderRadius: "0.2rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  ♪ {a.id}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
