@@ -7,6 +7,7 @@ import { Biblioteca } from "./Biblioteca";
 import { TIPO_ARRASTE, adicionarAudio, adicionarImagem, adicionarImagemNoPonto, blocosDeAudio, itemDoArraste, pontoNaTela, removerAudio, type ItemBiblioteca } from "./regrasBiblioteca";
 import { formatarInicio } from "./regrasPlano";
 import { LinhaDoTempo } from "./LinhaDoTempo";
+import { aplicarAnimacao, removerAnimacao } from "./regrasAnimacao";
 import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
 import { criarHistorico, desfazer, podeDesfazer, podeRefazer, refazer, registrar } from "./historico";
 import { acaoDoAtalho, ehEditavel } from "./atalhos";
@@ -42,7 +43,7 @@ import {
 // nunca é gravado.
 //
 // Layout (fatia 6): barra fina no topo, vídeo à esquerda sem rolar, painel de ferramentas à
-// direita, linha do tempo (ou aba Lista) embaixo. As regras ficam nos arquivos regras*.ts.
+// direita (abas Editar e Biblioteca), linha do tempo (ou aba Lista) embaixo, sempre à vista. As regras ficam nos arquivos regras*.ts.
 
 type Resultado = { tipo: "ok" | "erro"; texto: string };
 type ItemLista = { nome: string; arquivo: string; completo: boolean; motivo: string | null; fps: number | null; orientacao: string | null; video: string | null };
@@ -278,13 +279,15 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
   const [player, setPlayer] = useState<PlayerRef | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [resultado, setResultado] = useState<Resultado | null>(null);
-  const [aba, setAba] = useState<"linha" | "lista" | "biblioteca">("linha"); // Lista fica fechada por padrão
+  const [aba, setAba] = useState<"linha" | "lista">("linha"); // Lista fica fechada por padrão
+  // Painel direito: "Editar" (seções do elemento) ou "Biblioteca". A linha do tempo fica sempre à vista.
+  const [abaLateral, setAbaLateral] = useState<"editar" | "biblioteca">("editar");
   // Item de audio[] escolhido na faixa de áudio (Delete apaga). Escolher um elemento limpa.
   const [audioSelecionado, setAudioSelecionado] = useState<number | null>(null);
   useEffect(() => {
     if (selecionado !== null) setAudioSelecionado(null);
   }, [selecionado]);
-  const [abertas, setAbertas] = useState<SecoesAbertas>({ tempo: true, transformar: true, texto: true, cor: true, plano: true });
+  const [abertas, setAbertas] = useState<SecoesAbertas>({ tempo: true, transformar: true, animacao: true, texto: true, cor: true, plano: true });
 
   // fps, tamanho e duração vêm do plano ABERTO (o original), não da edição: mudar um
   // elemento não muda o tamanho do vídeo.
@@ -638,9 +641,6 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
         <Aba ativa={aba === "lista"} aoClicar={() => setAba("lista")}>
           Lista ({plano.elementos.length})
         </Aba>
-        <Aba ativa={aba === "biblioteca"} aoClicar={() => setAba("biblioteca")}>
-          Biblioteca
-        </Aba>
       </div>
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0.5rem 0.75rem" }}>
         {aba === "linha" ? (
@@ -666,13 +666,6 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
               setAudioSelecionado(i);
             }}
           />
-        ) : aba === "biblioteca" ? (
-          <Biblioteca
-            agulhaTexto={formatarInicio(Math.round(agulhaSeg * 10) / 10)}
-            podeAdicionar={trechos.length > 0 && fpsDoPlano(plano) !== null}
-            aoAdicionarImagem={adicionarImagemNaAgulha}
-            aoAdicionarAudio={adicionarAudioNaAgulha}
-          />
         ) : (
           <TabelaElementos
             key={versaoExterna}
@@ -689,7 +682,7 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
     </>
   );
 
-  const lateral = (
+  const painelEditar = (
     <PainelLateral
       plano={plano}
       indice={selecionado}
@@ -714,6 +707,11 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       aoMudarTransformar={(i, campo, valor) => mudar((p) => aplicarTransformar(p, i, campo, valor), `${plano.elementos[i].id}:transformar:${campo}`, false)}
       aoPassoTransformar={(i, campo, sinal) => mudar((p) => passoTransformar(p, i, campo, sinal), null, true)}
       aoResetarTransformar={(i) => mudar((p) => resetarTransformar(p, i), null, true)}
+      // Animação: digitar os quadros junta num passo (mesma chave); trocar tipo/direção ou tirar = 1 passo.
+      aoMudarAnimacao={(i, lado, mudanca, digitando) =>
+        mudar((p) => aplicarAnimacao(p, i, lado, mudanca), digitando ? `${plano.elementos[i].id}:animacao:${lado}` : null, !digitando)
+      }
+      aoTirarAnimacao={(i, lado) => mudar((p) => removerAnimacao(p, i, lado), null, true)}
       // Minimapa: um arraste inteiro = um passo do desfazer (mesma sessão); no fim, os campos remontam.
       aoMoverNoMinimapa={(i, x, y, sessao) => mudar((p) => aplicarDeslocamento(p, i, x, y), `arraste:${sessao}`, false)}
       aoEscalarNoMinimapa={(i, escala, sessao) => mudar((p) => aplicarTransformar(p, i, "escala", escala), `arraste:${sessao}`, false)}
@@ -723,6 +721,31 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       aoDuplicar={duplicar}
       ficha={<Ficha aberto={aberto} plano={plano} composicao={composicao} />}
     />
+  );
+
+  const lateral = (
+    <>
+      <div role="tablist" style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", gap: "0.25rem", padding: "0.3rem 0.75rem 0", borderBottom: `1px solid ${VEU.linha}`, background: COR.verde }}>
+        <Aba ativa={abaLateral === "editar"} aoClicar={() => setAbaLateral("editar")}>
+          Editar
+        </Aba>
+        <Aba ativa={abaLateral === "biblioteca"} aoClicar={() => setAbaLateral("biblioteca")}>
+          Biblioteca
+        </Aba>
+      </div>
+      {abaLateral === "editar" ? (
+        painelEditar
+      ) : (
+        <div style={{ padding: "0.5rem 0.75rem" }}>
+          <Biblioteca
+            agulhaTexto={formatarInicio(Math.round(agulhaSeg * 10) / 10)}
+            podeAdicionar={trechos.length > 0 && fpsDoPlano(plano) !== null}
+            aoAdicionarImagem={adicionarImagemNaAgulha}
+            aoAdicionarAudio={adicionarAudioNaAgulha}
+          />
+        </div>
+      )}
+    </>
   );
 
   // Resultado do Salvar: caixa flutuante chapada, acima do rodapé, que se fecha.

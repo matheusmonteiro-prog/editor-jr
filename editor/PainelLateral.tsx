@@ -9,13 +9,15 @@ import { rotuloDoComponente } from "./nomes";
 import { PainelTransformar } from "./PainelTransformar";
 import type { CampoTransformar } from "./regrasTransformar";
 import type { Desenho } from "./regrasDesenho";
+import { PainelAnimacao } from "./PainelAnimacao";
+import type { Animacao, LadoAnimacao } from "./regrasAnimacao";
 
 // Painel lateral direito. Nada selecionado: o aviso "clique num bloco". Com um elemento
-// selecionado: só as ferramentas dele, em seções que abrem e fecham: Tempo, Transformar, Texto e Cor.
+// selecionado: só as ferramentas dele, em seções que abrem e fecham: Tempo, Transformar, Animação, Texto e Cor.
 // A seção "Plano e vídeo" (de onde veio cada coisa) fica sempre no fim.
 // Não tem regra própria: usa CamposTempo, PainelPropriedades e regrasPlano.
 
-export type ChaveSecao = "tempo" | "transformar" | "texto" | "cor" | "plano";
+export type ChaveSecao = "tempo" | "transformar" | "animacao" | "texto" | "cor" | "plano";
 export type SecoesAbertas = Record<ChaveSecao, boolean>;
 
 type Props = {
@@ -38,6 +40,8 @@ type Props = {
   aoMudarTransformar: (indice: number, campo: CampoTransformar, valor: number) => void;
   aoPassoTransformar: (indice: number, campo: CampoTransformar, sinal: 1 | -1) => void;
   aoResetarTransformar: (indice: number) => void;
+  aoMudarAnimacao: (indice: number, lado: LadoAnimacao, mudanca: Partial<Animacao>, digitando: boolean) => void;
+  aoTirarAnimacao: (indice: number, lado: LadoAnimacao) => void;
   aoMoverNoMinimapa: (indice: number, x: number, y: number, sessao: string) => void;
   aoEscalarNoMinimapa: (indice: number, escala: number, sessao: string) => void;
   aoTerminarMinimapa: () => void;
@@ -65,6 +69,8 @@ export const PainelLateral: React.FC<Props> = ({
   aoMudarTransformar,
   aoPassoTransformar,
   aoResetarTransformar,
+  aoMudarAnimacao,
+  aoTirarAnimacao,
   aoMoverNoMinimapa,
   aoEscalarNoMinimapa,
   aoTerminarMinimapa,
@@ -155,6 +161,17 @@ export const PainelLateral: React.FC<Props> = ({
               aoMudar={(campo, valor) => aoMudarTransformar(indice, campo, valor)}
               aoPasso={(campo, sinal) => aoPassoTransformar(indice, campo, sinal)}
               aoResetar={() => aoResetarTransformar(indice)}
+            />
+          </Secao>
+
+          <Secao titulo="Animação" aberta={abertas.animacao} aoAlternar={() => aoAlternar("animacao")}>
+            <PainelAnimacao
+              key={`animacao-${indice}-${versaoExterna}`}
+              plano={plano}
+              el={el}
+              fps={fps}
+              aoMudar={(lado, mudanca, digitando) => aoMudarAnimacao(indice, lado, mudanca, digitando)}
+              aoTirar={(lado) => aoTirarAnimacao(indice, lado)}
             />
           </Secao>
 
