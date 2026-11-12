@@ -1118,6 +1118,62 @@ if (dados.audio !== undefined) {
   }
 }
 
+// 12. escala, opacidade e deslocamento (opcionais, fora das props; src/PlanoComposicao.tsx
+// aplica só quando diferem do padrão) + campo desconhecido no elemento. Campo com nome
+// errado (ex. "escla") seria ignorado em silêncio pelo render, por isso é ERRO.
+// CHAVES_ELEMENTO = todo campo que algum plano ou script usa hoje (levantado em 11/11/2026).
+const CHAVES_ELEMENTO = [
+  'id', 'componente', 'descricao', 'texto', 'inicio', 'duracao', 'duracaoFrames', 'posicao', 'slot',
+  'ilustrativo', 'tempo_estimado', 'props', 'fim', 'fala', 'naPalavra', 'ocorrencia', 'legendaPalavras',
+  'destaques', 'escala', 'opacidade', 'deslocamento',
+];
+const LIMITES_TRANSFORMAR = { escala: [0.1, 5], opacidade: [0, 1], deslocamento: [-1, 1] };
+
+// Quantas letras trocar para ir de a até b (pra sugerir o nome certo).
+const distanciaTexto = (a, b) => {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+};
+
+for (const el of elementos) {
+  const o = el.original;
+  for (const campo of ['escala', 'opacidade']) {
+    const [min, max] = LIMITES_TRANSFORMAR[campo];
+    if (o[campo] !== undefined && !numeroNaFaixa(o[campo], min, max))
+      erro(el.label, `transformar: ${campo} deve ser número entre ${min} e ${max} (veio ${JSON.stringify(o[campo])})`);
+  }
+  if (o.deslocamento !== undefined) {
+    const d = o.deslocamento;
+    if (d === null || typeof d !== 'object' || Array.isArray(d)) {
+      erro(el.label, `transformar: deslocamento deve ser um objeto { "x": número, "y": número } (veio ${JSON.stringify(d)})`);
+    } else {
+      const [min, max] = LIMITES_TRANSFORMAR.deslocamento;
+      for (const eixo of ['x', 'y']) {
+        if (d[eixo] !== undefined && !numeroNaFaixa(d[eixo], min, max))
+          erro(el.label, `transformar: deslocamento.${eixo} deve ser número entre ${min} e ${max} (fração da tela; veio ${JSON.stringify(d[eixo])})`);
+      }
+      for (const chave of Object.keys(d)) {
+        if (chave !== 'x' && chave !== 'y')
+          erro(el.label, `transformar: deslocamento só aceita "x" e "y" (veio o campo ${JSON.stringify(chave)})`);
+      }
+    }
+  }
+  for (const chave of Object.keys(o)) {
+    if (CHAVES_ELEMENTO.includes(chave)) continue;
+    const parecida =
+      chave.length > 3 ? CHAVES_ELEMENTO.find((k) => distanciaTexto(k.toLowerCase(), chave.toLowerCase()) <= 2) : undefined;
+    erro(
+      el.label,
+      `campos: campo desconhecido ${JSON.stringify(chave)} no elemento${parecida ? ` — você quis dizer "${parecida}"?` : ''} ` +
+        `— o render ignoraria esse campo; corrija o nome ou tire (cor, texto etc. da peça vão dentro de "props")`,
+    );
+  }
+}
+
 // ---------------------------------------------------------------- saída
 
 for (const linha of linhas) console.log(linha);

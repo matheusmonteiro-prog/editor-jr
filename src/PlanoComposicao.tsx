@@ -89,6 +89,10 @@ type ElementoPlano = {
   duracao: number; // segundos
   duracaoFrames?: number;
   props: Record<string, any> | "a confirmar";
+  // Opcionais, fora das props (valem para qualquer peça). Sem eles = como sempre foi.
+  escala?: number; // 1 = tamanho normal; origem no centro da camada do elemento
+  opacidade?: number; // 0 (invisível) a 1 (normal)
+  deslocamento?: { x?: number; y?: number }; // fração da tela; x>0 direita, y>0 para baixo
 };
 
 // Um trecho em que a câmera aparece. Tempos no vídeo ORIGINAL; caixa em
@@ -181,6 +185,23 @@ const renderizarComponente = (
       })}
     </>
   );
+};
+
+// Escala, opacidade e deslocamento do elemento. Todos no padrão (ou ausentes) = null, e o
+// elemento fica com a MESMA estrutura de antes (sem invólucro). O invólucro é uma camada de
+// tela cheia; o transform-origin padrão do CSS (50% 50%) é o centro dela.
+const estiloDaTransformacao = (el: ElementoPlano): React.CSSProperties | null => {
+  const escala = el.escala ?? 1;
+  const opacidade = el.opacidade ?? 1;
+  const x = el.deslocamento?.x ?? 0;
+  const y = el.deslocamento?.y ?? 0;
+  const mexeForma = escala !== 1 || x !== 0 || y !== 0;
+  if (!mexeForma && opacidade === 1) return null;
+  const estilo: React.CSSProperties = {};
+  // translate antes de scale: o deslocamento não cresce junto com a escala.
+  if (mexeForma) estilo.transform = `translate(${x * 100}%, ${y * 100}%) scale(${escala})`;
+  if (opacidade !== 1) estilo.opacity = opacidade;
+  return estilo;
 };
 
 // UMA instância da câmera pela composição inteira (nunca uma Sequence por
@@ -356,9 +377,11 @@ export const PlanoComposicao: React.FC<PlanoComposicaoProps> = ({
       {plano.elementos.map((el) => {
         const from = paraFrameCortado(paraSegundos(el.inicio));
         const durationInFrames = el.duracaoFrames ?? Math.round(el.duracao * fps);
+        const conteudo = renderizarComponente(el.componente, el.props, from, paraFrameCortado);
+        const estilo = estiloDaTransformacao(el);
         return (
-          <Sequence key={el.id} name={el.id} from={from} durationInFrames={durationInFrames}>
-            {renderizarComponente(el.componente, el.props, from, paraFrameCortado)}
+          <Sequence key={el.id} name={el.id} className={`plano-elemento plano-elemento-${el.id.replace(/[^A-Za-z0-9-]/g, (c) => `_${c.charCodeAt(0).toString(16)}_`)}`} from={from} durationInFrames={durationInFrames}>
+            {estilo ? <AbsoluteFill style={estilo}>{conteudo}</AbsoluteFill> : conteudo}
           </Sequence>
         );
       })}

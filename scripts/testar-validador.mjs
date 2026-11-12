@@ -616,6 +616,63 @@ const casos = [
     esperaFalha: false,
     trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
   },
+  // escala, opacidade e deslocamento (opcionais, fora das props) + campo desconhecido
+  {
+    nome: 'escala/opacidade/deslocamento válidos (inclui os limites 0.1, 0, -1 e 1) passam limpo',
+    arquivo: fixture('valido-transformar.plano.json'),
+    args: [],
+    esperaFalha: false,
+    trechoEsperado: 'Resumo: 0 erro(s), 0 aviso(s)',
+  },
+  {
+    nome: 'escala acima de 5',
+    arquivo: fixture('transformar-escala-fora-da-faixa.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'transformar: escala deve ser número entre 0.1 e 5 (veio 6)',
+  },
+  {
+    nome: 'escala que não é número ("2" em texto)',
+    arquivo: fixture('transformar-escala-nao-numero.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'transformar: escala deve ser número entre 0.1 e 5 (veio "2")',
+  },
+  {
+    nome: 'opacidade acima de 1',
+    arquivo: fixture('transformar-opacidade-fora-da-faixa.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'transformar: opacidade deve ser número entre 0 e 1 (veio 1.2)',
+  },
+  {
+    nome: 'deslocamento.x fora de -1 a 1',
+    arquivo: fixture('transformar-deslocamento-fora-da-faixa.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'transformar: deslocamento.x deve ser número entre -1 e 1',
+  },
+  {
+    nome: 'deslocamento que não é objeto',
+    arquivo: fixture('transformar-deslocamento-nao-objeto.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'transformar: deslocamento deve ser um objeto',
+  },
+  {
+    nome: 'deslocamento com campo além de x e y',
+    arquivo: fixture('transformar-deslocamento-campo-extra.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'transformar: deslocamento só aceita "x" e "y" (veio o campo "z")',
+  },
+  {
+    nome: 'campo desconhecido no elemento vira ERRO, com sugestão',
+    arquivo: fixture('invalido-campo-desconhecido.plano.json'),
+    args: [],
+    esperaFalha: true,
+    trechoEsperado: 'campos: campo desconhecido "escla" no elemento — você quis dizer "escala"?',
+  },
 ];
 
 let falhas = 0;
