@@ -13,8 +13,9 @@
 //   GET /api/fundo?nome=<nome>   → vídeo de fundo (public/videos/<video>-cortado-vN.mp4, N mais alto)
 //                                  e cortes (videos/<video>.cortes.json), achados AQUI pelo campo
 //                                  "video" do plano; o navegador nunca manda caminho
-//   GET /api/biblioteca          → arquivos de mídia de public/{images,sfx,music,videos/cenas,audio}
+//   GET /api/biblioteca          → arquivos de mídia de public/{images,sfx,music,audio,midia}
 //                                  (pasta, tipo, tamanho). Só leitura; não existe rota de apagar.
+//   GET /api/etiquetas-sfx       → etiquetas de public/sfx/catalogo.json (se existir; só leitura)
 //
 // Travas: o navegador nunca manda caminho; o nome da cópia é gerado aqui; só grava em
 // planos/copias/; nunca sobrescreve (flag "wx"); corpo até 1 MB; validador sem shell.
@@ -27,7 +28,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createServer as criarVite } from "vite";
-import { PASTAS_BIBLIOTECA, caminhoDeMidiaSeguro, escolherVideoCortado, nomeDePlanoSeguro, resumirCortes, resumirPlano, tipoDeMidia } from "./regrasServidor.mjs";
+import { PASTAS_BIBLIOTECA, caminhoDeMidiaSeguro, escolherVideoCortado, lerEtiquetasSfx, nomeDePlanoSeguro, resumirCortes, resumirPlano, tipoDeMidia } from "./regrasServidor.mjs";
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ENDERECO = "127.0.0.1";
@@ -265,7 +266,18 @@ const listarBiblioteca = async () => {
   return itens;
 };
 
+// Etiquetas de som: public/sfx/catalogo.json (caminho FIXO). Sem o arquivo = lista vazia.
+const lerEtiquetas = async (_url, res) => {
+  const arquivo = path.join(PASTA_PUBLIC, "sfx", "catalogo.json");
+  let texto = null;
+  try {
+    texto = await readFile(arquivo, "utf8");
+  } catch {}
+  return responder(res, 200, { existe: texto !== null, etiquetas: texto === null ? {} : lerEtiquetasSfx(texto) });
+};
+
 const ROTAS_GET = {
+  "/api/etiquetas-sfx": lerEtiquetas,
   "/api/biblioteca": async (_url, res) => responder(res, 200, { itens: await listarBiblioteca(), limite: LIMITE_BIBLIOTECA }),
   "/api/planos": async (_url, res) => responder(res, 200, { planos: await listarPlanos() }),
   "/api/plano": lerPlano,

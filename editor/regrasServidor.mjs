@@ -69,7 +69,9 @@ export const resumirCortes = (texto) => {
 // Biblioteca (pacote B): só LEITURA de pastas fixas de public/. O navegador nunca manda caminho.
 // Tipo pela extensão; o que não for mídia conhecida (ex.: .json, .gitkeep, .pedido.json) fica de fora.
 // Áudio: as mesmas extensões que scripts/validar-plano.mjs aceita sem aviso (EXTENSOES_AUDIO).
-export const PASTAS_BIBLIOTECA = ["images", "sfx", "music", "videos/cenas", "audio"];
+// "videos/cenas" saiu (pedido do Matheus, 12/11/2026); "midia" entra se existir (pasta ausente =
+// fica de fora, nada é criado).
+export const PASTAS_BIBLIOTECA = ["images", "sfx", "music", "audio", "midia"];
 const EXTENSOES = {
   imagem: [".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"],
   audio: [".mp3", ".wav", ".m4a", ".ogg", ".aac"],
@@ -85,3 +87,25 @@ export const tipoDeMidia = (nome) => {
 // "\", sem começar com "/" e só com caracteres que o validador aceita em arquivo de áudio.
 export const caminhoDeMidiaSeguro = (caminho) =>
   typeof caminho === "string" && caminho.length <= 300 && /^[A-Za-z0-9._\-/]+$/.test(caminho) && !caminho.startsWith("/") && !caminho.split("/").includes("..");
+
+// Etiquetas de som (preparação): public/sfx/catalogo.json, formato
+//   { "arquivo.mp3": { "etiquetas": ["transicao", "impacto"] } }
+// Só o que é seguro passa: nome de arquivo de áudio sem pasta, até 20 etiquetas de texto curto
+// (até 30 letras). JSON inválido ou fora do formato = nenhuma etiqueta (não quebra a biblioteca).
+export const lerEtiquetasSfx = (texto) => {
+  let bruto;
+  try {
+    bruto = JSON.parse(texto);
+  } catch {
+    return {};
+  }
+  if (!bruto || typeof bruto !== "object" || Array.isArray(bruto)) return {};
+  const saida = {};
+  for (const [nome, valor] of Object.entries(bruto)) {
+    if (!/^[A-Za-z0-9._-]+$/.test(nome) || tipoDeMidia(nome) !== "audio") continue;
+    const lista = valor && Array.isArray(valor.etiquetas) ? valor.etiquetas : [];
+    const limpas = [...new Set(lista.filter((e) => typeof e === "string").map((e) => e.trim()).filter((e) => e.length > 0 && e.length <= 30))].slice(0, 20);
+    if (limpas.length > 0) saida[nome] = limpas;
+  }
+  return saida;
+};

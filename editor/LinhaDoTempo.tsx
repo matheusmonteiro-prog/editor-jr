@@ -11,7 +11,7 @@ import {
   segundosDoDeslocamento,
 } from "./regrasInteracao";
 import { COR, VEU, botaoContorno } from "./tema";
-import type { BlocoAudio } from "./regrasBiblioteca";
+import { TIPO_ARRASTE, itemDoArraste, type BlocoAudio, type ItemBiblioteca } from "./regrasBiblioteca";
 
 // Linha do tempo (pacote A). Uma faixa por camada, um bloco por elemento.
 //   - clicar no bloco: seleciona e o Player pula para o início dele
@@ -38,6 +38,8 @@ type Props = {
   audios: BlocoAudio[];
   audioSelecionado: number | null;
   aoSelecionarAudio: (indice: number) => void;
+  // Soltar um cartão da Biblioteca: início = ponto solto na régua (tempo ORIGINAL).
+  aoSoltarMidia: (item: ItemBiblioteca, segundo: number) => void;
 };
 
 const ALTURA_FAIXA = "1.7rem";
@@ -64,6 +66,7 @@ export const LinhaDoTempo: React.FC<Props> = ({
   audios,
   audioSelecionado,
   aoSelecionarAudio,
+  aoSoltarMidia,
 }) => {
   const [zoom, setZoom] = useState(1);
   const [largura, setLargura] = useState(0);
@@ -199,7 +202,22 @@ export const LinhaDoTempo: React.FC<Props> = ({
       </div>
 
       <div ref={rolagem} style={{ overflowX: "auto", overflowY: "hidden", background: VEU.leve, borderRadius: "0.25rem" }}>
-        <div ref={conteudo} style={{ position: "relative", width: `${zoom * 100}%`, paddingBottom: "0.2rem" }}>
+        <div
+          ref={conteudo}
+          style={{ position: "relative", width: `${zoom * 100}%`, paddingBottom: "0.2rem" }}
+          onDragOver={(e) => {
+            if (!e.dataTransfer.types.includes(TIPO_ARRASTE)) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "copy";
+          }}
+          onDrop={(e) => {
+            const item = itemDoArraste(e.dataTransfer.getData(TIPO_ARRASTE));
+            const r = retangulo();
+            if (!item || !r) return;
+            e.preventDefault();
+            aoSoltarMidia(item, segundoDoPonto(e.clientX, r.left, r.width, regua));
+          }}
+        >
           {/* Régua: clicar ou arrastar leva o Player junto */}
           <div
             onPointerDown={reguaDown}

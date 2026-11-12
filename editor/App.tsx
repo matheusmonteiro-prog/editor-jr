@@ -4,7 +4,7 @@ import { PlanoComposicao, type PlanoComposicaoProps } from "../src/PlanoComposic
 import { criarParaFrameCortado } from "../src/utils/tempoCortado";
 import { TabelaElementos } from "./TabelaElementos";
 import { Biblioteca } from "./Biblioteca";
-import { adicionarAudio, adicionarImagem, blocosDeAudio, removerAudio, type ItemBiblioteca } from "./regrasBiblioteca";
+import { TIPO_ARRASTE, adicionarAudio, adicionarImagem, adicionarImagemNoPonto, blocosDeAudio, itemDoArraste, pontoNaTela, removerAudio, type ItemBiblioteca } from "./regrasBiblioteca";
 import { formatarInicio } from "./regrasPlano";
 import { LinhaDoTempo } from "./LinhaDoTempo";
 import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
@@ -511,6 +511,24 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
     setSelecionado(r.indice);
     setVersaoExterna((v) => v + 1);
   };
+  // Arrastar e soltar (vídeo ou linha do tempo): 1 passo do desfazer. ponto = onde caiu no
+  // vídeo (fração da tela) ou null (linha do tempo: só o tempo importa).
+  const soltarMidia = (item: ItemBiblioteca, segundo: number, ponto: { x: number; y: number } | null) => {
+    if (item.tipo === "imagem") {
+      const r = ponto ? adicionarImagemNoPonto(plano, item, segundo, ponto.x, ponto.y) : adicionarImagem(plano, item, segundo);
+      if (r === null) return;
+      setHistorico((h) => registrar(h, r.plano, null));
+      setSelecionado(r.indice);
+      setVersaoExterna((v) => v + 1);
+    } else if (item.tipo === "audio") {
+      const r = adicionarAudio(plano, item, "efeito", segundo);
+      if (r === null) return;
+      setHistorico((h) => registrar(h, r.plano, null));
+      setSelecionado(null);
+      setAudioSelecionado(r.indice);
+      setVersaoExterna((v) => v + 1);
+    }
+  };
   const adicionarAudioNaAgulha = (item: ItemBiblioteca, tipo: "efeito" | "musica") => {
     const r = adicionarAudio(plano, item, tipo, agulhaSeg);
     if (r === null) return;
@@ -560,7 +578,24 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
         <Palco proporcao={composicao.width / composicao.height}>
           {(largura, altura) => (
             // O overlay fica no MESMO quadrado do Player, por cima (CamadaDeEdicao.tsx).
-            <div style={{ position: "relative", width: largura, height: altura }}>
+            <div
+              style={{ position: "relative", width: largura, height: altura }}
+              // Soltar um cartão da Biblioteca no vídeo: imagem no ponto solto (início = agulha);
+              // som = efeito na agulha. Só aceita o tipo de arraste da Biblioteca.
+              onDragOver={(e) => {
+                if (!e.dataTransfer.types.includes(TIPO_ARRASTE)) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "copy";
+              }}
+              onDrop={(e) => {
+                const item = itemDoArraste(e.dataTransfer.getData(TIPO_ARRASTE));
+                if (!item) return;
+                e.preventDefault();
+                const r = e.currentTarget.getBoundingClientRect();
+                const ponto = pontoNaTela(e.clientX - r.left, e.clientY - r.top, medidaQuadro?.tela ?? { left: 0, top: 0, width: largura, height: altura });
+                soltarMidia(item, agulhaSeg, ponto);
+              }}
+            >
             <Player
               ref={setPlayer}
               component={PlanoComposicao}
@@ -624,6 +659,7 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
             aoArrastarDuracao={(i, segundos, sessao) => mudar((p) => aplicarDuracao(p, i, segundos), `arraste:${sessao}`, false)}
             aoFimArraste={() => setVersaoExterna((v) => v + 1)}
             audios={blocosDeAudio(plano, regua)}
+            aoSoltarMidia={(item, segundo) => soltarMidia(item, segundo, null)}
             audioSelecionado={audioSelecionado}
             aoSelecionarAudio={(i) => {
               setSelecionado(null);

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { filtrarBiblioteca, tamanhoLegivel, type ItemBiblioteca, type TipoMidia } from "./regrasBiblioteca";
+import { TIPO_ARRASTE, filtrarBiblioteca, tamanhoLegivel, type ItemBiblioteca, type TipoMidia } from "./regrasBiblioteca";
 import { COR, VEU, botaoAmarelo, botaoContorno, caixaTexto } from "./tema";
 
 // Aba "Biblioteca": arquivos de mídia de public/ (GET /api/biblioteca, só leitura). Não existe
@@ -30,6 +30,24 @@ export const usarBiblioteca = (): EstadoBiblioteca => {
   return estado;
 };
 
+// Etiquetas de som (public/sfx/catalogo.json, GET /api/etiquetas-sfx). Sem o arquivo = nenhuma.
+let promessaEtiquetas: Promise<Record<string, string[]>> | null = null;
+const usarEtiquetas = (): Record<string, string[]> => {
+  const [etiquetas, setEtiquetas] = useState<Record<string, string[]>>({});
+  useEffect(() => {
+    let vivo = true;
+    promessaEtiquetas ??= fetch("/api/etiquetas-sfx")
+      .then((r) => (r.ok ? r.json() : { etiquetas: {} }))
+      .then((j) => (j.etiquetas ?? {}) as Record<string, string[]>)
+      .catch(() => ({}));
+    void promessaEtiquetas.then((e) => vivo && setEtiquetas(e));
+    return () => {
+      vivo = false;
+    };
+  }, []);
+  return etiquetas;
+};
+
 const TIPOS: { tipo: TipoMidia | "todos"; rotulo: string }[] = [
   { tipo: "todos", rotulo: "Tudo" },
   { tipo: "imagem", rotulo: "Imagens" },
@@ -44,6 +62,7 @@ export const Biblioteca: React.FC<{
   aoAdicionarAudio: (item: ItemBiblioteca, tipo: "efeito" | "musica") => void;
 }> = ({ agulhaTexto, podeAdicionar, aoAdicionarImagem, aoAdicionarAudio }) => {
   const { itens, erro, carregando } = usarBiblioteca();
+  const etiquetas = usarEtiquetas();
   const [filtro, setFiltro] = useState("");
   const [tipo, setTipo] = useState<TipoMidia | "todos">("todos");
   const [tocando, setTocando] = useState<string | null>(null);
@@ -84,7 +103,17 @@ export const Biblioteca: React.FC<{
       {erro ? <div style={{ color: COR.vermelho }}>Não consegui ler a biblioteca: {erro}</div> : null}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(9.5rem, 1fr))", gap: "0.4rem" }}>
         {lista.map((i) => (
-          <div key={i.caminho} style={{ background: VEU.leve, borderRadius: "0.25rem", padding: "0.3rem", display: "flex", flexDirection: "column", gap: "0.25rem", minWidth: 0 }}>
+          <div
+            key={i.caminho}
+            // Arrastar o cartão: soltar no vídeo (posição + agulha) ou na linha do tempo (início).
+            draggable={i.tipo !== "video"}
+            onDragStart={(e) => {
+              e.dataTransfer.setData(TIPO_ARRASTE, JSON.stringify(i));
+              e.dataTransfer.effectAllowed = "copy";
+            }}
+            title={i.tipo === "video" ? i.caminho : `${i.caminho} — arraste para o vídeo ou para a linha do tempo`}
+            style={{ background: VEU.leve, borderRadius: "0.25rem", padding: "0.3rem", display: "flex", flexDirection: "column", gap: "0.25rem", minWidth: 0, cursor: i.tipo === "video" ? "default" : "grab" }}
+          >
             {i.tipo === "imagem" ? (
               <img src={`/${i.caminho}`} alt={i.nome} loading="lazy" style={{ width: "100%", height: "5rem", objectFit: "contain", background: "rgba(0,0,0,0.25)" }} />
             ) : (
@@ -96,12 +125,30 @@ export const Biblioteca: React.FC<{
             <div style={{ fontSize: "0.7rem", opacity: 0.7 }}>
               {i.pasta} · {tamanhoLegivel(i.tamanho)}
             </div>
+            {i.pasta === "sfx" && etiquetas[i.nome] ? (
+              <div style={{ display: "flex", gap: "0.2rem", flexWrap: "wrap" }}>
+                {etiquetas[i.nome].map((et) => (
+                  <span key={et} style={{ fontSize: "0.65rem", padding: "0 0.3rem", borderRadius: "0.6rem", background: "rgba(143,211,255,0.25)" }}>
+                    {et}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            {i.tipo === "imagem" ? (
+              <button
+                type="button"
+                style={{ ...botaoAmarelo, width: "100%", padding: "0.3rem 0.4rem" }}
+                disabled={!podeAdicionar}
+                onClick={() => aoAdicionarImagem(i)}
+                title={`Novo elemento com esta imagem em ${agulhaTexto}, 3 s, aparece cheia`}
+              >
+                + na agulha ({agulhaTexto})
+              </button>
+            ) : null}
+            {i.tipo === "video" ? (
+              <div style={{ fontSize: "0.65rem", opacity: 0.7 }}>Só lista: ainda não há peça de vídeo no catálogo.</div>
+            ) : null}
             <div style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
-              {i.tipo === "imagem" ? (
-                <button type="button" style={pequeno} disabled={!podeAdicionar} onClick={() => aoAdicionarImagem(i)} title={`Novo elemento com esta imagem em ${agulhaTexto}, 3 s`}>
-                  + na agulha
-                </button>
-              ) : null}
               {i.tipo === "audio" ? (
                 <>
                   <button type="button" style={pequeno} onClick={() => ouvir(i)}>

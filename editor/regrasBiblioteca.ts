@@ -1,4 +1,5 @@
 import { emDecimos, proximoSlotLivre } from "./regrasInteracao";
+import { aplicarDeslocamento } from "./regrasMinimapa";
 import { conferirInicio, fpsDoPlano, formatarInicio, type ElementoEditor, type PlanoEditor } from "./regrasPlano";
 
 // Biblioteca de arquivos (pacote B). Sem React e sem disco: dá para testar pelo Node.
@@ -45,6 +46,12 @@ const idLivre = (usados: Set<string>, base: string): string => {
 };
 
 export const DURACAO_IMAGEM = 3;
+// Imagem nova aparece CHEIA na hora (pedido do Matheus): ImagemFade com frameEntrada = 1.
+// O schema aceita 0 (z.number().min(0)), mas 0 QUEBRA a peça: ela faz
+// interpolate(frame, [0, frameEntrada]) e o Remotion exige faixa estritamente crescente
+// (node_modules/remotion/dist/cjs/interpolate.js:723). 1 quadro = o menor que funciona.
+// PersonagemImagem não tem prop de entrada: o "pulo" (spring) dela é fixo no src/.
+export const FRAMES_ENTRADA_IMAGEM = 1;
 export const PERSONAGENS = "images/personagens/";
 
 // Imagem na agulha: novo elemento NO TOPO da lista (o mais à frente), início = agulha em tempo
@@ -75,7 +82,7 @@ export const adicionarImagem = (plano: PlanoEditor, item: ItemBiblioteca, segund
     tempo_estimado: true,
     props: ehPersonagem
       ? { imagem: item.caminho.slice(PERSONAGENS.length), top: 0.3, left: 0.35, tamanho: 0.3, duracaoFrames: frames, framesSaida: 20 }
-      : { src: item.caminho, larguraPorcentagem: 40, frameEntrada: 10 },
+      : { src: item.caminho, larguraPorcentagem: 40, frameEntrada: FRAMES_ENTRADA_IMAGEM },
   } as unknown as ElementoEditor;
   const slot = proximoSlotLivre(plano, novo);
   if (slot !== null) (novo as unknown as { slot: number }).slot = slot;
@@ -136,3 +143,47 @@ export const blocosDeAudio = (plano: PlanoEditor, regua: number): BlocoAudio[] =
   });
   return blocos;
 };
+
+// Centro do desenho de uma imagem nova SEM deslocamento (fração da tela), lido do código da peça:
+// - ImagemFade: centralizada (flex center) → meio da tela.
+// - PersonagemImagem: quadrado em (left·L, top·A) com lado tamanho·L (PersonagemImagem.tsx).
+export const centroPadraoDaImagem = (plano: PlanoEditor, el: ElementoEditor): { x: number; y: number } => {
+  const props = el.props as Record<string, unknown>;
+  if (el.componente === "PersonagemImagem" && typeof props.left === "number" && typeof props.top === "number" && typeof props.tamanho === "number") {
+    const larguraSobreAltura = plano.orientacao === "vertical" ? 1080 / 1920 : 1920 / 1080;
+    return { x: props.left + props.tamanho / 2, y: props.top + (props.tamanho * larguraSobreAltura) / 2 };
+  }
+  return { x: 0.5, y: 0.5 };
+};
+
+const limitarDesloc = (v: number) => Math.min(1, Math.max(-1, Math.round(v * 100) / 100));
+
+// Soltar uma imagem NO VÍDEO: elemento novo no início "segundoOriginal" (a agulha) e deslocamento
+// para o centro do desenho cair no ponto solto (fx, fy em fração da tela), encaixe 0,01, −1 a 1.
+// Um plano só no fim (1 passo do desfazer).
+export const adicionarImagemNoPonto = (plano: PlanoEditor, item: ItemBiblioteca, segundoOriginal: number, fx: number, fy: number): { plano: PlanoEditor; indice: number } | null => {
+  const r = adicionarImagem(plano, item, segundoOriginal);
+  if (r === null || !Number.isFinite(fx) || !Number.isFinite(fy)) return r;
+  const c = centroPadraoDaImagem(plano, r.plano.elementos[r.indice]);
+  return { plano: aplicarDeslocamento(r.plano, r.indice, limitarDesloc(fx - c.x), limitarDesloc(fy - c.y)), indice: r.indice };
+};
+
+// Arrastar e soltar: o cartão manda o item como JSON neste tipo. Quem recebe confere tudo de novo
+// (tipo conhecido, caminho só com caracteres seguros): nada que venha de fora vira caminho.
+export const TIPO_ARRASTE = "application/x-editor-midia";
+export const itemDoArraste = (texto: string): ItemBiblioteca | null => {
+  let v: unknown;
+  try {
+    v = JSON.parse(texto);
+  } catch {
+    return null;
+  }
+  const o = v as Partial<ItemBiblioteca> | null;
+  if (!o || typeof o.caminho !== "string" || (o.tipo !== "imagem" && o.tipo !== "audio" && o.tipo !== "video")) return null;
+  if (!/^[A-Za-z0-9._/-]+$/.test(o.caminho) || o.caminho.startsWith("/") || o.caminho.split("/").includes("..")) return null;
+  return { caminho: o.caminho, pasta: o.caminho.split("/")[0], nome: o.caminho.split("/").pop() ?? o.caminho, tipo: o.tipo, tamanho: null };
+};
+
+// Ponto solto no vídeo (px dentro da caixa do Player) → fração da tela, pela caixa da composição.
+export const pontoNaTela = (px: number, py: number, tela: { left: number; top: number; width: number; height: number }): { x: number; y: number } | null =>
+  tela.width > 0 && tela.height > 0 ? { x: (px - tela.left) / tela.width, y: (py - tela.top) / tela.height } : null;
