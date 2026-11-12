@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 // Regras puras do servidor do editor (fatia 5, abrir planos). Sem disco e sem rede: recebem
 // textos e listas de nomes e devolvem decisões. Dá para testar pelo Node.
 
@@ -109,3 +111,26 @@ export const lerEtiquetasSfx = (texto) => {
   }
   return saida;
 };
+
+// ---------- Plano atual (fatia 3 do "plano atual"): hash e decisão de gravar ----------
+// planos/atual/<video>.atual.json aparece na lista com o nome "<video>.atual" e pasta "atual".
+// Um nome de planos/atual/ igual a um de planos/ fica de fora (o de planos/ vence).
+export const juntarListas = (dePlanos, deAtual) => {
+  const nomes = new Set(dePlanos.map((p) => p.nome));
+  return [...dePlanos, ...deAtual.filter((p) => !nomes.has(p.nome))];
+};
+
+// SHA-256 dos BYTES do arquivo (Buffer) ou de um texto (UTF-8), em hexadecimal.
+export const hashDe = (conteudo) => createHash("sha256").update(conteudo).digest("hex");
+export const REGRA_HASH = /^[0-9a-f]{64}$/;
+
+// Decide o que o POST /api/salvar-atual faz com o hash. Nunca grava sem conferência.
+export const decidirHash = (hashEsperado, hashNoDisco) => {
+  if (typeof hashEsperado !== "string" || !REGRA_HASH.test(hashEsperado)) return { ok: false, status: 400, erro: "hashEsperado ausente ou inválido (64 letras hexadecimais)." };
+  if (hashEsperado !== hashNoDisco) return { ok: false, status: 409, erro: "O arquivo mudou no disco desde que você abriu. Nada foi gravado." };
+  return { ok: true };
+};
+
+// Nomes gerados AQUI (nunca vêm do navegador). Todos caem em planos/copias/.
+export const nomeAnterior = (nome, carimbo) => `${nome}.anterior-${carimbo}.json`;
+export const nomeValidacao = (nome, carimbo, sorte) => `${nome}.validacao-${carimbo}-${sorte}.json`;

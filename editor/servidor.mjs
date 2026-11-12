@@ -7,9 +7,18 @@
 // Rotas de gravar (só POST, só JSON, só de uma página aberta em 127.0.0.1:5173 ou localhost:5173):
 //   POST /api/copias   { plano: "teste-kit-v3", conteudo: {...} } → grava planos/copias/<nome gerado aqui>
 //   POST /api/validar  { arquivo: "<nome de uma cópia>" }         → roda scripts/validar-plano.mjs nela
+//   POST /api/salvar-atual { plano: "0926.atual", hashEsperado, conteudo } → grava planos/atual/<nome>.json
+//        SÓ se: o nome está na lista real de planos/atual/; o hash do arquivo no disco = hashEsperado
+//        (senão 409, nada gravado); o conteúdo passa no validador (rodado numa cópia
+//        planos/copias/<nome>.validacao-…json; erro = 422, nada gravado). Antes de gravar guarda a
+//        versão anterior em planos/copias/<nome>.anterior-AAAA-MM-DD-HHMMSS.json ("wx"); grava num
+//        temporário dentro de planos/atual/ e troca por rename. Um salvar por vez (fila).
+//        Nunca grava no original (planos/*.json) nem fora de planos/atual/.
 // Rotas de ler (só GET; fatia 5):
-//   GET /api/planos              → nomes de planos/*.json, com fps, orientação e "completo"
-//   GET /api/plano?nome=<nome>   → o plano (nome sem ".json", tem de estar na lista)
+//   GET /api/planos              → nomes de planos/*.json e de planos/atual/*.json (pasta "atual"),
+//                                  com fps, orientação e "completo"
+//   GET /api/plano?nome=<nome>   → o plano + hash SHA-256 do arquivo (nome tem de estar na lista)
+//   GET /api/hash-plano?nome=<nome> → só o hash (o editor consulta a cada 5 s)
 //   GET /api/fundo?nome=<nome>   → vídeo de fundo (public/videos/<video>-cortado-vN.mp4, N mais alto)
 //                                  e cortes (videos/<video>.cortes.json), achados AQUI pelo campo
 //                                  "video" do plano; o navegador nunca manda caminho
@@ -23,12 +32,27 @@
 // Origin (se vier) certo e Sec-Fetch-Site (se vier) "same-origin" ou "none".
 
 import http from "node:http";
-import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createServer as criarVite } from "vite";
-import { PASTAS_BIBLIOTECA, caminhoDeMidiaSeguro, escolherVideoCortado, lerEtiquetasSfx, nomeDePlanoSeguro, resumirCortes, resumirPlano, tipoDeMidia } from "./regrasServidor.mjs";
+import {
+  PASTAS_BIBLIOTECA,
+  caminhoDeMidiaSeguro,
+  decidirHash,
+  escolherVideoCortado,
+  hashDe,
+  juntarListas,
+  lerEtiquetasSfx,
+  nomeAnterior,
+  nomeDePlanoSeguro,
+  nomeValidacao,
+  resumirCortes,
+  resumirPlano,
+  tipoDeMidia,
+} from "./regrasServidor.mjs";
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ENDERECO = "127.0.0.1";
@@ -36,6 +60,7 @@ const ENDERECO = "127.0.0.1";
 const PORTA = /^\d{4,5}$/.test(process.env.EDITOR_PORTA ?? "") ? Number(process.env.EDITOR_PORTA) : 5173;
 const PASTA_PLANOS = path.join(RAIZ, "planos");
 const PASTA_COPIAS = path.join(PASTA_PLANOS, "copias");
+const PASTA_ATUAL = path.join(PASTA_PLANOS, "atual");
 const VALIDADOR = path.join(RAIZ, "scripts", "validar-plano.mjs");
 const PASTA_VIDEOS_PUBLICOS = path.join(RAIZ, "public", "videos"); // vídeo de fundo
 const PASTA_CORTES = path.join(RAIZ, "videos"); // <video>.cortes.json
@@ -110,8 +135,8 @@ const agoraNoNome = () => {
 const salvarCopia = async (dados, res) => {
   const { plano, conteudo } = dados;
   if (!nomeSeguro(plano, NOME_PLANO)) return responder(res, 400, { erro: 'Nome de plano inválido (use só o nome, ex.: "teste-kit-v3").' });
-  if (!(await arquivosDa(PASTA_PLANOS)).includes(`${plano}.json`)) {
-    return responder(res, 400, { erro: `Plano "${plano}" não existe em planos/.` });
+  if (!(await listarPlanos()).some((p) => p.nome === plano)) {
+    return responder(res, 400, { erro: `Plano "${plano}" não existe em planos/ nem em planos/atual/.` });
   }
   if (typeof conteudo !== "object" || conteudo === null || Array.isArray(conteudo) || !Array.isArray(conteudo.elementos)) {
     return responder(res, 400, { erro: 'O "conteudo" precisa ser um plano com a lista "elementos".' });
@@ -142,68 +167,146 @@ const validarCopia = async (dados, res) => {
   const caminho = path.join(PASTA_COPIAS, arquivo);
   if (!dentroDe(PASTA_COPIAS, caminho)) return responder(res, 400, { erro: "Caminho fora de planos/copias/." });
 
-  await new Promise((resolve) => {
+  const r = await rodarValidador(caminho);
+  if (r.falhou) return responder(res, 500, { erro: `Não consegui rodar o validador: ${r.falhou}` });
+  if (r.tempoEsgotado) return responder(res, 504, { codigo: null, saida: r.saida, tempoEsgotado: true });
+  return responder(res, 200, { codigo: r.codigo, saida: r.saida });
+};
+
+// Roda scripts/validar-plano.mjs num arquivo. Sem shell, argumentos fixos, até 60 s.
+const rodarValidador = (caminho) =>
+  new Promise((resolve) => {
     let saida = "";
     const juntar = (pedaco) => {
       if (saida.length < LIMITE_SAIDA) saida += pedaco.toString("utf8");
     };
-    // Sem shell, argumentos fixos: o Node atual roda o validador na cópia.
     const filho = spawn(process.execPath, [VALIDADOR, caminho], { cwd: RAIZ, shell: false, windowsHide: true });
     const relogio = setTimeout(() => {
       filho.kill();
-      responder(res, 504, { codigo: null, saida: `${saida}\n[tempo esgotado: 60 s]`, tempoEsgotado: true });
-      resolve();
+      resolve({ codigo: null, saida: `${saida}\n[tempo esgotado: 60 s]`, tempoEsgotado: true });
     }, TEMPO_VALIDADOR_MS);
     filho.stdout.on("data", juntar);
     filho.stderr.on("data", juntar);
     filho.on("error", (erro) => {
       clearTimeout(relogio);
-      responder(res, 500, { erro: `Não consegui rodar o validador: ${erro.message}` });
-      resolve();
+      resolve({ codigo: null, saida, falhou: erro.message });
     });
     filho.on("close", (codigo) => {
       clearTimeout(relogio);
-      responder(res, 200, { codigo, saida });
-      resolve();
+      resolve({ codigo, saida });
     });
   });
+
+// POST /api/salvar-atual. Um por vez: a fila impede dois salvares lendo o mesmo hash.
+let filaDoAtual = Promise.resolve();
+const salvarAtual = (dados, res) => {
+  const vez = filaDoAtual.then(() => salvarAtualAgora(dados, res));
+  filaDoAtual = vez.catch(() => {});
+  return vez;
+};
+
+const salvarAtualAgora = async (dados, res) => {
+  const { plano, hashEsperado, conteudo } = dados;
+  if (!nomeSeguro(plano, NOME_PLANO)) return responder(res, 400, { erro: "Nome de plano inválido." });
+  // Só da lista REAL de planos/atual/ (o original, em planos/, nunca é aceito aqui).
+  const item = (await listarPlanos()).find((p) => p.nome === plano && p.pasta === "atual");
+  if (!item) return responder(res, 400, { erro: `"${plano}" não é um plano de planos/atual/.` });
+  const destino = path.join(PASTA_ATUAL, `${plano}.json`);
+  if (!dentroDe(PASTA_ATUAL, destino)) return responder(res, 400, { erro: "Caminho fora de planos/atual/." });
+  if (typeof conteudo !== "object" || conteudo === null || Array.isArray(conteudo) || !Array.isArray(conteudo.elementos)) {
+    return responder(res, 400, { erro: 'O "conteudo" precisa ser um plano com a lista "elementos".' });
+  }
+
+  // 1. Hash: quem mandou precisa ter visto a versão que está no disco agora.
+  const anteriorBytes = await readFile(destino);
+  const hashNoDisco = hashDe(anteriorBytes);
+  const decisao = decidirHash(hashEsperado, hashNoDisco);
+  if (!decisao.ok) return responder(res, decisao.status, { erro: decisao.erro, hashNoDisco });
+
+  // 2. Valida EXATAMENTE o texto que seria gravado, numa cópia em planos/copias/.
+  const texto = `${JSON.stringify(conteudo, null, 2)}\n`;
+  const carimbo = agoraNoNome();
+  await mkdir(PASTA_COPIAS, { recursive: true });
+  const arquivoValidacao = nomeValidacao(plano, carimbo, randomBytes(3).toString("hex"));
+  const caminhoValidacao = path.join(PASTA_COPIAS, arquivoValidacao);
+  if (!dentroDe(PASTA_COPIAS, caminhoValidacao)) return responder(res, 400, { erro: "Caminho fora de planos/copias/." });
+  await writeFile(caminhoValidacao, texto, { encoding: "utf8", flag: "wx" });
+  const v = await rodarValidador(caminhoValidacao);
+  if (v.falhou) return responder(res, 500, { erro: `Não consegui rodar o validador: ${v.falhou}. Nada foi gravado.` });
+  if (v.codigo !== 0) {
+    return responder(res, 422, { erro: "O validador achou erro. Nada foi gravado no plano atual.", codigo: v.codigo, saida: v.saida, validacao: arquivoValidacao });
+  }
+
+  // 3. Confere o hash de novo (o validador leva alguns segundos; alguém pode ter mexido).
+  const hashAgora = hashDe(await readFile(destino));
+  if (hashAgora !== hashNoDisco) return responder(res, 409, { erro: "O arquivo mudou no disco durante a validação. Nada foi gravado.", hashNoDisco: hashAgora });
+
+  // 4. Guarda a versão anterior (nunca sobrescreve outra guardada).
+  const arquivoAnterior = nomeAnterior(plano, carimbo);
+  const caminhoAnterior = path.join(PASTA_COPIAS, arquivoAnterior);
+  if (!dentroDe(PASTA_COPIAS, caminhoAnterior)) return responder(res, 400, { erro: "Caminho fora de planos/copias/." });
+  try {
+    await writeFile(caminhoAnterior, anteriorBytes, { flag: "wx" });
+  } catch (erro) {
+    if (erro.code === "EEXIST") return responder(res, 409, { erro: "Já houve um salvar neste mesmo segundo. Nada foi gravado; tente de novo em 1 segundo.", hashNoDisco });
+    throw erro;
+  }
+
+  // 5. Grava num temporário DENTRO de planos/atual/ e troca por rename (atômico no mesmo disco).
+  const temporario = path.join(PASTA_ATUAL, `.${plano}.gravando-${carimbo}-${randomBytes(3).toString("hex")}.tmp`);
+  if (!dentroDe(PASTA_ATUAL, temporario)) return responder(res, 400, { erro: "Caminho fora de planos/atual/." });
+  await writeFile(temporario, texto, { encoding: "utf8", flag: "wx" });
+  await rename(temporario, destino);
+  const hash = hashDe(Buffer.from(texto, "utf8"));
+  console.log(`[editor] plano atual salvo: planos/atual/${plano}.json (anterior em planos/copias/${arquivoAnterior})`);
+  return responder(res, 200, { hash, anterior: arquivoAnterior, validacao: arquivoValidacao, codigo: v.codigo, saida: v.saida });
 };
 
 // ---------- Rotas de ler (GET) ----------
 
-// Lista de planos/*.json (só arquivos, só nomes que passam na regra).
-const listarPlanos = async () => {
+// Lista de planos/*.json e planos/atual/*.json (só arquivos, só nomes que passam na regra).
+// "arquivo" é relativo a planos/ ("0926.plano.json" ou "atual/0926.atual.json").
+const listarPasta = async (pasta, rotulo) => {
   const lista = [];
-  for (const arquivo of (await arquivosDa(PASTA_PLANOS)).sort()) {
-    if (!arquivo.toLowerCase().endsWith(".json")) continue;
-    const nome = arquivo.slice(0, -".json".length);
+  for (const nomeArquivo of (await arquivosDa(pasta)).sort()) {
+    if (!nomeArquivo.toLowerCase().endsWith(".json")) continue;
+    const nome = nomeArquivo.slice(0, -".json".length);
     if (!nomeDePlanoSeguro(nome)) continue;
     let resumo;
     try {
-      resumo = resumirPlano(await readFile(path.join(PASTA_PLANOS, arquivo), "utf8"));
+      resumo = resumirPlano(await readFile(path.join(pasta, nomeArquivo), "utf8"));
     } catch {
       resumo = { completo: false, motivo: "não consegui ler", fps: null, orientacao: null, video: null };
     }
-    lista.push({ nome, arquivo, ...resumo });
+    lista.push({ nome, arquivo: rotulo ? `${rotulo}/${nomeArquivo}` : nomeArquivo, pasta: rotulo || "planos", ...resumo });
   }
   return lista;
 };
+const listarPlanos = async () => juntarListas(await listarPasta(PASTA_PLANOS, ""), await listarPasta(PASTA_ATUAL, "atual"));
 
 // Acha o plano pelo nome, só se ele estiver na lista (nunca monta caminho com o que veio).
 const acharPlano = async (nome) => {
   if (!nomeDePlanoSeguro(nome)) return null;
   const item = (await listarPlanos()).find((p) => p.nome === nome);
   if (!item) return null;
-  const caminho = path.join(PASTA_PLANOS, item.arquivo);
-  return dentroDe(PASTA_PLANOS, caminho) ? { item, caminho } : null;
+  const pasta = item.pasta === "atual" ? PASTA_ATUAL : PASTA_PLANOS;
+  const caminho = path.join(pasta, `${item.nome}.json`);
+  return dentroDe(pasta, caminho) ? { item, caminho } : null;
 };
 
 const lerPlano = async (url, res) => {
   const achado = await acharPlano(url.searchParams.get("nome"));
   if (!achado) return responder(res, 400, { erro: "Plano inválido ou não existe em planos/." });
   if (!achado.item.completo) return responder(res, 400, { erro: `Plano incompleto: ${achado.item.motivo}.` });
-  const plano = JSON.parse(await readFile(achado.caminho, "utf8"));
-  return responder(res, 200, { nome: achado.item.nome, arquivo: achado.item.arquivo, plano });
+  const bytes = await readFile(achado.caminho);
+  const plano = JSON.parse(bytes.toString("utf8"));
+  return responder(res, 200, { nome: achado.item.nome, arquivo: achado.item.arquivo, pasta: achado.item.pasta, hash: hashDe(bytes), plano });
+};
+
+const lerHashPlano = async (url, res) => {
+  const achado = await acharPlano(url.searchParams.get("nome"));
+  if (!achado) return responder(res, 400, { erro: "Plano inválido ou não existe em planos/." });
+  return responder(res, 200, { nome: achado.item.nome, hash: hashDe(await readFile(achado.caminho)) });
 };
 
 const lerFundo = async (url, res) => {
@@ -281,10 +384,11 @@ const ROTAS_GET = {
   "/api/biblioteca": async (_url, res) => responder(res, 200, { itens: await listarBiblioteca(), limite: LIMITE_BIBLIOTECA }),
   "/api/planos": async (_url, res) => responder(res, 200, { planos: await listarPlanos() }),
   "/api/plano": lerPlano,
+  "/api/hash-plano": lerHashPlano,
   "/api/fundo": lerFundo,
 };
 
-const ROTAS = { "/api/copias": salvarCopia, "/api/validar": validarCopia };
+const ROTAS = { "/api/copias": salvarCopia, "/api/validar": validarCopia, "/api/salvar-atual": salvarAtual };
 
 const tratarApi = async (req, res, caminhoUrl) => {
   if (req.method === "OPTIONS") return responder(res, 403, { erro: "Pedido de permissão (CORS) recusado." });

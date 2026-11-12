@@ -8,6 +8,7 @@ import { TIPO_ARRASTE, adicionarAudio, adicionarImagem, adicionarImagemNoPonto, 
 import { formatarInicio } from "./regrasPlano";
 import { LinhaDoTempo } from "./LinhaDoTempo";
 import { aplicarAnimacao, removerAnimacao } from "./regrasAnimacao";
+import { INTERVALO_CONSULTA_MS, ehPlanoAtual, estadoDoDisco, lerFimDoSalvarAtual } from "./regrasConflito";
 import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
 import { criarHistorico, desfazer, podeDesfazer, podeRefazer, refazer, registrar } from "./historico";
 import { acaoDoAtalho, ehEditavel } from "./atalhos";
@@ -46,8 +47,9 @@ import {
 // direita (abas Editar e Biblioteca), linha do tempo (ou aba Lista) embaixo, sempre à vista. As regras ficam nos arquivos regras*.ts.
 
 type Resultado = { tipo: "ok" | "erro"; texto: string };
-type ItemLista = { nome: string; arquivo: string; completo: boolean; motivo: string | null; fps: number | null; orientacao: string | null; video: string | null };
-type Aberto = { nome: string; arquivo: string; plano: PlanoEditor; fundo: Fundo };
+type ItemLista = { nome: string; arquivo: string; pasta?: string; completo: boolean; motivo: string | null; fps: number | null; orientacao: string | null; video: string | null };
+// hash: SHA-256 do arquivo ao abrir; só plano de planos/atual/ usa (salvar com conferência).
+type Aberto = { nome: string; arquivo: string; pasta: string; hash: string | null; plano: PlanoEditor; fundo: Fundo };
 
 // Lê a resposta do servidor; se não vier JSON, provavelmente a página foi aberta pelo
 // "npm run editor:vite" (sem servidor).
@@ -125,7 +127,7 @@ const SeletorDePlano: React.FC<{
           <option value="">{lista === null ? "carregando a lista…" : "— escolha um plano —"}</option>
           {completos.map((p) => (
             <option key={p.nome} value={p.nome}>
-              {p.arquivo} ({p.orientacao}, {p.fps} fps)
+              {p.pasta === "atual" ? "★ plano atual: " : ""}{p.arquivo} ({p.orientacao}, {p.fps} fps)
             </option>
           ))}
         </select>
@@ -216,6 +218,7 @@ export const App: React.FC = () => {
   const [aberto, setAberto] = useState<Aberto | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [erroAbrir, setErroAbrir] = useState<string | null>(null);
+  const [vez, setVez] = useState(0); // sobe a cada abrir: "Recarregar do disco" recria o editor
 
   useEffect(() => {
     buscar("/api/planos")
@@ -234,7 +237,15 @@ export const App: React.FC = () => {
     try {
       const q = encodeURIComponent(nome);
       const [p, f] = await Promise.all([buscar(`/api/plano?nome=${q}`), buscar(`/api/fundo?nome=${q}`)]);
-      setAberto({ nome, arquivo: String(p.arquivo), plano: p.plano as PlanoEditor, fundo: f as unknown as Fundo });
+      setAberto({
+        nome,
+        arquivo: String(p.arquivo),
+        pasta: String(p.pasta ?? "planos"),
+        hash: typeof p.hash === "string" ? p.hash : null,
+        plano: p.plano as PlanoEditor,
+        fundo: f as unknown as Fundo,
+      });
+      setVez((v) => v + 1);
     } catch (e) {
       setAberto(null);
       setErroAbrir(e instanceof Error ? e.message : String(e));
@@ -245,7 +256,7 @@ export const App: React.FC = () => {
 
   const seletor = <SeletorDePlano lista={lista} escolhido={escolhido} carregando={carregando} aoEscolher={(n) => void abrir(n)} />;
 
-  if (aberto) return <Editor key={aberto.nome} aberto={aberto} seletor={seletor} />;
+  if (aberto) return <Editor key={`${aberto.nome}:${vez}`} aberto={aberto} seletor={seletor} aoRecarregar={() => void abrir(aberto.nome)} />;
 
   const erro = erroAbrir ?? erroLista;
   return (
@@ -263,8 +274,12 @@ export const App: React.FC = () => {
 
 // ---------------------------------------------------------------- Editor: um plano aberto
 
-const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto, seletor }) => {
+const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode; aoRecarregar: () => void }> = ({ aberto, seletor, aoRecarregar }) => {
   const { nome, arquivo, fundo } = aberto;
+  // Plano atual (planos/atual/): hash da versão que esta tela conhece. Sobe a cada salvar no atual.
+  const atual = ehPlanoAtual(aberto.pasta, aberto.hash);
+  const [hashBase, setHashBase] = useState<string | null>(aberto.hash);
+  const [disco, setDisco] = useState<"igual" | "mudou" | "sem-resposta">("igual");
   const [historico, setHistorico] = useState(() => criarHistorico<PlanoEditor>(aberto.plano));
   const plano = historico.presente;
   // Sobe a cada mudança vinda de fora da caixa de texto (−/+, desfazer, refazer, cor): remonta
@@ -484,6 +499,40 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
     setVersaoExterna((v) => v + 1);
   };
 
+  // A cada 5 s pergunta o hash do arquivo; diferente do que a tela conhece = faixa de aviso.
+  useEffect(() => {
+    if (!atual || hashBase === null) return;
+    const consultar = () => {
+      fetch(`/api/hash-plano?nome=${encodeURIComponent(nome)}`)
+        .then(async (r) => (r.ok ? String(((await r.json()) as { hash?: unknown }).hash ?? "") || null : null))
+        .catch(() => null)
+        .then((h) => setDisco(estadoDoDisco(hashBase, h)));
+    };
+    const relogio = setInterval(consultar, INTERVALO_CONSULTA_MS);
+    return () => clearInterval(relogio);
+  }, [atual, hashBase, nome]);
+
+  // Salvar no plano atual: só com o hash conferido pelo servidor; 409 = faixa, nunca sobrescreve.
+  const salvarNoAtual = async () => {
+    if (!atual || hashBase === null) return;
+    setSalvando(true);
+    setResultado(null);
+    try {
+      const r = await postar("/api/salvar-atual", { plano: nome, hashEsperado: hashBase, conteudo: plano });
+      const fim = lerFimDoSalvarAtual(r.status, await lerResposta(r), arquivo);
+      if (fim.tipo === "ok") {
+        setHashBase(fim.hash);
+        setDisco("igual");
+      }
+      if (fim.tipo === "conflito") setDisco("mudou");
+      setResultado({ tipo: fim.tipo === "ok" ? "ok" : "erro", texto: fim.texto });
+    } catch (erro) {
+      setResultado({ tipo: "erro", texto: erro instanceof Error ? erro.message : String(erro) });
+    } finally {
+      setSalvando(false);
+    }
+  };
+
   const salvar = async () => {
     setSalvando(true);
     setResultado(null);
@@ -558,9 +607,32 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode }> = ({ aberto
       <button type="button" style={botaoContorno} onClick={() => baixarCopia(arquivo, plano)} title="Manda o plano editado para a pasta Downloads (reserva)">
         Baixar cópia
       </button>
-      <button type="button" style={botaoAmarelo} disabled={salvando} onClick={salvar} title="Grava uma cópia nova em planos/copias/ e roda o validador nela. O original nunca é gravado.">
-        {salvando ? "Salvando…" : "Salvar"}
+      {atual && disco === "mudou" ? (
+        <span role="alert" style={{ display: "flex", gap: "0.35rem", alignItems: "center", padding: "0.15rem 0.5rem", border: `2px solid ${COR.vermelho}`, borderRadius: "0.25rem" }}>
+          <strong style={{ color: COR.vermelho }}>O arquivo mudou no disco</strong>
+          <button type="button" style={{ ...botaoContorno, padding: "0.1rem 0.4rem" }} onClick={aoRecarregar} title="Lê o arquivo de novo. O que está na tela e não foi salvo SE PERDE (use antes 'Salvar como cópia' se quiser guardar).">
+            Recarregar do disco
+          </button>
+          <button type="button" style={{ ...botaoContorno, padding: "0.1rem 0.4rem" }} disabled={salvando} onClick={salvar} title="Grava o que está na tela em planos/copias/ (o plano atual não é tocado)">
+            Salvar como cópia
+          </button>
+        </span>
+      ) : null}
+      {atual && disco === "sem-resposta" ? <span style={{ fontSize: "0.8rem", color: COR.amarelo }} title="A consulta de 5 s não teve resposta">não consegui conferir o disco</span> : null}
+      <button type="button" style={atual ? botaoContorno : botaoAmarelo} disabled={salvando} onClick={salvar} title="Grava uma cópia nova em planos/copias/ e roda o validador nela. O original nunca é gravado.">
+        {salvando ? "Salvando…" : atual ? "Salvar cópia" : "Salvar"}
       </button>
+      {atual ? (
+        <button
+          type="button"
+          style={botaoAmarelo}
+          disabled={salvando || disco === "mudou"}
+          onClick={salvarNoAtual}
+          title={disco === "mudou" ? "O arquivo mudou no disco: recarregue ou salve como cópia" : `Grava em planos/${arquivo} (validado antes; a versão anterior fica guardada em planos/copias/)`}
+        >
+          {salvando ? "Salvando…" : "Salvar no plano atual"}
+        </button>
+      ) : null}
     </>
   );
 
