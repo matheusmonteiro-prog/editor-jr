@@ -1,0 +1,8 @@
+PLANO ATUAL (planos/atual/)
+
+Regra: editar SÓ estes arquivos (<video>.atual.json). O plano original em planos/ não é tocado.
+
+- Cada arquivo nasce de uma cópia exata do original (scripts/criar-plano-atual.mjs).
+- O script nunca sobrescreve: se o plano atual já existe, ele só avisa.
+- Depois de qualquer edição, rodar: node scripts/validar-plano.mjs planos/atual/<video>.atual.json
+- Render com conferência: node scripts/render-final.mjs <composicao> <saida> --plano atual/<video>.atual.json
