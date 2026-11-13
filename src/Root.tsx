@@ -1,3 +1,4 @@
+import React from "react";
 import {
   AbsoluteFill,
   Composition,
@@ -28,6 +29,15 @@ import planoTesteCamera from "../planos/teste-camera.plano.json";
 import planoTesteAudio from "../planos/teste-audio.plano.json";
 import planoLegendaTeste0926 from "../planos/teste-legenda-0926.resolvido.json";
 import cortes0926 from "../videos/0926.cortes.json";
+import { RECEITAS } from "./cortes/receitas";
+import { CorteCurto, corteCurtoSchema } from "./cortes/CorteCurto";
+import { CorteDividido, corteDivididoSchema } from "./cortes/CorteDividido";
+import { CorteTerritorio, corteTerritorioSchema } from "./identidade/CorteTerritorio";
+import { CorteCartografia, corteCartografiaSchema } from "./identidade/CorteCartografia";
+import { CorteDivididoLivre, corteDivididoLivreSchema } from "./cortes/CorteDivididoLivre";
+import { conferirCorte, duracaoCorte } from "./cortes/receita";
+import { conferirContraFonte } from "./cortes/conferirFonte";
+import { TrechoExplicativo, trechoExplicativoSchema } from "./cortes/TrechoExplicativo";
 import type { CalculateMetadataFunction } from "remotion";
 import type { PlanoComposicaoProps } from "./PlanoComposicao";
 import { tamanhoDoPlano } from "./utils/tamanhoDoPlano";
@@ -156,6 +166,25 @@ const PALAVRAS_TESTE_LEGENDA = [
   { texto: "rendeu", inicioFrames: 100, fimFrames: 125, destaque: false },
 ];
 
+// Cortes curtos (12/11/2026): cada receita em cortes/ vira uma composição 9:16 por corte, na pasta
+// "Cortes". Corte em "rascunho" não aparece. Receita com erro para o Studio com a mensagem.
+const RECEITAS_CORTES = RECEITAS;
+const ERROS_CORTES = RECEITAS_CORTES.flatMap((r) => [...r.cortes, ...r.explicativos].flatMap((c) => [...conferirCorte(c), ...conferirContraFonte(r, c)]));
+if (ERROS_CORTES.length > 0) throw new Error(`Receita de cortes com problema:\n${ERROS_CORTES.join("\n")}`);
+
+const PADRAO_DIVIDIDO = {
+  volumeMusica: 0.06,
+  formato: "vertical" as const,
+  tamanhoQuadro: 0.47,
+  alturaFonte: 0.72,
+  alturaRodape: 0.11,
+  arroba: "jroinvestidorsertanejo",
+  logo: "images/logo-jr.png",
+  aviso: "Este conteúdo tem caráter exclusivamente educacional.",
+  avisoSegundos: 3.6,
+  modoLongo: false,
+};
+
 const TesteLegendaAnimada: React.FC = () => (
   <AbsoluteFill>
     <OffthreadVideo src={staticFile("videos/0926-cortado-v1.mp4")} muted style={{ width: "100%", height: "100%" }} />
@@ -198,6 +227,179 @@ export const RemotionRoot: React.FC = () => {
             aplicarZoom: false,
           }}
         />
+      </Folder>
+      <Folder name="Cortes">
+        {RECEITAS_CORTES.flatMap((r) =>
+          r.cortes
+            .filter((c) => c.estado !== "rascunho")
+            .map((c) =>
+              c.layout === "cartografia" ? (
+                <Composition
+                  key={c.id}
+                  id={`Corte-${c.id}`}
+                  component={CorteCartografia}
+                  schema={corteCartografiaSchema}
+                  durationInFrames={duracaoCorte(c)}
+                  fps={30}
+                  width={1080}
+                  height={1920}
+                  defaultProps={{ video: r.video, corte: c, volumeMusica: 0.06, arroba: PADRAO_DIVIDIDO.arroba, logo: PADRAO_DIVIDIDO.logo, aviso: PADRAO_DIVIDIDO.aviso, ambiente: r.ambienteCartografia, formato: "vertical" as const, xPadrao: r.xPadrao, modoLongo: false }}
+                />
+              ) : c.layout === "dividido" && c.modelo === "papel-camera" ? (
+                <Composition
+                  key={c.id}
+                  id={`Corte-${c.id}`}
+                  component={CorteDivididoLivre}
+                  schema={corteDivididoLivreSchema}
+                  durationInFrames={duracaoCorte(c)}
+                  fps={30}
+                  width={1080}
+                  height={1920}
+                  defaultProps={{ video: r.video, xPadrao: r.xPadrao, corte: c, volumeMusica: 0.06, arroba: PADRAO_DIVIDIDO.arroba, logo: PADRAO_DIVIDIDO.logo, aviso: PADRAO_DIVIDIDO.aviso, avisoSegundos: 3.6 }}
+                />
+              ) : c.layout === "dividido" ? (
+                <Composition
+                  key={c.id}
+                  id={`Corte-${c.id}`}
+                  component={CorteDividido}
+                  schema={corteDivididoSchema}
+                  durationInFrames={duracaoCorte(c)}
+                  fps={30}
+                  width={1080}
+                  height={1920}
+                  defaultProps={{ ...PADRAO_DIVIDIDO, video: r.video, xPadrao: r.xPadrao, corte: c }}
+                />
+              ) : (
+                <Composition
+                  key={c.id}
+                  id={`Corte-${c.id}`}
+                  component={CorteCurto}
+                  schema={corteCurtoSchema}
+                  durationInFrames={duracaoCorte(c)}
+                  fps={30}
+                  width={1080}
+                  height={1920}
+                  defaultProps={{ video: r.video, xPadrao: r.xPadrao, corte: c, volumeMusica: 0.06 }}
+                />
+              ),
+            ),
+        )}
+      </Folder>
+      {/* Estilo explicativo de papel no vídeo longo (16:9): papel à esquerda, JR à direita. Mesma
+          receita dos cortes "dividido" (12/11/2026, pedido do Matheus). */}
+      {/* PROTÓTIPO de identidade própria (12/11/2026), em teste: mesmo conteúdo do 2810-01b aprovado. */}
+      <Folder name="Identidade-Teste">
+        {RECEITAS_CORTES.flatMap((r) =>
+          r.cortes
+            .filter((c) => c.id === "2810-01b")
+            .map((c) => (
+              <Composition
+                key={`T${c.id}`}
+                id={`Territorio-${c.id}`}
+                component={CorteTerritorio}
+                schema={corteTerritorioSchema}
+                durationInFrames={duracaoCorte(c)}
+                fps={30}
+                width={1080}
+                height={1920}
+                defaultProps={{ video: r.video, corte: c, volumeMusica: 0.06, arroba: PADRAO_DIVIDIDO.arroba, logo: PADRAO_DIVIDIDO.logo, aviso: PADRAO_DIVIDIDO.aviso }}
+              />
+            )),
+        )}
+        {RECEITAS_CORTES.flatMap((r) =>
+          r.cortes
+            .filter((c) => c.id === "2810-01b")
+            .map((c) => (
+              <React.Fragment key={`C${c.id}`}>
+                {(["verde", "branco"] as const).map((amb) => (
+                  <Composition
+                    key={amb}
+                    id={`Cartografia-${c.id}-${amb}`}
+                    component={CorteCartografia}
+                    schema={corteCartografiaSchema}
+                    durationInFrames={duracaoCorte(c)}
+                    fps={30}
+                    width={1080}
+                    height={1920}
+                    defaultProps={{ video: r.video, corte: c, volumeMusica: 0.06, arroba: PADRAO_DIVIDIDO.arroba, logo: PADRAO_DIVIDIDO.logo, aviso: PADRAO_DIVIDIDO.aviso, ambiente: amb, formato: "vertical" as const, xPadrao: 0.49, modoLongo: false }}
+                  />
+                ))}
+              </React.Fragment>
+            )),
+        )}
+        {/* Modelo 1 com controle de câmera (teste, 12/11/2026) */}
+        {RECEITAS_CORTES.flatMap((r) =>
+          r.cortes
+            .filter((c) => c.id === "2810-01b")
+            .map((c) => (
+              <Composition
+                key={`L${c.id}`}
+                id={`Papel-camera-${c.id}`}
+                component={CorteDivididoLivre}
+                schema={corteDivididoLivreSchema}
+                durationInFrames={duracaoCorte(c)}
+                fps={30}
+                width={1080}
+                height={1920}
+                defaultProps={{ video: r.video, xPadrao: r.xPadrao, corte: c, volumeMusica: 0.06, arroba: PADRAO_DIVIDIDO.arroba, logo: PADRAO_DIVIDIDO.logo, aviso: PADRAO_DIVIDIDO.aviso, avisoSegundos: 3.6 }}
+              />
+            )),
+        )}
+      </Folder>
+      <Folder name="Explicativos-16x9">
+        {/* Modelo 2 (Cartografia) em 16:9, para revisar: mapa à esquerda, JR à direita. */}
+        {RECEITAS_CORTES.flatMap((r) =>
+          r.cortes
+            .filter((c) => c.estado !== "rascunho" && c.layout === "cartografia")
+            .map((c) => (
+              <Composition
+                key={`carto-h-${c.id}`}
+                id={`Cartografia-${c.id}-16x9`}
+                component={CorteCartografia}
+                schema={corteCartografiaSchema}
+                durationInFrames={duracaoCorte(c)}
+                fps={30}
+                width={1920}
+                height={1080}
+                defaultProps={{ video: r.video, corte: c, volumeMusica: 0.06, arroba: PADRAO_DIVIDIDO.arroba, logo: PADRAO_DIVIDIDO.logo, aviso: PADRAO_DIVIDIDO.aviso, ambiente: r.ambienteCartografia, formato: "horizontal" as const, xPadrao: r.xPadrao, modoLongo: false }}
+              />
+            )),
+        )}
+        {/* Trechos explicativos do vídeo longo (peça TrechoExplicativo), um por item de "explicativos". */}
+        {RECEITAS_CORTES.flatMap((r) =>
+          r.explicativos
+            .filter((c) => c.estado !== "rascunho")
+            .map((c) => (
+              <Composition
+                key={`expl-${c.id}`}
+                id={`Trecho-${c.id}`}
+                component={TrechoExplicativo}
+                schema={trechoExplicativoSchema}
+                durationInFrames={duracaoCorte(c)}
+                fps={30}
+                width={1920}
+                height={1080}
+                defaultProps={{ video: r.video, id: c.id }}
+              />
+            )),
+        )}
+        {RECEITAS_CORTES.flatMap((r) =>
+          r.cortes
+            .filter((c) => c.estado !== "rascunho" && c.layout === "dividido")
+            .map((c) => (
+              <Composition
+                key={`h-${c.id}`}
+                id={`Explicativo-${c.id}-16x9`}
+                component={CorteDividido}
+                schema={corteDivididoSchema}
+                durationInFrames={duracaoCorte(c)}
+                fps={30}
+                width={1920}
+                height={1080}
+                defaultProps={{ ...PADRAO_DIVIDIDO, video: r.video, xPadrao: r.xPadrao, corte: c, formato: "horizontal" as const, tamanhoQuadro: 0.56, alturaFonte: 0.72, alturaRodape: 0.22 }}
+              />
+            )),
+        )}
       </Folder>
       <Folder name="Testes">
         {/* Kit visual v3: todos os componentes novos encadeados (03/11/2026) */}
