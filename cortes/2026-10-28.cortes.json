@@ -1,0 +1,1476 @@
+{
+  "video": "2026-10-28",
+  "tempos": "final",
+  "ambienteCartografia": "verde",
+  "xPadrao": 0.48,
+  "cortes": [
+    {
+      "id": "2810-01",
+      "estado": "montado",
+      "nome": "Mega-Sena: compraria terra?",
+      "gatilho": "pergunta hipotética (curiosidade) + opinião própria do JR (identidade)",
+      "titulo": {
+        "texto": "Ganhou na Mega-Sena. Compraria terra?",
+        "destaques": [
+          "Mega-Sena.",
+          "terra?"
+        ]
+      },
+      "trechos": [
+        {
+          "de": 199.52,
+          "ate": 202.58,
+          "papel": "gancho"
+        },
+        {
+          "de": 204.55,
+          "ate": 216.05
+        },
+        {
+          "de": 176.8,
+          "ate": 183.22
+        },
+        {
+          "de": 220.45,
+          "ate": 224.15,
+          "papel": "fecho"
+        }
+      ],
+      "segurarFim": 2.3,
+      "impactos": [
+        {
+          "de": 213.05,
+          "ate": 216.05,
+          "linhas": [
+            {
+              "texto": "Dividendo: pouco",
+              "cor": "creme"
+            },
+            {
+              "texto": "Valorização: bastante",
+              "cor": "amarelo",
+              "em": 214.15
+            }
+          ],
+          "som": "impacto"
+        },
+        {
+          "de": 220.5,
+          "ate": 224.15,
+          "linhas": [
+            {
+              "texto": "A terra vai ser o",
+              "cor": "creme"
+            },
+            {
+              "texto": "benchmark",
+              "cor": "amarelo",
+              "em": 221.9
+            }
+          ],
+          "apoio": "(a régua de comparação)",
+          "som": "whoosh"
+        }
+      ],
+      "fecho": {
+        "texto": "E você: terra ou Bolsa?",
+        "destaques": [
+          "terra",
+          "Bolsa?"
+        ],
+        "apoio": "Vídeo completo no canal",
+        "arroba": "jroinvestidorsertanejo"
+      },
+      "legenda": {
+        "correcoes": {
+          "megacena": "Mega-Sena"
+        },
+        "destaques": [
+          "loteria",
+          "megacena",
+          "terra",
+          "boi",
+          "dividendo",
+          "dividendos",
+          "pouco",
+          "valorização",
+          "bastante",
+          "crescimento"
+        ]
+      }
+    },
+    {
+      "id": "2810-01b",
+      "estado": "aprovado",
+      "nome": "Mega-Sena: compraria terra? (versão B, explicativa, vermelho em sinais)",
+      "gatilho": "o mesmo do 2810-01, com quadro explicativo em cima (estilo da referência)",
+      "layout": "dividido",
+      "titulo": {
+        "texto": "Ganhou na Mega-Sena. Compraria terra?",
+        "destaques": []
+      },
+      "trechos": [
+        {
+          "de": 199.52,
+          "ate": 202.58,
+          "papel": "gancho"
+        },
+        {
+          "de": 204.55,
+          "ate": 216.05
+        },
+        {
+          "de": 176.8,
+          "ate": 183.22
+        },
+        {
+          "de": 220.45,
+          "ate": 224.15,
+          "papel": "fecho"
+        }
+      ],
+      "segurarFim": 2.3,
+      "legenda": {
+        "correcoes": {
+          "megacena": "Mega-Sena"
+        }
+      },
+      "quadros": [
+        {
+          "de": 199.52,
+          "ate": 202.58,
+          "titulo": "Ganhou na Mega-Sena?",
+          "pecas": [
+            {
+              "peca": "bilhete",
+              "em": 199.9,
+              "x": 0.45,
+              "y": 0.6,
+              "largura": 0.46,
+              "props": {
+                "titulo": "Aposta"
+              }
+            },
+            {
+              "peca": "carimbo",
+              "em": 201.28,
+              "x": 0.73,
+              "y": 0.78,
+              "largura": 0.34,
+              "som": "impacto",
+              "props": {
+                "texto": "Sozinho",
+                "cor": "verdeMetodo"
+              }
+            }
+          ],
+          "papel": "relatorio"
+        },
+        {
+          "de": 204.55,
+          "ate": 207.02,
+          "titulo": "Compraria terra?",
+          "pecas": [
+            {
+              "peca": "cartao",
+              "em": 205.56,
+              "x": 0.3,
+              "y": 0.6,
+              "largura": 0.38,
+              "props": {
+                "rotulo": "Fazenda",
+                "titulo": "Terra",
+                "icone": "terra",
+                "corTitulo": "marrom",
+                "rotacao": -3,
+                "linhas": 2
+              }
+            },
+            {
+              "peca": "cartao",
+              "em": 206.03,
+              "x": 0.72,
+              "y": 0.45,
+              "largura": 0.32,
+              "props": {
+                "titulo": "Soja",
+                "icone": "soja",
+                "corTitulo": "verdeMetodo",
+                "rotacao": 3,
+                "linhas": 0
+              }
+            },
+            {
+              "peca": "cartao",
+              "em": 206.6,
+              "x": 0.7,
+              "y": 0.75,
+              "largura": 0.32,
+              "props": {
+                "titulo": "Boi",
+                "icone": "boi",
+                "corTitulo": "carvao",
+                "rotacao": -2,
+                "linhas": 0
+              }
+            }
+          ],
+          "papel": "relatorio"
+        },
+        {
+          "de": 207.02,
+          "ate": 211.92,
+          "etiqueta": "A maioria",
+          "pecas": [
+            {
+              "peca": "multidao",
+              "x": 0.5,
+              "y": 0.6,
+              "largura": 0.8,
+              "passos": [
+                209.37
+              ],
+              "props": {
+                "quantidade": 5,
+                "resposta": "SIM"
+              }
+            }
+          ],
+          "papel": "relatorio"
+        },
+        {
+          "de": 211.92,
+          "ate": 216.05,
+          "etiqueta": "Terra",
+          "pecas": [
+            {
+              "peca": "balanca",
+              "em": 212.4,
+              "x": 0.5,
+              "y": 0.52,
+              "largura": 0.8,
+              "passos": [
+                214.2
+              ],
+              "som": "whoosh",
+              "props": {
+                "rotuloEsq": "Dividendo",
+                "apoioEsq": "pouco",
+                "pesoEsq": 1,
+                "rotuloDir": "Valorização",
+                "apoioDir": "bastante",
+                "pesoDir": 3,
+                "corEsq": "vermelho"
+              }
+            }
+          ],
+          "papel": "relatorio"
+        },
+        {
+          "de": 176.8,
+          "ate": 179.72,
+          "etiqueta": "Dividendos",
+          "pecas": [
+            {
+              "peca": "cartao",
+              "em": 177.2,
+              "x": 0.5,
+              "y": 0.5,
+              "largura": 0.6,
+              "props": {
+                "rotulo": "Perfil do JR",
+                "titulo": "Investidor em dividendos",
+                "corTitulo": "carvao",
+                "linhas": 3
+              }
+            },
+            {
+              "peca": "carimbo",
+              "em": 178.6,
+              "x": 0.64,
+              "y": 0.72,
+              "largura": 0.38,
+              "som": "impacto",
+              "props": {
+                "texto": "Não sou",
+                "cor": "vermelho",
+                "rotacao": -9
+              }
+            }
+          ],
+          "papel": "relatorio"
+        },
+        {
+          "de": 179.72,
+          "ate": 183.22,
+          "etiqueta": "Preferência",
+          "pecas": [
+            {
+              "peca": "cartao",
+              "em": 180.37,
+              "x": 0.66,
+              "y": 0.5,
+              "largura": 0.5,
+              "props": {
+                "rotulo": "Ações",
+                "titulo": "Crescimento",
+                "icone": "grafico",
+                "corTitulo": "verdeMetodo",
+                "rotacao": 2,
+                "linhas": 2
+              }
+            },
+            {
+              "peca": "carimbo",
+              "em": 181.1,
+              "x": 0.7,
+              "y": 0.78,
+              "largura": 0.36,
+              "som": "impacto",
+              "props": {
+                "texto": "Prefiro",
+                "cor": "verdeMetodo",
+                "rotacao": -7
+              }
+            },
+            {
+              "peca": "cartao",
+              "em": 182.19,
+              "x": 0.25,
+              "y": 0.66,
+              "largura": 0.36,
+              "props": {
+                "titulo": "Dividendos",
+                "icone": "moedas",
+                "corTitulo": "vermelho",
+                "rotacao": -4,
+                "linhas": 2
+              }
+            }
+          ],
+          "papel": "relatorio"
+        },
+        {
+          "de": 220.45,
+          "ate": 224.15,
+          "etiqueta": "Benchmark",
+          "pecas": [
+            {
+              "peca": "regua",
+              "em": 220.5,
+              "x": 0.5,
+              "y": 0.55,
+              "largura": 0.84,
+              "passos": [
+                221.11
+              ],
+              "props": {
+                "rotuloMarca": "TERRA",
+                "corMarca": "marrom",
+                "posicaoMarca": 0.5,
+                "legenda": "a régua de comparação"
+              }
+            }
+          ],
+          "papel": "relatorio"
+        }
+      ],
+      "quadroFecho": {
+        "titulo": "E você: terra ou Bolsa?",
+        "faixa": "Vídeo completo no canal",
+        "pecas": [
+          {
+            "peca": "cartao",
+            "x": 0.28,
+            "y": 0.58,
+            "largura": 0.44,
+            "props": {
+              "titulo": "Terra",
+              "icone": "terra",
+              "corTitulo": "marrom",
+              "rotacao": -3,
+              "linhas": 0
+            }
+          },
+          {
+            "peca": "cartao",
+            "x": 0.72,
+            "y": 0.58,
+            "largura": 0.44,
+            "props": {
+              "titulo": "Bolsa",
+              "icone": "grafico",
+              "corTitulo": "verdeMetodo",
+              "rotacao": 3,
+              "linhas": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "2810-01c",
+      "estado": "montado",
+      "nome": "Mega-Sena: compraria terra? (versão C: 5 melhorias + papel de campo)",
+      "gatilho": "o mesmo do 2810-01b; testa marca-texto, sons de papel, código de cores, logo no alto e papel de campo",
+      "layout": "dividido",
+      "titulo": {
+        "texto": "Ganhou na Mega-Sena. Compraria terra?",
+        "destaques": []
+      },
+      "trechos": [
+        {
+          "de": 199.52,
+          "ate": 202.58,
+          "papel": "gancho"
+        },
+        {
+          "de": 204.55,
+          "ate": 216.05
+        },
+        {
+          "de": 176.8,
+          "ate": 183.22
+        },
+        {
+          "de": 220.45,
+          "ate": 224.15,
+          "papel": "fecho"
+        }
+      ],
+      "segurarFim": 2.3,
+      "legenda": {
+        "correcoes": {
+          "megacena": "Mega-Sena"
+        }
+      },
+      "quadros": [
+        {
+          "de": 199.52,
+          "ate": 202.58,
+          "titulo": "Ganhou na Mega-Sena?",
+          "pecas": [
+            {
+              "peca": "bilhete",
+              "em": 199.9,
+              "x": 0.45,
+              "y": 0.66,
+              "largura": 0.46,
+              "props": {
+                "titulo": "Aposta"
+              }
+            },
+            {
+              "peca": "carimbo",
+              "em": 201.28,
+              "x": 0.73,
+              "y": 0.86,
+              "largura": 0.34,
+              "som": "impacto",
+              "props": {
+                "texto": "Sozinho",
+                "cor": "carvao"
+              }
+            }
+          ]
+        },
+        {
+          "de": 204.55,
+          "ate": 207.02,
+          "titulo": "Compraria terra?",
+          "pecas": [
+            {
+              "peca": "cartao",
+              "em": 205.56,
+              "x": 0.3,
+              "y": 0.6,
+              "largura": 0.38,
+              "props": {
+                "rotulo": "Fazenda",
+                "titulo": "Terra",
+                "icone": "terra",
+                "corTitulo": "marrom",
+                "rotacao": -3,
+                "linhas": 2
+              },
+              "marcar": 205.95
+            },
+            {
+              "peca": "cartao",
+              "em": 206.03,
+              "x": 0.72,
+              "y": 0.45,
+              "largura": 0.32,
+              "props": {
+                "titulo": "Soja",
+                "icone": "soja",
+                "corTitulo": "marrom",
+                "rotacao": 3,
+                "linhas": 0
+              }
+            },
+            {
+              "peca": "cartao",
+              "em": 206.6,
+              "x": 0.7,
+              "y": 0.75,
+              "largura": 0.32,
+              "props": {
+                "titulo": "Boi",
+                "icone": "boi",
+                "corTitulo": "marrom",
+                "rotacao": -2,
+                "linhas": 0
+              }
+            }
+          ],
+          "papel": "campo"
+        },
+        {
+          "de": 207.02,
+          "ate": 211.92,
+          "etiqueta": "A maioria",
+          "pecas": [
+            {
+              "peca": "multidao",
+              "x": 0.5,
+              "y": 0.6,
+              "largura": 0.8,
+              "passos": [
+                209.37
+              ],
+              "props": {
+                "quantidade": 5,
+                "resposta": "SIM"
+              }
+            }
+          ]
+        },
+        {
+          "de": 211.92,
+          "ate": 216.05,
+          "etiqueta": "Terra",
+          "pecas": [
+            {
+              "peca": "balanca",
+              "em": 212.4,
+              "x": 0.5,
+              "y": 0.52,
+              "largura": 0.8,
+              "passos": [
+                214.2
+              ],
+              "som": "whoosh",
+              "props": {
+                "rotuloEsq": "Dividendo",
+                "apoioEsq": "pouco",
+                "pesoEsq": 1,
+                "rotuloDir": "Valorização",
+                "apoioDir": "bastante",
+                "pesoDir": 3,
+                "corEsq": "carvao",
+                "corDir": "marrom"
+              }
+            }
+          ],
+          "papel": "campo"
+        },
+        {
+          "de": 176.8,
+          "ate": 179.72,
+          "etiqueta": "Dividendos",
+          "pecas": [
+            {
+              "peca": "cartao",
+              "em": 177.2,
+              "x": 0.5,
+              "y": 0.5,
+              "largura": 0.6,
+              "props": {
+                "rotulo": "Perfil do JR",
+                "titulo": "Investidor em dividendos",
+                "corTitulo": "carvao",
+                "linhas": 3
+              },
+              "marcar": 177.89
+            },
+            {
+              "peca": "carimbo",
+              "em": 178.6,
+              "x": 0.64,
+              "y": 0.72,
+              "largura": 0.38,
+              "som": "impacto",
+              "props": {
+                "texto": "Não sou",
+                "cor": "carvao",
+                "rotacao": -9
+              }
+            }
+          ]
+        },
+        {
+          "de": 179.72,
+          "ate": 183.22,
+          "etiqueta": "Preferência",
+          "pecas": [
+            {
+              "peca": "cartao",
+              "em": 180.37,
+              "x": 0.66,
+              "y": 0.5,
+              "largura": 0.5,
+              "props": {
+                "rotulo": "Ações",
+                "titulo": "Crescimento",
+                "icone": "grafico",
+                "corTitulo": "verdeMetodo",
+                "rotacao": 2,
+                "linhas": 2
+              },
+              "marcar": 181.02
+            },
+            {
+              "peca": "carimbo",
+              "em": 181.1,
+              "x": 0.7,
+              "y": 0.78,
+              "largura": 0.36,
+              "som": "impacto",
+              "props": {
+                "texto": "Prefiro",
+                "cor": "verdeMetodo",
+                "rotacao": -7
+              }
+            },
+            {
+              "peca": "cartao",
+              "em": 182.19,
+              "x": 0.25,
+              "y": 0.66,
+              "largura": 0.36,
+              "props": {
+                "titulo": "Dividendos",
+                "icone": "moedas",
+                "corTitulo": "carvao",
+                "rotacao": -4,
+                "linhas": 2
+              }
+            }
+          ]
+        },
+        {
+          "de": 220.45,
+          "ate": 224.15,
+          "etiqueta": "Benchmark",
+          "pecas": [
+            {
+              "peca": "regua",
+              "em": 220.5,
+              "x": 0.5,
+              "y": 0.55,
+              "largura": 0.84,
+              "passos": [
+                221.11
+              ],
+              "props": {
+                "rotuloMarca": "TERRA",
+                "corMarca": "marrom",
+                "posicaoMarca": 0.5,
+                "legenda": "a régua de comparação"
+              }
+            }
+          ],
+          "papel": "campo"
+        }
+      ],
+      "quadroFecho": {
+        "titulo": "E você: terra ou Bolsa?",
+        "faixa": "Vídeo completo no canal",
+        "pecas": [
+          {
+            "peca": "cartao",
+            "x": 0.28,
+            "y": 0.58,
+            "largura": 0.44,
+            "props": {
+              "titulo": "Terra",
+              "icone": "terra",
+              "corTitulo": "marrom",
+              "rotacao": -3,
+              "linhas": 0
+            }
+          },
+          {
+            "peca": "cartao",
+            "x": 0.72,
+            "y": 0.58,
+            "largura": 0.44,
+            "props": {
+              "titulo": "Bolsa",
+              "icone": "grafico",
+              "corTitulo": "verdeMetodo",
+              "rotacao": 3,
+              "linhas": 0
+            }
+          }
+        ]
+      },
+      "opcoes": {
+        "sonsPapel": true,
+        "marcaNoTopo": true,
+        "tituloImediato": true
+      }
+    },
+    {
+      "id": "2810-01d",
+      "estado": "montado",
+      "nome": "Mega-Sena: compraria terra? (modelo 2, Cartografia, cenas na receita)",
+      "gatilho": "o mesmo do 2810-01, no modelo Cartografia viva descrito só na receita",
+      "layout": "cartografia",
+      "titulo": {
+        "texto": "Ganhou na Mega-Sena. Compraria terra?",
+        "destaques": []
+      },
+      "trechos": [
+        {
+          "de": 199.52,
+          "ate": 202.58,
+          "papel": "gancho"
+        },
+        {
+          "de": 204.55,
+          "ate": 216.05
+        },
+        {
+          "de": 176.8,
+          "ate": 183.22
+        },
+        {
+          "de": 220.45,
+          "ate": 224.15,
+          "papel": "fecho"
+        }
+      ],
+      "segurarFim": 2.3,
+      "legenda": {
+        "correcoes": {
+          "megacena": "Mega-Sena"
+        },
+        "chaves": {
+          "terra": "terra",
+          "soja": "terra",
+          "boi": "terra",
+          "fazenda": "terra",
+          "megasena": "destaque",
+          "loteria": "destaque",
+          "sozinho": "destaque",
+          "maioria": "destaque",
+          "investidor": "destaque",
+          "benchmark": "destaque",
+          "sim": "alta",
+          "valorizacao": "alta",
+          "bastante": "alta",
+          "crescimento": "alta",
+          "acoes": "alta",
+          "nao": "baixa",
+          "dividendo": "baixa",
+          "dividendos": "baixa",
+          "pouco": "baixa"
+        }
+      },
+      "enfases": [
+        201.28,
+        209.37,
+        214.2,
+        176.96,
+        181.02,
+        221.9
+      ],
+      "cenas": [
+        {
+          "de": 199.52,
+          "enquadramento": "abertura",
+          "rotulo": "CORTE 01 · TERRA × BOLSA",
+          "tamanhoTitulo": 112,
+          "titulo": [
+            [
+              "Ganhou na"
+            ],
+            [
+              "Mega‑Sena?:caixa"
+            ]
+          ],
+          "pecas": [
+            {
+              "peca": "carimbo",
+              "em": 201.28,
+              "x": 0.06,
+              "y": 0.74,
+              "props": {
+                "texto": "SOZINHO",
+                "cor": "texto"
+              }
+            }
+          ]
+        },
+        {
+          "de": 204.55,
+          "enquadramento": "loteBaixo",
+          "rotulo": "FOLHA DE CAMPO · SE FOSSE VOCÊ",
+          "tamanhoTitulo": 80,
+          "titulo": [
+            [
+              "Compraria",
+              "terra?:terra"
+            ]
+          ],
+          "pecas": [
+            {
+              "peca": "talhoes",
+              "em": 204.55,
+              "x": 0.056,
+              "y": 0.27,
+              "largura": 0.885,
+              "altura": 0.71,
+              "props": {
+                "itens": [
+                  {
+                    "nome": "TERRA",
+                    "cor": "terra",
+                    "em": 205.56
+                  },
+                  {
+                    "nome": "SOJA",
+                    "cor": "alta",
+                    "em": 206.03
+                  },
+                  {
+                    "nome": "BOI",
+                    "cor": "texto",
+                    "em": 206.6
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "de": 207.02,
+          "enquadramento": "janela",
+          "rotulo": "PERGUNTA AO PÚBLICO",
+          "tamanhoTitulo": 72,
+          "titulo": [
+            [
+              "A",
+              "maioria:terra"
+            ],
+            [
+              "responderia…"
+            ]
+          ],
+          "pecas": [
+            {
+              "peca": "pontos",
+              "em": 207.2,
+              "passos": [
+                207.9
+              ],
+              "x": 0.054,
+              "y": 0.35,
+              "largura": 0.89,
+              "altura": 0.6,
+              "props": {
+                "cheios": 31
+              }
+            },
+            {
+              "peca": "texto",
+              "em": 209.37,
+              "x": 0.64,
+              "y": 1.216,
+              "props": {
+                "texto": "SIM",
+                "tam": 150,
+                "cor": "alta"
+              }
+            }
+          ]
+        },
+        {
+          "de": 211.92,
+          "enquadramento": "janelaDir",
+          "rotulo": "CORTE DO SOLO · METÁFORA, SEM ESCALA",
+          "pecas": [
+            {
+              "peca": "estratos",
+              "em": 213.1,
+              "passos": [
+                214.2
+              ],
+              "x": 0.059,
+              "y": 0.095,
+              "largura": 0.815,
+              "altura": 0.84
+            },
+            {
+              "peca": "texto",
+              "em": 213.2,
+              "x": 0.083,
+              "y": 0.243,
+              "props": {
+                "texto": "DIVIDENDO: POUCO",
+                "tam": 40,
+                "cor": "#FBF8F1"
+              }
+            },
+            {
+              "peca": "texto",
+              "em": 214.5,
+              "x": 0.083,
+              "y": 0.595,
+              "props": {
+                "texto": "VALORIZAÇÃO:\nBASTANTE",
+                "tam": 64,
+                "cor": "#FBF8F1"
+              }
+            }
+          ]
+        },
+        {
+          "de": 176.8,
+          "enquadramento": "close",
+          "pecas": [
+            {
+              "peca": "frase",
+              "em": 176.96,
+              "passos": [
+                178.6
+              ],
+              "x": 0.06,
+              "y": 0.1,
+              "props": {
+                "linhas": [
+                  "Não sou investidor",
+                  "em dividendos."
+                ],
+                "destaque": "Não sou",
+                "tam": 92
+              }
+            },
+            {
+              "peca": "texto",
+              "em": 178.9,
+              "x": 0.093,
+              "y": 0.71,
+              "props": {
+                "texto": "— JR",
+                "tam": 26,
+                "cor": "ouro"
+              }
+            }
+          ]
+        },
+        {
+          "de": 179.72,
+          "enquadramento": "alto",
+          "rotulo": "DA LAVOURA À BOLSA",
+          "tamanhoTitulo": 56,
+          "titulo": [
+            [
+              "Ações de"
+            ],
+            [
+              "crescimento:alta"
+            ]
+          ],
+          "pecas": [
+            {
+              "peca": "lavouraCandles",
+              "em": 181.02,
+              "x": 0.083,
+              "y": 0.35,
+              "largura": 0.833,
+              "altura": 0.417,
+              "props": {
+                "tendencia": "sobe",
+                "semente": 11
+              }
+            },
+            {
+              "peca": "marco",
+              "em": 182.15,
+              "x": 0.896,
+              "y": 0.35,
+              "props": {
+                "rotulo": "CRESCIMENTO",
+                "cor": "ouro",
+                "corTexto": "alta",
+                "haste": 36,
+                "lado": "esq"
+              }
+            },
+            {
+              "peca": "texto",
+              "em": 182.19,
+              "x": 0.5,
+              "y": 0.09,
+              "props": {
+                "texto": "DIVIDENDOS:\nNÃO É O FOCO DO JR",
+                "tam": 28,
+                "cor": "baixa"
+              }
+            }
+          ]
+        },
+        {
+          "de": 220.45,
+          "enquadramento": "loteBaixo",
+          "rotulo": "A RÉGUA DO JR",
+          "tamanhoTitulo": 70,
+          "titulo": [
+            [
+              "A",
+              "terra:terra",
+              "é o",
+              "benchmark.:caixa"
+            ]
+          ],
+          "pecas": [
+            {
+              "peca": "candles",
+              "em": 220.45,
+              "x": 0.1,
+              "y": 0.424,
+              "largura": 0.815,
+              "altura": 0.394,
+              "props": {
+                "tendencia": "lateral",
+                "semente": 4,
+                "n": 22,
+                "volume": false,
+                "media": false
+              }
+            },
+            {
+              "peca": "regua",
+              "em": 221.11,
+              "x": 0.1,
+              "y": 0.641,
+              "largura": 0.815,
+              "props": {
+                "rotulo": "TERRA = RÉGUA",
+                "cor": "terra",
+                "haste": 150
+              }
+            }
+          ]
+        },
+        {
+          "fecho": true,
+          "enquadramento": "fecho",
+          "rotulo": "E VOCÊ?",
+          "tamanhoTitulo": 124,
+          "titulo": [
+            [
+              "Terra:terra"
+            ],
+            [
+              "ou",
+              "Bolsa?:alta"
+            ]
+          ],
+          "pecas": [
+            {
+              "peca": "talhoes",
+              "x": 0.065,
+              "y": 0.6,
+              "largura": 0.43,
+              "altura": 0.36,
+              "props": {
+                "itens": [
+                  {
+                    "nome": "",
+                    "cor": "terra"
+                  }
+                ]
+              }
+            },
+            {
+              "peca": "candles",
+              "x": 0.59,
+              "y": 0.595,
+              "largura": 0.35,
+              "altura": 0.27,
+              "props": {
+                "tendencia": "sobe",
+                "semente": 21,
+                "n": 10,
+                "volume": false,
+                "media": false
+              }
+            }
+          ]
+        }
+      ],
+      "quadroFecho": {
+        "faixa": "Vídeo completo no canal"
+      }
+    },
+    {
+      "id": "2810-02",
+      "estado": "rascunho",
+      "nome": "Do sítio à Bolsa",
+      "gatilho": "história de origem (identificação) + transformação",
+      "titulo": {
+        "texto": "Já vendi roupa no braço. Hoje tenho fazenda na Bolsa",
+        "destaques": [
+          "roupa",
+          "Bolsa"
+        ]
+      },
+      "trechos": [
+        {
+          "de": 47.7,
+          "ate": 50.3,
+          "papel": "gancho",
+          "x": 0.73
+        },
+        {
+          "de": 11.3,
+          "ate": 14.4,
+          "x": 0.73
+        },
+        {
+          "de": 22.8,
+          "ate": 25.3,
+          "x": 0.73
+        },
+        {
+          "de": 30.4,
+          "ate": 36.9,
+          "x": 0.73
+        },
+        {
+          "de": 56.3,
+          "ate": 63.6,
+          "x": 0.73
+        },
+        {
+          "de": 65.1,
+          "ate": 68.2,
+          "x": 0.73
+        },
+        {
+          "de": 76.2,
+          "ate": 79.6,
+          "x": 0.73
+        },
+        {
+          "de": 81.4,
+          "ate": 84.7
+        },
+        {
+          "de": 97.7,
+          "ate": 108.8
+        },
+        {
+          "de": 108.8,
+          "ate": 114.6,
+          "papel": "fecho",
+          "x": 0.73
+        }
+      ],
+      "segurarFim": 2,
+      "impactos": []
+    },
+    {
+      "id": "2810-03",
+      "estado": "rascunho",
+      "nome": "Vou vender fazenda para pôr na Bolsa",
+      "gatilho": "contraste com o senso comum do campo (terra é o investimento seguro)",
+      "titulo": {
+        "texto": "Fazendeiro vendendo terra para comprar ação?",
+        "destaques": [
+          "terra",
+          "ação?"
+        ]
+      },
+      "trechos": [
+        {
+          "de": 121.1,
+          "ate": 123.7,
+          "papel": "gancho"
+        },
+        {
+          "de": 108.8,
+          "ate": 123.7
+        },
+        {
+          "de": 210,
+          "ate": 216.05,
+          "papel": "fecho"
+        }
+      ],
+      "segurarFim": 2,
+      "impactos": []
+    }
+  ],
+  "explicativos": [
+    {
+      "id": "2810-balanca",
+      "estado": "montado",
+      "nome": "Trecho explicativo (papel): terra, maioria e balança",
+      "layout": "dividido",
+      "titulo": {
+        "texto": "Compraria terra?",
+        "destaques": []
+      },
+      "trechos": [
+        {
+          "de": 204.55,
+          "ate": 216.05
+        }
+      ],
+      "segurarFim": 0,
+      "legenda": {
+        "correcoes": {}
+      },
+      "quadros": [
+        {
+          "de": 204.55,
+          "ate": 207.02,
+          "titulo": "Compraria terra?",
+          "pecas": [
+            {
+              "peca": "cartao",
+              "em": 205.56,
+              "x": 0.3,
+              "y": 0.6,
+              "largura": 0.38,
+              "props": {
+                "rotulo": "Fazenda",
+                "titulo": "Terra",
+                "icone": "terra",
+                "corTitulo": "marrom",
+                "rotacao": -3,
+                "linhas": 2
+              }
+            },
+            {
+              "peca": "cartao",
+              "em": 206.03,
+              "x": 0.72,
+              "y": 0.45,
+              "largura": 0.32,
+              "props": {
+                "titulo": "Soja",
+                "icone": "soja",
+                "corTitulo": "verdeMetodo",
+                "rotacao": 3,
+                "linhas": 0
+              }
+            },
+            {
+              "peca": "cartao",
+              "em": 206.6,
+              "x": 0.7,
+              "y": 0.75,
+              "largura": 0.32,
+              "props": {
+                "titulo": "Boi",
+                "icone": "boi",
+                "corTitulo": "carvao",
+                "rotacao": -2,
+                "linhas": 0
+              }
+            }
+          ],
+          "papel": "relatorio"
+        },
+        {
+          "de": 207.02,
+          "ate": 211.92,
+          "etiqueta": "A maioria",
+          "pecas": [
+            {
+              "peca": "multidao",
+              "x": 0.5,
+              "y": 0.6,
+              "largura": 0.8,
+              "passos": [
+                209.37
+              ],
+              "props": {
+                "quantidade": 5,
+                "resposta": "SIM"
+              }
+            }
+          ],
+          "papel": "relatorio"
+        },
+        {
+          "de": 211.92,
+          "ate": 216.05,
+          "etiqueta": "Terra",
+          "pecas": [
+            {
+              "peca": "balanca",
+              "em": 212.4,
+              "x": 0.5,
+              "y": 0.52,
+              "largura": 0.8,
+              "passos": [
+                214.2
+              ],
+              "som": "whoosh",
+              "props": {
+                "rotuloEsq": "Dividendo",
+                "apoioEsq": "pouco",
+                "pesoEsq": 1,
+                "rotuloDir": "Valorização",
+                "apoioDir": "bastante",
+                "pesoDir": 3,
+                "corEsq": "vermelho"
+              }
+            }
+          ],
+          "papel": "relatorio"
+        }
+      ]
+    },
+    {
+      "id": "2810-crescimento",
+      "estado": "montado",
+      "nome": "Trecho explicativo (Cartografia): ações de crescimento",
+      "layout": "cartografia",
+      "titulo": {
+        "texto": "Ações de crescimento",
+        "destaques": []
+      },
+      "trechos": [
+        {
+          "de": 176.8,
+          "ate": 183.22
+        }
+      ],
+      "segurarFim": 0,
+      "legenda": {
+        "correcoes": {},
+        "chaves": {
+          "terra": "terra",
+          "soja": "terra",
+          "boi": "terra",
+          "fazenda": "terra",
+          "megasena": "destaque",
+          "loteria": "destaque",
+          "sozinho": "destaque",
+          "maioria": "destaque",
+          "investidor": "destaque",
+          "benchmark": "destaque",
+          "sim": "alta",
+          "valorizacao": "alta",
+          "bastante": "alta",
+          "crescimento": "alta",
+          "acoes": "alta",
+          "nao": "baixa",
+          "dividendo": "baixa",
+          "dividendos": "baixa",
+          "pouco": "baixa"
+        }
+      },
+      "enfases": [
+        176.96,
+        181.02
+      ],
+      "cenas": [
+        {
+          "de": 176.8,
+          "enquadramento": "close",
+          "pecas": [
+            {
+              "peca": "frase",
+              "em": 176.96,
+              "passos": [
+                178.6
+              ],
+              "x": 0.06,
+              "y": 0.1,
+              "props": {
+                "linhas": [
+                  "Não sou investidor",
+                  "em dividendos."
+                ],
+                "destaque": "Não sou",
+                "tam": 92
+              }
+            },
+            {
+              "peca": "texto",
+              "em": 178.9,
+              "x": 0.093,
+              "y": 0.71,
+              "props": {
+                "texto": "— JR",
+                "tam": 26,
+                "cor": "ouro"
+              }
+            }
+          ]
+        },
+        {
+          "de": 179.72,
+          "enquadramento": "alto",
+          "rotulo": "DA LAVOURA À BOLSA",
+          "tamanhoTitulo": 56,
+          "titulo": [
+            [
+              "Ações de"
+            ],
+            [
+              "crescimento:alta"
+            ]
+          ],
+          "pecas": [
+            {
+              "peca": "lavouraCandles",
+              "em": 181.02,
+              "x": 0.083,
+              "y": 0.35,
+              "largura": 0.833,
+              "altura": 0.417,
+              "props": {
+                "tendencia": "sobe",
+                "semente": 11
+              }
+            },
+            {
+              "peca": "marco",
+              "em": 182.15,
+              "x": 0.896,
+              "y": 0.35,
+              "props": {
+                "rotulo": "CRESCIMENTO",
+                "cor": "ouro",
+                "corTexto": "alta",
+                "haste": 36,
+                "lado": "esq"
+              }
+            },
+            {
+              "peca": "texto",
+              "em": 182.19,
+              "x": 0.5,
+              "y": 0.09,
+              "props": {
+                "texto": "DIVIDENDOS:\nNÃO É O FOCO DO JR",
+                "tam": 28,
+                "cor": "baixa"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 // De onde vêm a câmera, a voz e a transcrição de cada vídeo longo que vira cortes (12/11/2026).
 // São as MESMAS fontes do vídeo longo aprovado, para o corte ficar igual a ele (filtro, voz tratada).
-import palavras2810 from "../../videos/2026-10-28-voz-tratada.palavras.json";
+import palavras2810 from "../../cortes/2026-10-28.palavras.json";
 
 export type PalavraFonte = { text: string; startMs: number; endMs: number };
 
