@@ -17,9 +17,18 @@
  * --plano <arquivo>: nome de um .json de planos/ ou planos/atual/ (ex.: 0926.plano.json ou
  * atual/0926.atual.json). O nome é conferido contra a lista real dessas duas pastas (sem
  * caminho livre, sem ".."). ANTES de qualquer render roda scripts/validar-plano.mjs nele
- * (sem shell); erro = aborta com código 1. Com --dry-run só valida e mostra o que renderizaria.
- * ATENÇÃO: hoje a composição lê o plano importado em src/Root.tsx; --plano só garante que o
- * arquivo conferido está válido, ele ainda NÃO troca o plano usado pelo render (fatia futura).
+ * (sem shell); erro = aborta com código 1.
+ * Fatia 5c: com --plano, o render usa a composição "PlanoAtual" (src/Root.tsx), que recebe o
+ * plano por --props. O script monta o arquivo de props com scripts/montar-props-render.mjs
+ * (mesma regra do editor para vídeo e cortes) em out/props-<plano>-<data-hora>.json (nome novo
+ * a cada vez, nunca sobrescreve). Nesse modo:
+ *   - o <composicao> posicional é IGNORADO (sempre PlanoAtual; o nome continua obrigatório só
+ *     para a linha de comando ter o mesmo formato);
+ *   - --formato é ignorado e NÃO vão --width/--height/--fps: tamanho, fps e duração vêm do plano
+ *     (calculateMetadata da PlanoAtual), para um plano horizontal não sair em pé;
+ *   - --codec e --video-bitrate continuam valendo.
+ * Com --dry-run (e --plano): valida, grava o arquivo de props e mostra o comando completo, sem
+ * chamar o remotion. Sem --plano, tudo igual a antes.
  *
  * --dry-run só imprime o comando montado, nunca executa nada.
  * SEM --dry-run o script executa `npx remotion render` de verdade — nunca
@@ -37,6 +46,7 @@ import { readdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { montarProps } from './montar-props-render.mjs';
 
 const argv = process.argv.slice(2);
 // Opções que levam valor: o valor não conta como argumento posicional.
@@ -123,6 +133,30 @@ if (planoPedido) {
     process.exit(1);
   }
   console.log(`Plano válido: ${planoPedido}`);
+
+  // 5c: monta as props (vídeo e cortes pela regra do editor) e troca para a PlanoAtual.
+  const d = new Date();
+  const d2 = (n) => String(n).padStart(2, '0');
+  const carimbo = `${d.getFullYear()}${d2(d.getMonth() + 1)}${d2(d.getDate())}-${d2(d.getHours())}${d2(d.getMinutes())}${d2(d.getSeconds())}`;
+  let montado;
+  try {
+    montado = montarProps({
+      plano: planoPedido,
+      saida: `props-${planoPedido.replace(/\.json$/, '').replace(/\//g, '-')}-${carimbo}.json`,
+      validar: false, // já validado logo acima
+    });
+  } catch (erro) {
+    console.error(`\nABORTADO: ${erro.message}`);
+    process.exit(1);
+  }
+  console.log(`Props: ${montado.arquivo} (vídeo ${montado.videoSrc}, ${montado.trechos} trechos)`);
+  if (composicao !== 'PlanoAtual') console.log(`Com --plano a composição é sempre PlanoAtual ("${composicao}" foi ignorado).`);
+  if (opcao('formato')) console.log('Com --plano o --formato é ignorado: tamanho, fps e duração vêm do plano.');
+  // Caminho com espaço vai entre aspas (o spawn abaixo usa shell).
+  const caminhoProps = /\s/.test(montado.arquivo) ? `"${montado.arquivo}"` : montado.arquivo;
+  args.splice(0, args.length, 'remotion', 'render', 'src/index.ts', 'PlanoAtual', caminhoSaida, `--props=${caminhoProps}`);
+  if (codec) args.push('--codec', codec);
+  if (videoBitrate) args.push('--video-bitrate', videoBitrate);
 }
 
 const comandoLegivel = `npx ${args.join(' ')}`;
