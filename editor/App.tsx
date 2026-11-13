@@ -8,7 +8,7 @@ import { TIPO_ARRASTE, adicionarAudio, adicionarImagem, adicionarImagemNoPonto, 
 import { formatarInicio } from "./regrasPlano";
 import { LinhaDoTempo } from "./LinhaDoTempo";
 import { aplicarAnimacao, removerAnimacao } from "./regrasAnimacao";
-import { INTERVALO_CONSULTA_MS, ehPlanoAtual, estadoDoDisco, lerFimDoSalvarAtual } from "./regrasConflito";
+import { INTERVALO_CONSULTA_MS, confirmarRecarregar, ehPlanoAtual, estadoDoDisco, lerFimDoSalvarAtual } from "./regrasConflito";
 import { calcularBlocos, paraSegundoOriginal } from "./regrasLinhaDoTempo";
 import { criarHistorico, desfazer, podeDesfazer, podeRefazer, refazer, registrar } from "./historico";
 import { acaoDoAtalho, ehEditavel } from "./atalhos";
@@ -610,7 +610,7 @@ const Editor: React.FC<{ aberto: Aberto; seletor: React.ReactNode; aoRecarregar:
       {atual && disco === "mudou" ? (
         <span role="alert" style={{ display: "flex", gap: "0.35rem", alignItems: "center", padding: "0.15rem 0.5rem", border: `2px solid ${COR.vermelho}`, borderRadius: "0.25rem" }}>
           <strong style={{ color: COR.vermelho }}>O arquivo mudou no disco</strong>
-          <button type="button" style={{ ...botaoContorno, padding: "0.1rem 0.4rem" }} onClick={aoRecarregar} title="Lê o arquivo de novo. O que está na tela e não foi salvo SE PERDE (use antes 'Salvar como cópia' se quiser guardar).">
+          <button type="button" style={{ ...botaoContorno, padding: "0.1rem 0.4rem" }} onClick={() => { if (confirmarRecarregar((t) => window.confirm(t))) aoRecarregar(); }} title="Lê o arquivo de novo. Pede confirmação: o que está na tela e não foi salvo SE PERDE (use antes 'Salvar como cópia' se quiser guardar).">
             Recarregar do disco
           </button>
           <button type="button" style={{ ...botaoContorno, padding: "0.1rem 0.4rem" }} disabled={salvando} onClick={salvar} title="Grava o que está na tela em planos/copias/ (o plano atual não é tocado)">

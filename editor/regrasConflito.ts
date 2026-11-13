@@ -31,3 +31,8 @@ export const lerFimDoSalvarAtual = (status: number, dados: Record<string, unknow
   if (status === 422) return { tipo: "invalido", texto: `${String(dados.erro ?? "O validador achou erro.")}\n\n${saida}` };
   return { tipo: "erro", texto: String(dados.erro ?? `Erro ${status} ao salvar no plano atual.`) };
 };
+
+// "Recarregar do disco" descarta o que está na tela: só segue se a pessoa confirmar.
+// `perguntar` é o window.confirm no navegador (aqui entra como parâmetro para testar no Node).
+export const TEXTO_CONFIRMAR_RECARREGAR = "Isso descarta o que está na tela. Continuar?";
+export const confirmarRecarregar = (perguntar: (texto: string) => boolean): boolean => perguntar(TEXTO_CONFIRMAR_RECARREGAR) === true;
