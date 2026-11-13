@@ -7,8 +7,126 @@ Só a marca de cada etapa; vale sobre as listas "Etapas" dos retratos mais antig
 - **Etapa 4:** aprovada pelo Matheus em 10/11/2026; 4a fechada (14/10/2026). 4b (termos financeiros e glossário em vídeo real) será validada por ele na prática, não é pendência.
 - **Etapa 5:** **dispensada por decisão do Matheus em 10/11/2026.** Motivo: o kit visual v3 atende; a cor do método fica `#1DD41E` por decisão dele; a proibição de "sinal de compra" foi desconsiderada por ele, porque no canal o termo é narrativo. Não é bloqueio.
 - **Etapa 6:** aprovada pelo Matheus em 10/11/2026; 6a fechada (09/10/2026). AvisoCVM e resolvedor de legenda serão validados por ele na prática. **6b não iniciada**; só começa por ordem do Matheus.
-- **Etapa 7:** em discussão: controle manual das edições (arrastar, soltar imagem). Não iniciada.
+- **Etapa 7:** **em andamento pelo Matheus (confirmado por ele em 13/11/2026)**: o editor visual no branch `editor-visual` (arrastar, soltar, biblioteca, animação) é ideia e trabalho dele; será validado mais à frente. Não fechada.
 - **Etapa 8:** por último, por decisão do Matheus (10/11/2026). Pendências técnicas: resolução 2160×3872 (exige `--props` em `Root.tsx`), `render-final.mjs` sem `--props` e sem `--concurrency`, sem critério escrito em `docs/criterios-fechamento.md`.
+
+## Atualização de 13/11/2026: guia do curso, filtro que mede o rosto e 1º teste 3D
+
+- **Curso "Máquina de Edição IA"** (guia do aluno, 79 p.): comparado com o projeto. Já fazíamos quase tudo; faltavam 3D (aula 8.1), recorte de fundo (8.2), variações A/B/C e as skills bônus. Material útil em `referencias/curso-edicao-ia/` (**não vai para o Git**). Skills bônus instaladas: `meia-briefing-de-edicao`, `meia-legendas-e-enquadramento`, `meia-revisao-economia` (as nossas regras valem quando discordarem). Arquivos sem uso foram para a Lixeira do Windows (ordem do Matheus: "o que não tem relevância pode apagar"), incluindo `scripts/zz-bench-tmp.mjs` e os `zz-teste-transcricao.*`.
+- **Etapa 7:** confirmada pelo Matheus como trabalho dele em andamento (editor visual).
+- **Filtro do rosto (A-021):** regra nova, todo vídeo passa pelo filtro sem o Matheus pedir, com doses medidas no rosto daquele vídeo. `scripts/medir-rosto.py` (novo) + `scripts/rosto-referencia.json` (dia de referência = 28/10) + `--doses` no `filtro-rosto-natural.py`, que agora lê o tamanho real do vídeo (antes amassava vertical). Provas no A-021. **Falta o Matheus ver.**
+- **3D de verdade (aula 8.1):** instalados `@remotion/three@4.0.527`, `three@0.186.1`, `@react-three/fiber@9.8.2`, `@types/three@0.186.0`. Composição `Teste3D-Terra-Valorizacao` (pasta "Testes-3D", 5 s, 16:9): fala do JR 159,8–164,8 s, maquete de terra com barras de valorização e poucas moedas de dividendo, abre em 3 camadas e se fecha, JR em moldura chanfrada. MP4: `out/testes-13-11/teste-3d-terra-5s.mp4` (78 s de render, `--gl=angle --concurrency=2`); folha de quadros do próprio MP4: `out/testes-13-11/teste-3d-folha.jpg`. Base de conhecimento: `docs/guia-3d.md` (quando sugerir, receita técnica, checklist). **Falta o Matheus ver e ouvir.** Voz deste MP4 sem a correção dos 42,6 ms.
+- Ainda não testados do curso: recorte de fundo (8.2) e variações A/B/C.
+- **3D premium, Estudo C (híbrido 2D/3D)**, a partir do prompt "JR 3D Editorial Worlds" do Matheus + pesquisa: composição `Estudo3D-C-Hibrido` (pasta "Testes-3D", 5 s, sem avatar). Diorama procedural (relevo, lavoura instanciada, pasto, estrada, árvores, silos, corte do solo com terra roxa, base grafite, sombra macia) + gráfico 2D de frente com a mesma escala (linha do patrimônio x barras de renda) + pulsos de renda saindo do silo. MP4: `out/testes-13-11/estudo3d-C-hibrido-5s.mp4` (43 s de render); folha: `out/testes-13-11/estudo3d-C-folha.jpg`; antes x depois: `out/testes-13-11/3d-antes-x-depois.jpg`. Regras em `docs/guia-3d.md`, seção 6. Nenhum pacote novo. **Falta o Matheus ver.** Estudos A (CGI cinematográfico, pede Blender) e B (editorial limpo) e a versão clara ainda não feitos.
+- **Gráfico de ações no mesmo estilo** (pedido "faz um gráfico para ver como ficaria"): `Estudo3D-Grafico-Acoes`, fala 177,4–182,4 s ("prefiro ações de crescimento do que dividendos"). Candles 3D da ação de crescimento x linha dourada da pagadora de dividendo + dividendos pagos, mesma escala (base 100); câmera chega de lado e para de frente. MP4: `out/testes-13-11/estudo3d-grafico-acoes-5s.mp4`. Regras: `docs/guia-3d.md`, seção 7. **Falta o Matheus ver.**
+- **Ideia inicial refeita com os elementos novos** (pedido "gere outro seguindo a ideia inicial porém com os novos elementos"; o vídeo de referência era o 1º teste): `Estudo3D-Terra-Camadas`, fala 159,8–164,8 s. Diorama abre em 3 camadas (solo desce como fatia de terra; quadro de dados sobe e sempre olha para a câmera), pulsos de renda do silo, JR na moldura chanfrada. MP4: `out/testes-13-11/estudo3d-terra-camadas-5s.mp4`. Diorama movido para `src/components/tres/dioramaFazenda.tsx` (Estudo C conferido igual). Regras: `docs/guia-3d.md`, seção 8. **Falta o Matheus ver.**
+- **3D APROVADO pelo Matheus (13/11/2026)**, os três moldes (camadas, diorama + cartão, gráfico de ações): "a parte 3D, aprovado praticamente, com o tempo a gente vai lapidando"; entra em vários momentos da edição e nos cortes, quando necessário; fundo segue a identidade. Feito: cores 3D num arquivo só derivado do kit (`src/components/tres/estilo3D.ts`, fundo = `KIT.verde`), conferido em still das 3 cenas (`out/testes-13-11/3d-padrao-kit.jpg`); skill nova `cenas-3d` (o cérebro: se cabe, qual molde, onde, como; princípios do Mayer, ritmo, cortes); kit 4.18; `cortes-curtos`, `editar-video`, catálogo e guia ligados. Pendente: versão vertical dos moldes (cortes) e luz do tema claro.
+
+## Atualização de 12/11/2026 (noite, 7): fluxo padrão dos dois modelos (Etapa 9)
+
+- **Aprovado pelo Matheus ("Aprovo, segue"):** `docs/cortes/fluxo-padrao.md`. (A) 5 a 6 cortes por vídeo de ~15 min, montados em paralelo com o longo a partir da **gravação tratada** (`"tempos": "gravacao"`), com nota de 0 a 10 por trecho (entra com 7+), sem parar no cardápio; modelo por assunto (papel = conceito/campo; Cartografia = Bolsa/comparação; ambiente verde ou branco um por vídeo, no topo da receita); cenas da Cartografia descritas na receita. (B) Os dois modelos entram no longo 16:9 como trechos explicativos, pela peça `TrechoExplicativo`, sem aviso, logo e @ próprios.
+- As 3 perguntas do fim do documento (montar sem parar, nota 7, trecho sem aviso) não tiveram resposta separada; ficou valendo a proposta, que foi o que o Matheus aprovou.
+- Docs atualizados: skill `cortes-curtos` (reescrita), `docs/guia-edicao.md` (paralelo, trechos explicativos, entrega), `docs/kit-visual-video.md` (4.17 Cartografia viva e quadro "Dois modelos").
+- **Código feito no mesmo dia (Matheus: "faça o necessário para finalizar a etapa cortes", cores à escolha do Claude), tudo a VALIDAR por ele no Studio:**
+  - `src/cortes/receita.ts`: `tempos`, `ambienteCartografia`, `explicativos`, `cenas` (modelo 2), `enfases`, `legenda.chaves`, `modelo: "papel-camera"`, `enquadramento` por quadro; conferência de cenas.
+  - `src/cortes/receitas.ts` (cadastro), `conferirFonte.ts` (vídeo sem fonte ou tempo além da transcrição), `TrechoExplicativo.tsx` (peça do longo).
+  - `CorteCartografia.tsx`: cenas lidas da receita (10 peças: candles, lavouraCandles, estratos, marco, regua, talhoes, pontos, frase, texto, carimbo), 16:9 (`formato`), `modoLongo`; sem `cenas` o corte antigo do código continua igual. `CorteDividido.tsx`: `modoLongo`. `CorteDivididoLivre.tsx`: lê `enquadramento`.
+  - Receita do 28/10: corte `2810-01d` (Mega-Sena em Cartografia, cenas na receita) e explicativos `2810-balanca` (papel) e `2810-crescimento` (Cartografia). Studio: `Corte-2810-01d`, `Cartografia-2810-01d-16x9`, `Trecho-2810-balanca`, `Trecho-2810-crescimento`.
+  - Cor: ambiente padrão de vídeo novo = `verde` (escolha do Claude).
+- **Prova:** `tsc` sem erro; `remotion compositions` lista as 4 novas; 8 stills do 9:16, 2 do 16:9 e 3 dos trechos conferidos (cenas, selo, legenda, sem rodapé nos trechos). Receita errada pegou erro de verdade na 1ª tentativa. **Falta o Matheus ver e ouvir.** Nenhum render, nenhum commit; `Video2810V3` intocado.
+- **Limites vistos:** (1) a fonte do 28/10 tem legendas gravadas por cima (aparecem na caixa do JR); em vídeo novo, com gravação limpa, some. (2) 16:9 da Cartografia sem as variações `close`/`janela`. (3) cena `alto` ficou com o título abaixo do JR (o antigo ficava acima). (4) `pontos` e `frase` usam só uma cor por peça. (5) A Etapa 9 **não está fechada**: faltam o lote de 5 cortes do 28/10 e o render (ver ARQUITETURA, Etapa 9).
+
+## Atualização de 12/11/2026 (noite, 6): dois modelos e teste de câmera no papel
+
+- Decisão do Matheus: ficam **dois modelos**. Modelo 1 = papel (2810-01b). Modelo 2 = **Cartografia viva** (`src/identidade/CorteCartografia.tsx`), em **verde** ou **branco**, um ambiente por vídeo. Detalhes: `docs/identidade/territorio-proposta.md`, seções 7 e 8.
+- Teste novo: modelo 1 com controle de câmera, `Papel-camera-2810-01b`. **A validar pelo Matheus no Studio.**
+- Render feito do Território v2: `out/cortes/2026-10-28-corte-01-territorio-v1.mp4` (antes da fusão).
+
+## Atualização de 12/11/2026 (noite, 5): aviso animado e protótipo de identidade própria
+
+- Aviso trocado para "Este conteúdo tem caráter exclusivamente educacional." (maiúsculas), numa barra que sobe nos primeiros ~4 s e no final; no meio sobem logo + @ junto com o sombreado verde. Som suave `public/sfx/papel/aviso-sobe.wav`. Aplicado no `Corte-2810-01b` e no 16:9.
+- Pedido do Matheus: buscar identidade própria (texto do ChatGPT analisado). Protótipo **"Território"** em `src/identidade/`, composição `Territorio-2810-01b` (pasta "Identidade-Teste"), mesmo conteúdo do 2810-01b. **Em teste, não aprovado.** Proposta e análise: `docs/identidade/territorio-proposta.md`. O 2810-01b continua o padrão.
+
+## Atualização de 12/11/2026 (noite, 4): corte 01 aprovado, fundo kraft descartado
+
+- Matheus viu o render: **aprovado**, só não gostou do fundo kraft: "deixa como está antes". Receita: `2810-01b` voltou ao papel claro em todos os quadros e está **aprovado**. Os arquivos em `out/cortes/*-v1.mp4` foram renderizados COM o kraft; **não foram renderizados de novo** (ordem dele: "não precisa renderizar"). Para ter o corte final, falta um render novo.
+- Mantido: vermelho em sinais, logo e @ embaixo, aviso CVM pequeno e centralizado. Os 2810-02 e 03 continuam em rascunho.
+
+## Atualização de 12/11/2026 (noite, 3): decisões sobre a C, aviso CVM e render
+
+- Matheus: preferiu a **B**; da C fica só o **papel terroso** (kraft) nos quadros do campo. **Vermelho liberado para sinais** (negação, lado que perde, opção recusada, queda). Logo e @ **embaixo** (como na B). **Aviso "Não é recomendação de investimento." bem pequeno, centralizado embaixo do logo e do @**, padrão de todos os cortes e vídeos (nunca num canto).
+- Aplicado no `Corte-2810-01b` e no `Explicativo-2810-01b-16x9`: papel de campo nos quadros 2, 4 e 7; vermelho em "NÃO SOU", "dividendo: pouco" e no cartão "dividendos"; aviso no rodapé (prop `aviso`). Estado na receita voltou a "montado" até o Matheus ver o render.
+- **Render feito (12/11, ordem do Matheus):** `out/cortes/2026-10-28-corte-01-vertical-v1.mp4` (1080x1920) e `out/cortes/2026-10-28-corte-01-16x9-v1.mp4` (1920x1080); 30 fps, 26,97 s, H.264 + AAC, ~20 MB cada, -14,8 LUFS, pico -3,4 dBFS. Voz puxada 42,6 ms para trás (vídeo copiado sem recodificar), como no vídeo longo; o atraso **não foi medido de novo** nestes arquivos. Quadros conferidos (abertura, meio, fecho). **Falta o Matheus ver e ouvir.**
+- Sobras em `out/` (fora do Git; só apagar com ordem do Matheus): `out/cortes/2810-01b-vertical-bruto.mp4`, `out/cortes/2810-01b-16x9-bruto.mp4` (renders antes da correção da voz) e `out/render-public-cortes/` (links dos arquivos usados, sem cópia).
+- **Não aplicado (precisa de ordem):** o aviso na tela no `Video2810V3` (vídeo longo já aprovado) e na versão A dos cortes (`CorteCurto`).
+
+## Atualização de 12/11/2026 (noite, 2): versão C com as 5 melhorias e o papel de campo
+
+- Pedido do Matheus: ver as 5 melhorias rápidas e algo do agro. Montada a **versão C** (`Corte-2810-01c` e `Explicativo-2810-01c-16x9`), cópia da 01b com: título no quadro 0, logo e @ no alto do papel, marca-texto, código de cores fixo, sons de papel e papel kraft de "caderno de campo" nos quadros de terra, soja, boi, balança e régua. A 01b aprovada não mudou (tudo ligado por `opcoes` e `papel` na receita).
+- Sons novos em `public/sfx/papel/` (fora do Git), gerados com ffmpeg: `papel-desliza.wav`, `carimbo-baque.wav`, `marca-texto.wav`. **Não ouvidos por mim**; volumes 0,4 a 0,55.
+- Ajustes no caminho: a 1ª posição do logo (pílula no alto da caixa do JR) cobria o chapéu e a testa, então foi para o papel; o marca-texto passou a pintar linha por linha; o título desce quando há logo no papel.
+- Prova: `tsc` sem erro; `remotion compositions` lista as 5 composições de corte (809 quadros cada); stills conferidos nos dois formatos. **Falta o Matheus ver e ouvir.**
+
+## Atualização de 12/11/2026 (noite): versão 16:9, logo e rodapé em degradê
+
+- Pedido do Matheus: o estilo de papel também no vídeo longo; logo perto do @; rodapé verde com menos opacidade, mais escuro embaixo e transparente em cima.
+- `src/cortes/CorteDividido.tsx` agora tem `formato` "vertical" ou "horizontal" (a mesma receita serve aos dois). Composição nova `Explicativo-2810-01b-16x9` (1920x1080, 809 quadros), pasta "Explicativos-16x9" no Studio. `QuadroPapel` ganhou rasgo do lado direito; `LegendaFaixa` ganhou `centroX` e `larguraMaxima`.
+- Rodapé novo nos dois formatos: degradê verde (0,94 embaixo → 0 em cima) + desfoque leve embaixo + logo original `images/logo-jr.png` + @. Kit 4.16 atualizado (muda a regra "sem logo" para este estilo).
+- No 16:9 com a fonte do v1: enquadramento 0,72 (com 0,82 a pílula antiga aparecia no peito). Com gravação limpa, dá para abrir mais.
+- Prova: `tsc` sem erro; `remotion compositions` lista as 3 composições de corte; stills conferidos nos dois formatos. **Falta o Matheus ver.**
+
+## Atualização de 12/11/2026 (fim da tarde): estilo explicativo aprovado e padronizado
+
+- Matheus viu o `Corte-2810-01b` no Studio: "Ficou perfeito [...] será bastante usado entre nossas edições do vídeo e também para os cortes". Estado na receita: `aprovado`.
+- Padronizado: `docs/kit-visual-video.md` 4.16 (regras e cardápio "fala → desenho", com o que está pronto e o que é ideia); linha nova no "Mapa rápido" do `docs/catalogo-componentes.md`; skill nova `.claude/skills/cortes-curtos/`.
+- Próximos possíveis (só com ordem do Matheus): montar 2810-02 e 2810-03 no estilo B; composição 16:9 do papel para o vídeo longo; peças "ideia" (linha do tempo, gráfico com dado real, setas, placas).
+- A versão A (`Corte-2810-01`) fica como alternativa; não foi comentada.
+
+## Atualização de 12/11/2026 (tarde): versão B do piloto, estilo explicativo
+
+- O Matheus trouxe um vídeo de referência (tela dividida: quadro de papel com desenhos em cima, apresentador embaixo, legenda em faixa) e um texto do ChatGPT. Análise: a referência é animação por programa, não IA geradora (texto perfeito, peças idênticas entre cenas, sincronia exata); dá para fazer no Remotion sem custo. Do texto do ChatGPT: "Muto" não existe no projeto; pasta paralela `KIT_VISUAL_CORTES_JR/`, nomes em inglês, Rive e Runway descartados; paleta do kit mantida.
+- **Montado `Corte-2810-01b`** (mesma fala e duração do 2810-01, 27,0 s): `src/cortes/CorteDividido.tsx` + 10 peças novas em `src/components/cortes/` (`QuadroPapel` com textura e rasgo por código, `EtiquetaAssunto`, `LegendaFaixa` tipo karaokê, `CartaoDocumento`, `Carimbo`, `Balanca`, `Multidao`, `Regua`, `BilheteLoteria`, `estiloCortes.ts`). Fontes gratuitas: Archivo Black (parece a da referência, não confirmado) e Space Mono. Destaque da legenda em verde do método escuro `#1F7A47`.
+- Receita: `layout: "dividido"`, `quadros` (o que o papel mostra em cada momento, tempos do vídeo longo) e `quadroFecho`.
+- JR embaixo mostra 72% de cima da fonte; rodapé verde com o @ (7,5% da altura) cobre as pílulas antigas do v1 e a área dos botões do app.
+- Prova: `tsc` sem erro; `remotion compositions` lista `Corte-2810-01b` (809 quadros); 4 rodadas de stills conferidas (textos cabem, nada cobre o rosto). **Falta o Matheus comparar A e B no Studio.** Nenhum render, nenhum custo.
+
+## Atualização de 12/11/2026: Etapa 9, cortes curtos (piloto)
+
+- Etapa nova aberta por pedido do Matheus (Opus): cortes 9:16 a partir do vídeo validado. Arquitetura em `ARQUITETURA.md`, Etapa 9.
+- Vídeo usado: o de 28/10 (`Video2810V3`; o "TESTE 2" aprovado é o render v3b dele). Cardápio de 3 cortes em `docs/cortes/2026-10-28.md`; receita em `cortes/2026-10-28.cortes.json`.
+- **Piloto montado:** `Corte-2810-01` "Mega-Sena: compraria terra?" (27,0 s, 1080x1920), na pasta "Cortes" do Studio. 2810-02 e 2810-03 em rascunho (só trechos), esperando o piloto ser aprovado.
+- Prova: `npx tsc --noEmit` sem erro; `remotion compositions` lista `Corte-2810-01` (809 quadros); quadros conferidos por `remotion still` (título, legenda, impactos e fecho fora do rosto); Studio abre a composição sem erro no console. **Falta o Matheus ver no Studio.** Nenhum render.
+- Achado no caminho: `OffthreadVideo` com `position: absolute` direto no estilo não apareceu no still; dentro de uma div posicionada, apareceu.
+
+## Atualização de 11/11/2026 (noite, 2): vídeo completo e atraso do render
+
+- **Causa achada da voz atrasada:** o render do Remotion sai com a voz **42,6 ms atrasada** em relação à imagem, constante do começo ao fim (medido em 5 pontos; na fonte é ~0). Estava também no exemplo de 40 s. Corrigido no arquivo final puxando o áudio 42,6 ms para trás (ffmpeg, vídeo copiado sem recodificar): medido de novo, **-0,1 ms** nos 5 pontos. **Todo render novo precisa do mesmo passo** até achar a causa dentro do Remotion.
+- Filtro "rosto saudável" refeito no vídeo inteiro com rastreio (`rastrear-rosto.py` achou o rosto em 7427/7427 quadros, 978 com zoom; filtro em 6 pedaços paralelos, 33 min). Arquivo novo `public/videos/2026-10-28-final-v1-filtro-natural-v2.mp4` (0 quadros de desvio do original em 9 pontos, incluindo as 5 emendas); `src/Root.tsx` aponta para ele. O arquivo antigo `...-filtro-natural.mp4` ficou sem uso (apagar só com ordem do Matheus).
+- Matheus deixou a decisão do teste cego comigo ("decida você"): **nenhum deslocamento extra** além da correção dos 42,6 ms (a fonte está alinhada por medição). A cena da IA (0 a 8,47 s) ficou como está.
+- Vídeo completo: `out/video-2810-v3-completo-sinc.mp4` (251,6 s, 7548 quadros, 1920x1080). `out/video-2810-v3-completo.mp4` é o render antes da correção (pode ser apagado com ordem do Matheus). **Falta o Matheus ver.**
+
+## Atualização de 11/11/2026 (noite): sincronia boca x voz
+
+- Matheus (11/11): "o alinhamento da voz com a boca dá impressão de não alinhada, dá para perceber nos cortes".
+- **Medido e descartado como causa:** (a) a voz do projeto (`2026-10-28-voz-wpe8-calma20.wav`) está alinhada com o áudio da câmera do v1 nos 247 s (diferença constante de 20 ms, 0 janelas fora); (b) o vídeo filtrado está no mesmo quadro do original nas 5 emendas e em 6 outros pontos (0 quadros); (c) o render, depois da emenda de 8,47 s, mostra os mesmos quadros do filtrado (0 quadros); (d) o código liga a câmera ao tempo do mesmo jeito em todos os componentes.
+- **Não medido com segurança:** se o vídeo da câmera do v1 anda atrasado em relação ao próprio áudio, e se a boca da cena gerada pela IA acompanha a voz. Medidores caseiros (abertura da boca, energia do lábio, início da fala depois de pausa) falharam na calibração no vídeo real (resultados de -700 a +500 ms): **não usar**. A frase de 11/11 "boca acompanha a voz sem atraso (0,33)" para a cena da IA **não tem base**.
+- **Teste cego** para o Matheus decidir no ouvido e no olho: `out/teste-sincronia/real-1..7.mp4` (JR em tela cheia, 171,5-179,5 s) e `ia-1..7.mp4` (cena gerada), cada um com a voz deslocada de -300 a +300 ms, embaralhados. Gabarito guardado fora do projeto. Falta o Matheus dizer qual número está certo.
+
+## Atualização de 11/11/2026 (tarde): filtro "rosto saudável" e exemplo de 40 s
+
+- **Filtro novo** `scripts/filtro-rosto-natural.py` (local, sem custo), calibrado por medição no visual da cena calma aprovada: menos vermelho e amarelo, tom mais uniforme, pele nítida, olheira natural. O filtro antigo "A" (`scripts/filtro-rosto.py`) amarelava e apagava a olheira: fora de uso.
+- `public/videos/2026-10-28-final-v1-filtro-natural.mp4` (vídeo inteiro filtrado) é a câmera padrão do `Video2810V3` (`src/Root.tsx`). **De 2:00 a 3:00 ainda há quadros sem filtro** (JR pequeno na janelinha; o detector falhava).
+- **Conserto pronto, ainda não aplicado ao vídeo todo:** `scripts/rastrear-rosto.py` (2 passadas, zoom no rosto pequeno, interpolação sem atravessar corte, entrada/saída suave) + `filtro-rosto-natural.py --trilha`. No trecho 2:00-3:00 achou o rosto em 1800/1800 quadros (antes 0 em boa parte). Rodar só quando o Matheus pedir esse trecho.
+- Exemplo para o JR: `out/exemplo-40s-jr-calmo-filtro.mp4` (40 s, 1920x1080, -14,4 LUFS), cortado de `out/exemplo-1min-filtro-natural.mp4`. **Falta o Matheus ver.**
+
+## Atualização de 11/11/2026: teste de movimento na Higgsfield (A-019)
+
+- Com o ok do Matheus, gerei 10 s pelo Kling omni video-edit (720p, ~US$ 0,95). Resultado: **a IA trocou o JR por outra pessoa** (rosto, corpo, chapéu, gola). Inutilizável e contra a regra "o rosto do JR nunca é gerado por IA". Não foi usado em nada.
+- Descoberta: `public/videos/2026-10-28-final-v1.mp4` **não é a gravação bruta**; é o render v1, com títulos, logo e painéis. O trecho de teste saiu com esses gráficos.
+- Arquivos (fora do Git): `out/testes-11-11/` e `public/videos/cenas/movimento-teste1-kling720.mp4` (+ `.pedido.json`). Só apagar com ordem do Matheus.
+- **Substituído no mesmo dia:** os primeiros 8,47 s do `Video2810V3` agora são uma cena nova gerada pela Higgsfield (Wan 2.7, 1º quadro real + voz original, 1080p, ~US$ 1,01 com ok do Matheus): `public/videos/cenas/jr-calmo-wan27-1080.mp4`. Cabeça 3,24 → 1,14 px/quadro; boca segue a voz sem atraso; volta para a gravação no corte seco de 8,47 s. A estabilização abaixo saiu do código (scripts e dados ficaram, sem uso). Base de conhecimento da Higgsfield em `docs/higgsfield/` (catálogo de 84 modelos, guia, novidades), atualizada toda segunda por tarefa agendada. **Aprovado pelo Matheus em 11/11.** Gasto total em teste hoje: ~US$ 3,40.
+- (Histórico) **Estabilização sem IA aplicada** (pedido do Matheus, 11/11): `src/Video2810V3.tsx` move a camada da câmera (vídeo + remendo do logo + desfoque) quadro a quadro de 0 a 8,5 s, com zoom até 4,9%, e volta a zero sob o título "Quem é o investidor" (8,5 a 10 s). Os cortes secos do v1 (0,83 s e 5,27 s) continuam cortes. Scripts: `scripts/estabilizar-medir.py` e `scripts/estabilizar-calcular.py` (rodam com `.vc-audio/Scripts/python.exe`). Prova: render dos 11 s em `out/testes-11-11/estab-inicio-11s.mp4` e lado a lado `estab-antes-x-depois.mp4`; sem borda aparecendo de 0 a 8,47 s; `tsc` sem erro. **Falta o Matheus ver no Studio.** Render do vídeo inteiro: não feito.
+- Achado: `public/videos/2026-10-28-final-v1.mp4` não é a gravação bruta, é o render v1 (já com cortes secos e gráficos). A estabilização foi feita sobre ele, que é a câmera usada no `Video2810V3`.
 
 ## Atualização de 07/11/2026: transcrição mais rápida (`scripts/transcrever.mjs`)
 

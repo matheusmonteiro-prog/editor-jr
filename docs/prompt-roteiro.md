@@ -1,5 +1,12 @@
 # Modelo de prompt pra pedir um plano de edição
 
+> **Capacidades que o Claude sugere sozinho no roteiro (13/11/2026, pedido do Matheus):** ao dividir a
+> transcrição em temas, o Claude aponta, sem o Matheus pedir, onde cabe cada recurso que o projeto já
+> sabe fazer, com o tempo da fala e o motivo. Hoje: **3D de verdade** (regras e gatilhos em
+> `docs/guia-3d.md`, seção 2), estilo de papel e Cartografia (skill `cortes-curtos`), peças do kit v3
+> (`docs/catalogo-componentes.md`, Mapa rápido). O formato JSON abaixo é o caminho antigo (Etapa 6); o
+> roteiro atual mira o `.tsx` com kit v3.
+
 Este documento é pra ser **colado num chat de IA** (um Projeto do Claude, por exemplo — é lá
 que o plano nasce, não dentro do editor-jr; ver `ARQUITETURA.md`, Etapa 6) junto com a
 transcrição da gravação, pra pedir o plano de edição em JSON no formato que o editor-jr sabe

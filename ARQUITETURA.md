@@ -11,7 +11,8 @@
 - [x] Etapa 4 — Legendas automáticas (aprovada por decisão do Matheus em 10/11/2026; 4a fechada em 14/10/2026; 4b (termos financeiros e glossário em vídeo real) será validada por ele na prática, não é pendência)
 - [ ] Etapa 5 — Identidade visual (**dispensada por decisão do Matheus em 10/11/2026**. Motivo: o kit visual v3 atende; a cor do método fica `#1DD41E` por decisão dele; a proibição de "sinal de compra" foi desconsiderada por ele, porque no canal o termo é narrativo. Não é bloqueio)
 - [x] Etapa 6 — Leitor de prompt (6a feita: cumprida em 09/10/2026, critérios 6.1 a 6.6 de `docs/criterios-fechamento.md`; AvisoCVM e resolvedor de legenda serão validados por ele na prática; **6b só por ordem do Matheus (não iniciada)**; pendências na seção 7, Etapa 6)
-- [ ] Etapa 7 — Interface própria (em discussão: controle manual das edições (arrastar, soltar imagem))
+- [ ] Etapa 7 — Interface própria (em andamento pelo Matheus, confirmado em 13/11/2026: editor visual no branch `editor-visual` (arrastar, soltar imagem, biblioteca, animação); validação mais à frente)
+- [ ] Etapa 9 — Cortes curtos 9:16 (aberta em 12/11/2026 por pedido do Matheus; estilo explicativo de papel (`Corte-2810-01b`) aprovado pelo Matheus no Studio em 12/11/2026 e escolhido para cortes e trechos explicativos do longo; critério 1 cumprido; ver seção 7, Etapa 9)
 - [ ] Etapa 8 — Exportação e entrega (por último, por decisão do Matheus (10/11/2026). Parcial. Pendências: resolução 2160×3872 (exige `--props` em `Root.tsx`), `render-final.mjs` sem `--props` e sem `--concurrency`, sem critério escrito em `docs/criterios-fechamento.md`)
 
 ---
@@ -797,6 +798,46 @@ criado):**
 - Download fácil do arquivo final
 - Envio automático do vídeo pronto para o Google Drive
 - **Pré-requisitos:** autorizar acesso à conta Google.
+
+### Etapa 9 — Cortes curtos (Shorts/Reels/TikTok)
+Aberta em 12/11/2026 por pedido do Matheus. Fica dentro do editor-jr (reaproveita câmera, voz,
+transcrição, kit e render do vídeo longo). Numerada 9 só por ordem de criação; não depende da 7 nem da 8.
+- **Decisão de base:** o corte NÃO recorta o mp4 pronto (as camadas do longo são 16:9). Ele é montado
+  de novo por cima da mesma câmera e da mesma voz, com camadas próprias do vertical.
+- **Arquivos:** receita `cortes/<video>.cortes.json` (lista dos cortes e dos `explicativos` do longo;
+  tempos em segundos da **gravação tratada** quando `"tempos": "gravacao"` (padrão novo, 12/11/2026), ou da
+  linha final do longo quando `"final"` (só o 28/10); cadastro em `src/cortes/receitas.ts`); tipos e conferência em `src/cortes/receita.ts` (zod; erro para o Studio com a
+  mensagem); fontes por vídeo em `src/cortes/fontes.ts`; composição genérica `src/cortes/CorteCurto.tsx`;
+  registro automático em `src/Root.tsx` (pasta "Cortes", só cortes "montado"/"aprovado").
+  Cardápio de sugestões em `docs/cortes/<video>.md`.
+- **Fluxo:** Matheus pede ("cortes do vídeo X, uns N") → Claude lê a transcrição e entrega o cardápio
+  (gancho, trechos, gatilho, duração) → Matheus escolhe e ajusta → Claude monta → Matheus vê no
+  Studio → ajustes em `docs/alteracoes.md` → render só com "pode renderizar".
+- **Dois layouts (12/11):** `"tela-cheia"` (versão A, `CorteCurto.tsx`: JR na tela toda, título, impactos)
+  e `"dividido"` (versão B, **padrão aprovado em 12/11**, `CorteDividido.tsx`: quadro de papel com desenhos em cima, JR embaixo,
+  legenda em faixa; peças em `src/components/cortes/`). Estilo adaptado de uma referência trazida pelo
+  Matheus, tudo por código, sem IA paga. Regras e cardápio: kit 4.16; processo: skill `cortes-curtos`.
+- **Dois modelos aprovados (12/11/2026), nos cortes e nos trechos explicativos do longo:** modelo 1 papel
+  (`CorteDividido`, ou `CorteDivididoLivre` com `"modelo": "papel-camera"` e `enquadramento` por quadro) e modelo 2
+  Cartografia viva (`CorteCartografia`, `"layout": "cartografia"`, cenas escritas em `cenas` na receita, ambiente
+  `ambienteCartografia` verde OU branco, um por vídeo). 16:9 dos dois e peça `TrechoExplicativo`
+  (`src/cortes/TrechoExplicativo.tsx`). Fluxo completo: `docs/cortes/fluxo-padrao.md`; processo: skill `cortes-curtos`.
+- **Enquadramento:** recorte vertical fixo por trecho (`x` do JR na fonte). Rastreio automático do rosto
+  (`scripts/rastrear-rosto.py`) ainda não ligado aos cortes.
+- **Regra de conteúdo nova:** o corte não pode tirar a ressalva da fala (exemplo do JR fora de contexto
+  vira promessa). Valem as regras de texto da Etapa 6.
+- **Critério de fechamento (proposto, a aprovar):** (1) piloto aprovado pelo Matheus no Studio;
+  (2) lote de pelo menos 5 cortes saindo da mesma receita; (3) receita errada acusa erro com mensagem
+  clara; (4) render de todos com a voz no lugar (correção dos 42,6 ms, ver `docs/estado-atual.md`).
+- **Estado dos critérios (12/11/2026, noite):** (1) cumprido (piloto `Corte-2810-01b` aprovado). (3) cumprido no código:
+  receita errada (tempo fora dos trechos, cena sem peça, layout sem cenas, vídeo sem fonte, tempo além da
+  transcrição) para o Studio com mensagem; testado de verdade (erro da cena 8 do `2810-01d`, corrigido). (2) **aberto:**
+  o código e a receita já aceitam o lote, mas só existe um conteúdo montado em vários modelos (Mega-Sena);
+  faltam montar `2810-02` e `2810-03` (hoje rascunho) e mais um ou dois. (4) **aberto:** render com a voz no lugar, só com o
+  "pode renderizar". Novo desde 12/11: modelo 2, 16:9 dos dois e `TrechoExplicativo`, **todos a validar pelo Matheus no Studio**.
+  A etapa só fecha com o Matheus.
+- **Pendências:** medir a área dos botões do app no vertical (legenda hoje a 71% da altura, chute);
+  skill própria de cortes (ideia do Matheus, depois do piloto aprovado); validador por linha de comando.
 
 ## 8. Fora da v1 (futuro)
 - Prompt em linguagem totalmente livre

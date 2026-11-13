@@ -26,6 +26,10 @@ escrito "recomendação". Os detalhes visuais ficam no `docs/kit-visual-video.md
 | 8 Render | Claude, **só depois do "pode renderizar"** | `.mp4` final | `out/` (fora do Git) |
 | 9 Entrega | Matheus | Título, thumb, capítulos, cortes verticais | Fora do projeto |
 
+**Em paralelo, desde a fase 2 (padrão de 12/11/2026):** assim que a voz está tratada e transcrita, os
+5 a 6 cortes curtos são montados a partir da gravação tratada, sem esperar o longo. Fluxo completo em
+`docs/cortes/fluxo-padrao.md`; receita na skill `cortes-curtos`.
+
 ---
 
 ## 1. Roteiro (antes de gravar)
@@ -66,6 +70,12 @@ O que mais facilita a edição:
   explicativo) e **explosão** (palavra de impacto, zoom seco).
 - Molde: `src/Video2810V3.tsx` (tempos em segundos, listas de trechos, câmera de base).
 - Conteúdo: o método é mostrado, nunca prometido. Sem número de ganho e sem "sinal de compra".
+- **Trechos explicativos (12/11/2026):** onde o JR explica algo que fica melhor desenhado (15 a 60 s),
+  entra um dos dois modelos aprovados: **papel** (conceito, campo, "como funciona"; kit 4.16) ou
+  **Cartografia viva** (Bolsa, ações, crescimento, comparação; kit 4.17). Os dois podem estar no mesmo
+  vídeo; a Cartografia usa um ambiente só por vídeo. Recomendação: não mais que um a cada 2 ou 3 min.
+  Peça `TrechoExplicativo` (a fazer; até lá, o papel 16:9 existe como `Explicativo-<id>-16x9`).
+  Como funciona: `docs/cortes/fluxo-padrao.md`, Parte B.
 
 ## 5. Legenda e áudio
 
@@ -195,8 +205,10 @@ Só depois do "pode renderizar". O Claude confere duração, quadros e volume no
   do vídeo tanto quanto a edição.
 - **Título:** promete o assunto, não o ganho.
 - **Descrição:** capítulos com os tempos da pauta, aviso legal, links.
-- **Cortes verticais (Shorts/Reels/TikTok):** os trechos de impacto viram cortes de 30 a 60 s
-  (kit 4.3, formato 9:16).
+- **Cortes verticais (Shorts/Reels/TikTok):** feitos no próprio editor-jr (Etapa 9, skill
+  `cortes-curtos`), 5 a 6 por vídeo de ~15 min, montados em paralelo com o longo, cada um num dos
+  dois modelos aprovados em 12/11/2026 (papel, kit 4.16; Cartografia viva, kit 4.17). Fluxo:
+  `docs/cortes/fluxo-padrao.md`. Render só com "pode renderizar".
 - Depois de publicar: olhar a retenção no YouTube Studio. O ponto onde a curva cai vira ajuste
   de roteiro ou edição no próximo vídeo.
 
@@ -213,10 +225,20 @@ O Claude puxa a receita certa sozinho, conforme o pedido. Você não precisa ped
 | Mudar cor, fonte, posição padrão, @, logo, borda: algo que vale para todos os vídeos | `ajustar-kit-visual` |
 | Uma peça nova que ainda não existe | `editor-jr` (criar componente) |
 | Áudio ruim, eco, chiado, volume, voz nova para tratar | `tratar-audio` |
+| Cortes curtos (Shorts/Reels), cardápio de cortes, trecho explicativo (papel ou Cartografia) | `cortes-curtos` |
 | "renderiza", "exporta", "gera o mp4" | `renderizar` |
 | Cena, fundo ou b-roll com IA (Higgsfield), custo de IA | `gerar-midia-ia` |
 | Dúvida de como o Remotion funciona | `remotion-best-practices` (oficial do Remotion) |
 | Conferir um código contra as regras | agente `revisor` (só leitura) |
+| Uma fala que compara tamanhos, camadas, terra x Bolsa, crescimento, preço de ação (o Claude sugere sozinho) | `cenas-3d` (aprovado 13/11; técnica em `docs/guia-3d.md`) |
+| Pedido de edição confuso ou incompleto (falta arquivo, formato, mensagem) | `meia-briefing-de-edicao` (bônus do curso, 13/11/2026) |
+| Legenda e enquadramento em formato novo (vertical ↔ horizontal) | `meia-legendas-e-enquadramento` (bônus do curso) |
+| O mesmo erro voltou depois de corrigir, ou muitas tentativas sem resolver | `meia-revisao-economia` (bônus do curso) |
+
+As 3 skills bônus são do curso "Máquina de Edição IA" (`.claude/skills/meia-*`). Quando uma delas
+discordar de uma regra nossa (kit, skills `editar-video`, `pedido-de-ajustes`), **vale a nossa**.
+Material de consulta do curso (guia em PDF, comandos, modelos, CSVs): `referencias/curso-edicao-ia/`.
+Esse material é do curso: **não vai para o Git**.
 
 Ferramentas de fora que já estão ligadas (conectores da sua conta, não do projeto):
 - **Navegador (painel do app):** abrir o Studio, o painel da Higgsfield, referências no YouTube.

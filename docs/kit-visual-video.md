@@ -257,6 +257,130 @@ Valores de referência vindos dos quadros do artifact; confirmar no render real.
 - Remendos: cobrem um retângulo (ex.: logo antigo gravado) esticando uma coluna de parede limpa ao lado. Só funciona sobre parede lisa.
 - **Placas** (04/11, A-015): cobrem um retângulo com o mesmo pedaço de um **quadro limpo** da mesma câmera (câmera parada). Usadas na janelinha sobre as pílulas antigas do peito. **Véu de desfoque na janelinha não**: vira um borrão no meio da tela pequena ("não pode acontecer").
 
+### 4.16 Quadro explicativo de papel (estilo aprovado pelo Matheus em 12/11/2026)
+
+"Ficou perfeito [...] será bastante usado entre nossas edições do vídeo e também para os cortes" (Matheus, 12/11, depois de ver o `Corte-2810-01b` no Studio). Vale para **cortes** e para **trechos explicativos do vídeo longo**. Linguagem adaptada de uma referência trazida pelo Matheus (tela dividida com papel), com as cores do kit. Tudo por código: sem custo, sem IA.
+
+**A ideia:** cada frase importante vira um **desenho simples** num papel, que entra na palavra exata em que o JR fala. O valor está na escolha do desenho, não no efeito.
+
+**Composição**
+- **Corte 9:16 (pronto):** papel em cima (47% da altura) com borda rasgada; JR embaixo (cabeça, ombros e peito, 72% de cima da fonte); legenda em faixa de papel colada no rasgo; rodapé verde com o @ (7,5%), opcional com gravação limpa.
+- **Vídeo longo 16:9 (montado em 12/11, `Explicativo-2810-01b-16x9`):** papel à esquerda (56% da largura) com rasgo vertical, JR à direita, legenda na base do papel. A **mesma receita** do corte serve (posições das peças são frações do papel). Ideias ainda não montadas: papel em tela cheia com o JR numa janelinha; o papel entrando por cima do JR por alguns segundos.
+- **Rodapé com logo e @ (pedido do Matheus, 12/11):** logo original `images/logo-jr.png` (sem alteração) ao lado do @, sobre um **degradê verde: escuro embaixo, transparente em cima** (com desfoque leve só embaixo). Vertical: 11% da altura; 16:9: 22%, só do lado do JR. **Isso muda a regra "sem logo" (A-004, seção 5) para este estilo.**
+
+**Visual**
+- Papel `#EFE8DA` com manchas e grão por código (`QuadroPapel`); cartões e faixa em `#FBF8F1` com sombra curta.
+- Fontes: **Archivo Black** (títulos, legenda, cartões) e **Space Mono** (rótulos tipo documento). Montserrat segue nas peças do kit v3.
+- Cores sobre o papel: verde-escuro `#0F2A1D` (etiqueta, títulos), verde do método escuro `#1F7A47` (destaque e lado "bom"), marrom `#8E4813` (campo, terra), carvão `#1E1E1C` (texto, traço). **Vermelho `#E4573D` liberado para sinais** (decisão do Matheus em 12/11: "pode ser bastante utilizada"): negação (NÃO SOU), o lado que perde numa comparação, a opção recusada, queda, alerta, risco. **Amarelo nunca como cor de texto no papel** (some no claro).
+- **Papel kraft de caderno de campo: NÃO adotado (decisão do Matheus em 12/11, depois de ver o render: "não gostei dessa cor de fundo, deixa como está antes").** O fundo é sempre o papel claro de relatório. A opção `"papel": "campo"` continua no código, desligada. O toque do agro fica no marrom (cor do campo) e nos cartões com ícone, não no fundo.
+- **Aviso legal na tela (padrão do Matheus em 12/11, cortes e vídeos):** "Não é recomendação de investimento." bem pequeno (Space Mono, ~1,7% da largura, mínimo 20 px), **centralizado** embaixo do logo e do @, no rodapé. Nunca num canto. Prop `aviso` do `CorteDividido`.
+- Legenda: 1 a 3 palavras, caixa alta, a palavra dita em verde (karaokê); cada grupo levemente torto, como recorte colado.
+- Etiqueta de assunto no canto de cima, troca a cada assunto; título grande só na abertura e no fecho.
+
+**Melhorias da versão C (12/11, `Corte-2810-01c`): o Matheus preferiu a B ("preferi o antigo"), ficando com o papel terroso e o vermelho; as outras ficam como opção desligada, sem uso.** O logo e o @ ficam **embaixo** ("padrãozinho") — ligadas por corte em `opcoes` da receita:
+- **Título já inteiro no quadro 0** (`tituloImediato`): o primeiro quadro é o que fica parado no feed.
+- **Logo e @ no canto de cima, à direita, do papel** (`marcaNoTopo`, só vertical): fora dos botões e do título do app (guias de 2026 apontam ~280 a 340 px cobertos embaixo e ~100 px à direita; números de terceiros, não oficiais). Etiqueta e título descem para ~130 px (a faixa de cima também é coberta). O degradê de baixo fica só como acabamento.
+- **Marca-texto** (`marcar` na peça): faixa amarela pinta o título do cartão, linha por linha, na palavra dita. Amarelo como **fundo** atrás de texto escuro é permitido no papel; como cor de texto, continua proibido.
+- **Código de cores fixo** (`COR_ASSUNTO` em `estiloCortes.ts`): **marrom = campo** (terra, soja, boi, fazenda), **verde do método = Bolsa** (ações, método, crescimento), **carvão = neutro** (conceito, pergunta, pessoa), **vermelho = alerta** (queda, risco). Igual em todos os vídeos.
+- **Sons de papel** (`sonsPapel`): papel deslizando na entrada de cartão, bilhete, balança e régua; baque seco no carimbo; risco curto no marca-texto. Gerados por código (`public/sfx/papel/`, fora do Git), sem licença de terceiros.
+- **Papel de campo** (`"papel": "campo"` no quadro): kraft de caderno, com pauta fraca e margem vermelha apagada, para os assuntos do agro. A Bolsa e os conceitos ficam no papel claro de relatório. O papel troca com o assunto (entra em 6 quadros).
+
+**Movimento** (200 a 450 ms, curva suave): cartão sobe e aparece; carimbo bate (180% → 100%) com som; etiqueta revela da esquerda; balança pende com mola; régua se desenha; pessoas entram em sequência. Nada se mexe sem a fala pedir. No máximo 3 peças no papel ao mesmo tempo.
+
+**Regras de conteúdo:** nenhum número inventado (balança e régua mostram a ideia, não um valor); texto no papel usa as palavras do JR ou algo mais fraco; posição pessoal ("eu prefiro") fica pessoal (carimbo "PREFIRO", não "MELHOR").
+
+**Peças prontas** (`src/components/cortes/`) e **cardápio de possibilidades** (tipo de fala → desenho):
+
+| Quando a fala... | Desenho | Estado |
+|---|---|---|
+| Abre um assunto | `EtiquetaAssunto` (pequena) / título grande | pronto |
+| Faz uma pergunta ao público | Título grande + objeto da pergunta | pronto |
+| Compara duas coisas (pouco x muito, antes x depois) | `Balanca` (pende na palavra) | pronto |
+| Dá uma opinião ou conclusão do JR | `Carimbo` (PREFIRO, NÃO SOU, ATENÇÃO) | pronto |
+| Cita um ativo, um setor, uma coisa | `CartaoDocumento` com ícone do kit | pronto |
+| Lista itens ("três critérios", "não conseguiu...") | `CartaoDocumento` com `itens` entrando um a um | pronto |
+| Fala do público ("a maioria", "todo mundo") | `Multidao` com resposta | pronto |
+| Usa uma referência ("benchmark", "parâmetro") | `Regua` com a marca | pronto |
+| Fala de sorte, aposta, loteria | `BilheteLoteria` (genérico, sem marca) | pronto |
+| Conta uma trajetória ou datas | Linha do tempo de papel (calendário, marcos) | ideia |
+| Fala de subir ou cair (preço, juros, dólar) | Gráfico de linha ou barras desenhando, **só com dado real e fonte** | ideia |
+| Fala de um caminho ou escolha | Placas de direção | ideia |
+| Liga causa e efeito | Setas que se desenham entre cartões | ideia |
+| Mostra uma conta ("a conta não fecha") | Cartão-conta com linhas somando e carimbo | ideia |
+| Fala de dividendos, renda | Moedas caindo num pote ou prato | ideia |
+| Fala de empresa da Bolsa | Cartão de empresa (nome, setor, ticker), sem preço inventado | ideia |
+| Fala do campo (soja, boi, terra) | Cartões com ícones do kit; ilustração maior só se precisar (Higgsfield, com custo e ok) | pronto / ideia |
+
+**Este é o Modelo 1.** Quando usar este ou o Modelo 2 (4.17): ver "Dois modelos" logo abaixo.
+
+### 4.17 Cartografia viva (Modelo 2, aprovado pelo Matheus em 12/11/2026)
+
+Detalhes e histórico: `docs/identidade/territorio-proposta.md`, seções 7 e 8. Código:
+`src/identidade/CorteCartografia.tsx` e `src/identidade/graficosMercado.tsx`. Composições de exemplo:
+`Cartografia-2810-01b-verde` e `Cartografia-2810-01b-branco` (pasta "Identidade-Teste").
+
+**Visual**
+- Dois ambientes, **um por vídeo, sem misturar**: `verde` (mapa verde-floresta) ou `branco` (papel de
+  carta topográfica). Curvas de nível ao fundo, grão de papel, fio dourado nas trocas de cena.
+- Fontes: Archivo Black (títulos e legenda) e Space Mono (rótulos de documento).
+- Chapéu do JR **sempre inteiro** no enquadramento.
+- Legenda em **maiúsculas**, com a palavra-chave colorida (verde = alta/crescimento, terracota = baixa/
+  negação, marrom = terra/campo, dourado = destaque).
+- Rodapé com logo + @; no branco, a faixa verde de baixo fica junto do logo e translúcida.
+- Aviso "Este conteúdo tem caráter exclusivamente educacional." maior, em duas linhas, no início e no
+  fim dos cortes (igual ao Modelo 1).
+
+**Peças** (todas conceituais): candles com pavio, volume e média móvel; lavoura vista de cima que vira
+candles; corte do solo (renda fina em cima, valorização grossa embaixo); marco de divisa que vira
+marcador; régua da terra como linha de benchmark; talhões a nanquim; grade de pontos ("a maioria");
+frase grande do JR com barra dourada.
+
+**Regras de conteúdo**
+- Gráfico **sempre** com o selo "DEMONSTRAÇÃO VISUAL · SEM DADOS REAIS". Valores gerados por código,
+  nunca cotação. Gráfico com dado real só em peça nova, com fonte, e com ordem do Matheus.
+- Grade de pontos sempre com "ilustração · sem número de pesquisa".
+- Sem indicadores técnicos extras (RSI, MACD) se o JR não falar deles.
+- No máximo 3 peças por cena.
+
+**Formatos:** 9:16 e 16:9 prontos no código (12/11/2026, a validar no Studio). 16:9: mapa nos 1080 px da
+esquerda, JR à direita (variações `close`/`janela` do 16:9 ainda não). **Cenas na receita** (`cenas`, posições em
+frações do painel livre): peças `candles`, `lavouraCandles`, `estratos`, `marco`, `regua`, `talhoes`, `pontos`,
+`frase`, `texto`, `carimbo`; gráfico só com `tendencia` (sobe, lateral, cai), selo automático. Máximo 3 peças por cena.
+**Cores (decisão do Matheus: "a sua escolha"):** verde-floresta no `verde`, papel no `branco`; verde = alta/Bolsa,
+terracota = baixa/negação, marrom = terra/campo, dourado = destaque; o ambiente padrão de vídeo novo é `verde`
+(contraste melhor com a legenda e com o chapéu claro do JR).
+
+### Dois modelos: qual usar (padrão aprovado em 12/11/2026)
+
+Fluxo completo: `docs/cortes/fluxo-padrao.md`.
+
+| Assunto | Modelo |
+|---|---|
+| Conceito, campo, "como funciona" | **1. Papel** (4.16); com controle de câmera quando o assunto troca muito |
+| Bolsa, ações, crescimento, comparação de investimentos | **2. Cartografia viva** (4.17) |
+
+- Vale para **cortes** e para **trechos explicativos do vídeo longo** (os dois modelos podem estar no
+  mesmo vídeo longo).
+- Corte com os dois assuntos: vale o assunto do fecho.
+- No vídeo longo, o trecho explicativo não traz aviso, logo nem @ próprios (ficam no início e no fim
+  do vídeo inteiro) e troca a legenda do longo pela do modelo enquanto dura.
+
+### 4.18 Cenas 3D, "JR 3D Editorial Worlds" (aprovado pelo Matheus em 13/11/2026)
+
+Matheus, 13/11: "a parte 3D, aprovado praticamente, com o tempo a gente vai lapidando [...] dá para entrar em
+vários momentos de edição do vídeo [...] também nos nossos cortes [...] o fundo vai seguir a identidade
+visual padrão". Aprovou os três moldes (fazenda em camadas, diorama + cartão, gráfico de ações).
+
+- **Regra principal:** o mundo é 3D, o dado é 2D de frente (ou num quadro que olha para a câmera), na mesma
+  escala. Gráfico conceitual leva o selo "ILUSTRAÇÃO CONCEITUAL · SEM DADOS REAIS".
+- **Quando usar, qual molde e onde:** skill `cenas-3d` (o Claude sugere sozinho no roteiro). Máximo de 1 cena
+  a cada ~2 min no longo e 1 por corte. Não entra dentro do papel (4.16) nem da Cartografia (4.17): é trecho próprio.
+- **Cores:** `src/components/tres/estilo3D.ts`, derivado do `KIT` (fundo = verde do kit; tema claro previsto).
+  Valorização = verde do método; renda/dividendo = dourado envelhecido `#D9B25A`; queda = vermelho do kit.
+- **Peças:** `src/components/tres/` (`dioramaFazenda`, `TerraCamadas3D`, `TerraEditorial3D`, `GraficoAcoes3D`).
+  Receita técnica: `docs/guia-3d.md`.
+- **Falta:** versão vertical dos moldes (cortes) e luz própria do tema claro.
+
 ## 5. Formatos e áreas seguras
 
 | Formato | Resolução | Margem |

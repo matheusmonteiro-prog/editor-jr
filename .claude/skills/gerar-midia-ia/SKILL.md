@@ -5,6 +5,11 @@ description: Use quando o pedido envolver gerar ou editar imagem ou vídeo com I
 
 # Gerar imagem ou vídeo com IA
 
+**Base de conhecimento (leia primeiro):** `docs/higgsfield/guia.md` (o que a Higgsfield faz, por necessidade,
+testes já feitos e preços) e o topo de `docs/higgsfield/novidades.md`. Detalhe de cada modelo (campos, limites,
+preço): `docs/higgsfield/catalogo.md`, gerado por `node scripts/higgsfield-catalogo.mjs --precos` (não gasta
+crédito; roda sozinho toda segunda). Antes de dizer que a Higgsfield "não faz" algo, procure no catálogo.
+
 Documentação do script: `docs/higgsfield.md`. Chaves em `.env` (`HF_API_KEY_ID`, `HF_API_KEY_SECRET`):
 **nunca imprimir, copiar ou commitar os valores.**
 
@@ -26,5 +31,5 @@ Documentação do script: `docs/higgsfield.md`. Chaves em `.env` (`HF_API_KEY_ID
 ## Limites conhecidos (04/11/2026)
 - Sem placa de vídeo NVIDIA neste PC: IA local pesada (trocar roupa, redesenhar cena) não roda.
   Recolorir com segmentação rodou em CPU (troca de cor, não de modelo de roupa).
-- Edição de vídeo com IA tem limite de ~10 s por pedido e pode alterar o rosto. Teste curto antes
+- Edição de vídeo com IA (Kling Omni 3-10 s; Kling O3 até 15,5 s; Seedance 2.5 até 30 s) copia o movimento do vídeo de entrada e pode alterar o rosto (testes de 11/11 em `docs/higgsfield/guia.md`). Teste curto antes
   de gastar no vídeo todo.

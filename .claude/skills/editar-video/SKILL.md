@@ -14,6 +14,21 @@ Regras gerais (aprovação, Git, formato do relatório) estão no `CLAUDE.md`. A
 - Confirme a **fonte da imagem**: gravação limpa (o ideal) ou render antigo com elementos gravados
   por cima (aí só dá para usar a parte limpa: janelinha com recorte, faixa escura, painel cobrindo).
 
+- **Tratamento padrão, sempre, sem o Matheus pedir (regra dele, 13/11/2026):** todo vídeo novo do
+  JR passa por (1) voz tratada (skill `tratar-audio`, preset aprovado) e (2) filtro "rosto
+  saudável" com rastreio (`scripts/rastrear-rosto.py` + `scripts/filtro-rosto-natural.py --trilha`).
+  O filtro deve olhar o rosto **daquele** vídeo: manchas, olheira de noite mal dormida, vermelhidão
+  do dia. Corrige o que aparecer e mantém a naturalidade aprovada em 11/11 (pele nítida, sem
+  amaciar). Passo a passo (A-021, 13/11): `python scripts/medir-rosto.py <video>` mede o rosto e grava
+  `<video>.rosto.json` com as doses daquele dia (comparadas ao dia de referência,
+  `scripts/rosto-referencia.json`); depois `filtro-rosto-natural.py ... --doses <video>.rosto.json`.
+  Python do projeto: `.vc-audio/Scripts/python.exe`. Vídeo vertical: o filtro já lê o tamanho real, mas o
+  `rastrear-rosto.py` ainda é fixo em 1920x1080 (falta adaptar).
+
+- **Pontos de 3D (sem o Matheus pedir; aprovado 13/11, kit 4.18):** ao ler a transcrição, siga a skill
+  `cenas-3d` (5 perguntas, mapa fala → molde). No máximo 1 a cada ~2 min. Proponha antes de montar, com o
+  tempo da fala e o molde.
+
 ## 2. Montar
 - Um arquivo por vídeo em `src/`, no molde do `src/Video2810V3.tsx`: tempos em **segundos da
   linha final**, listas de trechos (`PAINEIS`, `JANELAS`, `IMPACTOS`, ...) e a câmera de base.
