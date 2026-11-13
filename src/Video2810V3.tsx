@@ -24,6 +24,14 @@ import {
   type PlacaCamera,
   type VeuCamera,
 } from "./components/v2/CameraJR";
+// A-019 (11/11/2026): no começo (0 a 8,47 s) o JR balançava 2x mais que no resto do vídeo. Esse trecho
+// agora é uma CENA NOVA gerada pela Higgsfield (Wan 2.7 image to video, 1080p, ~US$ 1,01, ok do
+// Matheus): 1º quadro real do v1 + a voz original do projeto (0 a 8,4 s) conduzindo a boca. Medido:
+// cabeça 3,24 -> 1,14 px/quadro; boca segue a voz sem atraso. Em 8,47 s o v1 já tinha um corte seco
+// (sob o título "Quem é o investidor"): a volta para a gravação real cai nele.
+// A estabilização sem IA (scripts/estabilizar-*.py, src/dados/estabilizar-2810.json) saiu daqui.
+// Sem filtro: o visual desta cena É a referência do filtro novo da gravação (scripts/filtro-rosto-natural.py).
+const CENA_CALMA = { src: "videos/cenas/jr-calmo-wan27-1080.mp4", ate: 8.47 };
 
 // Vídeo de 28/10 reeditado com o kit visual v3 (docs/kit-visual-video.md), 04/11/2026.
 //
@@ -125,15 +133,28 @@ const CameraBase: React.FC<Props2810> = ({ cameraSrc, cameraTipo, aplicarZoom })
         transformOrigin: "50% 40%",
       }}
     >
-      {/* Fundo desfocado, JR nítido (pedido A-007) e logo antigo coberto (A-004). */}
-      <CameraJR
-        src={cameraSrc}
-        tipo={cameraTipo}
-        mudo
-        focos={aDireita ? FOCOS_JR_DIREITA : FOCOS_JR_CENTRO}
-        remendos={[LOGO_V1]}
-        veus={impacto ? [veuImpacto()] : []}
-      />
+      {/* Fundo desfocado, JR nítido (pedido A-007) e logo antigo coberto (A-004). De 0 a 8,47 s, a
+          cena calma gerada (A-019); depois, a gravação real a partir do mesmo ponto. */}
+      <Sequence durationInFrames={s(CENA_CALMA.ate)} name="JR calmo (IA)">
+        <CameraJR
+          src={CENA_CALMA.src}
+          tipo="video"
+          mudo
+          focos={FOCOS_JR_CENTRO}
+          remendos={[LOGO_V1]}
+        />
+      </Sequence>
+      <Sequence from={s(CENA_CALMA.ate)} name="JR gravação">
+        <CameraJR
+          src={cameraSrc}
+          tipo={cameraTipo}
+          inicio={cameraTipo === "video" ? s(CENA_CALMA.ate) : 0}
+          mudo
+          focos={aDireita ? FOCOS_JR_DIREITA : FOCOS_JR_CENTRO}
+          remendos={[LOGO_V1]}
+          veus={impacto ? [veuImpacto()] : []}
+        />
+      </Sequence>
     </AbsoluteFill>
   );
 };

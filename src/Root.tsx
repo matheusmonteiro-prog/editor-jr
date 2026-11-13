@@ -220,9 +220,11 @@ export const RemotionRoot: React.FC = () => {
           width={1920}
           height={1080}
           defaultProps={{
-            // 06/11 (A-018): o filtro forte (videos/2026-10-28-final-v1-filtro.mp4) foi reprovado
-            // ("cara de boneca"). Sem filtro até o Matheus escolher a dose do filtro por área.
-            cameraSrc: "videos/2026-10-28-final-v1.mp4",
+            // 11/11 (A-018): filtro "rosto saudável" (scripts/filtro-rosto-natural.py), calibrado no
+            // visual da cena calma aprovada. Sem filtro: "videos/2026-10-28-final-v1.mp4".
+            // v2 (11/11): rastreio do rosto em todos os quadros (scripts/rastrear-rosto.py + --trilha),
+            // inclusive 2:00 a 3:00 com rosto pequeno; quadro a quadro alinhado com o original.
+            cameraSrc: "videos/2026-10-28-final-v1-filtro-natural-v2.mp4",
             cameraTipo: "video" as const,
             aplicarZoom: false,
           }}
