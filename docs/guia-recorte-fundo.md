@@ -2,7 +2,8 @@
 
 Teste de 13/11/2026, a pedido do Matheus ("pode instalar e testar"). **Estado: técnica viável para trechos
 curtos no enquadramento padrão do JR. Teste de 10 s (v2, sem chiado) APROVADO pelo Matheus em 13/11/2026 (viu o
-MP4). Ainda NÃO está no kit nem em nenhum vídeo.**
+MP4). Virou recurso do kit em 13/11 (kit 4.19, skill `recorte-fundo`, que decide quando usar); ainda não
+entrou em nenhum vídeo.**
 Resultados e quadros: `out/testes-13-11/recorte/` (fora do Git).
 
 ## 1. O que foi instalado (oficial, local, sem custo)

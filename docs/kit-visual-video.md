@@ -36,6 +36,7 @@ Antes e depois da v3 (03/11/2026): artifact "Kit Visual JR v3" (https://claude.a
 | Tela explicativa clara, bege (2.2) | **Pedido pelo Matheus em 04/11** (A-011): opção ao lado da escura; o bege pode variar por vídeo |
 | Ponto antes das descrições (4.14) | **Pedido pelo Matheus em 04/11** (A-012) |
 | Trajetória da história do JR (4.10) | **Pedido pelo Matheus em 04/11** (A-013): linha + árvore, componente `LinhaTrajetoria` |
+| Recorte de fundo com texto e linha atrás do JR (4.19) | **Aprovado pelo Matheus em 13/11** (v2 do teste de 10 s, visto no MP4; mandou virar recurso do kit). Limite de frequência e tamanho da palavra: proposta do Claude |
 | Voz tratada por padrão (13) | **Aprovado pelo Matheus em 04/11**: `tratar-voz` preset jr; com eco de sala, WPE antes (skill `tratar-audio`) |
 
 ---
@@ -380,6 +381,29 @@ visual padrão". Aprovou os três moldes (fazenda em camadas, diorama + cartão,
 - **Peças:** `src/components/tres/` (`dioramaFazenda`, `TerraCamadas3D`, `TerraEditorial3D`, `GraficoAcoes3D`).
   Receita técnica: `docs/guia-3d.md`.
 - **Falta:** versão vertical dos moldes (cortes) e luz própria do tema claro.
+
+### 4.19 Recorte de fundo: texto e linha ATRÁS do JR (aprovado pelo Matheus em 13/11/2026)
+
+Matheus, 13/11, sobre o teste de 10 s: "achei que ficou bacana"; depois da 2ª rodada (chiado do chapéu
+corrigido): "Aprovado". Mandou virar recurso do kit com regra de quando usar.
+
+- **O que é:** a IA separa o JR do quarto e a cena ganha camadas: fundo da identidade → **palavra ou linha
+  atrás do JR** → o JR → textos da frente e legenda. O efeito é a palavra "na parede" atrás dele e a linha do
+  gráfico passando por trás do corpo.
+- **Quando usar, qual molde e onde:** skill `recorte-fundo` (o Claude sugere sozinho no roteiro). É um "ponto
+  alto", como o 3D, e **divide o mesmo limite**: no máximo 1 recorte **ou** 1 cena 3D a cada ~2 min no longo,
+  e 1 por corte. Trecho de 5 a 15 s; nunca o vídeo inteiro (custo: ~1 s de espera por quadro).
+- **Visual:** fundo = verde do kit com luz radial suave atrás do JR e grade discreta (como no teste); a
+  palavra de trás em Montserrat 900, creme a 92%, grande (≥ 200 px), e pode ter **no máximo ~2 letras
+  escondidas** pela cabeça; a linha segue as cores do 3D (verde = estável/sobe, vermelho = queda). Conceitual
+  leva o selo "ILUSTRAÇÃO CONCEITUAL · SEM DADOS REAIS".
+- **Entrada:** o quarto original some em ~0,6 s quando o recorte já está bom (mesmos quadros, sem pulo). Onde
+  o recorte falha (aba branca contra parede clara), **fica o quarto original**: nunca esconder defeito com efeito.
+- **Acabamento (obrigatório):** sem furo, sem fiapo, sem borda "fervendo", sem microfone. O
+  `scripts/recorte-fundo/limpar-alfa.py` faz isso; conferir em zoom no chapéu e nas mãos antes de mostrar.
+- **Peças:** `src/components/recorte/RecorteLettering.tsx` (molde) e `scripts/recorte-fundo/`. Receita técnica e
+  limites da gravação: `docs/guia-recorte-fundo.md`.
+- **Falta:** versão vertical (cortes 9:16), o JR na frente de um cenário 3D (ideia) e testar numa gravação bruta nova.
 
 ## 5. Formatos e áreas seguras
 

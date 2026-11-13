@@ -20,7 +20,7 @@ fica num plano que olha para a câmera, com a mesma escala para o que se compara
    crescimento no tempo, fluxo (de onde vem e para onde vai). Frase solta de impacto ou lista **não** pede 3D.
 2. **Tem tempo?** Pelo menos ~4 s de fala sobre a ideia. Menos que isso, use peça 2D do kit.
 3. **Já teve 3D perto?** No vídeo longo, no máximo 1 cena 3D a cada ~2 min (é o "ponto alto"). No corte,
-   no máximo 1 por corte.
+   no máximo 1 por corte. O recorte de fundo (skill `recorte-fundo`, kit 4.19) **divide esse limite**: 1 dos dois.
 4. **O dado é real ou conceitual?** Real: mostrar com fonte. Conceitual: selo "ILUSTRAÇÃO CONCEITUAL · SEM
    DADOS REAIS" e nenhum número, percentual ou promessa na tela.
 5. **O 3D explica melhor que o 2D?** Se o mesmo entendimento sai com um `ComparacaoNumeros` ou `Pauta`,
