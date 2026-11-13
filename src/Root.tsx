@@ -38,6 +38,10 @@ import { CorteDivididoLivre, corteDivididoLivreSchema } from "./cortes/CorteDivi
 import { conferirCorte, duracaoCorte } from "./cortes/receita";
 import { conferirContraFonte } from "./cortes/conferirFonte";
 import { TrechoExplicativo, trechoExplicativoSchema } from "./cortes/TrechoExplicativo";
+import { TerraValorizacao3D, terraValorizacao3DSchema } from "./components/tres/TerraValorizacao3D";
+import { TerraEditorial3D, terraEditorial3DSchema } from "./components/tres/TerraEditorial3D";
+import { GraficoAcoes3D, graficoAcoes3DSchema } from "./components/tres/GraficoAcoes3D";
+import { TerraCamadas3D, terraCamadas3DSchema } from "./components/tres/TerraCamadas3D";
 import type { CalculateMetadataFunction } from "remotion";
 import type { PlanoComposicaoProps } from "./PlanoComposicao";
 import { tamanhoDoPlano } from "./utils/tamanhoDoPlano";
@@ -152,6 +156,27 @@ const calcularTamanhoDoPlano: CalculateMetadataFunction<PlanoComposicaoProps> = 
     console.warn("calculateMetadata: não consegui ler a orientacao do plano; vale o tamanho literal da composição.", erro);
   }
   return {};
+};
+
+// Fatia 5a (13/11/2026): metadados da composição "PlanoAtual", que recebe o plano por props
+// (--props no render). MESMA regra do editor (editor/regrasAbrir.ts, montarComposicao):
+//   tamanho  = tamanhoDoPlano(plano.orientacao)  (vertical 1080x1920, horizontal 1920x1080)
+//   fps      = plano.fps
+//   duração  = round((cortes.duracaoFinal ?? soma(fim - inicio dos trechos)) × fps)
+// Falta orientação, fps ou trechos: ERRO (o render para em vez de sair vídeo com tamanho errado).
+const calcularPlanoRecebido: CalculateMetadataFunction<PlanoComposicaoProps> = ({ props }) => {
+  const { plano, cortes } = props;
+  const tamanho = tamanhoDoPlano(plano?.orientacao);
+  if (!tamanho) throw new Error(`PlanoAtual: o plano precisa de "orientacao" "vertical" ou "horizontal" (veio ${JSON.stringify(plano?.orientacao)}).`);
+  const fps = (plano as { fps?: unknown } | undefined)?.fps;
+  if (typeof fps !== "number" || !Number.isFinite(fps) || fps <= 0) throw new Error(`PlanoAtual: o plano precisa de "fps" (número maior que 0; veio ${JSON.stringify(fps)}).`);
+  const trechos = cortes?.trechos;
+  if (!Array.isArray(trechos) || trechos.length === 0) throw new Error("PlanoAtual: faltam os trechos dos cortes (props.cortes.trechos).");
+  const duracaoFinal = (cortes as { duracaoFinal?: unknown }).duracaoFinal;
+  const segundos = typeof duracaoFinal === "number" && Number.isFinite(duracaoFinal) ? duracaoFinal : trechos.reduce((soma, t) => soma + (t.fim - t.inicio), 0);
+  const durationInFrames = Math.round(segundos * fps);
+  if (!(durationInFrames >= 1)) throw new Error(`PlanoAtual: os cortes dão duração zero ou inválida (${segundos} s).`);
+  return { ...tamanho, fps, durationInFrames };
 };
 
 // Tela de teste da LegendaAnimada (Etapa 4, 4.5, etapa A): palavras fixas, em frames (30 fps),
@@ -348,6 +373,58 @@ export const RemotionRoot: React.FC = () => {
             )),
         )}
       </Folder>
+      {/* 3D de verdade (Three.js, @remotion/three): teste de 5 s da aula 8.1 do curso (13/11/2026). */}
+      <Folder name="Testes-3D">
+        <Composition
+          id="Teste3D-Terra-Valorizacao"
+          component={TerraValorizacao3D}
+          schema={terraValorizacao3DSchema}
+          durationInFrames={150}
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{
+            video: "videos/2026-10-28-final-v1-filtro-natural-v2.mp4",
+            voz: "videos/2026-10-28-voz-wpe8-calma20.wav",
+            inicioSegundos: 159.8,
+            corBarra: "#1DD41E",
+            titulo: "TERRA: VALORIZA MUITO, PAGA POUCO",
+          }}
+        />
+        {/* JR 3D Editorial Worlds, Estudo C (híbrido 2D/3D), 13/11/2026: diorama + gráfico de frente. */}
+        <Composition
+          id="Estudo3D-C-Hibrido"
+          component={TerraEditorial3D}
+          schema={terraEditorial3DSchema}
+          durationInFrames={150}
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{ voz: "videos/2026-10-28-voz-wpe8-calma20.wav", inicioSegundos: 159.8, comVoz: true }}
+        />
+        {/* Gráfico de ações no mesmo estilo (13/11/2026): candles 3D x linha de dividendo, câmera termina de frente. */}
+        <Composition
+          id="Estudo3D-Grafico-Acoes"
+          component={GraficoAcoes3D}
+          schema={graficoAcoes3DSchema}
+          durationInFrames={150}
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{ voz: "videos/2026-10-28-voz-wpe8-calma20.wav", inicioSegundos: 177.4, comVoz: true }}
+        />
+        {/* Ideia inicial (terra em 3 camadas + JR na moldura) refeita com os elementos novos (13/11/2026). */}
+        <Composition
+          id="Estudo3D-Terra-Camadas"
+          component={TerraCamadas3D}
+          schema={terraCamadas3DSchema}
+          durationInFrames={150}
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{ video: "videos/2026-10-28-final-v1-filtro-natural-v2.mp4", voz: "videos/2026-10-28-voz-wpe8-calma20.wav", inicioSegundos: 159.8 }}
+        />
+      </Folder>
       <Folder name="Explicativos-16x9">
         {/* Modelo 2 (Cartografia) em 16:9, para revisar: mapa à esquerda, JR à direita. */}
         {RECEITAS_CORTES.flatMap((r) =>
@@ -444,6 +521,22 @@ export const RemotionRoot: React.FC = () => {
           fps={FPS_0926}
           width={2160}
           height={3872}
+          defaultProps={{
+            videoSrc: "videos/0926-cortado-v1.mp4",
+            plano: plano0926,
+            cortes: cortes0926,
+          }}
+        />
+        {/* Fatia 5a: o mesmo componente, mas o plano chega por props (--props no render). Sem
+            props, abre igual ao PlanoComposicao0926; tamanho, fps e duração vêm do plano recebido. */}
+        <Composition
+          id="PlanoAtual"
+          component={PlanoComposicao}
+          durationInFrames={DURACAO_FRAMES_0926}
+          fps={FPS_0926}
+          width={1080}
+          height={1920}
+          calculateMetadata={calcularPlanoRecebido}
           defaultProps={{
             videoSrc: "videos/0926-cortado-v1.mp4",
             plano: plano0926,

@@ -34,6 +34,7 @@ backup-videos/
 !.claude/skills/renderizar/
 !.claude/skills/gerar-midia-ia/
 !.claude/skills/tratar-audio/
+!.claude/skills/cenas-3d/
 
 # Configuração local de permissões do Claude Code, específica da máquina.
 .claude/settings.local.json
