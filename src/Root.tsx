@@ -42,6 +42,7 @@ import { TerraValorizacao3D, terraValorizacao3DSchema } from "./components/tres/
 import { TerraEditorial3D, terraEditorial3DSchema } from "./components/tres/TerraEditorial3D";
 import { GraficoAcoes3D, graficoAcoes3DSchema } from "./components/tres/GraficoAcoes3D";
 import { TerraCamadas3D, terraCamadas3DSchema } from "./components/tres/TerraCamadas3D";
+import { RecorteLettering, recorteLetteringSchema } from "./components/recorte/RecorteLettering";
 import type { CalculateMetadataFunction } from "remotion";
 import type { PlanoComposicaoProps } from "./PlanoComposicao";
 import { tamanhoDoPlano } from "./utils/tamanhoDoPlano";
@@ -372,6 +373,25 @@ export const RemotionRoot: React.FC = () => {
               />
             )),
         )}
+      </Folder>
+      {/* Recorte de fundo + texto atrás do JR (aula 8.2 do curso), 13/11/2026. Recorte em public/videos/recorte/. */}
+      <Folder name="Testes-Recorte">
+        <Composition
+          id="Recorte-Lettering-10s"
+          component={RecorteLettering}
+          schema={recorteLetteringSchema}
+          durationInFrames={300}
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{
+            recorte: "videos/recorte/2810-166s-jr-alfa-limpo.webm",
+            original: "videos/2026-10-28-final-v1-filtro-natural-v2.mp4",
+            voz: "videos/2026-10-28-voz-wpe8-calma20.wav",
+            inicioSegundos: 166,
+            recorteX: 200,
+          }}
+        />
       </Folder>
       {/* 3D de verdade (Three.js, @remotion/three): teste de 5 s da aula 8.1 do curso (13/11/2026). */}
       <Folder name="Testes-3D">
