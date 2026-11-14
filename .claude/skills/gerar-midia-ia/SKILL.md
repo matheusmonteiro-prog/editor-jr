@@ -16,6 +16,7 @@ Documentação do script: `docs/higgsfield.md`. Chaves em `.env` (`HF_API_KEY_ID
 ## Regras fixas
 - **Gasta crédito = pede antes.** Diga o que vai gerar, quantos pedidos e o custo estimado, e espere
   o "ok" escrito do Matheus. Preço que não foi conferido no painel da Higgsfield é dito como estimativa.
+  Depois de gastar, **anote a linha em `docs/controle-de-custos.md`** (data, pedido, modelo, valor, serviu ou não).
 - **O rosto do JR nunca é gerado por IA.** IA faz cenário, b-roll e fundo. Mandar imagem ou vídeo
   do JR para serviço externo só com o JR sabendo e concordando.
 - Imagem gerada para o kit: sem texto, sem logo e sem número na imagem (o texto entra no Remotion).

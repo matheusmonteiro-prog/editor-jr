@@ -29,6 +29,14 @@ Regras gerais (aprovação, Git, formato do relatório) estão no `CLAUDE.md`. A
   `cenas-3d` (5 perguntas, mapa fala → molde). No máximo 1 a cada ~2 min. Proponha antes de montar, com o
   tempo da fala e o molde.
 
+- **Outros cérebros que entram sozinhos (mapa completo: `docs/mapa-de-entregas.md`, 14/11/2026):**
+  - `recorte-fundo`: se a fala tiver UMA palavra-chave ou tendência que fique melhor atrás do JR. Divide com o
+    3D o limite de 1 "ponto alto" a cada ~2 min.
+  - `gerar-midia-ia`: cenário, b-roll ou cena de IA (nunca o rosto do JR). Gastou crédito = pedir antes e
+    anotar em `docs/controle-de-custos.md`.
+  - `engajamento`: antes de mostrar a edição, uma linha com a nota de impacto e a mudança mais barata que a sobe.
+  - `cortes-curtos`: se o pedido for corte vertical, ele manda no fluxo.
+
 ## 2. Montar
 - Um arquivo por vídeo em `src/`, no molde do `src/Video2810V3.tsx`: tempos em **segundos da
   linha final**, listas de trechos (`PAINEIS`, `JANELAS`, `IMPACTOS`, ...) e a câmera de base.

@@ -217,6 +217,7 @@ Só depois do "pode renderizar". O Claude confere duração, quadros e volume no
 ## Quem chama o quê (automático)
 
 O Claude puxa a receita certa sozinho, conforme o pedido. Você não precisa pedir pelo nome.
+O mapa completo (o que entregamos, qual cérebro cuida, a ordem em que entram e o que ainda falta) está em `docs/mapa-de-entregas.md`.
 
 | Quando você pede... | Receita (skill) que entra |
 |---|---|
