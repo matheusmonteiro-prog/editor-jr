@@ -232,6 +232,7 @@ O Claude puxa a receita certa sozinho, conforme o pedido. Você não precisa ped
 | Conferir um código contra as regras | agente `revisor` (só leitura) |
 | Uma fala que compara tamanhos, camadas, terra x Bolsa, crescimento, preço de ação (o Claude sugere sozinho) | `cenas-3d` (aprovado 13/11; técnica em `docs/guia-3d.md`) |
 | Uma palavra-chave forte ou uma tendência (sobe, fica parado, cai) que fica melhor "atrás do JR"; "tira o fundo", "texto atrás dele" (o Claude sugere sozinho) | `recorte-fundo` (aprovado 13/11; kit 4.19; técnica em `docs/guia-recorte-fundo.md`) |
+| "Como o público vai reagir?", "vai chamar atenção?", "tem gatilho?", nota de impacto de vídeo, corte, abertura ou título (o Claude também entra sozinho no roteiro e nos cortes) | `engajamento` (14/11; pesquisa em `docs/engajamento/pesquisa.md`, previsões x resultado em `docs/engajamento/aprendizados-canal.md`) |
 | Pedido de edição confuso ou incompleto (falta arquivo, formato, mensagem) | `meia-briefing-de-edicao` (bônus do curso, 13/11/2026) |
 | Legenda e enquadramento em formato novo (vertical ↔ horizontal) | `meia-legendas-e-enquadramento` (bônus do curso) |
 | O mesmo erro voltou depois de corrigir, ou muitas tentativas sem resolver | `meia-revisao-economia` (bônus do curso) |
